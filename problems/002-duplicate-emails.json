@@ -1,0 +1,56 @@
+{
+  "id": "duplicate-emails",
+  "number": 2,
+  "title": "Duplicate Emails",
+  "difficulty": "Easy",
+  "tags": [
+    "Group By",
+    "Having"
+  ],
+  "description": "Table `Person` stores one row per signup, and `email` is not guaranteed unique.\n\nWrite a query to report all emails that appear **more than once**. Name the output column `Email`.\n\nReturn the result in any order.",
+  "schemaSql": "CREATE TABLE Person (\n  id INTEGER PRIMARY KEY,\n  email TEXT NOT NULL\n);",
+  "solutionSql": "SELECT email AS Email\nFROM Person\nGROUP BY email\nHAVING COUNT(*) > 1;",
+  "orderMatters": false,
+  "hint": "WHERE filters rows before grouping; you need a filter that runs *after* the group is formed.",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO Person VALUES (1,'a@b.com'),(2,'c@d.com'),(3,'a@b.com'),(4,'e@f.com'),(5,'c@d.com'),(6,'a@b.com');"
+    },
+    {
+      "name": "No duplicates at all",
+      "seedSql": "INSERT INTO Person VALUES (1,'a@b.com'),(2,'c@d.com'),(3,'e@f.com');"
+    },
+    {
+      "name": "Every row is the same email",
+      "seedSql": "INSERT INTO Person VALUES (1,'same@x.com'),(2,'same@x.com'),(3,'same@x.com'),(4,'same@x.com');"
+    },
+    {
+      "name": "Empty table"
+    },
+    {
+      "name": "Single row",
+      "seedSql": "INSERT INTO Person VALUES (1,'only@x.com');"
+    },
+    {
+      "name": "Two separate duplicate groups",
+      "seedSql": "INSERT INTO Person VALUES (1,'x@x.com'),(2,'y@y.com'),(3,'x@x.com'),(4,'y@y.com'),(5,'z@z.com');"
+    },
+    {
+      "name": "Exactly one email appears twice",
+      "seedSql": "INSERT INTO Person VALUES (1,'p@q.com'),(2,'r@s.com'),(3,'t@u.com'),(4,'r@s.com');"
+    },
+    {
+      "name": "Case differences are distinct emails",
+      "seedSql": "INSERT INTO Person VALUES (1,'Bob@x.com'),(2,'bob@x.com'),(3,'BOB@x.com');"
+    },
+    {
+      "name": "Plus-addressing and long domains",
+      "seedSql": "INSERT INTO Person VALUES (1,'user+tag@mail.example.co.uk'),(2,'user@mail.example.co.uk'),(3,'user+tag@mail.example.co.uk');"
+    },
+    {
+      "name": "Larger mixed set",
+      "seedSql": "INSERT INTO Person VALUES (1,'a@x.com'),(2,'b@x.com'),(3,'c@x.com'),(4,'a@x.com'),(5,'d@x.com'),(6,'b@x.com'),(7,'e@x.com'),(8,'a@x.com'),(9,'f@x.com'),(10,'g@x.com');"
+    }
+  ]
+}

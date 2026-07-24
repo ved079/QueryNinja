@@ -1,0 +1,56 @@
+{
+  "id": "second-highest-salary",
+  "number": 4,
+  "title": "Second Highest Salary",
+  "difficulty": "Medium",
+  "tags": [
+    "Subquery",
+    "Aggregation"
+  ],
+  "description": "Table `Employee` holds employee salaries.\n\nWrite a query to report the **second highest distinct** salary. If there is no second highest salary, report `NULL`.\n\nName the output column `SecondHighestSalary`. The result must be exactly one row.",
+  "schemaSql": "CREATE TABLE Employee (\n  id INTEGER PRIMARY KEY,\n  salary INTEGER\n);",
+  "solutionSql": "SELECT (\n  SELECT DISTINCT salary\n  FROM Employee\n  ORDER BY salary DESC\n  LIMIT 1 OFFSET 1\n) AS SecondHighestSalary;",
+  "orderMatters": false,
+  "hint": "LIMIT 1 OFFSET 1 over DISTINCT salaries gets the value — but wrapping it in an outer SELECT is what guarantees one row (NULL) when it doesn't exist.",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO Employee VALUES (1,100),(2,200),(3,300),(4,200);"
+    },
+    {
+      "name": "Only one distinct salary",
+      "seedSql": "INSERT INTO Employee VALUES (1,100),(2,100),(3,100);"
+    },
+    {
+      "name": "Single employee",
+      "seedSql": "INSERT INTO Employee VALUES (1,150);"
+    },
+    {
+      "name": "Empty table"
+    },
+    {
+      "name": "Ties at the top",
+      "seedSql": "INSERT INTO Employee VALUES (1,300),(2,300),(3,200);"
+    },
+    {
+      "name": "Exactly two employees, equal salaries",
+      "seedSql": "INSERT INTO Employee VALUES (1,500),(2,500);"
+    },
+    {
+      "name": "Many distinct salaries",
+      "seedSql": "INSERT INTO Employee VALUES (1,10),(2,20),(3,30),(4,40),(5,50),(6,60);"
+    },
+    {
+      "name": "Zero and negative salaries",
+      "seedSql": "INSERT INTO Employee VALUES (1,0),(2,-50),(3,-10);"
+    },
+    {
+      "name": "NULL salary present",
+      "seedSql": "INSERT INTO Employee VALUES (1,900),(2,NULL),(3,700);"
+    },
+    {
+      "name": "Large values",
+      "seedSql": "INSERT INTO Employee VALUES (1,2000000000),(2,1999999999),(3,5);"
+    }
+  ]
+}

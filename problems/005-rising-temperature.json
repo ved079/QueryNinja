@@ -1,0 +1,54 @@
+{
+  "id": "rising-temperature",
+  "number": 5,
+  "title": "Rising Temperature",
+  "difficulty": "Medium",
+  "tags": ["Self Join", "Date"],
+  "description": "Table `Weather` records the temperature on given dates. `recordDate` is unique.\n\nWrite a query to find the `id` of all dates where the temperature was **higher than the previous day** (yesterday — not simply the previous row present in the table).\n\nReturn the result in any order.",
+  "schemaSql": "CREATE TABLE Weather (\n  id INTEGER PRIMARY KEY,\n  recordDate TEXT,\n  temperature INTEGER\n);",
+  "solutionSql": "SELECT w.id\nFROM Weather w\nJOIN Weather prev\n  ON DATE(w.recordDate, '-1 day') = prev.recordDate\nWHERE w.temperature > prev.temperature;",
+  "orderMatters": false,
+  "hint": "Join the table to itself on a date offset of one day: DATE(recordDate, '-1 day') in SQLite. LAG() over the rows is not the same thing when dates have gaps.",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO Weather VALUES (1,'2015-01-01',10),(2,'2015-01-02',25),(3,'2015-01-03',20),(4,'2015-01-04',30),(5,'2015-01-06',40);"
+    },
+    {
+      "name": "Strictly decreasing",
+      "seedSql": "INSERT INTO Weather VALUES (1,'2020-03-01',30),(2,'2020-03-02',20),(3,'2020-03-03',10);"
+    },
+    {
+      "name": "Strictly increasing",
+      "seedSql": "INSERT INTO Weather VALUES (1,'2020-03-01',10),(2,'2020-03-02',20),(3,'2020-03-03',30);"
+    },
+    {
+      "name": "Equal temperatures are not a rise",
+      "seedSql": "INSERT INTO Weather VALUES (1,'2020-03-01',15),(2,'2020-03-02',15),(3,'2020-03-03',15);"
+    },
+    {
+      "name": "Every date is a gap",
+      "seedSql": "INSERT INTO Weather VALUES (1,'2020-03-01',10),(2,'2020-03-05',20),(3,'2020-03-09',30);"
+    },
+    {
+      "name": "Single row",
+      "seedSql": "INSERT INTO Weather VALUES (1,'2020-03-01',10);"
+    },
+    {
+      "name": "Ids not in date order",
+      "seedSql": "INSERT INTO Weather VALUES (5,'2020-03-01',10),(2,'2020-03-02',30),(9,'2020-03-03',20),(1,'2020-03-04',35);"
+    },
+    {
+      "name": "Across a month boundary",
+      "seedSql": "INSERT INTO Weather VALUES (1,'2020-01-31',5),(2,'2020-02-01',9),(3,'2020-02-02',3);"
+    },
+    {
+      "name": "Across a leap day",
+      "seedSql": "INSERT INTO Weather VALUES (1,'2020-02-28',1),(2,'2020-02-29',7),(3,'2020-03-01',8);"
+    },
+    {
+      "name": "Negative temperatures and a longer run",
+      "seedSql": "INSERT INTO Weather VALUES (1,'2021-12-01',-10),(2,'2021-12-02',-5),(3,'2021-12-03',-8),(4,'2021-12-04',0),(5,'2021-12-05',0),(6,'2021-12-06',3);"
+    }
+  ]
+}

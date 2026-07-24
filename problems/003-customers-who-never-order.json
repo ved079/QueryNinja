@@ -1,0 +1,54 @@
+{
+  "id": "customers-who-never-order",
+  "number": 3,
+  "title": "Customers Who Never Order",
+  "difficulty": "Easy",
+  "tags": ["Join", "Subquery"],
+  "description": "Table `Customers` holds all customers and table `Orders` holds orders placed, referencing `Customers.id` via `customerId`.\n\nWrite a query to report the names of all customers who have **never** placed an order. Name the output column `Customers`.\n\nReturn the result in any order.",
+  "schemaSql": "CREATE TABLE Customers (\n  id INTEGER PRIMARY KEY,\n  name TEXT\n);\n\nCREATE TABLE Orders (\n  id INTEGER PRIMARY KEY,\n  customerId INTEGER\n);",
+  "solutionSql": "SELECT c.name AS Customers\nFROM Customers c\nLEFT JOIN Orders o ON c.id = o.customerId\nWHERE o.id IS NULL;",
+  "orderMatters": false,
+  "hint": "An anti-join (LEFT JOIN ... WHERE right side IS NULL) or NOT EXISTS both work. Watch out: NOT IN returns nothing at all if the subquery contains a NULL.",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry'),(3,'Sam'),(4,'Max');\nINSERT INTO Orders VALUES (1,3),(2,1);"
+    },
+    {
+      "name": "Every customer has ordered",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO Orders VALUES (1,1),(2,2);"
+    },
+    {
+      "name": "No orders exist at all",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry'),(3,'Sam');"
+    },
+    {
+      "name": "No customers exist",
+      "seedSql": "INSERT INTO Orders VALUES (1,5);"
+    },
+    {
+      "name": "An order with a NULL customerId",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry'),(3,'Sam');\nINSERT INTO Orders VALUES (1,1),(2,NULL);"
+    },
+    {
+      "name": "All orders have NULL customerId",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO Orders VALUES (1,NULL),(2,NULL);"
+    },
+    {
+      "name": "Two customers share a name",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Alex'),(2,'Alex'),(3,'Ravi');\nINSERT INTO Orders VALUES (1,3);"
+    },
+    {
+      "name": "Orphan order referencing a missing customer",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO Orders VALUES (1,99),(2,1);"
+    },
+    {
+      "name": "One customer with many orders",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO Orders VALUES (1,1),(2,1),(3,1),(4,1);"
+    },
+    {
+      "name": "Larger mixed set",
+      "seedSql": "INSERT INTO Customers VALUES (1,'A'),(2,'B'),(3,'C'),(4,'D'),(5,'E'),(6,'F');\nINSERT INTO Orders VALUES (1,2),(2,2),(3,4),(4,6),(5,NULL);"
+    }
+  ]
+}

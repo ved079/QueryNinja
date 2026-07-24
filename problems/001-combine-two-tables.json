@@ -1,0 +1,55 @@
+{
+  "id": "combine-two-tables",
+  "number": 1,
+  "title": "Combine Two Tables",
+  "difficulty": "Easy",
+  "tags": [
+    "Join"
+  ],
+  "description": "Table `Person` holds people and table `Address` holds their addresses.\n\nWrite a query to report the `firstName`, `lastName`, `city` and `state` of every person. If a person has no address recorded, still report them, with `NULL` for `city` and `state`.\n\nReturn the result in any order.",
+  "schemaSql": "CREATE TABLE Person (\n  personId INTEGER PRIMARY KEY,\n  lastName TEXT,\n  firstName TEXT\n);\n\nCREATE TABLE Address (\n  addressId INTEGER PRIMARY KEY,\n  personId INTEGER,\n  city TEXT,\n  state TEXT\n);",
+  "solutionSql": "SELECT p.firstName, p.lastName, a.city, a.state\nFROM Person p\nLEFT JOIN Address a ON p.personId = a.personId;",
+  "orderMatters": false,
+  "hint": "A plain INNER JOIN would drop people with no address. Which join keeps every row from the left table?",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO Person VALUES (1,'Wang','Allen'),(2,'Alice','Bob'),(3,'Deo','Vedant');\nINSERT INTO Address VALUES (1,2,'New York City','New York'),(2,3,'Leetcode','California');"
+    },
+    {
+      "name": "Nobody has an address",
+      "seedSql": "INSERT INTO Person VALUES (1,'Smith','Ann'),(2,'Jones','Ben');"
+    },
+    {
+      "name": "Everyone has an address",
+      "seedSql": "INSERT INTO Person VALUES (1,'Smith','Ann'),(2,'Jones','Ben');\nINSERT INTO Address VALUES (10,1,'Austin','Texas'),(11,2,'Reno','Nevada');"
+    },
+    {
+      "name": "Both tables empty"
+    },
+    {
+      "name": "Single person, no address",
+      "seedSql": "INSERT INTO Person VALUES (7,'Solo','Han');"
+    },
+    {
+      "name": "One person with two addresses",
+      "seedSql": "INSERT INTO Person VALUES (1,'Kim','Sara');\nINSERT INTO Address VALUES (1,1,'Boston','Massachusetts'),(2,1,'Miami','Florida');"
+    },
+    {
+      "name": "Orphan address rows",
+      "seedSql": "INSERT INTO Person VALUES (1,'Lee','Min');\nINSERT INTO Address VALUES (1,99,'Ghost Town','Nowhere'),(2,1,'Denver','Colorado');"
+    },
+    {
+      "name": "Address stored with NULL city and state",
+      "seedSql": "INSERT INTO Person VALUES (1,'Patel','Riya'),(2,'Novak','Ivan');\nINSERT INTO Address VALUES (1,1,NULL,NULL),(2,2,'Seattle','Washington');"
+    },
+    {
+      "name": "Names with quotes and accents",
+      "seedSql": "INSERT INTO Person VALUES (1,'O''Brien','Sean'),(2,'Munoz','Jose');\nINSERT INTO Address VALUES (1,1,'Cork','Munster');"
+    },
+    {
+      "name": "Larger mixed set",
+      "seedSql": "INSERT INTO Person VALUES (1,'A','Ann'),(2,'B','Ben'),(3,'C','Cal'),(4,'D','Dee'),(5,'E','Eli'),(6,'F','Fay');\nINSERT INTO Address VALUES (1,1,'Austin','Texas'),(2,3,'Reno','Nevada'),(3,4,'Tulsa','Oklahoma'),(4,6,'Boise','Idaho');"
+    }
+  ]
+}

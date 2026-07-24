@@ -1,0 +1,56 @@
+{
+  "id": "consecutive-numbers",
+  "number": 6,
+  "title": "Consecutive Numbers",
+  "difficulty": "Medium",
+  "tags": [
+    "Window Function",
+    "Self Join"
+  ],
+  "description": "Table `Logs` has an auto-incrementing `id` with no gaps, and a `num` column.\n\nWrite a query to find all numbers that appear **at least three times in a row**. Name the output column `ConsecutiveNums`, and report each qualifying number only once.\n\nReturn the result in any order.",
+  "schemaSql": "CREATE TABLE Logs (\n  id INTEGER PRIMARY KEY,\n  num INTEGER\n);",
+  "solutionSql": "SELECT DISTINCT num AS ConsecutiveNums\nFROM (\n  SELECT num,\n         LAG(num, 1) OVER (ORDER BY id) AS prev1,\n         LAG(num, 2) OVER (ORDER BY id) AS prev2\n  FROM Logs\n)\nWHERE num = prev1 AND num = prev2;",
+  "orderMatters": false,
+  "hint": "LAG(num, 1) and LAG(num, 2) over ORDER BY id let you compare a row to the two before it. Don't forget DISTINCT — a number in two separate runs must still be reported once.",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1),(3,1),(4,2),(5,1),(6,2),(7,2),(8,2),(9,2);"
+    },
+    {
+      "name": "No run reaches three",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1),(3,2),(4,2),(5,3),(6,3);"
+    },
+    {
+      "name": "Exactly three in a row",
+      "seedSql": "INSERT INTO Logs VALUES (1,5),(2,5),(3,5),(4,9);"
+    },
+    {
+      "name": "Every row identical",
+      "seedSql": "INSERT INTO Logs VALUES (1,7),(2,7),(3,7),(4,7),(5,7);"
+    },
+    {
+      "name": "Two different numbers each qualify",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1),(3,1),(4,2),(5,2),(6,2);"
+    },
+    {
+      "name": "Same number in two separate runs",
+      "seedSql": "INSERT INTO Logs VALUES (1,4),(2,4),(3,4),(4,8),(5,4),(6,4),(7,4);"
+    },
+    {
+      "name": "Fewer than three rows",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1);"
+    },
+    {
+      "name": "Empty table"
+    },
+    {
+      "name": "Alternating values",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,2),(3,1),(4,2),(5,1),(6,2);"
+    },
+    {
+      "name": "Negative numbers and a long run",
+      "seedSql": "INSERT INTO Logs VALUES (1,-3),(2,-3),(3,-3),(4,-3),(5,0),(6,0),(7,1),(8,1),(9,1),(10,2);"
+    }
+  ]
+}

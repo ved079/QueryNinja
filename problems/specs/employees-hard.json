@@ -1,0 +1,122 @@
+[
+  {
+    "id": "emp-management-chain-depth",
+    "number": 36,
+    "title": "Depth In The Management Chain",
+    "difficulty": "Hard",
+    "tags": ["Recursive CTE", "Hierarchy"],
+    "family": "employees",
+    "description": "Every employee sits somewhere in a management tree. Report each employee's depth, where an employee with no manager is at depth 1, their direct reports at depth 2, and so on.\n\nName the columns `name` and `depth`. Return the result in any order.",
+    "solutionSql": "WITH RECURSIVE chain(id, name, depth) AS (\n  SELECT id, name, 1 FROM employees WHERE manager_id IS NULL\n  UNION ALL\n  SELECT e.id, e.name, c.depth + 1\n  FROM employees e\n  JOIN chain c ON e.manager_id = c.id\n)\nSELECT name, depth FROM chain;",
+    "orderMatters": false,
+    "hint": "A recursive CTE: the anchor picks the roots (no manager), the recursive arm joins children to already-found parents and adds one."
+  },
+  {
+    "id": "emp-total-team-size",
+    "number": 37,
+    "title": "Total Team Size Including Indirect Reports",
+    "difficulty": "Hard",
+    "tags": ["Recursive CTE", "Hierarchy"],
+    "family": "employees",
+    "description": "For every employee who manages at least one person, report how many people sit below them in the tree — direct reports plus everyone under those reports, all the way down.\n\nName the columns `manager` and `team_size`. Return the result in any order.",
+    "solutionSql": "WITH RECURSIVE tree(root, id) AS (\n  SELECT manager_id, id FROM employees WHERE manager_id IS NOT NULL\n  UNION ALL\n  SELECT t.root, e.id\n  FROM employees e\n  JOIN tree t ON e.manager_id = t.id\n)\nSELECT m.name AS manager, COUNT(*) AS team_size\nFROM tree t\nJOIN employees m ON m.id = t.root\nGROUP BY t.root, m.name;",
+    "orderMatters": false,
+    "hint": "Seed the recursion with every (manager, direct report) pair, then keep attaching each report's own reports to the same root."
+  },
+  {
+    "id": "emp-above-department-median",
+    "number": 38,
+    "title": "Above Your Department's Median",
+    "difficulty": "Hard",
+    "tags": ["Window Function", "Statistics"],
+    "family": "employees",
+    "description": "Report every employee whose salary is strictly above the **median** salary of their own department. Ignore employees with a NULL salary.\n\nName the columns `dept_id`, `name` and `salary`. Return the result in any order.",
+    "solutionSql": "WITH ranked AS (\n  SELECT dept_id, name, salary,\n         ROW_NUMBER() OVER (PARTITION BY dept_id ORDER BY salary) AS rn,\n         COUNT(*) OVER (PARTITION BY dept_id) AS cnt\n  FROM employees\n  WHERE salary IS NOT NULL\n),\nmedians AS (\n  SELECT dept_id, AVG(salary) AS med\n  FROM ranked\n  WHERE rn IN ((cnt + 1) / 2, (cnt + 2) / 2)\n  GROUP BY dept_id\n)\nSELECT r.dept_id, r.name, r.salary\nFROM ranked r\nJOIN medians m ON m.dept_id = r.dept_id\nWHERE r.salary > m.med;",
+    "orderMatters": false,
+    "hint": "Number the rows inside each department, then average the one or two middle positions — (cnt+1)/2 and (cnt+2)/2 land on the same row when the count is odd."
+  },
+  {
+    "id": "emp-payroll-running-percent",
+    "number": 39,
+    "title": "Cumulative Share Of Payroll",
+    "difficulty": "Hard",
+    "tags": ["Window Function"],
+    "family": "employees",
+    "description": "Order employees by salary from highest to lowest (ties broken by `id`) and report the running percentage of total company payroll accounted for by everyone down to and including that employee, rounded to 2 decimals.\n\nName the columns `name`, `salary` and `running_pct`. Return the result in any order.",
+    "solutionSql": "SELECT name, salary,\n       ROUND(100.0 * SUM(salary) OVER (ORDER BY salary DESC, id\n                                       ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)\n             / SUM(salary) OVER (), 2) AS running_pct\nFROM employees;",
+    "orderMatters": false,
+    "hint": "Two windows in one SELECT: a running SUM with a frame, divided by a grand-total SUM OVER () with no partition."
+  },
+  {
+    "id": "emp-second-highest-per-department",
+    "number": 40,
+    "title": "Second Highest Salary Per Department",
+    "difficulty": "Hard",
+    "tags": ["Window Function", "Ranking"],
+    "family": "employees",
+    "description": "For each department report the second highest **distinct** salary and everyone earning it. Departments without a second distinct salary produce no rows.\n\nName the columns `dept_id`, `name` and `salary`. Return the result in any order.",
+    "solutionSql": "SELECT dept_id, name, salary\nFROM (\n  SELECT *, DENSE_RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS rnk\n  FROM employees\n  WHERE salary IS NOT NULL\n)\nWHERE rnk = 2;",
+    "orderMatters": false,
+    "hint": "DENSE_RANK numbers distinct salaries, so rank 2 is exactly the second distinct value — and it disappears on its own when there isn't one."
+  },
+  {
+    "id": "emp-manager-chain-names",
+    "number": 41,
+    "title": "Print The Reporting Line",
+    "difficulty": "Hard",
+    "tags": ["Recursive CTE", "String"],
+    "family": "employees",
+    "description": "For every employee report their full reporting line from the top of the company down to them, as a single string joined by ` > `. For example an engineer under a manager under a CEO reads `CEO > Manager > Engineer` (using their names).\n\nName the columns `name` and `chain`. Return the result in any order.",
+    "solutionSql": "WITH RECURSIVE line(id, name, chain) AS (\n  SELECT id, name, name FROM employees WHERE manager_id IS NULL\n  UNION ALL\n  SELECT e.id, e.name, l.chain || ' > ' || e.name\n  FROM employees e\n  JOIN line l ON e.manager_id = l.id\n)\nSELECT name, chain FROM line;",
+    "orderMatters": false,
+    "hint": "Carry the accumulated string down the recursion, appending with the || operator."
+  },
+  {
+    "id": "emp-departments-all-above",
+    "number": 42,
+    "title": "Departments Where Everybody Clears 70k",
+    "difficulty": "Hard",
+    "tags": ["NOT EXISTS", "Group By"],
+    "family": "employees",
+    "description": "Report the name of every department in which **every** employee earns more than 70000. A department with no employees does not qualify, and an employee with a NULL salary disqualifies their department.\n\nName the column `department`. Return the result in any order.",
+    "solutionSql": "SELECT d.name AS department\nFROM departments d\nWHERE EXISTS (SELECT 1 FROM employees e WHERE e.dept_id = d.id)\n  AND NOT EXISTS (\n    SELECT 1 FROM employees e\n    WHERE e.dept_id = d.id\n      AND (e.salary IS NULL OR e.salary <= 70000)\n  );",
+    "orderMatters": false,
+    "hint": "\"All rows satisfy X\" is easiest as \"no row violates X\" — but you still need an EXISTS to rule out empty departments."
+  },
+  {
+    "id": "emp-salary-percentile",
+    "number": 43,
+    "title": "Salary Percentile Rank",
+    "difficulty": "Hard",
+    "tags": ["Window Function", "Statistics"],
+    "family": "employees",
+    "description": "For every employee with a salary, report their percentile rank in the company — the fraction of employees earning strictly less than them, as a percentage rounded to 2 decimals.\n\nName the columns `name` and `percentile`. Return the result in any order.",
+    "solutionSql": "SELECT name,\n       ROUND(100.0 * (COUNT(*) OVER (ORDER BY salary RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)\n                      - COUNT(*) OVER (PARTITION BY salary))\n             / COUNT(*) OVER (), 2) AS percentile\nFROM employees\nWHERE salary IS NOT NULL;",
+    "orderMatters": false,
+    "hint": "A RANGE frame counts every row with an equal salary, so subtract the size of the tie group to get \"strictly less than\"."
+  },
+  {
+    "id": "emp-hired-same-month-pairs",
+    "number": 44,
+    "title": "Hired In The Same Month",
+    "difficulty": "Hard",
+    "tags": ["Self Join", "Date"],
+    "family": "employees",
+    "description": "Report every pair of different employees hired in the same calendar month of the same year. List each pair once, with the lower `id` first.\n\nName the columns `first_name`, `second_name` and `month`. Return the result in any order.",
+    "solutionSql": "SELECT a.name AS first_name, b.name AS second_name,\n       strftime('%Y-%m', a.hire_date) AS month\nFROM employees a\nJOIN employees b\n  ON a.id < b.id\n AND strftime('%Y-%m', a.hire_date) = strftime('%Y-%m', b.hire_date);",
+    "orderMatters": false,
+    "hint": "Joining on a.id < b.id (rather than <>) is what stops each pair appearing twice."
+  },
+  {
+    "id": "emp-dept-pay-compression",
+    "number": 45,
+    "title": "Pay Compression Ratio",
+    "difficulty": "Hard",
+    "tags": ["Aggregation", "Join"],
+    "family": "employees",
+    "description": "For each department that has at least two employees with a salary, report the ratio of its highest salary to its lowest, rounded to 2 decimals. Skip departments whose lowest salary is 0 or negative, since the ratio is meaningless there.\n\nName the columns `department` and `ratio`. Return the result in any order.",
+    "solutionSql": "SELECT d.name AS department,\n       ROUND(1.0 * MAX(e.salary) / MIN(e.salary), 2) AS ratio\nFROM employees e\nJOIN departments d ON d.id = e.dept_id\nWHERE e.salary IS NOT NULL\nGROUP BY d.id, d.name\nHAVING COUNT(*) >= 2 AND MIN(e.salary) > 0;",
+    "orderMatters": false,
+    "hint": "Everything you need is in HAVING: both the count check and the guard against a zero or negative denominator."
+  }
+]
