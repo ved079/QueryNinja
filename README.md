@@ -87,8 +87,43 @@ nothing).
 
 - The dialect is **SQLite**, not MySQL. Window functions, CTEs, `WITH RECURSIVE`,
   `strftime`, `JULIANDAY` and `DATE(x, '+1 day')` all work; MySQL-only syntax does not.
-- Progress lives in `progress.json` (status + your last query per problem).
-  Delete it to reset.
+- Progress lives in `progress.json`/`submissions.json`, keyed by name (see below).
+  Delete either file to reset everyone.
+
+## Multiple people, one deployment
+
+There's no real login — click the name button top-right (shows **Set name**
+until you do) and type any name. That name is sent with every request and
+keys your own slice of `progress.json`/`submissions.json`. Anyone who knows a
+name can see or edit that name's progress; there's no password. Good enough
+for a small group who trust each other, not for a public tool.
+
+## Deploying (Fly.io)
+
+The app ships as one Docker image: Express serves both the built frontend
+(`web/dist`) and the `/api/*` routes, so there's a single process and a single
+URL — no separate frontend/backend hosts, no CORS to configure.
+
+```bash
+fly launch --no-deploy   # picks up fly.toml; rename the app if the name is taken
+fly volumes create sql_practice_data --size 1 --region iad
+fly deploy
+```
+
+The volume is mounted at `/data` and `DATA_DIR=/data` (set in `fly.toml`) points
+`progress.json`/`submissions.json` there, so they survive restarts and redeploys.
+Locally, `DATA_DIR` is unset and defaults to the project root — nothing changes
+about `npm run dev`.
+
+The free tier scales to zero when idle, so the first request after a quiet
+period takes a few seconds to wake up — normal, not a bug.
+
+To run the production build locally without Fly:
+
+```bash
+npm run build
+npm start
+```
 
 ## Layout
 
@@ -98,10 +133,12 @@ problems/
   families/*.json     shared schema + 10 datasets
   specs/*.json        problems that use a family
 server/
-  index.js            API: problems + progress
+  index.js            API: problems, per-user progress/submissions, static serving
   load-problems.js    expands specs against families
 web/src/
   lib/db.js           sql.js setup, execution, grading
   components/         sidebar, problem pane, editor, results
 scripts/              problem validator
+Dockerfile            production image (build stage + slim runtime stage)
+fly.toml              Fly.io app + persistent volume config
 ```

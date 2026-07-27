@@ -116,14 +116,17 @@ export function compare(actual, expected, orderMatters) {
 
 /**
  * Run the user's query against every test case, comparing each against the
- * reference solution on identically seeded data. Stops at the first failure,
- * the way LeetCode reports one failing case.
+ * reference solution on identically seeded data. Unlike a fail-fast grader,
+ * this runs all cases so every one can be inspected afterward (e.g. by
+ * clicking any pass/fail pill in the UI), not just the first failure.
  *
- * Returns { passed, total, failure } where failure (if any) carries the case
- * name, the input tables, and both result sets so the UI can show the diff.
+ * Returns { passed, total, firstFailure, cases } where cases[i] carries that
+ * case's name, pass/fail, the input tables, and both result sets.
  */
 export async function gradeAll(problem, userSql) {
   const tests = testsOf(problem);
+  const cases = [];
+  let passed = 0;
 
   for (let i = 0; i < tests.length; i++) {
     const test = tests[i];
@@ -132,46 +135,48 @@ export async function gradeAll(problem, userSql) {
 
     try {
       const expected = exec(refDb, problem.solutionSql);
+      const tables = describeTables(refDb);
+
       let actual;
       try {
         actual = exec(userDb, userSql);
       } catch (err) {
-        return {
-          passed: i,
-          total: tests.length,
-          failure: {
-            index: i,
-            name: test.name,
-            error: err.message,
-            reason: 'Your query failed to execute on this input.',
-            tables: describeTables(refDb),
-            expected,
-          },
-        };
+        cases.push({
+          index: i,
+          name: test.name,
+          pass: false,
+          error: err.message,
+          reason: 'Your query failed to execute on this input.',
+          tables,
+          expected,
+          actual: null,
+        });
+        continue;
       }
 
       const verdict = compare(actual, expected, problem.orderMatters);
-      if (!verdict.pass) {
-        return {
-          passed: i,
-          total: tests.length,
-          failure: {
-            index: i,
-            name: test.name,
-            reason: verdict.reason,
-            tables: describeTables(refDb),
-            expected,
-            actual,
-          },
-        };
-      }
+      if (verdict.pass) passed++;
+      cases.push({
+        index: i,
+        name: test.name,
+        pass: verdict.pass,
+        reason: verdict.reason,
+        tables,
+        expected,
+        actual,
+      });
     } finally {
       userDb.close();
       refDb.close();
     }
   }
 
-  return { passed: tests.length, total: tests.length, failure: null };
+  return {
+    passed,
+    total: tests.length,
+    firstFailure: cases.find((c) => !c.pass) ?? null,
+    cases,
+  };
 }
 
 /** Read back the seeded contents of every table, for the schema preview. */

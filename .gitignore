@@ -1,6 +1,7 @@
 node_modules/
 dist/
 progress.json
+submissions.json
 
 # Copied from node_modules by scripts/copy-wasm.mjs on npm install
 web/public/*.wasm

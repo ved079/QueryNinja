@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 
 const DIFFICULTIES = ['All', 'Easy', 'Medium', 'Hard'];
-const STATUSES = ['All', 'Solved', 'Unsolved'];
+const STATUSES = ['Solved', 'Unsolved'];
 const DIFFICULTY_ORDER = { Easy: 0, Medium: 1, Hard: 2 };
 
-export default function ProblemList({ problems, progress, selectedId, onSelect }) {
+export default function ProblemList({ problems, progress, selectedId, onSelect, onHide }) {
   const [query, setQuery] = useState('');
   const [difficulty, setDifficulty] = useState('All');
   const [status, setStatus] = useState('All');
@@ -62,7 +62,12 @@ export default function ProblemList({ problems, progress, selectedId, onSelect }
   return (
     <aside className="sidebar">
       <header className="sidebar-head">
-        <h1>SQL Practice</h1>
+        <div className="sidebar-title-row">
+          <h1>SQL Practice</h1>
+          <button className="hide-btn" onClick={onHide} title="Close">
+            ×
+          </button>
+        </div>
         <div className="progress-row">
           <span className="big">{solved}</span>
           <span className="muted">/ {problems.length} solved</span>
@@ -83,35 +88,31 @@ export default function ProblemList({ problems, progress, selectedId, onSelect }
       </header>
 
       <div className="filters">
-        <input
-          type="search"
-          placeholder="Search title or tag…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
 
-        <div className="chips">
-          {DIFFICULTIES.map((d) => (
-            <button
-              key={d}
-              className={`chip ${difficulty === d ? 'active' : ''}`}
-              onClick={() => setDifficulty(d)}
-            >
-              {d}
-            </button>
-          ))}
-        </div>
+        <div className="chips-row">
+          <div className="chips">
+            {DIFFICULTIES.map((d) => (
+              <button
+                key={d}
+                className={`chip ${difficulty === d ? 'active' : ''}`}
+                onClick={() => setDifficulty(d)}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
 
-        <div className="chips">
-          {STATUSES.map((s) => (
-            <button
-              key={s}
-              className={`chip ${status === s ? 'active' : ''}`}
-              onClick={() => setStatus(s)}
-            >
-              {s}
-            </button>
-          ))}
+          <div className="chips">
+            {STATUSES.map((s) => (
+              <button
+                key={s}
+                className={`chip ${status === s ? 'active' : ''}`}
+                onClick={() => setStatus(s)}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="selects">

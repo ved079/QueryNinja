@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { EditorState } from '@codemirror/state';
 import { EditorView, keymap } from '@codemirror/view';
+import { autocompletion } from '@codemirror/autocomplete';
 import { basicSetup } from 'codemirror';
 import { sql, SQLite } from '@codemirror/lang-sql';
 import { oneDark } from '@codemirror/theme-one-dark';
@@ -21,6 +22,7 @@ export default function SqlEditor({ value, onChange, onRun, docKey }) {
       doc: value,
       extensions: [
         basicSetup,
+        autocompletion({ override: [] }),
         sql({ dialect: SQLite, upperCaseKeywords: true }),
         oneDark,
         keymap.of([
@@ -41,7 +43,28 @@ export default function SqlEditor({ value, onChange, onRun, docKey }) {
     });
 
     view.current = new EditorView({ state, parent: host.current });
-    return () => view.current?.destroy();
+
+    const hostEl = host.current;
+    const onKeyDown = (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        e.stopPropagation();
+        const v = view.current;
+        if (v) {
+          const pos = v.state.selection.main.from;
+          v.dispatch({
+            changes: { from: pos, insert: '  ' },
+            selection: { anchor: pos + 2 },
+          });
+        }
+      }
+    };
+    hostEl.addEventListener('keydown', onKeyDown, { capture: true });
+
+    return () => {
+      hostEl.removeEventListener('keydown', onKeyDown, { capture: true });
+      view.current?.destroy();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [docKey]);
 
