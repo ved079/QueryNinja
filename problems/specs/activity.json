@@ -13,7 +13,7 @@
     "solutionSql": "SELECT DATE(event_time) AS day, COUNT(DISTINCT user_id) AS active_users\nFROM events\nGROUP BY day;",
     "orderMatters": false,
     "hint": "DATE() strips the time part off a timestamp. Count DISTINCT users, not rows.",
-    "outputExplanation": "2022-03-01: users 1 (Ada) + 2 (Bo) = 2. 2022-03-02: users 1 (Ada) + 3 (Cy) = 2. 2022-03-03: user 1 (Ada) = 1. 2022-03-04: user 3 (Cy) = 1. 2022-03-05: user 2 (Bo) = 1. `DATE()` strips the time portion; `COUNT(DISTINCT user_id)` counts unique users per calendar day."
+    "outputExplanation": "March 1 and 2 each had 2 active users. March 3, 4 and 5 each had 1 active user."
   },
   {
     "id": "act-silent-users",
@@ -28,7 +28,7 @@
     "solutionSql": "SELECT u.name\nFROM users u\nWHERE NOT EXISTS (SELECT 1 FROM events e WHERE e.user_id = u.id);",
     "orderMatters": false,
     "hint": "NOT EXISTS is immune to the NULL trap that breaks NOT IN.",
-    "outputExplanation": "Di has no rows in the events table at all — the correlated `NOT EXISTS` subquery finds no match and returns true, so Di is included. Ada, Bo and Cy all have events and are excluded."
+    "outputExplanation": "Di is the only registered user with no events at all. Ada, Bo and Cy all have events."
   },
   {
     "id": "act-first-last-event",
@@ -44,7 +44,7 @@
     "solutionSql": "SELECT u.name, MIN(e.event_time) AS first_seen, MAX(e.event_time) AS last_seen\nFROM users u\nJOIN events e ON e.user_id = u.id\nGROUP BY u.id, u.name;",
     "orderMatters": false,
     "hint": "ISO timestamps sort correctly as text, so MIN and MAX work directly on them.",
-    "outputExplanation": "Ada: first event 2022-03-01 09:00, last 2022-03-03 11:00. Bo: first 2022-03-01 08:00, last 2022-03-05 08:10. Cy: first 2022-03-02 20:00, last 2022-03-04 21:00. Di has no events → excluded by the inner JOIN. ISO timestamps sort correctly as text, so MIN/MAX work directly."
+    "outputExplanation": "Ada's activity spans from March 1 to March 3, Bo's from March 1 to March 5, and Cy's from March 2 to March 4."
   },
   {
     "id": "act-event-type-pivot",
@@ -60,7 +60,7 @@
     "solutionSql": "SELECT u.name,\n       SUM(CASE WHEN e.event_type = 'login' THEN 1 ELSE 0 END) AS logins,\n       SUM(CASE WHEN e.event_type = 'view' THEN 1 ELSE 0 END) AS views,\n       SUM(CASE WHEN e.event_type = 'purchase' THEN 1 ELSE 0 END) AS purchases\nFROM users u\nJOIN events e ON e.user_id = u.id\nGROUP BY u.id, u.name;",
     "orderMatters": false,
     "hint": "SQL has no PIVOT here — conditional aggregation with CASE inside SUM does the same job.",
-    "outputExplanation": "Ada: 3 logins, 1 view, 1 purchase. Bo: 1 login, 1 view, 0 purchases. Cy: 2 logins, 0 views, 1 purchase. `SUM(CASE WHEN event_type = 'login' THEN 1 ELSE 0 END)` counts events of each type in a single column — a manual pivot."
+    "outputExplanation": "Ada: 3 logins, 1 view, 1 purchase. Bo: 1 login, 1 view, 0 purchases. Cy: 2 logins, 0 views, 1 purchase."
   },
   {
     "id": "act-time-between-events",
@@ -76,7 +76,7 @@
     "solutionSql": "SELECT id, user_id,\n       ROUND((JULIANDAY(event_time) - JULIANDAY(LAG(event_time) OVER (PARTITION BY user_id ORDER BY event_time, id))) * 24 * 60, 2) AS minutes_since_prev\nFROM events;",
     "orderMatters": false,
     "hint": "JULIANDAY returns days as a float — multiply the difference by 24*60 for minutes.",
-    "outputExplanation": "Ada's events: id1(NULL, first), id2(+5 min), id3(+35 min >30 = new session), id4(+1460 min ≈ next day), id5(+1500 min ≈ next+1). Bo's events: id6(NULL), id7(+5770 min ≈ 4 days). Cy's events: id8(NULL), id9(+30 min), id10(+2910 min ≈ 2 days). JULIANDAY difference × 24 × 60 converts days to minutes."
+    "outputExplanation": "Each user's first event has NULL minutes since previous. Subsequent gaps range from 5 minutes to over 4 days."
   },
   {
     "id": "act-purchased-on-first-day",
@@ -92,7 +92,7 @@
     "solutionSql": "SELECT DISTINCT u.name\nFROM users u\nJOIN events e ON e.user_id = u.id\nWHERE e.event_type = 'purchase'\n  AND DATE(e.event_time) = (SELECT DATE(MIN(event_time)) FROM events x WHERE x.user_id = u.id);",
     "orderMatters": false,
     "hint": "A correlated subquery finds each user's own first event date; compare the purchase's date against it.",
-    "outputExplanation": "Ada's first event is 2022-03-01 09:00 (login); she made a purchase at 09:40 on the same calendar day → qualifies. Cy's first event is 2022-03-02 20:00 (login); purchase at 20:30 same day → qualifies. Bo: never made a purchase → excluded."
+    "outputExplanation": "Ada and Cy both made a purchase on the same calendar day as their first event. Bo never made a purchase."
   },
   {
     "id": "act-favourite-event-type",
@@ -108,7 +108,7 @@
     "solutionSql": "WITH counts AS (\n  SELECT u.name, e.event_type, COUNT(*) AS times,\n         RANK() OVER (PARTITION BY u.id ORDER BY COUNT(*) DESC) AS rnk\n  FROM users u\n  JOIN events e ON e.user_id = u.id\n  WHERE e.event_type IS NOT NULL\n  GROUP BY u.id, u.name, e.event_type\n)\nSELECT name, event_type, times FROM counts WHERE rnk = 1;",
     "orderMatters": false,
     "hint": "A window function may sit on top of a GROUP BY — RANK() OVER (... ORDER BY COUNT(*) DESC) ranks the groups themselves.",
-    "outputExplanation": "Ada: 3 logins (most frequent). Bo: 1 login and 1 view — tied, both reported. Cy: 2 logins (most frequent). NULL event types are excluded from the count. The RANK window over `COUNT(*) DESC` keeps all tied types at rank 1."
+    "outputExplanation": "Ada's most frequent event type is login (3 times). Bo's login and view are tied (1 each). Cy's most frequent is login (2 times)."
   },
   {
     "id": "act-longest-login-streak",
@@ -124,7 +124,7 @@
     "solutionSql": "WITH days AS (\n  SELECT DISTINCT user_id, DATE(event_time) AS d FROM events\n),\ngrouped AS (\n  SELECT user_id, d,\n         DATE(d, '-' || ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY d) || ' day') AS grp\n  FROM days\n),\nruns AS (\n  SELECT user_id, grp, COUNT(*) AS len\n  FROM grouped\n  GROUP BY user_id, grp\n)\nSELECT u.name, MAX(r.len) AS longest_streak\nFROM runs r\nJOIN users u ON u.id = r.user_id\nGROUP BY u.id, u.name;",
     "orderMatters": false,
     "hint": "The gaps-and-islands trick: subtract a row number (in days) from each date. Consecutive dates all collapse to the same anchor date, which becomes the group key.",
-    "outputExplanation": "Ada: active on 2022-03-01, 02, 03 → consecutive streak of 3. Bo: active on 2022-03-01 and 03-05 → no consecutive days → streak of 1. Cy: active on 2022-03-02 and 03-04 → no consecutive days → streak of 1. The gaps-and-islands trick groups consecutive dates by subtracting a row number."
+    "outputExplanation": "Ada had a 3-day streak of consecutive active days. Bo and Cy each have a longest streak of 1 day."
   },
   {
     "id": "act-three-day-streak",
@@ -140,7 +140,7 @@
     "solutionSql": "WITH days AS (\n  SELECT DISTINCT user_id, DATE(event_time) AS d FROM events\n),\ngrouped AS (\n  SELECT user_id, DATE(d, '-' || ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY d) || ' day') AS grp\n  FROM days\n)\nSELECT DISTINCT u.name\nFROM grouped g\nJOIN users u ON u.id = g.user_id\nGROUP BY g.user_id, g.grp, u.name\nHAVING COUNT(*) >= 3;",
     "orderMatters": false,
     "hint": "Same islands trick as the longest streak, but you only need HAVING COUNT(*) >= 3 — and DISTINCT in case a user has several qualifying runs.",
-    "outputExplanation": "Ada has 3 consecutive active days (March 1–3) → qualifies. Bo and Cy don't reach the 3-day threshold. The same islands technique as the longest-streak problem, but filtered to groups with `COUNT(*) >= 3`."
+    "outputExplanation": "Only Ada was active on three or more consecutive calendar days (March 1–3)."
   },
   {
     "id": "act-sessionize",
@@ -156,7 +156,7 @@
     "solutionSql": "WITH gaps AS (\n  SELECT user_id,\n         CASE WHEN LAG(event_time) OVER (PARTITION BY user_id ORDER BY event_time, id) IS NULL\n                OR (JULIANDAY(event_time) - JULIANDAY(LAG(event_time) OVER (PARTITION BY user_id ORDER BY event_time, id))) * 24 * 60 > 30\n              THEN 1 ELSE 0 END AS is_new\n  FROM events\n)\nSELECT u.name, SUM(g.is_new) AS sessions\nFROM gaps g\nJOIN users u ON u.id = g.user_id\nGROUP BY u.id, u.name;",
     "orderMatters": false,
     "hint": "Flag each event as starting a session or not, then simply add the flags up.",
-    "outputExplanation": "Ada: events at 09:00, 09:05 (within 30 min → same session), 09:40 (+35 min > 30 → new session), next day 10:00 (>30 min → new session), day+1 11:00 (>30 min → new session) → 4 sessions. Bo: events 4 days apart → 2 sessions. Cy: events at 20:00, 20:30 (+30 min, within 30 → same session), day+2 21:00 (>30 min → new session) → 2 sessions. Each flag = 1 starts a new session."
+    "outputExplanation": "Ada had 4 sessions, Bo had 2 and Cy had 2, based on a 30-minute inactivity timeout."
   },
   {
     "id": "act-next-day-return",
@@ -173,7 +173,7 @@
     "solutionSql": "WITH firsts AS (\n  SELECT user_id, DATE(MIN(event_time)) AS first_day FROM events GROUP BY user_id\n)\nSELECT DISTINCT u.name\nFROM firsts f\nJOIN events e ON e.user_id = f.user_id AND DATE(e.event_time) = DATE(f.first_day, '+1 day')\nJOIN users u ON u.id = f.user_id;",
     "orderMatters": false,
     "hint": "Compute each user's first day, then look for any event exactly one day later with DATE(d, '+1 day').",
-    "outputExplanation": "Ada's first active day is 2022-03-01; she has an event on 2022-03-02 (immediately next day) → qualifies. Bo's first day is 2022-03-01; next event is 2022-03-05 → not the next calendar day → excluded. Cy's first day is 2022-03-02; next event is 2022-03-04 → not the next day → excluded. The query uses `DATE(first_day, '+1 day')` to check for events exactly one day later."
+    "outputExplanation": "Only Ada returned the calendar day after her first active day (March 2 after March 1)."
   },
   {
     "id": "act-rolling-seven-day",
@@ -189,7 +189,7 @@
     "solutionSql": "WITH daily AS (\n  SELECT DATE(event_time) AS day, COUNT(*) AS n FROM events GROUP BY day\n)\nSELECT day,\n       SUM(n) OVER (ORDER BY JULIANDAY(day) RANGE BETWEEN 6 PRECEDING AND CURRENT ROW) AS events_7d\nFROM daily;",
     "orderMatters": false,
     "hint": "A ROWS frame counts rows present in the data; a RANGE frame over JULIANDAY counts actual calendar distance — which is what \"seven days\" means.",
-    "outputExplanation": "Daily event counts: 2022-03-01=4, 03-02=3, 03-03=1, 03-04=1, 03-05=1. Rolling 7-day: 03-01→4, 03-02→7, 03-03→8, 03-04→9, 03-05→10. The `RANGE` frame over `JULIANDAY(day)` counts actual calendar days, not just rows — so a seven-day gap with no events correctly contributes zero to the sum."
+    "outputExplanation": "The 7-day event window grew from 4 events on March 1 to 10 events on March 5 as each new day's events were added."
   },
   {
     "id": "act-longest-gap",
@@ -205,7 +205,7 @@
     "solutionSql": "WITH gaps AS (\n  SELECT user_id,\n         JULIANDAY(event_time) - JULIANDAY(LAG(event_time) OVER (PARTITION BY user_id ORDER BY event_time, id)) AS gap\n  FROM events\n)\nSELECT u.name, ROUND(MAX(g.gap), 2) AS longest_gap_days\nFROM gaps g\nJOIN users u ON u.id = g.user_id\nWHERE g.gap IS NOT NULL\nGROUP BY u.id, u.name;",
     "orderMatters": false,
     "hint": "Filtering out the NULL gap (each user's first event) also removes single-event users automatically.",
-    "outputExplanation": "Ada's longest inter-event gap: 1.04 days (between day 1 evening and day 2 morning). Bo's longest gap: 4.01 days (between March 1 and March 5). Cy's longest gap: 2.02 days (between March 2 evening and March 4 evening). Each user's first event has a NULL gap (nothing before it), filtered out by `WHERE g.gap IS NOT NULL`."
+    "outputExplanation": "Bo had the longest absence at 4.01 days between events. Ada's longest gap was 1.04 days and Cy's was 2.02 days."
   },
   {
     "id": "act-view-then-purchase",
@@ -221,7 +221,7 @@
     "solutionSql": "SELECT DISTINCT u.name\nFROM events v\nJOIN events p\n  ON p.user_id = v.user_id\n AND p.event_type = 'purchase'\n AND p.event_time > v.event_time\nJOIN users u ON u.id = v.user_id\nWHERE v.event_type = 'view';",
     "orderMatters": false,
     "hint": "Self-join the events table to itself on the same user, with a time ordering between the two rows.",
-    "outputExplanation": "Ada has a view (id 2 at 09:05) followed later by a purchase (id 3 at 09:40 on the same day) → qualifies. Bo has a view (id 7) but no purchase ever → excluded. Cy has a purchase (id 9) but no view event at all → excluded. The self-join requires `view.time < purchase.time` for the same user."
+    "outputExplanation": "Only Ada viewed a product and later purchased one. Bo viewed but never purchased, and Cy purchased but never viewed."
   },
   {
     "id": "act-first-event-was-purchase",
@@ -236,7 +236,7 @@
     "solutionSql": "WITH ordered AS (\n  SELECT user_id, event_type,\n         ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY event_time, id) AS rn\n  FROM events\n)\nSELECT u.name\nFROM ordered o\nJOIN users u ON u.id = o.user_id\nWHERE o.rn = 1 AND o.event_type = 'purchase';",
     "orderMatters": false,
     "hint": "When timestamps tie, the ORDER BY inside ROW_NUMBER needs a tie-breaker or the answer is not deterministic.",
-    "outputExplanation": "No user in the Example data started with a purchase — Ada's first event is login, Bo's is login, Cy's is login. The \"Purchases only, no logins\" hidden test has users whose *only* events are purchases, where the first event trivially is a purchase and they qualify."
+    "outputExplanation": "No user in the example data started with a purchase. A hidden test with purchase-only events demonstrates this case."
   },
   {
     "id": "act-busiest-hour",
@@ -252,7 +252,7 @@
     "solutionSql": "WITH per_hour AS (\n  SELECT strftime('%H', event_time) AS hour, COUNT(*) AS events\n  FROM events\n  GROUP BY hour\n)\nSELECT hour, events\nFROM per_hour\nWHERE events = (SELECT MAX(events) FROM per_hour);",
     "orderMatters": false,
     "hint": "strftime('%H', ...) keeps the leading zero because it returns text. Compare against MAX so ties survive.",
-    "outputExplanation": "Hourly event counts: hour `09` has 3 events (ids 1, 2, 3 — Ada's login, view, purchase at 09:00, 09:05, 09:40). Hour `08` has 1, `10` has 1, `11` has 1, `20` has 2, `21` has 1. Max = 3 at hour `09`. `strftime('%H', event_time)` returns a two-digit text string like '09'."
+    "outputExplanation": "Hour 09 (9:00–9:59) was the busiest with 3 events — all of Ada's activity on March 1."
   },
   {
     "id": "act-median-events-per-user",
@@ -268,6 +268,6 @@
     "solutionSql": "WITH per_user AS (\n  SELECT user_id, COUNT(*) AS n FROM events GROUP BY user_id\n)\nSELECT AVG(n) AS median_events FROM (\n  SELECT n FROM per_user\n  ORDER BY n\n  LIMIT 2 - (SELECT COUNT(*) FROM per_user) % 2\n  OFFSET (SELECT (COUNT(*) - 1) / 2 FROM per_user)\n);",
     "orderMatters": false,
     "hint": "Same median recipe as before, applied to per-user counts rather than raw values.",
-    "outputExplanation": "Active users (with ≥1 event): Ada=5, Bo=2, Cy=3. Sorted counts: 2, 3, 5. Odd count (3) → median = middle value = **3**. Di has zero events and is excluded from the per-user counts."
+    "outputExplanation": "With event counts of 2, 3 and 5, the median number of events per active user is 3."
   }
 ]

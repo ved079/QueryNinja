@@ -12,7 +12,7 @@
     "solutionSql": "SELECT name, salary FROM employees WHERE salary > 100000;",
     "orderMatters": false,
     "hint": "A plain WHERE filter. Remember that comparisons against NULL are never true — a NULL salary is not > 100000.",
-    "outputExplanation": "Employees with salary > 100k: Ava($150k), Ben($120k), Cara($120k), Eve($130k). Dan(95k), Finn(70k), Gia(85k) and Hal(60k) are ≤ 100k and excluded. 4 rows."
+    "outputExplanation": "Ava ($150k), Ben ($120k), Cara ($120k) and Eve ($130k) earn more than $100,000. Dan, Finn, Gia and Hal earn $100k or less."
   },
   {
     "id": "emp-headcount-per-department",
@@ -28,7 +28,7 @@
     "solutionSql": "SELECT d.name AS department, COUNT(e.id) AS employees\nFROM departments d\nLEFT JOIN employees e ON e.dept_id = d.id\nGROUP BY d.id, d.name;",
     "orderMatters": false,
     "hint": "COUNT(*) would count the NULL row a LEFT JOIN produces for an empty department. Count a column from the right table instead.",
-    "outputExplanation": "Engineering has 4 employees (Ava, Ben, Cara, Dan), Sales has 3 (Eve, Finn, Gia), HR has 1 (Hal). The `LEFT JOIN` + `COUNT(e.id)` ensures a department with zero employees would report 0 — without the LEFT JOIN it would be dropped entirely."
+    "outputExplanation": "Engineering has 4 employees, Sales has 3 and HR has 1."
   },
   {
     "id": "emp-no-manager",
@@ -43,7 +43,7 @@
     "solutionSql": "SELECT name FROM employees WHERE manager_id IS NULL;",
     "orderMatters": false,
     "hint": "`manager_id = NULL` is never true. NULL needs its own operator.",
-    "outputExplanation": "Ava, Eve and Hal have `manager_id IS NULL` — they are the top-level managers in the company. Every other employee has a non-NULL manager_id and is excluded."
+    "outputExplanation": "Ava, Eve and Hal have no manager — they are the top-level employees in the company."
   },
   {
     "id": "emp-distinct-titles",
@@ -58,7 +58,7 @@
     "solutionSql": "SELECT DISTINCT title FROM employees;",
     "orderMatters": false,
     "hint": "DISTINCT, or an equivalent GROUP BY.",
-    "outputExplanation": "The 8 employees hold 4 distinct titles: Manager (Ava, Eve), Engineer (Ben, Cara, Dan), Rep (Finn, Gia), Analyst (Hal). `DISTINCT` collapses duplicates."
+    "outputExplanation": "The company has four distinct job titles: Manager, Engineer, Rep and Analyst."
   },
   {
     "id": "emp-recent-hires",
@@ -74,7 +74,7 @@
     "solutionSql": "SELECT name, hire_date FROM employees WHERE hire_date >= '2020-01-01';",
     "orderMatters": false,
     "hint": "ISO dates (YYYY-MM-DD) compare correctly as plain strings — no date function needed.",
-    "outputExplanation": "Dan (2021-07-19), Finn (2020-05-30), Gia (2022-02-14) and Hal (2023-09-01) were hired on or after 2020-01-01. Ava (2018), Ben/Cara (2019-03-01) and Eve (2017) are before the cutoff and excluded."
+    "outputExplanation": "Dan, Finn, Gia and Hal were hired on or after January 1, 2020. Ava, Ben, Cara and Eve were hired earlier."
   },
   {
     "id": "emp-payroll-per-department",
@@ -90,7 +90,7 @@
     "solutionSql": "SELECT d.name AS department, COALESCE(SUM(e.salary), 0) AS payroll\nFROM departments d\nLEFT JOIN employees e ON e.dept_id = d.id\nGROUP BY d.id, d.name;",
     "orderMatters": false,
     "hint": "SUM over no rows is NULL, not 0. Wrap it in COALESCE or IFNULL.",
-    "outputExplanation": "Engineering: 150k + 120k + 120k + 95k = **485,000**. Sales: 130k + 70k + 85k = **285,000**. HR: 60k = **60,000**. `COALESCE(SUM, 0)` makes empty or NULL-only departments show 0 instead of NULL."
+    "outputExplanation": "Engineering's total payroll is $485,000, Sales is $285,000, and HR is $60,000."
   },
   {
     "id": "emp-average-salary",
@@ -105,7 +105,7 @@
     "solutionSql": "SELECT ROUND(AVG(salary), 2) AS avg_salary FROM employees;",
     "orderMatters": false,
     "hint": "AVG skips NULL salaries automatically — and over an empty table it yields NULL, which is the expected answer there.",
-    "outputExplanation": "AVG of the 8 non-NULL salaries (150, 120, 120, 95, 130, 70, 85, 60) = 830,000 / 8 = **103,750** — already an integer so `ROUND` to 2 decimals leaves 103750.00."
+    "outputExplanation": "The average salary across all employees is $103,750."
   },
   {
     "id": "emp-name-starts-with",
@@ -120,7 +120,7 @@
     "solutionSql": "SELECT name FROM employees WHERE name LIKE 'A%';",
     "orderMatters": false,
     "hint": "LIKE with a trailing wildcard. In SQLite, LIKE is case-insensitive for ASCII by default.",
-    "outputExplanation": "Only Ava begins with the letter `A`. In SQLite, `LIKE 'A%'` is case-insensitive for ASCII characters, so an employee named `ava` would also match."
+    "outputExplanation": "Only Ava has a name beginning with the letter A."
   },
   {
     "id": "emp-highest-salary",
@@ -135,7 +135,7 @@
     "solutionSql": "SELECT MAX(salary) AS top_salary FROM employees;",
     "orderMatters": false,
     "hint": "A bare aggregate always returns exactly one row, even with no data — which is why MAX beats ORDER BY ... LIMIT 1 here.",
-    "outputExplanation": "The maximum salary in the company is **150,000** (Ava's salary). `MAX()` ignores NULL salaries and always returns exactly one row — even with an empty employees table it would return a single row with NULL."
+    "outputExplanation": "The highest salary in the company is $150,000."
   },
   {
     "id": "emp-titles-count",
@@ -150,7 +150,7 @@
     "solutionSql": "SELECT title, COUNT(*) AS headcount\nFROM employees\nGROUP BY title\nHAVING COUNT(*) >= 2;",
     "orderMatters": false,
     "hint": "Filtering on an aggregate is HAVING, not WHERE.",
-    "outputExplanation": "Engineer: Ben, Cara, Dan → 3. Manager: Ava, Eve → 2. Rep: Finn, Gia → 2. Analyst: Hal → only 1, excluded by `HAVING COUNT(*) >= 2`."
+    "outputExplanation": "Three employees are Engineers, two are Managers, and two are Reps. Analyst is held by only one person and is not reported."
   },
   {
     "id": "emp-departments-by-location",
@@ -165,7 +165,7 @@
     "solutionSql": "SELECT name FROM departments WHERE location = 'Austin';",
     "orderMatters": false,
     "hint": "Straight equality filter on the departments table alone.",
-    "outputExplanation": "Engineering and HR are both located in Austin. Sales is in Denver and is excluded."
+    "outputExplanation": "Engineering and HR are located in Austin. Sales is in Denver."
   },
   {
     "id": "emp-salary-range-per-title",
@@ -181,6 +181,6 @@
     "solutionSql": "SELECT title, MIN(salary) AS min_salary, MAX(salary) AS max_salary\nFROM employees\nGROUP BY title;",
     "orderMatters": false,
     "hint": "Two aggregates over the same GROUP BY.",
-    "outputExplanation": "Manager: 130k–150k. Engineer: 95k–120k. Rep: 70k–85k. Analyst: only Hal at 60k, so min = max = 60k. `MIN` and `MAX` both skip NULL salaries."
+    "outputExplanation": "Manager salaries range from $130k to $150k, Engineers from $95k to $120k, Reps from $70k to $85k, and the single Analyst earns $60k."
   }
 ]

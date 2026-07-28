@@ -12,7 +12,7 @@
     "solutionSql": "SELECT e.name AS employee\nFROM employees e\nJOIN employees m ON e.manager_id = m.id\nWHERE e.salary > m.salary;",
     "orderMatters": false,
     "hint": "Join the table to itself: one alias for the employee, one for the manager.",
-    "outputExplanation": "The self-join finds employees whose salary exceeds their manager's. In the Example dataset, no employee earns more than their own manager — the join produces zero rows. The \"deep chain\" hidden test (L1–L5) makes the result visible: L5 (Engineer, $250k) earns more than L4 (Manager, $120k), their own manager."
+    "outputExplanation": "No employee in the example data earns more than their own manager, so the result is empty. A hidden test with deeper chains produces matches."
   },
   {
     "id": "emp-rank-within-department",
@@ -28,7 +28,7 @@
     "solutionSql": "SELECT name, dept_id,\n       DENSE_RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS rnk\nFROM employees;",
     "orderMatters": false,
     "hint": "\"Ties share a rank and nothing is skipped\" is the definition of DENSE_RANK, as opposed to RANK.",
-    "outputExplanation": "Engineering: Ava(150k)→1, Ben/Cara(120k)→2 (tied, DENSE_RANK doesn't skip 3), Dan(95k)→3. Sales: Eve(130k)→1, Gia(85k)→2, Finn(70k)→3. HR: Hal(60k)→1. DENSE_RANK leaves no gaps after ties — the next distinct salary after 120k is rank 3, not 4."
+    "outputExplanation": "In Engineering, Ava is ranked 1st, Ben and Cara are tied at 2nd, and Dan is 3rd. In Sales, Eve is 1st, Gia is 2nd, and Finn is 3rd. Hal is the only employee in HR."
   },
   {
     "id": "emp-above-department-average",
@@ -44,7 +44,7 @@
     "solutionSql": "SELECT name, salary\nFROM (\n  SELECT name, salary,\n         AVG(salary) OVER (PARTITION BY dept_id) AS dept_avg\n  FROM employees\n)\nWHERE salary > dept_avg;",
     "orderMatters": false,
     "hint": "A window AVG over PARTITION BY dept_id gives each row its department average without collapsing the rows.",
-    "outputExplanation": "Engineering avg = (150+120+120+95)/4 = 121.25k → only Ava(150k) exceeds it. Sales avg = (130+70+85)/3 = 95k → only Eve(130k) exceeds it. HR avg = 60k → nobody exceeds. Ben, Cara, Dan and Finn, Gia all earn at or below their department average."
+    "outputExplanation": "Ava earns more than Engineering's average of $121,250, and Eve earns more than Sales' average of $95,000. No one in HR exceeds its average."
   },
   {
     "id": "emp-share-of-department-payroll",
@@ -59,7 +59,7 @@
     "solutionSql": "SELECT name,\n       ROUND(100.0 * salary / SUM(salary) OVER (PARTITION BY dept_id), 2) AS pct_of_payroll\nFROM employees;",
     "orderMatters": false,
     "hint": "SUM(...) OVER (PARTITION BY dept_id) keeps every row while giving it the department total. Multiply by 100.0, not 100, to avoid integer division.",
-    "outputExplanation": "Engineering total payroll = 485k: Ava=150k (30.93%), Ben=120k (24.74%), Cara=120k (24.74%), Dan=95k (19.59%). Sales total = 285k: Eve=130k (45.61%), Finn=70k (24.56%), Gia=85k (29.82%). HR total = 60k: Hal=60k (100%). Percentages sum to roughly 100% per department."
+    "outputExplanation": "Ava accounts for 30.93% of Engineering's payroll, Ben and Cara each 24.74%, and Dan 19.59%. Eve makes up 45.61% of Sales' payroll, and Hal accounts for all of HR's."
   },
   {
     "id": "emp-departments-above-company-average",
@@ -75,7 +75,7 @@
     "solutionSql": "SELECT d.name AS department\nFROM employees e\nJOIN departments d ON d.id = e.dept_id\nGROUP BY d.id, d.name\nHAVING AVG(e.salary) > (SELECT AVG(salary) FROM employees);",
     "orderMatters": false,
     "hint": "A scalar subquery in the HAVING clause is evaluated once for the whole query.",
-    "outputExplanation": "Company-wide average salary = 103.75k. Engineering department average = 121.25k > 103.75k → qualifies. Sales average = 95k < 103.75k → excluded. HR average = 60k < 103.75k → excluded."
+    "outputExplanation": "Only Engineering ($121,250 average) beats the company-wide average of $103,750. Sales ($95k) and HR ($60k) fall below."
   },
   {
     "id": "emp-top-earner-per-department",
@@ -91,7 +91,7 @@
     "solutionSql": "SELECT d.name AS department, e.name, e.salary\nFROM (\n  SELECT *, RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS rnk\n  FROM employees\n) e\nJOIN departments d ON d.id = e.dept_id\nWHERE e.rnk = 1;",
     "orderMatters": false,
     "hint": "Rank inside each department, then keep rank 1 — ties come along for free.",
-    "outputExplanation": "RANK() inside each department: Engineering's top earner is Ava (150k), Sales' is Eve (130k), HR's is Hal (60k — its only employee). If there were ties at rank 1, all tied employees would appear. Only one row per department here because each has a clear top earner."
+    "outputExplanation": "Ava ($150k) is the top earner in Engineering, Eve ($130k) in Sales, and Hal ($60k) in HR."
   },
   {
     "id": "emp-direct-reports",
@@ -107,7 +107,7 @@
     "solutionSql": "SELECT m.name AS manager, COUNT(*) AS reports\nFROM employees e\nJOIN employees m ON m.id = e.manager_id\nGROUP BY m.id, m.name;",
     "orderMatters": false,
     "hint": "Group the self-join by the manager's id, not their name — two managers could share a name.",
-    "outputExplanation": "Ava manages Ben, Cara, Dan → 3 direct reports. Eve manages Finn, Gia → 2 direct reports. Hal manages nobody → the inner JOIN excludes managers with zero reports. No manager acts as both employee and manager in a way that double-counts because each is grouped by their own id."
+    "outputExplanation": "Ava manages 3 people and Eve manages 2. No other employee manages anyone."
   },
   {
     "id": "emp-salary-gap-to-next",
@@ -122,7 +122,7 @@
     "solutionSql": "SELECT name, salary,\n       LAG(salary) OVER (ORDER BY salary DESC, id) - salary AS gap\nFROM employees;",
     "orderMatters": false,
     "hint": "LAG() reaches backwards one row in the window's order. Add a tie-breaker to the ORDER BY so the answer is deterministic.",
-    "outputExplanation": "Ordered by salary descending: Ava(150k)→NULL (top, no one above), Eve(130k)→20k less than Ava, Ben(120k)→10k less than Eve, Cara(120k)→0 less than Ben (same salary), Dan(95k)→25k, Gia(85k)→10k, Finn(70k)→15k, Hal(60k)→10k. The `id` tiebreaker in `ORDER BY salary DESC, id` makes the order deterministic when salaries tie."
+    "outputExplanation": "Ava ($150k) is the top earner and has no gap. Eve ($130k) is $20k behind Ava. Ben and Cara ($120k) follow, then Dan ($95k), Gia ($85k), Finn ($70k) and Hal ($60k)."
   },
   {
     "id": "emp-running-headcount",
@@ -138,7 +138,7 @@
     "solutionSql": "SELECT hire_date, name,\n       COUNT(*) OVER (ORDER BY hire_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS headcount\nFROM employees;",
     "orderMatters": false,
     "hint": "A COUNT window with ORDER BY accumulates. Be explicit about the frame — ROWS and RANGE differ when dates tie.",
-    "outputExplanation": "Ordered by hire_date: Eve(2017)→1, Ava(2018)→2, Ben(2019-03-01)→3, Cara(2019-03-01)→4 (same date, ROWS frame increments by one for each row), Finn(2020)→5, Dan(2021)→6, Gia(2022)→7, Hal(2023)→8. The `ROWS` frame means each row gets its own count even when dates tie — `RANGE` would give both Ben and Cara the same count of 4."
+    "outputExplanation": "Eve was the first hire, Ava the second, Ben and Cara the third and fourth (same day), followed by Finn, Dan, Gia and Hal in order."
   },
   {
     "id": "emp-salary-bands",
@@ -154,7 +154,7 @@
     "solutionSql": "SELECT CASE\n         WHEN salary IS NULL THEN 'Unknown'\n         WHEN salary < 80000 THEN 'Low'\n         WHEN salary < 130000 THEN 'Mid'\n         ELSE 'High'\n       END AS band,\n       COUNT(*) AS headcount\nFROM employees\nGROUP BY band;",
     "orderMatters": false,
     "hint": "CASE arms are evaluated top to bottom, so test the NULL case first and let the ranges fall through.",
-    "outputExplanation": "High (≥130k): Ava(150k) and Eve(130k) = 2. Mid (80k ≤ x < 130k): Ben(120k), Cara(120k), Dan(95k), Gia(85k) = 4. Low (<80k): Finn(70k) and Hal(60k) = 2. Unknown (NULL salary): none in Example data — a hidden test with NULL salaries demonstrates that band."
+    "outputExplanation": "Two employees are in the High band ($130k+), four in the Mid band ($80k–$130k), and two in the Low band (under $80k). No employee has a NULL salary in this dataset."
   },
   {
     "id": "emp-duplicate-salaries",
@@ -170,7 +170,7 @@
     "solutionSql": "SELECT salary, COUNT(*) AS people\nFROM employees\nWHERE salary IS NOT NULL\nGROUP BY salary\nHAVING COUNT(*) > 1;",
     "orderMatters": false,
     "hint": "GROUP BY collects NULLs into their own group — exclude them explicitly if they should not count.",
-    "outputExplanation": "Only 120,000 is shared — Ben and Cara both earn exactly $120k → salary = 120000, people = 2. Every other salary in the company is unique to a single employee. NULL salaries are excluded by `WHERE salary IS NOT NULL`."
+    "outputExplanation": "$120,000 is the only salary paid to more than one person — both Ben and Cara earn it. All other salaries are unique."
   },
   {
     "id": "emp-longest-tenured-per-department",
@@ -185,7 +185,7 @@
     "solutionSql": "SELECT dept_id, name, hire_date\nFROM (\n  SELECT *, RANK() OVER (PARTITION BY dept_id ORDER BY hire_date) AS rnk\n  FROM employees\n)\nWHERE rnk = 1;",
     "orderMatters": false,
     "hint": "RANK() keeps every tied row at rank 1; ROW_NUMBER() would arbitrarily pick one.",
-    "outputExplanation": "Engineering earliest hire: Ava (2018-01-15). Sales earliest hire: Eve (2017-11-02). HR earliest hire: Hal (2023-09-01, only employee). `RANK()` ensures that if two employees were hired on the same earliest date, both would be included at rank 1."
+    "outputExplanation": "Ava (2018-01-15) is the longest-serving employee in Engineering, Eve (2017-11-02) in Sales, and Hal (2023-09-01) is the only employee in HR."
   },
   {
     "id": "emp-hires-per-year",
@@ -201,7 +201,7 @@
     "solutionSql": "SELECT strftime('%Y', hire_date) AS year, COUNT(*) AS hires\nFROM employees\nGROUP BY year;",
     "orderMatters": false,
     "hint": "strftime('%Y', date) extracts the year in SQLite; it returns text, not a number.",
-    "outputExplanation": "2017: Eve (1). 2018: Ava (1). 2019: Ben and Cara (2). 2020: Finn (1). 2021: Dan (1). 2022: Gia (1). 2023: Hal (1). `strftime('%Y', hire_date)` extracts the year as text; `GROUP BY` groups all hires from the same year together."
+    "outputExplanation": "One hire each in 2017, 2018, 2020, 2021, 2022 and 2023. Two hires in 2019."
   },
   {
     "id": "emp-median-salary",
@@ -217,7 +217,7 @@
     "solutionSql": "SELECT AVG(salary) AS median_salary FROM (\n  SELECT salary FROM employees WHERE salary IS NOT NULL\n  ORDER BY salary\n  LIMIT 2 - (SELECT COUNT(*) FROM employees WHERE salary IS NOT NULL) % 2\n  OFFSET (SELECT (COUNT(*) - 1) / 2 FROM employees WHERE salary IS NOT NULL)\n);",
     "orderMatters": false,
     "hint": "SQLite has no PERCENTILE function. Take 1 or 2 rows from the middle with LIMIT/OFFSET and average them.",
-    "outputExplanation": "8 non-NULL salaries sorted: 60k, 70k, 85k, 95k, 120k, 120k, 130k, 150k. Even count (8) → average of the two middle values (4th = 95k, 5th = 120k) = **107,500**. The `LIMIT`/`OFFSET` median recipe picks rows 4 and 5 and averages them."
+    "outputExplanation": "With 8 non-NULL salaries, the median is the average of the 4th and 5th values: $107,500."
   },
   {
     "id": "emp-managers-of-big-teams",
@@ -233,7 +233,7 @@
     "solutionSql": "SELECT m.name AS manager\nFROM employees e\nJOIN employees m ON m.id = e.manager_id\nGROUP BY m.id, m.name\nHAVING COUNT(*) >= 3;",
     "orderMatters": false,
     "hint": "Same self-join as counting direct reports, with a HAVING filter on the count.",
-    "outputExplanation": "Ava has 3 direct reports (Ben, Cara, Dan) → `COUNT(*) = 3`, qualifies. Eve has 2 direct reports (Finn, Gia) → doesn't reach the threshold of ≥3. Hal manages nobody → excluded by the inner JOIN."
+    "outputExplanation": "Only Ava manages three or more people (3 direct reports). Eve has 2 and does not qualify."
   },
   {
     "id": "emp-difference-from-department-average",
@@ -248,6 +248,6 @@
     "solutionSql": "SELECT name,\n       ROUND(salary - AVG(salary) OVER (PARTITION BY dept_id), 2) AS diff\nFROM employees;",
     "orderMatters": false,
     "hint": "Subtract the partitioned window average from the row's own salary.",
-    "outputExplanation": "Engineering avg = 121.25k: Ava +28.75k, Ben/Cara −1.25k, Dan −26.25k. Sales avg = 95k: Eve +35k, Finn −25k, Gia −10k. HR avg = 60k: Hal ±0 (only employee, salary equals the average). Negative = below department average."
+    "outputExplanation": "Ava earns $28,750 above Engineering's average, while Dan earns $26,250 below it. Eve earns $35k above Sales' average, and Finn earns $25k below. Hal is exactly at HR's average."
   }
 ]

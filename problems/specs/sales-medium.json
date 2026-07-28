@@ -13,7 +13,7 @@
     "solutionSql": "SELECT c.name AS customer,\n       ROUND(COALESCE(SUM(CASE WHEN o.status = 'completed' THEN oi.quantity * oi.unit_price END), 0), 2) AS revenue\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id\nLEFT JOIN order_items oi ON oi.order_id = o.id\nGROUP BY c.id, c.name;",
     "orderMatters": false,
     "hint": "Chain two LEFT JOINs so customers survive, and filter the status inside the SUM rather than in WHERE.",
-    "outputExplanation": "Ada: orders 1(185) + 2(300) + 6(140) = **625**. Cy: order 4(75) = **75**. Bo: only cancelled order → excluded → 0. Di: no orders → 0. The double LEFT JOIN keeps all customers, and the CASE inside SUM only counts completed orders. COALESCE turns NULL total to 0."
+    "outputExplanation": "Ada has spent $625, Cy has spent $75, and Bo and Di have spent nothing on completed orders."
   },
   {
     "id": "sales-repeat-customers",
@@ -29,7 +29,7 @@
     "solutionSql": "SELECT c.name AS customer, COUNT(*) AS orders\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nGROUP BY c.id, c.name\nHAVING COUNT(*) >= 2;",
     "orderMatters": false,
     "hint": "An inner join is fine here — a customer with fewer than two orders can never qualify.",
-    "outputExplanation": "Ada has 3 orders, Cy has 2 → both qualify. Bo has only 1 order → excluded by `HAVING COUNT(*) >= 2`. Di has 0 orders → inner JOIN drops her entirely."
+    "outputExplanation": "Ada has placed 3 orders and Cy has placed 2 — both are repeat customers. Bo has only 1 order and Di has none."
   },
   {
     "id": "sales-monthly-revenue",
@@ -45,7 +45,7 @@
     "solutionSql": "SELECT strftime('%Y-%m', o.order_date) AS month,\n       ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue\nFROM orders o\nJOIN order_items oi ON oi.order_id = o.id\nWHERE o.status = 'completed'\nGROUP BY month;",
     "orderMatters": false,
     "hint": "strftime('%Y-%m', ...) truncates a date to its month and groups neatly.",
-    "outputExplanation": "The query joins `orders` to `order_items` and filters only completed orders. 2022-01: order 1 = 185. 2022-02: order 2 = 300 (order 3 is cancelled, excluded). 2022-03: order 4 = 75 (order 5 is pending, excluded). 2023-01: order 6 = 140. Four months with revenue."
+    "outputExplanation": "Revenue from completed orders was $185 in January 2022, $300 in February 2022, $75 in March 2022, and $140 in January 2023."
   },
   {
     "id": "sales-top-product-by-revenue",
@@ -61,7 +61,7 @@
     "solutionSql": "WITH totals AS (\n  SELECT p.name AS product, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue\n  FROM order_items oi\n  JOIN products p ON p.id = oi.product_id\n  GROUP BY p.id, p.name\n)\nSELECT product, revenue\nFROM totals\nWHERE revenue = (SELECT MAX(revenue) FROM totals);",
     "orderMatters": false,
     "hint": "Aggregate first, then compare against the maximum of that aggregate — ORDER BY ... LIMIT 1 would silently drop ties.",
-    "outputExplanation": "Computing total revenue per product from order_items: Desk = 1×300 = **300**, Lamp = 4×45 + 2×45 = 270, Keyboard = 2×80 + 1×80 = 240, Mouse = 1×25 + 3×25 + 2×25 = 150. Desk has the highest at $300. If another product tied, both would be returned — the `WHERE revenue = (SELECT MAX(...))` pattern keeps all ties."
+    "outputExplanation": "Desk generated the most revenue at $300 across all order items."
   },
   {
     "id": "sales-first-order-per-customer",
@@ -76,7 +76,7 @@
     "solutionSql": "SELECT c.name AS customer, o.order_date AS first_order\nFROM (\n  SELECT *, ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date, id) AS rn\n  FROM orders\n) o\nJOIN customers c ON c.id = o.customer_id\nWHERE o.rn = 1;",
     "orderMatters": false,
     "hint": "ROW_NUMBER with a tie-breaker in the ORDER BY guarantees exactly one row per customer.",
-    "outputExplanation": "Ada: earliest order 2022-01-10. Bo: only order 2022-02-20. Cy: earliest order 2022-03-05. Di: no orders → excluded by inner JOIN. `ROW_NUMBER` with `ORDER BY order_date, id` ensures exactly one row per customer — if two orders shared the earliest date, the smaller id breaks the tie."
+    "outputExplanation": "Ada's first order was on 2022-01-10, Bo's on 2022-02-20, and Cy's on 2022-03-05. Di has never ordered."
   },
   {
     "id": "sales-category-revenue-share",
@@ -91,7 +91,7 @@
     "solutionSql": "SELECT category,\n       ROUND(revenue, 2) AS revenue,\n       ROUND(100.0 * revenue / SUM(revenue) OVER (), 2) AS pct\nFROM (\n  SELECT p.category AS category, SUM(oi.quantity * oi.unit_price) AS revenue\n  FROM order_items oi\n  JOIN products p ON p.id = oi.product_id\n  WHERE p.category IS NOT NULL\n  GROUP BY p.category\n);",
     "orderMatters": false,
     "hint": "Aggregate to one row per category, then use SUM(...) OVER () to reach the grand total without a second scan.",
-    "outputExplanation": "From order_items (all statuses), Furniture (Desk $300 + Lamp $270) = $570 → 59.38% of $960 total. Tech (Keyboard $240 + Mouse $150) = $390 → 40.63%. Products with NULL category excluded. The `SUM(revenue) OVER ()` computes the grand total without a second scan."
+    "outputExplanation": "Furniture accounts for 59.38% of total revenue ($570) and Tech accounts for 40.63% ($390)."
   },
   {
     "id": "sales-items-per-order",
@@ -107,7 +107,7 @@
     "solutionSql": "SELECT order_id, COUNT(DISTINCT product_id) AS products\nFROM order_items\nGROUP BY order_id\nHAVING COUNT(DISTINCT product_id) >= 2;",
     "orderMatters": false,
     "hint": "COUNT(DISTINCT col) inside both the SELECT and the HAVING.",
-    "outputExplanation": "Order 1: Keyboard and Mouse → 2 distinct products. Order 6: Lamp and Mouse → 2 distinct products. Orders 2 (Desk), 3 (Lamp), 4 (Mouse), 5 (Keyboard) each have only 1 distinct product → excluded by `HAVING COUNT(DISTINCT product_id) >= 2`."
+    "outputExplanation": "Orders 1 and 6 each contain two distinct products. All other orders contain only one product each."
   },
   {
     "id": "sales-customers-above-country-average",
@@ -123,7 +123,7 @@
     "solutionSql": "WITH spend AS (\n  SELECT c.id, c.name, c.country,\n         COALESCE(SUM(oi.quantity * oi.unit_price), 0) AS total\n  FROM customers c\n  LEFT JOIN orders o ON o.customer_id = c.id\n  LEFT JOIN order_items oi ON oi.order_id = o.id\n  GROUP BY c.id, c.name, c.country\n)\nSELECT name AS customer, country, ROUND(total, 2) AS spend\nFROM (SELECT *, AVG(total) OVER (PARTITION BY country) AS country_avg FROM spend)\nWHERE total > country_avg;",
     "orderMatters": false,
     "hint": "Compute the per-customer totals first, then apply a window average over country to that derived table.",
-    "outputExplanation": "US customers: Ada(total $625) and Cy(total $75) → country avg = $350 → Ada's $625 > $350 qualifies. Cy's $75 < $350 excluded. UK: Bo($0) = country avg = $0 → $0 is not strictly greater, excluded. IN: Di($0) → same, excluded. The window `AVG(total) OVER (PARTITION BY country)` computes the per-country benchmark."
+    "outputExplanation": "Ada spends $625, well above the US average of $350. Cy ($75), Bo ($0) and Di ($0) all spend at or below their country's average."
   },
   {
     "id": "sales-month-over-month",
@@ -139,7 +139,7 @@
     "solutionSql": "WITH monthly AS (\n  SELECT strftime('%Y-%m', o.order_date) AS month,\n         SUM(oi.quantity * oi.unit_price) AS revenue\n  FROM orders o\n  JOIN order_items oi ON oi.order_id = o.id\n  GROUP BY month\n)\nSELECT month,\n       ROUND(revenue, 2) AS revenue,\n       ROUND(revenue - LAG(revenue) OVER (ORDER BY month), 2) AS change\nFROM monthly;",
     "orderMatters": false,
     "hint": "Aggregate by month first; LAG over the aggregated rows compares each month to the previous one.",
-    "outputExplanation": "Monthly revenue from all orders (no status filter): 2022-01=185, 2022-02=480 (includes order 3), 2022-03=155 (includes order 5), 2023-01=140. Change: 2022-01→NULL (earliest month), 2022-02→+295, 2022-03→−325, 2023-01→−15. LAG looks back one row in the aggregated result."
+    "outputExplanation": "Revenue rose from $185 in January 2022 to $480 in February, then fell to $155 in March, and was $140 in January 2023."
   },
   {
     "id": "sales-products-above-category-average",
@@ -154,7 +154,7 @@
     "solutionSql": "SELECT name, category, price\nFROM (SELECT *, AVG(price) OVER (PARTITION BY category) AS cat_avg FROM products)\nWHERE price > cat_avg;",
     "orderMatters": false,
     "hint": "PARTITION BY category turns the category average into just another column on each row.",
-    "outputExplanation": "Tech avg = (80 + 25) / 2 = 52.50 → Keyboard ($80) > 52.50 qualifies; Mouse ($25) does not. Furniture avg = (300 + 45) / 2 = 172.50 → Desk ($300) > 172.50 qualifies; Lamp ($45) does not. The window `AVG(price) OVER (PARTITION BY category)` makes the category average available on each row."
+    "outputExplanation": "Keyboard ($80 at $52.50 average) and Desk ($300 at $172.50 average) are the pricier item in their respective categories."
   },
   {
     "id": "sales-cancelled-rate",
@@ -170,7 +170,7 @@
     "solutionSql": "SELECT c.name AS customer,\n       ROUND(100.0 * SUM(CASE WHEN o.status = 'cancelled' THEN 1 ELSE 0 END) / COUNT(*), 2) AS cancel_pct\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nGROUP BY c.id, c.name;",
     "orderMatters": false,
     "hint": "SUM(CASE WHEN ... THEN 1 ELSE 0 END) counts conditionally; divide by COUNT(*) using 100.0 to force real division.",
-    "outputExplanation": "Ada: 0 cancelled orders out of 3 total → 0%. Bo: 1 cancelled (only order) → 100%. Cy: 0 cancelled out of 2 → 0%. Di has no orders → inner JOIN excludes her entirely. The inner JOIN is appropriate here because customers without orders can't have a cancellation rate."
+    "outputExplanation": "Ada and Cy have no cancelled orders (0% each). Bo's only order was cancelled (100%)."
   },
   {
     "id": "sales-running-revenue",
@@ -186,7 +186,7 @@
     "solutionSql": "WITH daily AS (\n  SELECT o.order_date, SUM(oi.quantity * oi.unit_price) AS amount\n  FROM orders o\n  JOIN order_items oi ON oi.order_id = o.id\n  GROUP BY o.order_date\n)\nSELECT order_date,\n       ROUND(amount, 2) AS daily,\n       ROUND(SUM(amount) OVER (ORDER BY order_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW), 2) AS running\nFROM daily;",
     "orderMatters": false,
     "hint": "Collapse to one row per day first, otherwise the running total double-counts multi-item orders.",
-    "outputExplanation": "Daily totals from all order_items (no status filter): 2022-01-10=185, 2022-02-14=300, 2022-02-20=180, 2022-03-05=75, 2022-03-06=80, 2023-01-02=140. Running totals accumulate each day: 185, 485, 665, 740, 820, **960**. Grouping by date first prevents double-counting multi-item orders."
+    "outputExplanation": "Revenue accumulated from $185 on Jan 10 to $960 by Jan 2, 2023, with six dates showing activity."
   },
   {
     "id": "sales-customers-single-category",
@@ -202,7 +202,7 @@
     "solutionSql": "SELECT c.name AS customer, MIN(p.category) AS category\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nJOIN order_items oi ON oi.order_id = o.id\nJOIN products p ON p.id = oi.product_id\nWHERE p.category IS NOT NULL\nGROUP BY c.id, c.name\nHAVING COUNT(DISTINCT p.category) = 1;",
     "orderMatters": false,
     "hint": "When a group has exactly one distinct value, MIN of that column is a safe way to report it.",
-    "outputExplanation": "Bo: only ordered Lamp (Furniture) → one category. Cy: ordered Mouse and Keyboard (both Tech) → one category. Ada: ordered Tech (Keyboard, Mouse) AND Furniture (Desk, Lamp) → two categories → excluded. Di: no orders → inner JOIN excludes her. The `HAVING COUNT(DISTINCT category) = 1` ensures exactly one category."
+    "outputExplanation": "Bo has only bought from Furniture, and Cy only from Tech. Ada has bought from both categories and is excluded."
   },
   {
     "id": "sales-average-order-value",
@@ -218,7 +218,7 @@
     "solutionSql": "SELECT ROUND(AVG(total), 2) AS aov FROM (\n  SELECT order_id, SUM(quantity * unit_price) AS total\n  FROM order_items\n  GROUP BY order_id\n);",
     "orderMatters": false,
     "hint": "Average of per-order totals — not the average of individual line items, which is a different number.",
-    "outputExplanation": "Per-order totals: 185, 300, 180, 75, 80, 140 → average = 960 / 6 = **160**. Only orders with at least one item are included (all 6 have items). This is the average of order-level totals, not the average line-item value."
+    "outputExplanation": "The average value across all 6 orders that have items is $160."
   },
   {
     "id": "sales-orders-without-items",
@@ -233,7 +233,7 @@
     "solutionSql": "SELECT o.id AS order_id\nFROM orders o\nWHERE NOT EXISTS (SELECT 1 FROM order_items oi WHERE oi.order_id = o.id);",
     "orderMatters": false,
     "hint": "NOT EXISTS is the safest anti-join — unlike NOT IN, it is unaffected by NULLs in the subquery.",
-    "outputExplanation": "All 6 orders have items in order_items, so `NOT EXISTS` returns nothing — 0 rows. The \"Orders with no items, products never sold\" hidden test has order 2 with no order_items rows, making it visible."
+    "outputExplanation": "Every order has at least one item, so no empty orders are reported. A hidden test includes an order with no items."
   },
   {
     "id": "sales-signup-to-first-order",
@@ -249,6 +249,6 @@
     "solutionSql": "SELECT c.name AS customer,\n       CAST(JULIANDAY(MIN(o.order_date)) - JULIANDAY(c.signup_date) AS INTEGER) AS days_to_first_order\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nGROUP BY c.id, c.name, c.signup_date;",
     "orderMatters": false,
     "hint": "SQLite has no date subtraction operator — JULIANDAY() converts both dates to numbers you can subtract.",
-    "outputExplanation": "Ada: signup 2021-01-05 → first order 2022-01-10 = 370 days. Bo: signup 2021-03-12 → first order 2022-02-20 = 345 days. Cy: signup 2022-06-30 → first order 2022-03-05 = **−117 days** (signed up after they first ordered — a data anomaly captured by the test data). JULIANDAY converts dates to numeric days for subtraction."
+    "outputExplanation": "Ada waited 370 days from signup to first order, Bo waited 345 days, and Cy's first order predates their signup by 117 days."
   }
 ]

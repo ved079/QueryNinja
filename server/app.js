@@ -42,6 +42,19 @@ app.get('/api/_debug/store', (_req, res) => {
   });
 });
 
+// Query: ?name=foo&current=bar (current = the user's own existing name, if
+// any, so re-saving your own name — or just changing its casing — never
+// reads as "taken").
+app.get('/api/username-available', async (req, res) => {
+  const name = (req.query.name ?? '').trim();
+  if (!name) return res.json({ available: false, reason: 'empty' });
+  if (!/^[a-zA-Z0-9 _-]{1,24}$/.test(name)) {
+    return res.json({ available: false, reason: 'invalid' });
+  }
+  const taken = await store.isUsernameTaken(name, req.query.current);
+  res.json({ available: !taken, reason: taken ? 'taken' : null });
+});
+
 app.get('/api/progress', async (req, res) => {
   res.json(await store.readUserBucket('progress', req.query.user));
 });

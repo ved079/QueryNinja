@@ -50,6 +50,11 @@ function createFileStore(dataDir) {
       await fs.writeFile(file, JSON.stringify(migrated, null, 2));
       return bucket;
     },
+    async listUsernames() {
+      const all = await readJsonFile(fileFor('progress'));
+      if (isLegacyFlat(all)) return [];
+      return Object.keys(all).filter((k) => k !== ANON);
+    },
   };
 }
 
@@ -85,6 +90,13 @@ function createRedisStore() {
       await redis.set(keyFor(kind, name), bucket);
       return bucket;
     },
+    async listUsernames() {
+      const redis = await getClient();
+      const keys = await redis.keys('sql-practice:progress:*');
+      return keys
+        .map((k) => k.replace('sql-practice:progress:', ''))
+        .filter((k) => k !== ANON);
+    },
   };
 }
 
@@ -97,5 +109,18 @@ export function hasRedisEnv() {
 
 /** Picks the backend automatically — nothing to configure beyond env vars. */
 export function createStore(dataDir) {
-  return hasRedisEnv() ? createRedisStore() : createFileStore(dataDir);
+  const base = hasRedisEnv() ? createRedisStore() : createFileStore(dataDir);
+  return {
+    ...base,
+    // Case-insensitive: "Alex" and "alex" count as the same username, even
+    // though the stored bucket key itself keeps whatever casing was typed
+    // first. `excludeName` lets a user re-save their own current name
+    // (including just changing its casing) without it looking "taken".
+    async isUsernameTaken(name, excludeName) {
+      const target = userKey(name).toLowerCase();
+      if (excludeName && target === userKey(excludeName).toLowerCase()) return false;
+      const existing = await base.listUsernames();
+      return existing.some((u) => u.toLowerCase() === target);
+    },
+  };
 }

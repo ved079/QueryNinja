@@ -11,7 +11,7 @@
   "solutionSql": "SELECT p.firstName, p.lastName, a.city, a.state\nFROM Person p\nLEFT JOIN Address a ON p.personId = a.personId;",
   "orderMatters": false,
   "hint": "A plain INNER JOIN would drop people with no address. Which join keeps every row from the left table?",
-  "outputExplanation": "The `LEFT JOIN` keeps all Person rows regardless of whether a matching Address exists. Allen Wang (personId=1) has no address record → city and state are **NULL**. Alice Bob (personId=2) matches addressId=1 → New York City, NY. Vedant Deo (personId=3) matches addressId=2 → Leetcode, California. Three rows total, one per person.",
+  "outputExplanation": "Allen Wang has no address on file so city and state are NULL. Alice Bob lives in New York City, NY, and Vedant Deo lives in Leetcode, California.",
   "tests": [
     {
       "name": "Example",

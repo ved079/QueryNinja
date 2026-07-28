@@ -13,7 +13,7 @@
   "solutionSql": "SELECT d.name AS Department, e.name AS Employee, e.salary AS Salary\nFROM (\n  SELECT *,\n         DENSE_RANK() OVER (PARTITION BY departmentId ORDER BY salary DESC) AS rnk\n  FROM Employee\n) e\nJOIN Department d ON d.id = e.departmentId\nWHERE e.rnk <= 3;",
   "orderMatters": false,
   "hint": "DENSE_RANK() (not RANK() or ROW_NUMBER()) is what treats tied salaries as one rank — exactly what \"distinct salaries greater than theirs\" means.",
-  "outputExplanation": "IT: DENSE_RANK gives Max(90k)→1, Joe/Randy(85k)→2 (tied, no skip), Will(70k)→3, Janet(69k)→4 → rank ≤ 3 picks 4 employees. Sales: Henry(80k)→1, Sam(60k)→2 → both qualify. 6 rows total. Tied ranks share the same rank number, so Joe and Randy both appear at rank 2.",
+  "outputExplanation": "In IT, Max ($90k), Joe ($85k), Randy ($85k) and Will ($70k) are the top three earners. In Sales, Henry ($80k) and Sam ($60k) qualify.",
   "tests": [
     {
       "name": "Example",

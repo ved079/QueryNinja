@@ -12,7 +12,7 @@
   "solutionSql": "SELECT c.name AS Customers\nFROM Customers c\nLEFT JOIN Orders o ON c.id = o.customerId\nWHERE o.id IS NULL;",
   "orderMatters": false,
   "hint": "An anti-join (LEFT JOIN ... WHERE right side IS NULL) or NOT EXISTS both work. Watch out: NOT IN returns nothing at all if the subquery contains a NULL.",
-  "outputExplanation": "Joe (id=1) has order 1 and Sam (id=3) has order 2 → those rows get a non-NULL `o.id` and are filtered out by `WHERE o.id IS NULL`. Henry (id=2) and Max (id=4) have no matching order row → `o.id` stays NULL → they survive and form the result.",
+  "outputExplanation": "Henry and Max have no orders and are the two customers reported. Joe and Sam both have at least one order and are excluded.",
   "tests": [
     {
       "name": "Example",

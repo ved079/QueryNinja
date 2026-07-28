@@ -158,6 +158,21 @@ button.link {
 .name-input:focus {
   border-color: var(--accent);
 }
+.name-availability {
+  margin: 8px 0 0 !important;
+  font-size: 12px;
+  min-height: 16px;
+}
+.name-availability.checking {
+  color: var(--muted);
+}
+.name-availability.available {
+  color: #22c55e;
+}
+.name-availability.taken,
+.name-availability.invalid {
+  color: #ef4444;
+}
 .name-modal-actions {
   display: flex;
   justify-content: flex-end;

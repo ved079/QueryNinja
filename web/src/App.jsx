@@ -5,6 +5,7 @@ import ProblemPane from './components/ProblemPane.jsx';
 import SqlEditor from './components/SqlEditor.jsx';
 import ResultsTable from './components/ResultsTable.jsx';
 import TopBar from './components/TopBar.jsx';
+import NameModal from './components/NameModal.jsx';
 import { compare, createDb, exec, describeTables, gradeAll, testsOf } from './lib/db.js';
 
 const STARTER = '-- Write your query here\nSELECT ';
@@ -447,43 +448,15 @@ export default function App() {
       </main>
 
       {nameModalOpen && (
-        <div className="modal-overlay" onClick={() => setNameModalOpen(false)}>
-          <div className="modal-body name-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="name-modal-inner">
-              <h3>Set your name</h3>
-              <p className="muted">This name keeps your progress saved — you will lose it without one.</p>
-              <input
-                className="name-input"
-                type="text"
-                defaultValue={userName}
-                placeholder="Your name"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    const val = e.currentTarget.value.trim();
-                    if (val) {
-                      localStorage.setItem(NAME_KEY, val);
-                      setUserName(val);
-                      setNameModalOpen(false);
-                    }
-                  }
-                }}
-              />
-              <div className="name-modal-actions">
-                <button onClick={() => setNameModalOpen(false)}>Cancel</button>
-                <button className="primary" onClick={(e) => {
-                  const input = e.currentTarget.closest('.name-modal-inner').querySelector('.name-input');
-                  const val = input.value.trim();
-                  if (val) {
-                    localStorage.setItem(NAME_KEY, val);
-                    setUserName(val);
-                    setNameModalOpen(false);
-                  }
-                }}>Save</button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <NameModal
+          currentName={userName}
+          onClose={() => setNameModalOpen(false)}
+          onSave={(val) => {
+            localStorage.setItem(NAME_KEY, val);
+            setUserName(val);
+            setNameModalOpen(false);
+          }}
+        />
       )}
 
       {progressOpen && (
