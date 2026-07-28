@@ -199,10 +199,19 @@ export default function ProblemPane({
               <p className="muted">Computing…</p>
             )}
 
-            <p className="muted note">
-              Submit runs your query against <strong>{tests.length} test cases</strong> — this
-              example plus hidden ones covering empty tables, ties, duplicates and NULLs.
-            </p>
+            {problem.outputExplanation ? (
+              <>
+                <h3>Why the output looks like this</h3>
+                <div className="prose">
+                  <Markdownish text={problem.outputExplanation} />
+                </div>
+              </>
+            ) : (
+              <p className="muted note">
+                Submit runs your query against <strong>{tests.length} test cases</strong> — this
+                example plus hidden ones covering empty tables, ties, duplicates and NULLs.
+              </p>
+            )}
           </div>
         )}
 

@@ -22,6 +22,9 @@ export default function App() {
   const [loadError, setLoadError] = useState(null);
   const [editorNonce, setEditorNonce] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // 'normal' = the original 90; 'complex' = whatever's been added since —
+  // toggling this scopes prev/next/Go-to/Problem-List to just that set.
+  const [problemMode, setProblemMode] = useState('normal');
   const [progressOpen, setProgressOpen] = useState(false);
   const [selectedCase, setSelectedCase] = useState(null);
   const [caseRun, setCaseRun] = useState({});
@@ -37,33 +40,56 @@ export default function App() {
   codeRef.current = code;
 
   const problem = problems.find((p) => p.id === selectedId) ?? null;
-  const index = problems.findIndex((p) => p.id === selectedId);
+
+  // The original 90 are numbers 1-90; anything added since is "complex."
+  const visibleProblems = problems.filter((p) =>
+    problemMode === 'complex' ? p.number > 90 : p.number <= 90
+  );
+  const index = visibleProblems.findIndex((p) => p.id === selectedId);
 
   const prevId = useRef(null);
   // Reset editor code synchronously when the problem changes, so the
   // SqlEditor always renders with the correct initial value from the start.
   if (problem && problem.id !== prevId.current) {
     prevId.current = problem.id;
-    setCode(progress[problem.id]?.code || STARTER);
+    // Debug-style problems pre-fill the editor with their buggy query
+    // instead of a blank placeholder — you're fixing something, not
+    // starting from scratch.
+    setCode(progress[problem.id]?.code || problem.startingSql || STARTER);
   }
 
   const nav = {
     hasPrev: index > 0,
-    hasNext: index >= 0 && index < problems.length - 1,
-    prev: () => index > 0 && setSelectedId(problems[index - 1].id),
-    next: () => index < problems.length - 1 && setSelectedId(problems[index + 1].id),
+    hasNext: index >= 0 && index < visibleProblems.length - 1,
+    prev: () => index > 0 && setSelectedId(visibleProblems[index - 1].id),
+    next: () => index < visibleProblems.length - 1 && setSelectedId(visibleProblems[index + 1].id),
     random: () => {
-      const pool = problems.filter(
+      const pool = visibleProblems.filter(
         (p) => progress[p.id]?.status !== 'solved' && p.id !== selectedId
       );
-      const from = pool.length ? pool : problems;
+      const from = pool.length ? pool : visibleProblems;
       setSelectedId(from[Math.floor(Math.random() * from.length)].id);
     },
     randomAll: () => {
-      const pool = problems.filter((p) => p.id !== selectedId);
+      const pool = visibleProblems.filter((p) => p.id !== selectedId);
       setSelectedId(pool[Math.floor(Math.random() * pool.length)].id);
     },
   };
+
+  const toggleMode = useCallback(() => {
+    setProblemMode((m) => (m === 'complex' ? 'normal' : 'complex'));
+  }, []);
+
+  // Jump to the first problem in the newly active set if the current
+  // selection doesn't belong to it (e.g. switching from normal to complex
+  // while viewing problem #5).
+  useEffect(() => {
+    if (!visibleProblems.length) return;
+    if (!visibleProblems.some((p) => p.id === selectedId)) {
+      setSelectedId(visibleProblems[0].id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [problemMode, problems]);
 
   useEffect(() => {
     (async () => {
@@ -272,6 +298,8 @@ export default function App() {
     <div className="layout">
       <TopBar
         onShowSidebar={() => setSidebarOpen(true)}
+        problemMode={problemMode}
+        onToggleMode={toggleMode}
         onShowProgress={() => setProgressOpen(true)}
         userName={userName}
         onChangeName={changeName}
@@ -329,7 +357,7 @@ export default function App() {
             <div className="actions">
               <button
                 onClick={() => {
-                  setCode(STARTER);
+                  setCode(problem?.startingSql || STARTER);
                   // The editor only rebuilds its document when docKey changes.
                   setEditorNonce((n) => n + 1);
                 }}
@@ -465,16 +493,14 @@ export default function App() {
       )}
 
       {sidebarOpen && (
-        <div className="modal-overlay" onClick={() => setSidebarOpen(false)}>
-          <div className="modal-body" onClick={(e) => e.stopPropagation()}>
-            <ProblemList
-              problems={problems}
-              progress={progress}
-              selectedId={selectedId}
-              onSelect={(id) => { setSelectedId(id); setSidebarOpen(false); }}
-              onHide={() => setSidebarOpen(false)}
-            />
-          </div>
+        <div className="fullscreen-overlay">
+          <ProblemList
+            problems={visibleProblems}
+            progress={progress}
+            selectedId={selectedId}
+            onSelect={(id) => { setSelectedId(id); setSidebarOpen(false); }}
+            onHide={() => setSidebarOpen(false)}
+          />
         </div>
       )}
     </div>

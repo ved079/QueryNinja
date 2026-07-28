@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import Dropdown from './Dropdown.jsx';
 
 const DIFFICULTIES = ['All', 'Easy', 'Medium', 'Hard'];
 const STATUSES = ['Solved', 'Unsolved'];
@@ -59,113 +60,82 @@ export default function ProblemList({ problems, progress, selectedId, onSelect, 
   const solved = problems.filter(isSolved).length;
   const pct = problems.length ? Math.round((solved / problems.length) * 100) : 0;
 
+  useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onHide(); };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onHide]);
+
   return (
-    <aside className="sidebar">
-      <header className="sidebar-head">
-        <div className="sidebar-title-row">
-          <h1>SQL Practice</h1>
-          <button className="hide-btn" onClick={onHide} title="Close">
-            ×
-          </button>
+    <div className="fs-list" onClick={(e) => e.stopPropagation()}>
+      <header className="fs-list-head">
+        <div className="fs-list-head-top">
+          <h1>Problems</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span className="muted" style={{ fontSize: 12 }}>Esc to close</span>
+            <button className="hide-btn" onClick={onHide} title="Close">×</button>
+          </div>
         </div>
-        <div className="progress-row">
+        <div className="fs-list-head-stats">
           <span className="big">{solved}</span>
           <span className="muted">/ {problems.length} solved</span>
-        </div>
-        <div className="bar">
-          <div className="bar-fill" style={{ width: `${pct}%` }} />
-        </div>
-        <div className="stat-row">
-          {DIFFICULTIES.slice(1).map((d) => (
-            <span key={d} className="stat">
-              <span className={`difficulty ${d.toLowerCase()}`}>{d}</span>
-              <span className="muted">
-                {stats[d][0]}/{stats[d][1]}
+          <div className="bar" style={{ display: 'flex', borderRadius: 4, overflow: 'hidden' }}>
+            {['Easy', 'Medium', 'Hard'].map((d) => {
+              const w = problems.length ? (stats[d][0] / problems.length) * 100 : 0;
+              if (w <= 0) return null;
+              return <div key={d} style={{ width: `${w}%`, height: '100%', background: d === 'Easy' ? 'var(--easy)' : d === 'Medium' ? 'var(--medium)' : 'var(--hard)' }} />;
+            })}
+          </div>
+          <div className="stat-row">
+            {DIFFICULTIES.slice(1).map((d) => (
+              <span key={d} className="stat">
+                <span className={`difficulty ${d.toLowerCase()}`}>{d}</span>
+                <span className="muted">{stats[d][0]}/{stats[d][1]}</span>
               </span>
-            </span>
-          ))}
+            ))}
+          </div>
+        </div>
+        <div className="fs-list-filters">
+          <div className="chips">
+            {STATUSES.map((s) => (
+              <button key={s} className={`chip ${status === s ? 'active' : ''}`}
+                onClick={() => setStatus(s)}>{s}</button>
+            ))}
+          </div>
+          <Dropdown label="Topic" value={topic} options={topics} onChange={setTopic} />
+          <Dropdown label="Sort" value={sortBy} options={[
+            { label: 'Number', value: 'number' },
+            { label: 'Difficulty', value: 'difficulty' },
+            { label: 'Unsolved first', value: 'status' },
+          ]} onChange={setSortBy} />
         </div>
       </header>
 
-      <div className="filters">
-
-        <div className="chips-row">
-          <div className="chips">
-            {DIFFICULTIES.map((d) => (
-              <button
-                key={d}
-                className={`chip ${difficulty === d ? 'active' : ''}`}
-                onClick={() => setDifficulty(d)}
-              >
-                {d}
-              </button>
-            ))}
-          </div>
-
-          <div className="chips">
-            {STATUSES.map((s) => (
-              <button
-                key={s}
-                className={`chip ${status === s ? 'active' : ''}`}
-                onClick={() => setStatus(s)}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="selects">
-          <label className="sort">
-            <span className="muted">Topic</span>
-            <select value={topic} onChange={(e) => setTopic(e.target.value)}>
-              {topics.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="sort">
-            <span className="muted">Sort</span>
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-              <option value="number">Number</option>
-              <option value="difficulty">Difficulty</option>
-              <option value="status">Unsolved first</option>
-            </select>
-          </label>
-        </div>
+      <div className="fs-list-body">
+        <ul className="fs-list-items">
+          {visible.map((p) => {
+            const itemStatus = progress[p.id]?.status;
+            return (
+              <li key={p.id}>
+                <button
+                  className={`problem-item ${selectedId === p.id ? 'selected' : ''}`}
+                  onClick={() => onSelect(p.id)}
+                >
+                  <span className={`status ${itemStatus ?? 'none'}`}
+                    title={itemStatus ?? 'not started'} />
+                  <span className="problem-title">{p.number}. {p.title}</span>
+                  <span className={`difficulty ${p.difficulty.toLowerCase()}`}>{p.difficulty[0]}</span>
+                </button>
+              </li>
+            );
+          })}
+          {!visible.length && <li className="muted pad">No problems match these filters.</li>}
+        </ul>
       </div>
 
-      <ul className="problem-list">
-        {visible.map((p) => {
-          const itemStatus = progress[p.id]?.status;
-          return (
-            <li key={p.id}>
-              <button
-                className={`problem-item ${selectedId === p.id ? 'selected' : ''}`}
-                onClick={() => onSelect(p.id)}
-              >
-                <span
-                  className={`status ${itemStatus ?? 'none'}`}
-                  title={itemStatus ?? 'not started'}
-                />
-                <span className="problem-title">
-                  {p.number}. {p.title}
-                </span>
-                <span className={`difficulty ${p.difficulty.toLowerCase()}`}>
-                  {p.difficulty[0]}
-                </span>
-              </button>
-            </li>
-          );
-        })}
-        {!visible.length && <li className="muted pad">No problems match these filters.</li>}
-      </ul>
-
-      <footer className="sidebar-foot muted">
+      <footer className="fs-list-foot muted">
         {visible.length} shown · {problems.length} total
       </footer>
-    </aside>
+    </div>
   );
 }

@@ -1,0 +1,56 @@
+{
+  "id": "debug-not-in-null-trap",
+  "number": 134,
+  "title": "Debug: Customers Who Never Ordered — Sometimes Empty, Sometimes Not",
+  "difficulty": "Medium",
+  "tags": ["Debugging", "NULL"],
+  "description": "This query is supposed to list every customer who has never placed an order. It works on some data, but on other data it mysteriously returns **zero rows even though customers who never ordered clearly exist**. Find the bug and fix it.\n\nName the column `name`. Return the result in any order.",
+  "schemaSql": "CREATE TABLE shop_customers (\n  id INTEGER PRIMARY KEY,\n  name TEXT\n);\n\nCREATE TABLE shop_orders (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER\n);",
+  "startingSql": "SELECT name\nFROM shop_customers\nWHERE id NOT IN (SELECT customer_id FROM shop_orders);",
+  "solutionSql": "SELECT c.name\nFROM shop_customers c\nWHERE NOT EXISTS (SELECT 1 FROM shop_orders o WHERE o.customer_id = c.id);",
+  "orderMatters": false,
+  "hint": "If even one row in the NOT IN subquery is NULL, the whole NOT IN comparison becomes unknown for every single row — silently emptying the result. NOT EXISTS never has this problem, because it only ever checks for matching rows, not list membership.",
+  "outputExplanation": "On the Example data (no NULLs), both the buggy and fixed queries agree: Henry and Max never ordered, so both come back. The trap only shows up on the hidden \"NULL order\" case — three customers, one order with a `NULL` customer_id. There, `id NOT IN (SELECT customer_id FROM shop_orders)` compares every customer's id against a list that contains a NULL. Since `id = NULL` is neither true nor false but *unknown*, and `NOT IN` needs every comparison in the list to definitively fail, a single NULL in the subquery poisons the whole check — the buggy query returns **zero rows** even though real never-ordered customers exist. `NOT EXISTS` never has this problem: it just checks row-by-row for a match, so a stray NULL customer_id is simply one more order that doesn't match — harmless.",
+  "tests": [
+    {
+      "name": "Example — no NULLs yet, bug isn't visible here",
+      "seedSql": "INSERT INTO shop_customers VALUES (1,'Joe'),(2,'Henry'),(3,'Sam'),(4,'Max');\nINSERT INTO shop_orders VALUES (1,3),(2,1);"
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": ""
+    },
+    {
+      "name": "Every customer has ordered",
+      "seedSql": "INSERT INTO shop_customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO shop_orders VALUES (1,1),(2,2);"
+    },
+    {
+      "name": "No orders at all",
+      "seedSql": "INSERT INTO shop_customers VALUES (1,'Joe'),(2,'Henry'),(3,'Sam');"
+    },
+    {
+      "name": "Single customer, no orders",
+      "seedSql": "INSERT INTO shop_customers VALUES (1,'Solo');"
+    },
+    {
+      "name": "One NULL order alongside real never-ordered customers — the trap",
+      "seedSql": "INSERT INTO shop_customers VALUES (1,'Joe'),(2,'Henry'),(3,'Sam');\nINSERT INTO shop_orders VALUES (1,1),(2,NULL);"
+    },
+    {
+      "name": "NULL order present, but everyone has actually ordered",
+      "seedSql": "INSERT INTO shop_customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO shop_orders VALUES (1,1),(2,2),(3,NULL);"
+    },
+    {
+      "name": "Multiple NULL customer_id rows in orders",
+      "seedSql": "INSERT INTO shop_customers VALUES (1,'Joe'),(2,'Henry'),(3,'Sam');\nINSERT INTO shop_orders VALUES (1,NULL),(2,NULL),(3,1);"
+    },
+    {
+      "name": "Duplicate customer names, mixed ordering",
+      "seedSql": "INSERT INTO shop_customers VALUES (1,'Alex'),(2,'Alex'),(3,'Ravi');\nINSERT INTO shop_orders VALUES (1,3),(2,NULL);"
+    },
+    {
+      "name": "Larger mixed set with a NULL order thrown in",
+      "seedSql": "INSERT INTO shop_customers VALUES (1,'A'),(2,'B'),(3,'C'),(4,'D'),(5,'E'),(6,'F');\nINSERT INTO shop_orders VALUES (1,2),(2,2),(3,4),(4,6),(5,NULL);"
+    }
+  ]
+}

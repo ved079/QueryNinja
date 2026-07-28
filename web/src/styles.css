@@ -594,6 +594,223 @@ button.link {
   font-size: 11px;
 }
 
+/* ---------- full-screen problem list ---------- */
+.fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--bg);
+  display: flex;
+  justify-content: center;
+  overflow-y: auto;
+}
+.fs-list {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 24px 0;
+  min-height: 100vh;
+}
+.fs-list-head-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.fs-list-head-top h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+}
+.fs-list-head-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.fs-list-head-stats .big {
+  font-size: 22px;
+  font-weight: 700;
+}
+.fs-list-head-stats .bar {
+  flex: 1;
+  min-width: 80px;
+}
+.fs-list-head-stats .stat-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+.fs-list-search {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 14px;
+  margin-bottom: 16px;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+.fs-list-search:focus {
+  border-color: var(--accent);
+}
+.fs-list-search::placeholder {
+  color: var(--muted);
+}
+.fs-list-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.fs-list-filters .chips {
+  display: flex;
+  gap: 4px;
+}
+
+.dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.dropdown-label {
+  white-space: nowrap;
+}
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s;
+}
+.dropdown-trigger:hover {
+  border-color: var(--muted);
+}
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px;
+  z-index: 10;
+  min-width: 140px;
+  box-shadow: var(--panel-shadow);
+}
+.dropdown-item {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 6px 10px;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.1s;
+}
+.dropdown-item:hover {
+  background: var(--panel-2);
+}
+.dropdown-item.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+.fs-list-body {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.fs-list-body::-webkit-scrollbar {
+  width: 6px;
+}
+.fs-list-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.fs-list-body::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+.fs-list-body::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+.fs-list-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.fs-list-items .problem-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+}
+.fs-list-items .problem-item:hover {
+  background: var(--panel-2);
+}
+.fs-list-items .problem-item.selected {
+  background: var(--panel);
+  border: 1px solid var(--edge);
+}
+.fs-list-items .status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.fs-list-items .status.none { background: var(--border); }
+.fs-list-items .status.attempted { background: var(--medium); }
+.fs-list-items .status.solved { background: var(--easy); }
+.fs-list-items .problem-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fs-list-items .difficulty {
+  font-size: 11px;
+  font-weight: 600;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.fs-list-foot {
+  padding: 12px 0 24px;
+  font-size: 12px;
+  text-align: center;
+}
+
 /* ---------- tabs and pane navigation ---------- */
 .pane-nav {
   display: flex;

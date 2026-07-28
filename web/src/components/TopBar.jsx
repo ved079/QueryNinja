@@ -14,6 +14,8 @@ const NAV_OPTIONS = [
  */
 export default function TopBar({
   onShowSidebar,
+  problemMode,
+  onToggleMode,
   onShowProgress,
   userName,
   onChangeName,
@@ -42,6 +44,13 @@ export default function TopBar({
       <div className="top-bar-left">
         <button className="sidebar-show" onClick={onShowSidebar} title="Show problem list">
           Problem List
+        </button>
+        <button
+          className="sidebar-show"
+          onClick={onToggleMode}
+          title={problemMode === 'complex' ? 'Click to switch back to the original problems' : 'Click to switch to the newly added problems'}
+        >
+          {problemMode === 'complex' ? 'Complex Problems' : 'Normal Problems'} ▾
         </button>
         <button onClick={nav.prev} title="Previous problem" disabled={!nav.hasPrev}>
           ‹
