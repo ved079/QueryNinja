@@ -29,6 +29,7 @@ export default function App() {
   const [workspaceSplit, setWorkspaceSplit] = useState(55);
   const [submissions, setSubmissions] = useState({});
   const [userName, setUserName] = useState(() => localStorage.getItem(NAME_KEY) || '');
+  const [nameModalOpen, setNameModalOpen] = useState(false);
   const splitterRef = useRef(null);
 
   const dbRef = useRef(null);
@@ -88,16 +89,8 @@ export default function App() {
   }, [userName]);
 
   const changeName = useCallback(() => {
-    const next = window.prompt(
-      'Your name (just for keeping your own progress separate — no password):',
-      userName
-    );
-    if (next == null) return; // cancelled
-    const trimmed = next.trim();
-    if (!trimmed) return;
-    localStorage.setItem(NAME_KEY, trimmed);
-    setUserName(trimmed);
-  }, [userName]);
+    setNameModalOpen(true);
+  }, []);
 
   // Rebuild a fresh database whenever the selected problem changes.
   useEffect(() => {
@@ -376,6 +369,46 @@ export default function App() {
           </div>
         </section>
       </main>
+
+      {nameModalOpen && (
+        <div className="modal-overlay" onClick={() => setNameModalOpen(false)}>
+          <div className="modal-body name-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="name-modal-inner">
+              <h3>Set your name</h3>
+              <p className="muted">Just for keeping your own progress separate — no password needed.</p>
+              <input
+                className="name-input"
+                type="text"
+                defaultValue={userName}
+                placeholder="Your name"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const val = e.currentTarget.value.trim();
+                    if (val) {
+                      localStorage.setItem(NAME_KEY, val);
+                      setUserName(val);
+                      setNameModalOpen(false);
+                    }
+                  }
+                }}
+              />
+              <div className="name-modal-actions">
+                <button onClick={() => setNameModalOpen(false)}>Cancel</button>
+                <button className="primary" onClick={(e) => {
+                  const input = e.currentTarget.closest('.name-modal-inner').querySelector('.name-input');
+                  const val = input.value.trim();
+                  if (val) {
+                    localStorage.setItem(NAME_KEY, val);
+                    setUserName(val);
+                    setNameModalOpen(false);
+                  }
+                }}>Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {progressOpen && (
         <div className="modal-overlay" onClick={() => setProgressOpen(false)}>

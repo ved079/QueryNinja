@@ -3,6 +3,59 @@ import { useMemo } from 'react';
 const ARC_LENGTH = 197.92;
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+const BADGE_ICON = (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+    <path d="M8 1l1.57 3.18 3.5.51-2.54 2.47.6 3.49L8 9.27l-3.13 1.38.6-3.49L2.93 4.69l3.5-.51L8 1z" />
+  </svg>
+);
+
+function computeBadges(solvedSet, solvedCount, problems, activeDays, maxStreak) {
+  const badges = [];
+  const allProblems = problems.length;
+
+  // milestone
+  const milestones = [[1, 'First Solve', 'Solved your first problem'],
+    [5, 'Rising Star', 'Solved 5 problems'],
+    [10, 'Double Digits', 'Solved 10 problems'],
+    [25, 'Quarter Century', 'Solved 25 problems'],
+    [50, 'Half Century', 'Solved 50 problems']];
+  for (const [threshold, title, desc] of milestones) {
+    if (solvedCount >= threshold) badges.push({ id: 'm' + threshold, title, desc, sort: 100 + threshold });
+  }
+
+  // difficulty
+  const byDiff = { Easy: [], Medium: [], Hard: [] };
+  problems.forEach((p) => byDiff[p.difficulty]?.push(p.id));
+  if (byDiff.Easy.every((id) => solvedSet.has(id))) badges.push({ id: 'd-easy', title: 'Easy Street', desc: 'All Easy problems solved', sort: 200 });
+  if (byDiff.Medium.every((id) => solvedSet.has(id))) badges.push({ id: 'd-med', title: 'Medium Well', desc: 'All Medium problems solved', sort: 201 });
+  if (byDiff.Hard.every((id) => solvedSet.has(id))) badges.push({ id: 'd-hard', title: 'Hard Core', desc: 'All Hard problems solved', sort: 202 });
+  if (['Easy', 'Medium', 'Hard'].every((d) => byDiff[d].some((id) => solvedSet.has(id)))) {
+    badges.push({ id: 'd-mix', title: 'Full House', desc: 'At least one of each difficulty solved', sort: 203 });
+  }
+
+  // tag completion
+  const tagMap = {};
+  problems.forEach((p) => (p.tags ?? []).forEach((t) => { (tagMap[t] ??= []).push(p.id); }));
+  for (const [tag, ids] of Object.entries(tagMap)) {
+    if (ids.every((id) => solvedSet.has(id))) {
+      badges.push({ id: 't-' + tag, title: tag + ' Master', desc: 'All ' + tag + ' problems solved', sort: 300 });
+    }
+  }
+
+  // activity
+  if (activeDays >= 1) badges.push({ id: 'a-first', title: 'First Try', desc: 'First submission ever', sort: 400 });
+  if (activeDays >= 7) badges.push({ id: 'a-7', title: 'Getting Started', desc: 'Submitted on 7+ different days', sort: 401 });
+  if (activeDays >= 30) badges.push({ id: 'a-30', title: 'Consistent', desc: 'Submitted on 30+ different days', sort: 402 });
+  if (maxStreak >= 10) badges.push({ id: 'a-s10', title: 'Streak Master', desc: 'Max streak of 10+ days', sort: 403 });
+  if (maxStreak >= 30) badges.push({ id: 'a-s30', title: 'Streak Legend', desc: 'Max streak of 30+ days', sort: 404 });
+
+  // ultimate
+  if (solvedCount >= allProblems) badges.push({ id: 'grand', title: 'Grand Master', desc: 'All problems solved', sort: 500 });
+
+  badges.sort((a, b) => a.sort - b.sort);
+  return badges;
+}
+
 export default function ProgressPanel({ problems, progress, submissions, onHide }) {
   const stats = useMemo(() => {
     const solved = problems.filter((p) => progress[p.id]?.status === 'solved').length;
@@ -62,6 +115,12 @@ export default function ProgressPanel({ problems, progress, submissions, onHide 
     return { months, totalSubs, activeDays, maxStreak };
   }, [submissions]);
 
+  const badges = useMemo(() => {
+    const solvedSet = new Set(problems.filter((p) => progress[p.id]?.status === 'solved').map((p) => p.id));
+    const solvedCount = solvedSet.size;
+    return computeBadges(solvedSet, solvedCount, problems, heatmap.activeDays, heatmap.maxStreak);
+  }, [problems, progress, heatmap.activeDays, heatmap.maxStreak]);
+
   return (
     <div className="progress-panel">
       <div className="progress-header">
@@ -117,39 +176,28 @@ export default function ProgressPanel({ problems, progress, submissions, onHide 
         <div className="progress-card">
           <div className="progress-card-label">Badges & Achievements</div>
           <div className="badges-container">
-            <div className="badge-highlight">
-              <div className="badge-icon">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M8.5.75a.75.75 0 0 0-1.5 0v.75c-3.387.387-6 3.281-6 6.75a6.75 6.75 0 0 0 6.75 6.75h.75v.75a.75.75 0 0 0 1.5 0v-.75h.75A6.75 6.75 0 0 0 17.25 8.25c0-3.469-2.613-6.363-6-6.75V.75Z" />
-                </svg>
-              </div>
-              <div className="badge-info">
-                <h4>SQL Scholar</h4>
-                <span>Completed your first SQL problem</span>
-              </div>
-            </div>
-            <div className="badge-row">
-              <div className="badge-icon">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm4.879-2.373a.75.75 0 0 1 1.06 0L8 6.06l1.56-1.433a.75.75 0 1 1 1.06 1.06L8.5 7.12v1.88l1.62 1.62a.75.75 0 1 1-1.06 1.06L8 10.06l-1.06 1.06a.75.75 0 1 1-1.06-1.06L7.5 9V7.12L6.379 5.927a.75.75 0 0 1 0-1.06Z" />
-                </svg>
-              </div>
-              <div className="badge-info">
-                <h4>Join Master</h4>
-                <span>Solved all JOIN problems</span>
-              </div>
-            </div>
-            <div className="badge-row">
-              <div className="badge-icon">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="m7.429 1.525a.75.75 0 0 1 1.142 0l3.75 5.25a.75.75 0 0 1 0 .9l-3.75 5.25a.75.75 0 0 1-1.142 0l-3.75-5.25a.75.75 0 0 1 0-.9l3.75-5.25Z" />
-                </svg>
-              </div>
-              <div className="badge-info">
-                <h4>Consistent Solver</h4>
-                <span>Solved 10 problems</span>
-              </div>
-            </div>
+            {badges.length === 0 ? (
+              <p className="muted" style={{ margin: 0, fontSize: 13 }}>Keep solving to earn badges.</p>
+            ) : (
+              <>
+                <div className="badge-highlight">
+                  <div className="badge-icon">{BADGE_ICON}</div>
+                  <div className="badge-info">
+                    <h4>{badges[0].title}</h4>
+                    <span>{badges[0].desc}</span>
+                  </div>
+                </div>
+                {badges.slice(1).map((b) => (
+                  <div key={b.id} className="badge-row">
+                    <div className="badge-icon">{BADGE_ICON}</div>
+                    <div className="badge-info">
+                      <h4>{b.title}</h4>
+                      <span>{b.desc}</span>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
           </div>
         </div>
 

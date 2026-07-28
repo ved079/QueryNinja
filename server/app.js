@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadProblems } from './load-problems.js';
-import { createStore } from './store.js';
+import { createStore, hasRedisEnv } from './store.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -27,6 +27,19 @@ app.get('/api/problems', async (_req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// TEMPORARY — remove once the Redis env var mismatch is diagnosed. Only
+// reports which env var *names* exist, never their values.
+app.get('/api/_debug/store', (_req, res) => {
+  res.json({
+    hasUpstashUrl: !!process.env.UPSTASH_REDIS_REST_URL,
+    hasUpstashToken: !!process.env.UPSTASH_REDIS_REST_TOKEN,
+    hasKvUrl: !!process.env.KV_REST_API_URL,
+    hasKvToken: !!process.env.KV_REST_API_TOKEN,
+    hasRedisEnv: hasRedisEnv(),
+    vercelEnv: process.env.VERCEL_ENV ?? null,
+  });
 });
 
 app.get('/api/progress', async (req, res) => {

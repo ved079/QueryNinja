@@ -111,6 +111,43 @@ button.link {
   color: var(--muted);
 }
 
+/* ---------- name modal ---------- */
+.name-modal {
+  width: 380px;
+}
+.name-modal-inner {
+  padding: 24px;
+}
+.name-modal-inner h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+.name-modal-inner p {
+  margin: 0 0 16px;
+  font-size: 13px;
+}
+.name-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+.name-input:focus {
+  border-color: var(--accent);
+}
+.name-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
 /* ---------- modal (problem list popup) ---------- */
 .modal-overlay {
   position: fixed;
