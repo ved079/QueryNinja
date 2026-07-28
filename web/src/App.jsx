@@ -10,6 +10,7 @@ import { compare, createDb, exec, describeTables, gradeAll, testsOf } from './li
 
 const STARTER = '-- Write your query here\nSELECT ';
 const NAME_KEY = 'sql-practice-name';
+const NAME_SKIP_KEY = 'sql-practice-name-skip';
 
 export default function App() {
   const [problems, setProblems] = useState([]);
@@ -34,6 +35,7 @@ export default function App() {
   const [submissions, setSubmissions] = useState([]);
   const [userName, setUserName] = useState(() => localStorage.getItem(NAME_KEY) || '');
   const [nameModalOpen, setNameModalOpen] = useState(false);
+  const [nameSkipped, setNameSkipped] = useState(() => localStorage.getItem(NAME_SKIP_KEY) === '1');
   const splitterRef = useRef(null);
 
   const dbRef = useRef(null);
@@ -43,11 +45,11 @@ export default function App() {
 
   const handleCodeChange = useCallback((val) => {
     setCode(val);
-    if (!userName && !namePromptedRef.current) {
+    if (!userName && !nameSkipped && !namePromptedRef.current) {
       namePromptedRef.current = true;
       setNameModalOpen(true);
     }
-  }, [userName]);
+  }, [userName, nameSkipped]);
 
   const problem = problems.find((p) => p.id === selectedId) ?? null;
 
@@ -451,8 +453,15 @@ export default function App() {
         <NameModal
           currentName={userName}
           onClose={() => setNameModalOpen(false)}
+          onSkip={() => {
+            localStorage.setItem(NAME_SKIP_KEY, '1');
+            setNameSkipped(true);
+            setNameModalOpen(false);
+          }}
           onSave={(val) => {
             localStorage.setItem(NAME_KEY, val);
+            localStorage.removeItem(NAME_SKIP_KEY);
+            setNameSkipped(false);
             setUserName(val);
             setNameModalOpen(false);
           }}

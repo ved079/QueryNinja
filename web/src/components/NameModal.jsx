@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 const DEBOUNCE_MS = 800;
 
 // available: null (untouched/blank) | 'checking' | 'available' | 'taken' | 'invalid'
-export default function NameModal({ currentName, onSave, onClose }) {
+export default function NameModal({ currentName, onSave, onClose, onSkip }) {
   const [value, setValue] = useState(currentName ?? '');
   const [available, setAvailable] = useState(null);
   const timerRef = useRef(null);
@@ -74,6 +74,11 @@ export default function NameModal({ currentName, onSave, onClose }) {
             {!available && ' '}
           </p>
           <div className="name-modal-actions">
+            {onSkip && !currentName && (
+              <button className="skip-name-btn" onClick={onSkip}>
+                Use without a username
+              </button>
+            )}
             <button onClick={onClose}>Cancel</button>
             <button className="primary" disabled={!canSave} onClick={save}>
               Save

@@ -175,9 +175,22 @@ button.link {
 }
 .name-modal-actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 8px;
   margin-top: 16px;
+}
+.skip-name-btn {
+  margin-right: auto;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 12px;
+  text-decoration: underline;
+  padding: 4px 0;
+}
+.skip-name-btn:hover {
+  color: var(--text);
 }
 
 /* ---------- modal (problem list popup) ---------- */
