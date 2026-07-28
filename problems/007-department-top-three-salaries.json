@@ -3,12 +3,17 @@
   "number": 7,
   "title": "Department Top Three Salaries",
   "difficulty": "Hard",
-  "tags": ["Window Function", "Join", "Ranking"],
+  "tags": [
+    "Window Function",
+    "Join",
+    "Ranking"
+  ],
   "description": "Table `Employee` holds employees and their salary, with `departmentId` referencing `Department.id`.\n\nAn employee is a **high earner** in a department if there are fewer than three *distinct* salaries in that department strictly greater than theirs.\n\nWrite a query to find the high earners in each department. Report columns `Department`, `Employee`, `Salary`.\n\nReturn the result in any order.",
   "schemaSql": "CREATE TABLE Department (\n  id INTEGER PRIMARY KEY,\n  name TEXT\n);\n\nCREATE TABLE Employee (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  salary INTEGER,\n  departmentId INTEGER\n);",
   "solutionSql": "SELECT d.name AS Department, e.name AS Employee, e.salary AS Salary\nFROM (\n  SELECT *,\n         DENSE_RANK() OVER (PARTITION BY departmentId ORDER BY salary DESC) AS rnk\n  FROM Employee\n) e\nJOIN Department d ON d.id = e.departmentId\nWHERE e.rnk <= 3;",
   "orderMatters": false,
   "hint": "DENSE_RANK() (not RANK() or ROW_NUMBER()) is what treats tied salaries as one rank — exactly what \"distinct salaries greater than theirs\" means.",
+  "outputExplanation": "IT: DENSE_RANK gives Max(90k)→1, Joe/Randy(85k)→2 (tied, no skip), Will(70k)→3, Janet(69k)→4 → rank ≤ 3 picks 4 employees. Sales: Henry(80k)→1, Sam(60k)→2 → both qualify. 6 rows total. Tied ranks share the same rank number, so Joe and Randy both appear at rank 2.",
   "tests": [
     {
       "name": "Example",

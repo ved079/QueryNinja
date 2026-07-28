@@ -4,143 +4,184 @@
     "number": 46,
     "title": "Customers From The US",
     "difficulty": "Easy",
-    "tags": ["Filtering"],
+    "tags": [
+      "Filtering"
+    ],
     "family": "sales",
     "description": "Report the `name` of every customer whose country is `US`.\n\nName the column `name`. Return the result in any order.",
     "solutionSql": "SELECT name FROM customers WHERE country = 'US';",
     "orderMatters": false,
-    "hint": "A customer with a NULL country is not equal to 'US' — NULL comparisons are never true."
+    "hint": "A customer with a NULL country is not equal to 'US' — NULL comparisons are never true.",
+    "outputExplanation": "Ada and Cy have `country = 'US'`. Bo is 'UK', Di is 'IN' — both excluded by the WHERE filter. If a customer had a NULL country, they'd be excluded too since NULL = 'US' is never true."
   },
   {
     "id": "sales-expensive-products",
     "number": 47,
     "title": "Products Over 50",
     "difficulty": "Easy",
-    "tags": ["Filtering"],
+    "tags": [
+      "Filtering"
+    ],
     "family": "sales",
     "description": "Report the `name` and `price` of every product priced above 50.\n\nName the columns `name` and `price`. Return the result in any order.",
     "solutionSql": "SELECT name, price FROM products WHERE price > 50;",
     "orderMatters": false,
-    "hint": "Straight WHERE filter; products with a NULL price drop out on their own."
+    "hint": "Straight WHERE filter; products with a NULL price drop out on their own.",
+    "outputExplanation": "Keyboard ($80) and Desk ($300) are priced above $50. Mouse ($25) and Lamp ($45) are not — they're excluded by the WHERE filter."
   },
   {
     "id": "sales-orders-per-status",
     "number": 48,
     "title": "Orders By Status",
     "difficulty": "Easy",
-    "tags": ["Group By"],
+    "tags": [
+      "Group By"
+    ],
     "family": "sales",
     "description": "Report how many orders exist for each status.\n\nName the columns `status` and `orders`. Return the result in any order.",
     "solutionSql": "SELECT status, COUNT(*) AS orders FROM orders GROUP BY status;",
     "orderMatters": false,
-    "hint": "GROUP BY puts all NULL statuses into a single group of their own."
+    "hint": "GROUP BY puts all NULL statuses into a single group of their own.",
+    "outputExplanation": "4 orders are `completed` (ids 1, 2, 4, 6), 1 is `cancelled` (id 3), 1 is `pending` (id 5). `GROUP BY status` produces one row per status value, including any NULL statuses grouped together."
   },
   {
     "id": "sales-customers-per-country",
     "number": 49,
     "title": "Customers Per Country",
     "difficulty": "Easy",
-    "tags": ["Group By"],
+    "tags": [
+      "Group By"
+    ],
     "family": "sales",
     "description": "Report how many customers signed up from each country.\n\nName the columns `country` and `customers`. Return the result in any order.",
     "solutionSql": "SELECT country, COUNT(*) AS customers FROM customers GROUP BY country;",
     "orderMatters": false,
-    "hint": "One row per distinct country, including the NULL group."
+    "hint": "One row per distinct country, including the NULL group.",
+    "outputExplanation": "US: Ada, Cy → 2. UK: Bo → 1. IN: Di → 1. `GROUP BY country` counts how many customers signed up from each country, including a group for NULL countries if any existed."
   },
   {
     "id": "sales-distinct-categories",
     "number": 50,
     "title": "Product Categories",
     "difficulty": "Easy",
-    "tags": ["Distinct"],
+    "tags": [
+      "Distinct"
+    ],
     "family": "sales",
     "description": "Report each distinct product category, excluding NULL.\n\nName the column `category`. Return the result in any order.",
     "solutionSql": "SELECT DISTINCT category FROM products WHERE category IS NOT NULL;",
     "orderMatters": false,
-    "hint": "DISTINCT keeps NULL as a value, so filter it out explicitly."
+    "hint": "DISTINCT keeps NULL as a value, so filter it out explicitly.",
+    "outputExplanation": "Two non-NULL categories exist in the products table: `Tech` (Keyboard, Mouse) and `Furniture` (Desk, Lamp). The Mystery product has NULL category and is excluded by `WHERE category IS NOT NULL`."
   },
   {
     "id": "sales-most-expensive-product",
     "number": 51,
     "title": "The Priciest Product",
     "difficulty": "Easy",
-    "tags": ["Aggregation"],
+    "tags": [
+      "Aggregation"
+    ],
     "family": "sales",
     "description": "Report the highest product price in the catalogue.\n\nName the column `max_price`. The result is exactly one row.",
     "solutionSql": "SELECT MAX(price) AS max_price FROM products;",
     "orderMatters": false,
-    "hint": "MAX ignores NULLs and still returns one row when the table is empty."
+    "hint": "MAX ignores NULLs and still returns one row when the table is empty.",
+    "outputExplanation": "The maximum product price is Desk at **$300**. `MAX()` ignores NULL prices and always returns exactly one row — even if the table were empty it would return a single row with NULL."
   },
   {
     "id": "sales-orders-in-2022",
     "number": 52,
     "title": "Orders Placed In 2022",
     "difficulty": "Easy",
-    "tags": ["Date", "Filtering"],
+    "tags": [
+      "Date",
+      "Filtering"
+    ],
     "family": "sales",
     "description": "Report the `id` and `order_date` of every order placed during 2022.\n\nName the columns `id` and `order_date`. Return the result in any order.",
     "solutionSql": "SELECT id, order_date FROM orders WHERE order_date >= '2022-01-01' AND order_date < '2023-01-01';",
     "orderMatters": false,
-    "hint": "A half-open range on ISO date strings is both correct and index-friendly."
+    "hint": "A half-open range on ISO date strings is both correct and index-friendly.",
+    "outputExplanation": "Orders 1 through 5 have order_dates in 2022: from 2022-01-10 to 2022-03-06. Order 6 is dated 2023-01-02 and is excluded by the half-open range `>= '2022-01-01' AND < '2023-01-01'`."
   },
   {
     "id": "sales-quantity-per-product",
     "number": 53,
     "title": "Units Sold Per Product",
     "difficulty": "Easy",
-    "tags": ["Join", "Group By"],
+    "tags": [
+      "Join",
+      "Group By"
+    ],
     "family": "sales",
     "description": "Report each product's name and the total number of units of it that appear in order items. Products that were never sold must appear with `0`.\n\nName the columns `product` and `units`. Return the result in any order.",
     "solutionSql": "SELECT p.name AS product, COALESCE(SUM(oi.quantity), 0) AS units\nFROM products p\nLEFT JOIN order_items oi ON oi.product_id = p.id\nGROUP BY p.id, p.name;",
     "orderMatters": false,
-    "hint": "LEFT JOIN keeps unsold products; COALESCE turns the resulting NULL sum into 0."
+    "hint": "LEFT JOIN keeps unsold products; COALESCE turns the resulting NULL sum into 0.",
+    "outputExplanation": "Keyboard: sum(2+1) = 3. Mouse: sum(1+3+2) = 6. Desk: sum(1) = 1. Lamp: sum(4+2) = 6. The `LEFT JOIN` + `COALESCE` ensures products never sold would appear with quantity 0 instead of being dropped."
   },
   {
     "id": "sales-never-sold",
     "number": 54,
     "title": "Products Never Sold",
     "difficulty": "Easy",
-    "tags": ["Anti Join"],
+    "tags": [
+      "Anti Join"
+    ],
     "family": "sales",
     "description": "Report the `name` of every product that has never appeared in any order item.\n\nName the column `name`. Return the result in any order.",
     "solutionSql": "SELECT p.name\nFROM products p\nLEFT JOIN order_items oi ON oi.product_id = p.id\nWHERE oi.id IS NULL;",
     "orderMatters": false,
-    "hint": "Anti-join: LEFT JOIN then keep the rows where the right-hand side stayed NULL."
+    "hint": "Anti-join: LEFT JOIN then keep the rows where the right-hand side stayed NULL.",
+    "outputExplanation": "All 4 products appear in order_items at least once, so the anti-join (LEFT JOIN + WHERE oi.id IS NULL) finds nothing — 0 rows. The hidden test \"Products never sold\" adds a `NeverSold` product that has no order_items row, making it appear in the result."
   },
   {
     "id": "sales-order-value",
     "number": 55,
     "title": "Value Of Each Order",
     "difficulty": "Easy",
-    "tags": ["Join", "Aggregation"],
+    "tags": [
+      "Join",
+      "Aggregation"
+    ],
     "family": "sales",
     "description": "For every order that has at least one item, report the order id and its total value — the sum of `quantity * unit_price` across its items, rounded to 2 decimals.\n\nName the columns `order_id` and `total`. Return the result in any order.",
     "solutionSql": "SELECT order_id, ROUND(SUM(quantity * unit_price), 2) AS total\nFROM order_items\nGROUP BY order_id;",
     "orderMatters": false,
-    "hint": "You never need the orders table here — order_items already carries the order id."
+    "hint": "You never need the orders table here — order_items already carries the order id.",
+    "outputExplanation": "Order 1: 2×80 + 1×25 = 185. Order 2: 1×300 = 300. Order 3: 4×45 = 180. Order 4: 3×25 = 75. Order 5: 1×80 = 80. Order 6: 2×45 + 2×25 = 140. The query groups by `order_id` directly on order_items, so it includes all orders regardless of their status."
   },
   {
     "id": "sales-completed-orders-count",
     "number": 56,
     "title": "Completed Orders Per Customer",
     "difficulty": "Easy",
-    "tags": ["Join", "Group By"],
+    "tags": [
+      "Join",
+      "Group By"
+    ],
     "family": "sales",
     "description": "Report every customer's name and how many **completed** orders they have. Customers with none must still appear, showing 0.\n\nName the columns `customer` and `completed_orders`. Return the result in any order.",
     "solutionSql": "SELECT c.name AS customer,\n       COUNT(CASE WHEN o.status = 'completed' THEN 1 END) AS completed_orders\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id\nGROUP BY c.id, c.name;",
     "orderMatters": false,
-    "hint": "Putting the status test in the WHERE clause would delete the zero-order customers. Move the condition inside the COUNT instead."
+    "hint": "Putting the status test in the WHERE clause would delete the zero-order customers. Move the condition inside the COUNT instead.",
+    "outputExplanation": "Ada has 3 completed orders (ids 1, 2, 6). Cy has 1 (id 4). Bo has 0 completed (order 3 is cancelled). Di has 0 total orders. The `LEFT JOIN` keeps all customers, and `COUNT(CASE WHEN status = 'completed' THEN 1 END)` counts only completed orders without filtering out the zero-count rows."
   },
   {
     "id": "sales-average-price-per-category",
     "number": 57,
     "title": "Average Price Per Category",
     "difficulty": "Easy",
-    "tags": ["Group By", "Aggregation"],
+    "tags": [
+      "Group By",
+      "Aggregation"
+    ],
     "family": "sales",
     "description": "Report each product category and its average price, rounded to 2 decimals. Ignore products with no category.\n\nName the columns `category` and `avg_price`. Return the result in any order.",
     "solutionSql": "SELECT category, ROUND(AVG(price), 2) AS avg_price\nFROM products\nWHERE category IS NOT NULL\nGROUP BY category;",
     "orderMatters": false,
-    "hint": "AVG skips NULL prices, so a category with only NULL prices averages to NULL."
+    "hint": "AVG skips NULL prices, so a category with only NULL prices averages to NULL.",
+    "outputExplanation": "Furniture: (300 + 45) / 2 = **172.50**. Tech: (80 + 25) / 2 = **52.50**. Products with NULL category are excluded by `WHERE category IS NOT NULL`. `AVG` skips NULL prices, so a category with only NULL prices would average to NULL."
   }
 ]

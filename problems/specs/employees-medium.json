@@ -4,191 +4,250 @@
     "number": 20,
     "title": "Earning More Than Your Manager",
     "difficulty": "Medium",
-    "tags": ["Self Join"],
+    "tags": [
+      "Self Join"
+    ],
     "family": "employees",
     "description": "Report the `name` of every employee who earns strictly more than their own manager.\n\nName the column `employee`. Return the result in any order.",
     "solutionSql": "SELECT e.name AS employee\nFROM employees e\nJOIN employees m ON e.manager_id = m.id\nWHERE e.salary > m.salary;",
     "orderMatters": false,
-    "hint": "Join the table to itself: one alias for the employee, one for the manager."
+    "hint": "Join the table to itself: one alias for the employee, one for the manager.",
+    "outputExplanation": "The self-join finds employees whose salary exceeds their manager's. In the Example dataset, no employee earns more than their own manager — the join produces zero rows. The \"deep chain\" hidden test (L1–L5) makes the result visible: L5 (Engineer, $250k) earns more than L4 (Manager, $120k), their own manager."
   },
   {
     "id": "emp-rank-within-department",
     "number": 21,
     "title": "Salary Rank Within Department",
     "difficulty": "Medium",
-    "tags": ["Window Function", "Ranking"],
+    "tags": [
+      "Window Function",
+      "Ranking"
+    ],
     "family": "employees",
     "description": "For every employee report their salary rank inside their own department, highest salary first. Employees on equal salaries share a rank and the next rank is **not** skipped.\n\nName the columns `name`, `dept_id` and `rnk`. Return the result in any order.",
     "solutionSql": "SELECT name, dept_id,\n       DENSE_RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS rnk\nFROM employees;",
     "orderMatters": false,
-    "hint": "\"Ties share a rank and nothing is skipped\" is the definition of DENSE_RANK, as opposed to RANK."
+    "hint": "\"Ties share a rank and nothing is skipped\" is the definition of DENSE_RANK, as opposed to RANK.",
+    "outputExplanation": "Engineering: Ava(150k)→1, Ben/Cara(120k)→2 (tied, DENSE_RANK doesn't skip 3), Dan(95k)→3. Sales: Eve(130k)→1, Gia(85k)→2, Finn(70k)→3. HR: Hal(60k)→1. DENSE_RANK leaves no gaps after ties — the next distinct salary after 120k is rank 3, not 4."
   },
   {
     "id": "emp-above-department-average",
     "number": 22,
     "title": "Above Your Department's Average",
     "difficulty": "Medium",
-    "tags": ["Window Function", "Subquery"],
+    "tags": [
+      "Window Function",
+      "Subquery"
+    ],
     "family": "employees",
     "description": "Report the `name` and `salary` of every employee earning strictly more than the average salary of their own department.\n\nName the columns `name` and `salary`. Return the result in any order.",
     "solutionSql": "SELECT name, salary\nFROM (\n  SELECT name, salary,\n         AVG(salary) OVER (PARTITION BY dept_id) AS dept_avg\n  FROM employees\n)\nWHERE salary > dept_avg;",
     "orderMatters": false,
-    "hint": "A window AVG over PARTITION BY dept_id gives each row its department average without collapsing the rows."
+    "hint": "A window AVG over PARTITION BY dept_id gives each row its department average without collapsing the rows.",
+    "outputExplanation": "Engineering avg = (150+120+120+95)/4 = 121.25k → only Ava(150k) exceeds it. Sales avg = (130+70+85)/3 = 95k → only Eve(130k) exceeds it. HR avg = 60k → nobody exceeds. Ben, Cara, Dan and Finn, Gia all earn at or below their department average."
   },
   {
     "id": "emp-share-of-department-payroll",
     "number": 23,
     "title": "Share Of Department Payroll",
     "difficulty": "Medium",
-    "tags": ["Window Function"],
+    "tags": [
+      "Window Function"
+    ],
     "family": "employees",
     "description": "For every employee report what percentage of their department's total payroll their own salary represents, rounded to 2 decimal places.\n\nName the columns `name` and `pct_of_payroll`. Return the result in any order.",
     "solutionSql": "SELECT name,\n       ROUND(100.0 * salary / SUM(salary) OVER (PARTITION BY dept_id), 2) AS pct_of_payroll\nFROM employees;",
     "orderMatters": false,
-    "hint": "SUM(...) OVER (PARTITION BY dept_id) keeps every row while giving it the department total. Multiply by 100.0, not 100, to avoid integer division."
+    "hint": "SUM(...) OVER (PARTITION BY dept_id) keeps every row while giving it the department total. Multiply by 100.0, not 100, to avoid integer division.",
+    "outputExplanation": "Engineering total payroll = 485k: Ava=150k (30.93%), Ben=120k (24.74%), Cara=120k (24.74%), Dan=95k (19.59%). Sales total = 285k: Eve=130k (45.61%), Finn=70k (24.56%), Gia=85k (29.82%). HR total = 60k: Hal=60k (100%). Percentages sum to roughly 100% per department."
   },
   {
     "id": "emp-departments-above-company-average",
     "number": 24,
     "title": "Departments Paying Above Company Average",
     "difficulty": "Medium",
-    "tags": ["Subquery", "Group By"],
+    "tags": [
+      "Subquery",
+      "Group By"
+    ],
     "family": "employees",
     "description": "Report the name of every department whose **average** salary is strictly greater than the company-wide average salary.\n\nName the column `department`. Return the result in any order.",
     "solutionSql": "SELECT d.name AS department\nFROM employees e\nJOIN departments d ON d.id = e.dept_id\nGROUP BY d.id, d.name\nHAVING AVG(e.salary) > (SELECT AVG(salary) FROM employees);",
     "orderMatters": false,
-    "hint": "A scalar subquery in the HAVING clause is evaluated once for the whole query."
+    "hint": "A scalar subquery in the HAVING clause is evaluated once for the whole query.",
+    "outputExplanation": "Company-wide average salary = 103.75k. Engineering department average = 121.25k > 103.75k → qualifies. Sales average = 95k < 103.75k → excluded. HR average = 60k < 103.75k → excluded."
   },
   {
     "id": "emp-top-earner-per-department",
     "number": 25,
     "title": "Top Earner Of Each Department",
     "difficulty": "Medium",
-    "tags": ["Window Function", "Join"],
+    "tags": [
+      "Window Function",
+      "Join"
+    ],
     "family": "employees",
     "description": "Report the highest-paid employee of each department. If several employees tie for the top salary, report all of them.\n\nName the columns `department`, `name` and `salary`. Return the result in any order.",
     "solutionSql": "SELECT d.name AS department, e.name, e.salary\nFROM (\n  SELECT *, RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS rnk\n  FROM employees\n) e\nJOIN departments d ON d.id = e.dept_id\nWHERE e.rnk = 1;",
     "orderMatters": false,
-    "hint": "Rank inside each department, then keep rank 1 — ties come along for free."
+    "hint": "Rank inside each department, then keep rank 1 — ties come along for free.",
+    "outputExplanation": "RANK() inside each department: Engineering's top earner is Ava (150k), Sales' is Eve (130k), HR's is Hal (60k — its only employee). If there were ties at rank 1, all tied employees would appear. Only one row per department here because each has a clear top earner."
   },
   {
     "id": "emp-direct-reports",
     "number": 26,
     "title": "How Many Direct Reports",
     "difficulty": "Medium",
-    "tags": ["Self Join", "Group By"],
+    "tags": [
+      "Self Join",
+      "Group By"
+    ],
     "family": "employees",
     "description": "Report every employee who manages at least one person, together with how many **direct** reports they have.\n\nName the columns `manager` and `reports`. Return the result in any order.",
     "solutionSql": "SELECT m.name AS manager, COUNT(*) AS reports\nFROM employees e\nJOIN employees m ON m.id = e.manager_id\nGROUP BY m.id, m.name;",
     "orderMatters": false,
-    "hint": "Group the self-join by the manager's id, not their name — two managers could share a name."
+    "hint": "Group the self-join by the manager's id, not their name — two managers could share a name.",
+    "outputExplanation": "Ava manages Ben, Cara, Dan → 3 direct reports. Eve manages Finn, Gia → 2 direct reports. Hal manages nobody → the inner JOIN excludes managers with zero reports. No manager acts as both employee and manager in a way that double-counts because each is grouped by their own id."
   },
   {
     "id": "emp-salary-gap-to-next",
     "number": 27,
     "title": "Gap To The Next Highest Salary",
     "difficulty": "Medium",
-    "tags": ["Window Function"],
+    "tags": [
+      "Window Function"
+    ],
     "family": "employees",
     "description": "Order all employees by salary from highest to lowest and, for each one, report how much less they earn than the person directly above them. The top earner reports `NULL`.\n\nName the columns `name`, `salary` and `gap`. Return the result in any order.",
     "solutionSql": "SELECT name, salary,\n       LAG(salary) OVER (ORDER BY salary DESC, id) - salary AS gap\nFROM employees;",
     "orderMatters": false,
-    "hint": "LAG() reaches backwards one row in the window's order. Add a tie-breaker to the ORDER BY so the answer is deterministic."
+    "hint": "LAG() reaches backwards one row in the window's order. Add a tie-breaker to the ORDER BY so the answer is deterministic.",
+    "outputExplanation": "Ordered by salary descending: Ava(150k)→NULL (top, no one above), Eve(130k)→20k less than Ava, Ben(120k)→10k less than Eve, Cara(120k)→0 less than Ben (same salary), Dan(95k)→25k, Gia(85k)→10k, Finn(70k)→15k, Hal(60k)→10k. The `id` tiebreaker in `ORDER BY salary DESC, id` makes the order deterministic when salaries tie."
   },
   {
     "id": "emp-running-headcount",
     "number": 28,
     "title": "Running Headcount By Hire Date",
     "difficulty": "Medium",
-    "tags": ["Window Function", "Date"],
+    "tags": [
+      "Window Function",
+      "Date"
+    ],
     "family": "employees",
     "description": "Order employees by `hire_date` and report, for each hire, how many people had been hired up to and including that date.\n\nName the columns `hire_date`, `name` and `headcount`. Return the result in any order.",
     "solutionSql": "SELECT hire_date, name,\n       COUNT(*) OVER (ORDER BY hire_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS headcount\nFROM employees;",
     "orderMatters": false,
-    "hint": "A COUNT window with ORDER BY accumulates. Be explicit about the frame — ROWS and RANGE differ when dates tie."
+    "hint": "A COUNT window with ORDER BY accumulates. Be explicit about the frame — ROWS and RANGE differ when dates tie.",
+    "outputExplanation": "Ordered by hire_date: Eve(2017)→1, Ava(2018)→2, Ben(2019-03-01)→3, Cara(2019-03-01)→4 (same date, ROWS frame increments by one for each row), Finn(2020)→5, Dan(2021)→6, Gia(2022)→7, Hal(2023)→8. The `ROWS` frame means each row gets its own count even when dates tie — `RANGE` would give both Ben and Cara the same count of 4."
   },
   {
     "id": "emp-salary-bands",
     "number": 29,
     "title": "Bucket Salaries Into Bands",
     "difficulty": "Medium",
-    "tags": ["CASE", "Group By"],
+    "tags": [
+      "CASE",
+      "Group By"
+    ],
     "family": "employees",
     "description": "Bucket every employee into a salary band and count each band:\n\n- `Low` — under 80000\n- `Mid` — 80000 up to but not including 130000\n- `High` — 130000 and above\n\nEmployees with a NULL salary belong to the band `Unknown`. Report only bands that contain at least one employee.\n\nName the columns `band` and `headcount`. Return the result in any order.",
     "solutionSql": "SELECT CASE\n         WHEN salary IS NULL THEN 'Unknown'\n         WHEN salary < 80000 THEN 'Low'\n         WHEN salary < 130000 THEN 'Mid'\n         ELSE 'High'\n       END AS band,\n       COUNT(*) AS headcount\nFROM employees\nGROUP BY band;",
     "orderMatters": false,
-    "hint": "CASE arms are evaluated top to bottom, so test the NULL case first and let the ranges fall through."
+    "hint": "CASE arms are evaluated top to bottom, so test the NULL case first and let the ranges fall through.",
+    "outputExplanation": "High (≥130k): Ava(150k) and Eve(130k) = 2. Mid (80k ≤ x < 130k): Ben(120k), Cara(120k), Dan(95k), Gia(85k) = 4. Low (<80k): Finn(70k) and Hal(60k) = 2. Unknown (NULL salary): none in Example data — a hidden test with NULL salaries demonstrates that band."
   },
   {
     "id": "emp-duplicate-salaries",
     "number": 30,
     "title": "Salaries Paid To More Than One Person",
     "difficulty": "Medium",
-    "tags": ["Group By", "Having"],
+    "tags": [
+      "Group By",
+      "Having"
+    ],
     "family": "employees",
     "description": "Report every salary figure that is paid to two or more employees, along with how many people receive it.\n\nName the columns `salary` and `people`. Return the result in any order.",
     "solutionSql": "SELECT salary, COUNT(*) AS people\nFROM employees\nWHERE salary IS NOT NULL\nGROUP BY salary\nHAVING COUNT(*) > 1;",
     "orderMatters": false,
-    "hint": "GROUP BY collects NULLs into their own group — exclude them explicitly if they should not count."
+    "hint": "GROUP BY collects NULLs into their own group — exclude them explicitly if they should not count.",
+    "outputExplanation": "Only 120,000 is shared — Ben and Cara both earn exactly $120k → salary = 120000, people = 2. Every other salary in the company is unique to a single employee. NULL salaries are excluded by `WHERE salary IS NOT NULL`."
   },
   {
     "id": "emp-longest-tenured-per-department",
     "number": 31,
     "title": "Longest-Serving Person Per Department",
     "difficulty": "Medium",
-    "tags": ["Window Function"],
+    "tags": [
+      "Window Function"
+    ],
     "family": "employees",
     "description": "Report the earliest-hired employee in each department. If several were hired on the same earliest date, report all of them.\n\nName the columns `dept_id`, `name` and `hire_date`. Return the result in any order.",
     "solutionSql": "SELECT dept_id, name, hire_date\nFROM (\n  SELECT *, RANK() OVER (PARTITION BY dept_id ORDER BY hire_date) AS rnk\n  FROM employees\n)\nWHERE rnk = 1;",
     "orderMatters": false,
-    "hint": "RANK() keeps every tied row at rank 1; ROW_NUMBER() would arbitrarily pick one."
+    "hint": "RANK() keeps every tied row at rank 1; ROW_NUMBER() would arbitrarily pick one.",
+    "outputExplanation": "Engineering earliest hire: Ava (2018-01-15). Sales earliest hire: Eve (2017-11-02). HR earliest hire: Hal (2023-09-01, only employee). `RANK()` ensures that if two employees were hired on the same earliest date, both would be included at rank 1."
   },
   {
     "id": "emp-hires-per-year",
     "number": 32,
     "title": "Hires Per Year",
     "difficulty": "Medium",
-    "tags": ["Date", "Group By"],
+    "tags": [
+      "Date",
+      "Group By"
+    ],
     "family": "employees",
     "description": "Report how many people were hired in each calendar year.\n\nName the columns `year` and `hires`. Return the result in any order.",
     "solutionSql": "SELECT strftime('%Y', hire_date) AS year, COUNT(*) AS hires\nFROM employees\nGROUP BY year;",
     "orderMatters": false,
-    "hint": "strftime('%Y', date) extracts the year in SQLite; it returns text, not a number."
+    "hint": "strftime('%Y', date) extracts the year in SQLite; it returns text, not a number.",
+    "outputExplanation": "2017: Eve (1). 2018: Ava (1). 2019: Ben and Cara (2). 2020: Finn (1). 2021: Dan (1). 2022: Gia (1). 2023: Hal (1). `strftime('%Y', hire_date)` extracts the year as text; `GROUP BY` groups all hires from the same year together."
   },
   {
     "id": "emp-median-salary",
     "number": 33,
     "title": "Median Salary",
     "difficulty": "Medium",
-    "tags": ["Aggregation", "Subquery"],
+    "tags": [
+      "Aggregation",
+      "Subquery"
+    ],
     "family": "employees",
     "description": "Report the median salary of the company: the middle value when salaries are sorted, or the average of the two middle values when the count is even. Ignore NULL salaries.\n\nName the column `median_salary`. The result is exactly one row.",
     "solutionSql": "SELECT AVG(salary) AS median_salary FROM (\n  SELECT salary FROM employees WHERE salary IS NOT NULL\n  ORDER BY salary\n  LIMIT 2 - (SELECT COUNT(*) FROM employees WHERE salary IS NOT NULL) % 2\n  OFFSET (SELECT (COUNT(*) - 1) / 2 FROM employees WHERE salary IS NOT NULL)\n);",
     "orderMatters": false,
-    "hint": "SQLite has no PERCENTILE function. Take 1 or 2 rows from the middle with LIMIT/OFFSET and average them."
+    "hint": "SQLite has no PERCENTILE function. Take 1 or 2 rows from the middle with LIMIT/OFFSET and average them.",
+    "outputExplanation": "8 non-NULL salaries sorted: 60k, 70k, 85k, 95k, 120k, 120k, 130k, 150k. Even count (8) → average of the two middle values (4th = 95k, 5th = 120k) = **107,500**. The `LIMIT`/`OFFSET` median recipe picks rows 4 and 5 and averages them."
   },
   {
     "id": "emp-managers-of-big-teams",
     "number": 34,
     "title": "Managers Of Three Or More",
     "difficulty": "Medium",
-    "tags": ["Self Join", "Having"],
+    "tags": [
+      "Self Join",
+      "Having"
+    ],
     "family": "employees",
     "description": "Report the name of every manager with **three or more** direct reports.\n\nName the column `manager`. Return the result in any order.",
     "solutionSql": "SELECT m.name AS manager\nFROM employees e\nJOIN employees m ON m.id = e.manager_id\nGROUP BY m.id, m.name\nHAVING COUNT(*) >= 3;",
     "orderMatters": false,
-    "hint": "Same self-join as counting direct reports, with a HAVING filter on the count."
+    "hint": "Same self-join as counting direct reports, with a HAVING filter on the count.",
+    "outputExplanation": "Ava has 3 direct reports (Ben, Cara, Dan) → `COUNT(*) = 3`, qualifies. Eve has 2 direct reports (Finn, Gia) → doesn't reach the threshold of ≥3. Hal manages nobody → excluded by the inner JOIN."
   },
   {
     "id": "emp-difference-from-department-average",
     "number": 35,
     "title": "Distance From Your Department's Average",
     "difficulty": "Medium",
-    "tags": ["Window Function"],
+    "tags": [
+      "Window Function"
+    ],
     "family": "employees",
     "description": "For every employee report how far their salary sits above or below their department's average, rounded to 2 decimals. Negative means below average.\n\nName the columns `name` and `diff`. Return the result in any order.",
     "solutionSql": "SELECT name,\n       ROUND(salary - AVG(salary) OVER (PARTITION BY dept_id), 2) AS diff\nFROM employees;",
     "orderMatters": false,
-    "hint": "Subtract the partitioned window average from the row's own salary."
+    "hint": "Subtract the partitioned window average from the row's own salary.",
+    "outputExplanation": "Engineering avg = 121.25k: Ava +28.75k, Ben/Cara −1.25k, Dan −26.25k. Sales avg = 95k: Eve +35k, Finn −25k, Gia −10k. HR avg = 60k: Hal ±0 (only employee, salary equals the average). Negative = below department average."
   }
 ]

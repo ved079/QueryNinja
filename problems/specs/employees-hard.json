@@ -4,119 +4,158 @@
     "number": 36,
     "title": "Depth In The Management Chain",
     "difficulty": "Hard",
-    "tags": ["Recursive CTE", "Hierarchy"],
+    "tags": [
+      "Recursive CTE",
+      "Hierarchy"
+    ],
     "family": "employees",
     "description": "Every employee sits somewhere in a management tree. Report each employee's depth, where an employee with no manager is at depth 1, their direct reports at depth 2, and so on.\n\nName the columns `name` and `depth`. Return the result in any order.",
     "solutionSql": "WITH RECURSIVE chain(id, name, depth) AS (\n  SELECT id, name, 1 FROM employees WHERE manager_id IS NULL\n  UNION ALL\n  SELECT e.id, e.name, c.depth + 1\n  FROM employees e\n  JOIN chain c ON e.manager_id = c.id\n)\nSELECT name, depth FROM chain;",
     "orderMatters": false,
-    "hint": "A recursive CTE: the anchor picks the roots (no manager), the recursive arm joins children to already-found parents and adds one."
+    "hint": "A recursive CTE: the anchor picks the roots (no manager), the recursive arm joins children to already-found parents and adds one.",
+    "outputExplanation": "Top-level (manager_id IS NULL): Ava, Eve, Hal → depth 1. Their direct reports: Ben, Cara, Dan report to Ava; Finn, Gia report to Eve → depth 2. The recursive CTE's anchor picks the roots, and each recursive step adds one to the depth."
   },
   {
     "id": "emp-total-team-size",
     "number": 37,
     "title": "Total Team Size Including Indirect Reports",
     "difficulty": "Hard",
-    "tags": ["Recursive CTE", "Hierarchy"],
+    "tags": [
+      "Recursive CTE",
+      "Hierarchy"
+    ],
     "family": "employees",
     "description": "For every employee who manages at least one person, report how many people sit below them in the tree — direct reports plus everyone under those reports, all the way down.\n\nName the columns `manager` and `team_size`. Return the result in any order.",
     "solutionSql": "WITH RECURSIVE tree(root, id) AS (\n  SELECT manager_id, id FROM employees WHERE manager_id IS NOT NULL\n  UNION ALL\n  SELECT t.root, e.id\n  FROM employees e\n  JOIN tree t ON e.manager_id = t.id\n)\nSELECT m.name AS manager, COUNT(*) AS team_size\nFROM tree t\nJOIN employees m ON m.id = t.root\nGROUP BY t.root, m.name;",
     "orderMatters": false,
-    "hint": "Seed the recursion with every (manager, direct report) pair, then keep attaching each report's own reports to the same root."
+    "hint": "Seed the recursion with every (manager, direct report) pair, then keep attaching each report's own reports to the same root.",
+    "outputExplanation": "Ava has 3 total people below her in the tree (Ben, Cara, Dan — all direct). Eve has 2 (Finn, Gia — all direct). Hal manages nobody → excluded by `WHERE manager_id IS NOT NULL`. The recursive CTE starts from each (manager, direct report) pair and traverses all descendants, grouping by the original root manager."
   },
   {
     "id": "emp-above-department-median",
     "number": 38,
     "title": "Above Your Department's Median",
     "difficulty": "Hard",
-    "tags": ["Window Function", "Statistics"],
+    "tags": [
+      "Window Function",
+      "Statistics"
+    ],
     "family": "employees",
     "description": "Report every employee whose salary is strictly above the **median** salary of their own department. Ignore employees with a NULL salary.\n\nName the columns `dept_id`, `name` and `salary`. Return the result in any order.",
     "solutionSql": "WITH ranked AS (\n  SELECT dept_id, name, salary,\n         ROW_NUMBER() OVER (PARTITION BY dept_id ORDER BY salary) AS rn,\n         COUNT(*) OVER (PARTITION BY dept_id) AS cnt\n  FROM employees\n  WHERE salary IS NOT NULL\n),\nmedians AS (\n  SELECT dept_id, AVG(salary) AS med\n  FROM ranked\n  WHERE rn IN ((cnt + 1) / 2, (cnt + 2) / 2)\n  GROUP BY dept_id\n)\nSELECT r.dept_id, r.name, r.salary\nFROM ranked r\nJOIN medians m ON m.dept_id = r.dept_id\nWHERE r.salary > m.med;",
     "orderMatters": false,
-    "hint": "Number the rows inside each department, then average the one or two middle positions — (cnt+1)/2 and (cnt+2)/2 land on the same row when the count is odd."
+    "hint": "Number the rows inside each department, then average the one or two middle positions — (cnt+1)/2 and (cnt+2)/2 land on the same row when the count is odd.",
+    "outputExplanation": "Engineering salaries (non-NULL): 95k, 120k, 120k, 150k → median = (120k + 120k) / 2 = 120k → Ava(150k) > 120k qualifies. Sales salaries: 70k, 85k, 130k → median = 85k → Eve(130k) > 85k qualifies. HR has only 1 salary → median = Hal's own 60k, nobody can exceed it."
   },
   {
     "id": "emp-payroll-running-percent",
     "number": 39,
     "title": "Cumulative Share Of Payroll",
     "difficulty": "Hard",
-    "tags": ["Window Function"],
+    "tags": [
+      "Window Function"
+    ],
     "family": "employees",
     "description": "Order employees by salary from highest to lowest (ties broken by `id`) and report the running percentage of total company payroll accounted for by everyone down to and including that employee, rounded to 2 decimals.\n\nName the columns `name`, `salary` and `running_pct`. Return the result in any order.",
     "solutionSql": "SELECT name, salary,\n       ROUND(100.0 * SUM(salary) OVER (ORDER BY salary DESC, id\n                                       ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)\n             / SUM(salary) OVER (), 2) AS running_pct\nFROM employees;",
     "orderMatters": false,
-    "hint": "Two windows in one SELECT: a running SUM with a frame, divided by a grand-total SUM OVER () with no partition."
+    "hint": "Two windows in one SELECT: a running SUM with a frame, divided by a grand-total SUM OVER () with no partition.",
+    "outputExplanation": "Ordered by salary descending: Ava(150k)→18.07% of total (150k/830k), Eve(130k)→33.73% (cumulative 280k/830k), Ben(120k)→48.19%, Cara(120k)→62.65%, Dan(95k)→74.10%, Gia(85k)→84.34%, Finn(70k)→92.77%, Hal(60k)→100%. The running sum divided by the grand total gives the cumulative share."
   },
   {
     "id": "emp-second-highest-per-department",
     "number": 40,
     "title": "Second Highest Salary Per Department",
     "difficulty": "Hard",
-    "tags": ["Window Function", "Ranking"],
+    "tags": [
+      "Window Function",
+      "Ranking"
+    ],
     "family": "employees",
     "description": "For each department report the second highest **distinct** salary and everyone earning it. Departments without a second distinct salary produce no rows.\n\nName the columns `dept_id`, `name` and `salary`. Return the result in any order.",
     "solutionSql": "SELECT dept_id, name, salary\nFROM (\n  SELECT *, DENSE_RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS rnk\n  FROM employees\n  WHERE salary IS NOT NULL\n)\nWHERE rnk = 2;",
     "orderMatters": false,
-    "hint": "DENSE_RANK numbers distinct salaries, so rank 2 is exactly the second distinct value — and it disappears on its own when there isn't one."
+    "hint": "DENSE_RANK numbers distinct salaries, so rank 2 is exactly the second distinct value — and it disappears on its own when there isn't one.",
+    "outputExplanation": "Engineering distinct salaries: 150k (rank 1), 120k (rank 2), 95k (rank 3) → rank 2 = Ben and Cara at $120k. Sales distinct salaries: 130k (rank 1), 85k (rank 2), 70k (rank 3) → rank 2 = Gia at $85k. HR has only one distinct salary → no rank 2, zero rows for HR. DENSE_RANK by salary, filtered to rnk = 2."
   },
   {
     "id": "emp-manager-chain-names",
     "number": 41,
     "title": "Print The Reporting Line",
     "difficulty": "Hard",
-    "tags": ["Recursive CTE", "String"],
+    "tags": [
+      "Recursive CTE",
+      "String"
+    ],
     "family": "employees",
     "description": "For every employee report their full reporting line from the top of the company down to them, as a single string joined by ` > `. For example an engineer under a manager under a CEO reads `CEO > Manager > Engineer` (using their names).\n\nName the columns `name` and `chain`. Return the result in any order.",
     "solutionSql": "WITH RECURSIVE line(id, name, chain) AS (\n  SELECT id, name, name FROM employees WHERE manager_id IS NULL\n  UNION ALL\n  SELECT e.id, e.name, l.chain || ' > ' || e.name\n  FROM employees e\n  JOIN line l ON e.manager_id = l.id\n)\nSELECT name, chain FROM line;",
     "orderMatters": false,
-    "hint": "Carry the accumulated string down the recursion, appending with the || operator."
+    "hint": "Carry the accumulated string down the recursion, appending with the || operator.",
+    "outputExplanation": "Top-level: Ava → \"Ava\", Eve → \"Eve\", Hal → \"Hal\". Ben → \"Ava > Ben\", Cara → \"Ava > Cara\", Dan → \"Ava > Dan\". Finn → \"Eve > Finn\", Gia → \"Eve > Gia\". The recursive CTE builds the chain by appending each child's name to the parent's chain with `|| ' > ' ||` concatenation."
   },
   {
     "id": "emp-departments-all-above",
     "number": 42,
     "title": "Departments Where Everybody Clears 70k",
     "difficulty": "Hard",
-    "tags": ["NOT EXISTS", "Group By"],
+    "tags": [
+      "NOT EXISTS",
+      "Group By"
+    ],
     "family": "employees",
     "description": "Report the name of every department in which **every** employee earns more than 70000. A department with no employees does not qualify, and an employee with a NULL salary disqualifies their department.\n\nName the column `department`. Return the result in any order.",
     "solutionSql": "SELECT d.name AS department\nFROM departments d\nWHERE EXISTS (SELECT 1 FROM employees e WHERE e.dept_id = d.id)\n  AND NOT EXISTS (\n    SELECT 1 FROM employees e\n    WHERE e.dept_id = d.id\n      AND (e.salary IS NULL OR e.salary <= 70000)\n  );",
     "orderMatters": false,
-    "hint": "\"All rows satisfy X\" is easiest as \"no row violates X\" — but you still need an EXISTS to rule out empty departments."
+    "hint": "\"All rows satisfy X\" is easiest as \"no row violates X\" — but you still need an EXISTS to rule out empty departments.",
+    "outputExplanation": ""
   },
   {
     "id": "emp-salary-percentile",
     "number": 43,
     "title": "Salary Percentile Rank",
     "difficulty": "Hard",
-    "tags": ["Window Function", "Statistics"],
+    "tags": [
+      "Window Function",
+      "Statistics"
+    ],
     "family": "employees",
     "description": "For every employee with a salary, report their percentile rank in the company — the fraction of employees earning strictly less than them, as a percentage rounded to 2 decimals.\n\nName the columns `name` and `percentile`. Return the result in any order.",
     "solutionSql": "SELECT name,\n       ROUND(100.0 * (COUNT(*) OVER (ORDER BY salary RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)\n                      - COUNT(*) OVER (PARTITION BY salary))\n             / COUNT(*) OVER (), 2) AS percentile\nFROM employees\nWHERE salary IS NOT NULL;",
     "orderMatters": false,
-    "hint": "A RANGE frame counts every row with an equal salary, so subtract the size of the tie group to get \"strictly less than\"."
+    "hint": "A RANGE frame counts every row with an equal salary, so subtract the size of the tie group to get \"strictly less than\".",
+    "outputExplanation": "Hal(60k): 0 of 8 employees strictly below him → 0%. Finn(70k): 1 below → 12.5%. Gia(85k): 2 below → 25%. Dan(95k): 3 below → 37.5%. Ben/Cara(120k, tied): 4 below each → 50%. Eve(130k): 6 below → 75%. Ava(150k): 7 below → 87.5%. The `RANGE` frame counts rows with equal salaries as a peer group, which is subtracted to get the \"strictly less than\" count."
   },
   {
     "id": "emp-hired-same-month-pairs",
     "number": 44,
     "title": "Hired In The Same Month",
     "difficulty": "Hard",
-    "tags": ["Self Join", "Date"],
+    "tags": [
+      "Self Join",
+      "Date"
+    ],
     "family": "employees",
     "description": "Report every pair of different employees hired in the same calendar month of the same year. List each pair once, with the lower `id` first.\n\nName the columns `first_name`, `second_name` and `month`. Return the result in any order.",
     "solutionSql": "SELECT a.name AS first_name, b.name AS second_name,\n       strftime('%Y-%m', a.hire_date) AS month\nFROM employees a\nJOIN employees b\n  ON a.id < b.id\n AND strftime('%Y-%m', a.hire_date) = strftime('%Y-%m', b.hire_date);",
     "orderMatters": false,
-    "hint": "Joining on a.id < b.id (rather than <>) is what stops each pair appearing twice."
+    "hint": "Joining on a.id < b.id (rather than <>) is what stops each pair appearing twice.",
+    "outputExplanation": "Only Ben and Cara were hired in the same calendar month of the same year — both on 2019-03 → one pair (Ben, Cara). The self-join condition `a.id < b.id` ensures each pair appears only once, not twice."
   },
   {
     "id": "emp-dept-pay-compression",
     "number": 45,
     "title": "Pay Compression Ratio",
     "difficulty": "Hard",
-    "tags": ["Aggregation", "Join"],
+    "tags": [
+      "Aggregation",
+      "Join"
+    ],
     "family": "employees",
     "description": "For each department that has at least two employees with a salary, report the ratio of its highest salary to its lowest, rounded to 2 decimals. Skip departments whose lowest salary is 0 or negative, since the ratio is meaningless there.\n\nName the columns `department` and `ratio`. Return the result in any order.",
     "solutionSql": "SELECT d.name AS department,\n       ROUND(1.0 * MAX(e.salary) / MIN(e.salary), 2) AS ratio\nFROM employees e\nJOIN departments d ON d.id = e.dept_id\nWHERE e.salary IS NOT NULL\nGROUP BY d.id, d.name\nHAVING COUNT(*) >= 2 AND MIN(e.salary) > 0;",
     "orderMatters": false,
-    "hint": "Everything you need is in HAVING: both the count check and the guard against a zero or negative denominator."
+    "hint": "Everything you need is in HAVING: both the count check and the guard against a zero or negative denominator.",
+    "outputExplanation": "Engineering: max 150k / min 95k = 1.58. Sales: max 130k / min 70k = 1.86. HR excluded: only 1 employee with salary → `HAVING COUNT(*) >= 2` fails. The `MIN > 0` guard in HAVING also prevents division by zero or negative ratios."
   }
 ]

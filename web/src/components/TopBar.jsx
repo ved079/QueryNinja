@@ -90,9 +90,16 @@ export default function TopBar({
             </button>
           </span>
         ) : (
-          <button onClick={onChangeName} title="Set a name so your progress is your own">
-            Set name
-          </button>
+          <span className="user-name-group">
+            <span className="set-name-hint">Track your progress →</span>
+            <button
+              className="set-name-btn glow"
+              onClick={onChangeName}
+              title="Set a name so your progress is your own"
+            >
+              Set name
+            </button>
+          </span>
         )}
       </div>
     </header>

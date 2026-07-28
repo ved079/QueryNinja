@@ -110,6 +110,23 @@ button.link {
   font-size: 12px;
   color: var(--muted);
 }
+.set-name-hint {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  margin-right: 6px;
+}
+.set-name-btn.glow {
+  animation: set-name-glow 2s ease-in-out infinite;
+}
+@keyframes set-name-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 8px 3px rgba(99, 102, 241, 0.55);
+  }
+}
 
 /* ---------- name modal ---------- */
 .name-modal {

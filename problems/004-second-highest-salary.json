@@ -12,6 +12,7 @@
   "solutionSql": "SELECT (\n  SELECT DISTINCT salary\n  FROM Employee\n  ORDER BY salary DESC\n  LIMIT 1 OFFSET 1\n) AS SecondHighestSalary;",
   "orderMatters": false,
   "hint": "LIMIT 1 OFFSET 1 over DISTINCT salaries gets the value — but wrapping it in an outer SELECT is what guarantees one row (NULL) when it doesn't exist.",
+  "outputExplanation": "Distinct salaries: 100, 200, 300. Ordered DESC: 300, 200, 100. `LIMIT 1 OFFSET 1` skips the first (300) and returns 200. The outer SELECT guarantees exactly one row — if no second-highest existed the subquery would return nothing, but the outer layer still emits a single row with **NULL**.",
   "tests": [
     {
       "name": "Example",

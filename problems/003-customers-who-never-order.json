@@ -3,12 +3,16 @@
   "number": 3,
   "title": "Customers Who Never Order",
   "difficulty": "Easy",
-  "tags": ["Join", "Subquery"],
+  "tags": [
+    "Join",
+    "Subquery"
+  ],
   "description": "Table `Customers` holds all customers and table `Orders` holds orders placed, referencing `Customers.id` via `customerId`.\n\nWrite a query to report the names of all customers who have **never** placed an order. Name the output column `Customers`.\n\nReturn the result in any order.",
   "schemaSql": "CREATE TABLE Customers (\n  id INTEGER PRIMARY KEY,\n  name TEXT\n);\n\nCREATE TABLE Orders (\n  id INTEGER PRIMARY KEY,\n  customerId INTEGER\n);",
   "solutionSql": "SELECT c.name AS Customers\nFROM Customers c\nLEFT JOIN Orders o ON c.id = o.customerId\nWHERE o.id IS NULL;",
   "orderMatters": false,
   "hint": "An anti-join (LEFT JOIN ... WHERE right side IS NULL) or NOT EXISTS both work. Watch out: NOT IN returns nothing at all if the subquery contains a NULL.",
+  "outputExplanation": "Joe (id=1) has order 1 and Sam (id=3) has order 2 → those rows get a non-NULL `o.id` and are filtered out by `WHERE o.id IS NULL`. Henry (id=2) and Max (id=4) have no matching order row → `o.id` stays NULL → they survive and form the result.",
   "tests": [
     {
       "name": "Example",

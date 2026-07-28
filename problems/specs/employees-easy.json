@@ -4,143 +4,183 @@
     "number": 8,
     "title": "Six-Figure Employees",
     "difficulty": "Easy",
-    "tags": ["Filtering"],
+    "tags": [
+      "Filtering"
+    ],
     "family": "employees",
     "description": "Report the `name` and `salary` of every employee earning **more than 100000**.\n\nName the columns `name` and `salary`. Return the result in any order.",
     "solutionSql": "SELECT name, salary FROM employees WHERE salary > 100000;",
     "orderMatters": false,
-    "hint": "A plain WHERE filter. Remember that comparisons against NULL are never true — a NULL salary is not > 100000."
+    "hint": "A plain WHERE filter. Remember that comparisons against NULL are never true — a NULL salary is not > 100000.",
+    "outputExplanation": "Employees with salary > 100k: Ava($150k), Ben($120k), Cara($120k), Eve($130k). Dan(95k), Finn(70k), Gia(85k) and Hal(60k) are ≤ 100k and excluded. 4 rows."
   },
   {
     "id": "emp-headcount-per-department",
     "number": 9,
     "title": "Headcount Per Department",
     "difficulty": "Easy",
-    "tags": ["Join", "Group By"],
+    "tags": [
+      "Join",
+      "Group By"
+    ],
     "family": "employees",
     "description": "Report every department name and how many employees it has. Departments with **no employees** must still appear, with a count of 0.\n\nName the columns `department` and `employees`. Return the result in any order.",
     "solutionSql": "SELECT d.name AS department, COUNT(e.id) AS employees\nFROM departments d\nLEFT JOIN employees e ON e.dept_id = d.id\nGROUP BY d.id, d.name;",
     "orderMatters": false,
-    "hint": "COUNT(*) would count the NULL row a LEFT JOIN produces for an empty department. Count a column from the right table instead."
+    "hint": "COUNT(*) would count the NULL row a LEFT JOIN produces for an empty department. Count a column from the right table instead.",
+    "outputExplanation": "Engineering has 4 employees (Ava, Ben, Cara, Dan), Sales has 3 (Eve, Finn, Gia), HR has 1 (Hal). The `LEFT JOIN` + `COUNT(e.id)` ensures a department with zero employees would report 0 — without the LEFT JOIN it would be dropped entirely."
   },
   {
     "id": "emp-no-manager",
     "number": 10,
     "title": "Employees Without A Manager",
     "difficulty": "Easy",
-    "tags": ["NULL"],
+    "tags": [
+      "NULL"
+    ],
     "family": "employees",
     "description": "Report the `name` of every employee who has no manager.\n\nName the column `name`. Return the result in any order.",
     "solutionSql": "SELECT name FROM employees WHERE manager_id IS NULL;",
     "orderMatters": false,
-    "hint": "`manager_id = NULL` is never true. NULL needs its own operator."
+    "hint": "`manager_id = NULL` is never true. NULL needs its own operator.",
+    "outputExplanation": "Ava, Eve and Hal have `manager_id IS NULL` — they are the top-level managers in the company. Every other employee has a non-NULL manager_id and is excluded."
   },
   {
     "id": "emp-distinct-titles",
     "number": 11,
     "title": "Distinct Job Titles",
     "difficulty": "Easy",
-    "tags": ["Distinct"],
+    "tags": [
+      "Distinct"
+    ],
     "family": "employees",
     "description": "Report each distinct job title held by at least one employee.\n\nName the column `title`. Return the result in any order.",
     "solutionSql": "SELECT DISTINCT title FROM employees;",
     "orderMatters": false,
-    "hint": "DISTINCT, or an equivalent GROUP BY."
+    "hint": "DISTINCT, or an equivalent GROUP BY.",
+    "outputExplanation": "The 8 employees hold 4 distinct titles: Manager (Ava, Eve), Engineer (Ben, Cara, Dan), Rep (Finn, Gia), Analyst (Hal). `DISTINCT` collapses duplicates."
   },
   {
     "id": "emp-recent-hires",
     "number": 12,
     "title": "Hired Since 2020",
     "difficulty": "Easy",
-    "tags": ["Date", "Filtering"],
+    "tags": [
+      "Date",
+      "Filtering"
+    ],
     "family": "employees",
     "description": "Report the `name` and `hire_date` of everyone hired on or after 1 January 2020.\n\nName the columns `name` and `hire_date`. Return the result in any order.",
     "solutionSql": "SELECT name, hire_date FROM employees WHERE hire_date >= '2020-01-01';",
     "orderMatters": false,
-    "hint": "ISO dates (YYYY-MM-DD) compare correctly as plain strings — no date function needed."
+    "hint": "ISO dates (YYYY-MM-DD) compare correctly as plain strings — no date function needed.",
+    "outputExplanation": "Dan (2021-07-19), Finn (2020-05-30), Gia (2022-02-14) and Hal (2023-09-01) were hired on or after 2020-01-01. Ava (2018), Ben/Cara (2019-03-01) and Eve (2017) are before the cutoff and excluded."
   },
   {
     "id": "emp-payroll-per-department",
     "number": 13,
     "title": "Department Payroll",
     "difficulty": "Easy",
-    "tags": ["Join", "Aggregation"],
+    "tags": [
+      "Join",
+      "Aggregation"
+    ],
     "family": "employees",
     "description": "Report each department's name and its total salary bill. A department with no employees (or only NULL salaries) must report `0`, not NULL.\n\nName the columns `department` and `payroll`. Return the result in any order.",
     "solutionSql": "SELECT d.name AS department, COALESCE(SUM(e.salary), 0) AS payroll\nFROM departments d\nLEFT JOIN employees e ON e.dept_id = d.id\nGROUP BY d.id, d.name;",
     "orderMatters": false,
-    "hint": "SUM over no rows is NULL, not 0. Wrap it in COALESCE or IFNULL."
+    "hint": "SUM over no rows is NULL, not 0. Wrap it in COALESCE or IFNULL.",
+    "outputExplanation": "Engineering: 150k + 120k + 120k + 95k = **485,000**. Sales: 130k + 70k + 85k = **285,000**. HR: 60k = **60,000**. `COALESCE(SUM, 0)` makes empty or NULL-only departments show 0 instead of NULL."
   },
   {
     "id": "emp-average-salary",
     "number": 14,
     "title": "Average Salary, Rounded",
     "difficulty": "Easy",
-    "tags": ["Aggregation"],
+    "tags": [
+      "Aggregation"
+    ],
     "family": "employees",
     "description": "Report the company-wide average salary, rounded to 2 decimal places.\n\nName the column `avg_salary`. The result is exactly one row.",
     "solutionSql": "SELECT ROUND(AVG(salary), 2) AS avg_salary FROM employees;",
     "orderMatters": false,
-    "hint": "AVG skips NULL salaries automatically — and over an empty table it yields NULL, which is the expected answer there."
+    "hint": "AVG skips NULL salaries automatically — and over an empty table it yields NULL, which is the expected answer there.",
+    "outputExplanation": "AVG of the 8 non-NULL salaries (150, 120, 120, 95, 130, 70, 85, 60) = 830,000 / 8 = **103,750** — already an integer so `ROUND` to 2 decimals leaves 103750.00."
   },
   {
     "id": "emp-name-starts-with",
     "number": 15,
     "title": "Names Beginning With A",
     "difficulty": "Easy",
-    "tags": ["String"],
+    "tags": [
+      "String"
+    ],
     "family": "employees",
     "description": "Report the `name` of every employee whose name begins with the letter `A`.\n\nName the column `name`. Return the result in any order.",
     "solutionSql": "SELECT name FROM employees WHERE name LIKE 'A%';",
     "orderMatters": false,
-    "hint": "LIKE with a trailing wildcard. In SQLite, LIKE is case-insensitive for ASCII by default."
+    "hint": "LIKE with a trailing wildcard. In SQLite, LIKE is case-insensitive for ASCII by default.",
+    "outputExplanation": "Only Ava begins with the letter `A`. In SQLite, `LIKE 'A%'` is case-insensitive for ASCII characters, so an employee named `ava` would also match."
   },
   {
     "id": "emp-highest-salary",
     "number": 16,
     "title": "Top Salary In The Company",
     "difficulty": "Easy",
-    "tags": ["Aggregation"],
+    "tags": [
+      "Aggregation"
+    ],
     "family": "employees",
     "description": "Report the single highest salary in the company.\n\nName the column `top_salary`. The result is exactly one row (NULL if there are no employees).",
     "solutionSql": "SELECT MAX(salary) AS top_salary FROM employees;",
     "orderMatters": false,
-    "hint": "A bare aggregate always returns exactly one row, even with no data — which is why MAX beats ORDER BY ... LIMIT 1 here."
+    "hint": "A bare aggregate always returns exactly one row, even with no data — which is why MAX beats ORDER BY ... LIMIT 1 here.",
+    "outputExplanation": "The maximum salary in the company is **150,000** (Ava's salary). `MAX()` ignores NULL salaries and always returns exactly one row — even with an empty employees table it would return a single row with NULL."
   },
   {
     "id": "emp-titles-count",
     "number": 17,
     "title": "How Many Of Each Title",
     "difficulty": "Easy",
-    "tags": ["Group By"],
+    "tags": [
+      "Group By"
+    ],
     "family": "employees",
     "description": "Report each job title and the number of employees holding it, but only for titles held by **two or more** people.\n\nName the columns `title` and `headcount`. Return the result in any order.",
     "solutionSql": "SELECT title, COUNT(*) AS headcount\nFROM employees\nGROUP BY title\nHAVING COUNT(*) >= 2;",
     "orderMatters": false,
-    "hint": "Filtering on an aggregate is HAVING, not WHERE."
+    "hint": "Filtering on an aggregate is HAVING, not WHERE.",
+    "outputExplanation": "Engineer: Ben, Cara, Dan → 3. Manager: Ava, Eve → 2. Rep: Finn, Gia → 2. Analyst: Hal → only 1, excluded by `HAVING COUNT(*) >= 2`."
   },
   {
     "id": "emp-departments-by-location",
     "number": 18,
     "title": "Departments In Austin",
     "difficulty": "Easy",
-    "tags": ["Filtering"],
+    "tags": [
+      "Filtering"
+    ],
     "family": "employees",
     "description": "Report the `name` of every department located in Austin.\n\nName the column `name`. Return the result in any order.",
     "solutionSql": "SELECT name FROM departments WHERE location = 'Austin';",
     "orderMatters": false,
-    "hint": "Straight equality filter on the departments table alone."
+    "hint": "Straight equality filter on the departments table alone.",
+    "outputExplanation": "Engineering and HR are both located in Austin. Sales is in Denver and is excluded."
   },
   {
     "id": "emp-salary-range-per-title",
     "number": 19,
     "title": "Salary Range Per Title",
     "difficulty": "Easy",
-    "tags": ["Group By", "Aggregation"],
+    "tags": [
+      "Group By",
+      "Aggregation"
+    ],
     "family": "employees",
     "description": "For each job title report the lowest and highest salary paid.\n\nName the columns `title`, `min_salary` and `max_salary`. Return the result in any order.",
     "solutionSql": "SELECT title, MIN(salary) AS min_salary, MAX(salary) AS max_salary\nFROM employees\nGROUP BY title;",
     "orderMatters": false,
-    "hint": "Two aggregates over the same GROUP BY."
+    "hint": "Two aggregates over the same GROUP BY.",
+    "outputExplanation": "Manager: 130k–150k. Engineer: 95k–120k. Rep: 70k–85k. Analyst: only Hal at 60k, so min = max = 60k. `MIN` and `MAX` both skip NULL salaries."
   }
 ]

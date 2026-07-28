@@ -12,6 +12,7 @@
   "solutionSql": "SELECT DISTINCT num AS ConsecutiveNums\nFROM (\n  SELECT num,\n         LAG(num, 1) OVER (ORDER BY id) AS prev1,\n         LAG(num, 2) OVER (ORDER BY id) AS prev2\n  FROM Logs\n)\nWHERE num = prev1 AND num = prev2;",
   "orderMatters": false,
   "hint": "LAG(num, 1) and LAG(num, 2) over ORDER BY id let you compare a row to the two before it. Don't forget DISTINCT — a number in two separate runs must still be reported once.",
+  "outputExplanation": "Num `1` appears at ids 1, 2, 3 (three in a row) → qualifies. Num `2` appears at ids 7, 8, 9 (at least three in a row) → qualifies. The run of `2` at ids 4 alone is only length 1, excluded. `DISTINCT` ensures each number appears only once even if it had multiple qualifying runs.",
   "tests": [
     {
       "name": "Example",

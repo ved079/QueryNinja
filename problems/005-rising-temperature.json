@@ -3,12 +3,16 @@
   "number": 5,
   "title": "Rising Temperature",
   "difficulty": "Medium",
-  "tags": ["Self Join", "Date"],
+  "tags": [
+    "Self Join",
+    "Date"
+  ],
   "description": "Table `Weather` records the temperature on given dates. `recordDate` is unique.\n\nWrite a query to find the `id` of all dates where the temperature was **higher than the previous day** (yesterday — not simply the previous row present in the table).\n\nReturn the result in any order.",
   "schemaSql": "CREATE TABLE Weather (\n  id INTEGER PRIMARY KEY,\n  recordDate TEXT,\n  temperature INTEGER\n);",
   "solutionSql": "SELECT w.id\nFROM Weather w\nJOIN Weather prev\n  ON DATE(w.recordDate, '-1 day') = prev.recordDate\nWHERE w.temperature > prev.temperature;",
   "orderMatters": false,
   "hint": "Join the table to itself on a date offset of one day: DATE(recordDate, '-1 day') in SQLite. LAG() over the rows is not the same thing when dates have gaps.",
+  "outputExplanation": "January 2 (temp 25) > January 1 (temp 10) → id 2 qualifies. January 4 (temp 30) > January 3 (temp 20) → id 4 qualifies. January 3 (20) < January 2 (25) → excluded. January 6 (40) has no previous day in the table — `DATE('-1 day')` lands on January 5, which isn't in Weather, so the self-join produces no match.",
   "tests": [
     {
       "name": "Example",
