@@ -3,11 +3,63 @@ import { useMemo, useState } from 'react';
 const ARC_LENGTH = 197.92;
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-const BADGE_ICON = (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+const ICONS = {
+  star: (
     <path d="M8 1l1.57 3.18 3.5.51-2.54 2.47.6 3.49L8 9.27l-3.13 1.38.6-3.49L2.93 4.69l3.5-.51L8 1z" />
-  </svg>
-);
+  ),
+  trophy: (
+    <path d="M4 2h8v1.5h1.5a1 1 0 011 1V6a2.5 2.5 0 01-2.5 2.5h-.26A4.5 4.5 0 018.75 11.9V13H10a1 1 0 011 1v.5H5V14a1 1 0 011-1h1.25v-1.1A4.5 4.5 0 014.26 8.5H4A2.5 2.5 0 011.5 6V4.5a1 1 0 011-1H4V2zm-1.5 2.5V6a1 1 0 001 1h.09A6.6 6.6 0 014 4.5h-1.5zM12 4.5a6.6 6.6 0 01-.09 2.5H12a1 1 0 001-1V4.5h-1z" />
+  ),
+  flame: (
+    <path d="M8.15 1.1c1.9 1.3 3 3.1 3.5 4.4l.6-.6a.6.6 0 01.94.1c1.4 2.2 1.4 4.9.3 6.8-1.15 2-3.4 2.4-4.5 2.4-1 0-3.2-.2-4.4-2.4-.55-.94-.83-2-.74-3.1.1-1.1.58-2.16 1.5-3.1.56-.6 1-1.4 1.28-2.2.3-.78.45-1.5.5-1.85a.6.6 0 01.62-.5z" />
+  ),
+  tag: (
+    <path d="M2 2h5.17a1.5 1.5 0 011.06.44l5.33 5.33a1.5 1.5 0 010 2.12l-3.66 3.66a1.5 1.5 0 01-2.12 0L2.44 8.23A1.5 1.5 0 012 7.17V2zm2.75 2a1 1 0 100 2 1 1 0 000-2z" />
+  ),
+  layers: (
+    <path d="M8 1.5l6 3-6 3-6-3 6-3zm-6 5.4l6 3 6-3v1.7l-6 3-6-3V6.9zm0 3.6l6 3 6-3v1.7l-6 3-6-3v-1.7z" />
+  ),
+  crown: (
+    <path d="M2 5.2l2.6 1.8L8 3l3.4 4 2.6-1.8L13 12H3L2 5.2zM3.2 13h9.6v1.3H3.2V13z" />
+  ),
+};
+
+const BADGE_STYLE = {
+  milestone: { color: 'var(--accent)', icon: 'star' },
+  easy: { color: 'var(--easy)', icon: 'trophy' },
+  medium: { color: 'var(--medium)', icon: 'trophy' },
+  hard: { color: 'var(--hard)', icon: 'trophy' },
+  mix: { color: '#a78bfa', icon: 'layers' },
+  tag: { color: '#2dd4bf', icon: 'tag' },
+  activity: { color: '#ff9d2e', icon: 'flame' },
+  grand: { color: '#facc15', icon: 'crown' },
+};
+
+function badgeCategory(id) {
+  if (id === 'grand') return 'grand';
+  if (id === 'd-easy') return 'easy';
+  if (id === 'd-med') return 'medium';
+  if (id === 'd-hard') return 'hard';
+  if (id === 'd-mix') return 'mix';
+  if (id.startsWith('t-')) return 'tag';
+  if (id.startsWith('a-')) return 'activity';
+  return 'milestone';
+}
+
+function badgeColor(id) {
+  return BADGE_STYLE[badgeCategory(id)].color;
+}
+
+function BadgeIcon({ id }) {
+  const icon = BADGE_STYLE[badgeCategory(id)].icon;
+  return (
+    <div className="badge-icon">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        {ICONS[icon]}
+      </svg>
+    </div>
+  );
+}
 
 function computeBadges(solvedSet, solvedCount, problems, activeDays, maxStreak) {
   const badges = [];
@@ -219,8 +271,9 @@ export default function ProgressPanel({ problems, progress, submissions, userNam
                     <div
                       key={b.id}
                       className={clampedBadgePage === 0 && i === 0 ? 'badge-highlight' : 'badge-row'}
+                      style={{ '--badge-color': badgeColor(b.id) }}
                     >
-                      <div className="badge-icon">{BADGE_ICON}</div>
+                      <BadgeIcon id={b.id} />
                       <div className="badge-info">
                         <h4>{b.title}</h4>
                         <span>{b.desc}</span>

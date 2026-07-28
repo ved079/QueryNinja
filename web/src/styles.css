@@ -446,34 +446,54 @@ button.link {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
-.badge-highlight {
-  background: rgba(76, 141, 255, 0.1);
-  border: 1px solid var(--accent);
-  border-radius: 6px;
-  padding: 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+.badge-highlight,
 .badge-row {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.badge-highlight::before,
+.badge-row::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--badge-color, var(--accent));
+}
+.badge-row:hover {
+  transform: translateY(-1px);
+  border-color: var(--badge-color, var(--accent));
+}
+.badge-highlight {
+  background: color-mix(in srgb, var(--badge-color, var(--accent)) 12%, var(--panel-2));
+  border-color: var(--badge-color, var(--accent));
+  box-shadow: 0 0 0 1px var(--badge-color, var(--accent)) inset, 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+.badge-highlight::before {
+  width: 4px;
 }
 .badge-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  background: var(--panel-2);
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--badge-color, var(--accent)) 18%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--muted);
+  color: var(--badge-color, var(--accent));
   flex-shrink: 0;
 }
 .badge-highlight .badge-icon {
-  background: var(--accent);
-  color: #fff;
+  background: var(--badge-color, var(--accent));
+  color: #0b0e12;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--badge-color, var(--accent)) 60%, transparent);
 }
 .badge-info h4 {
   font-size: 13px;
