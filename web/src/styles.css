@@ -103,12 +103,67 @@ button.link {
 .user-name-group {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 8px;
 }
 .rename-btn {
   padding: 4px 7px;
   font-size: 12px;
   color: var(--muted);
+}
+.streak-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: default;
+  background: var(--panel-2);
+  box-shadow: 0 0 0 1px var(--border), 0 0 8px rgba(120, 140, 255, 0.35);
+  transition: box-shadow 0.15s, color 0.15s;
+}
+.streak-badge.active {
+  color: #ff9d2e;
+  box-shadow: 0 0 0 1px rgba(255, 157, 46, 0.4), 0 0 10px rgba(255, 157, 46, 0.55);
+}
+.streak-badge:hover {
+  box-shadow: 0 0 0 1px var(--border), 0 0 12px rgba(120, 140, 255, 0.55);
+}
+.streak-badge.active:hover {
+  box-shadow: 0 0 0 1px rgba(255, 157, 46, 0.6), 0 0 16px rgba(255, 157, 46, 0.8);
+}
+.streak-count {
+  font-size: 13px;
+  font-weight: 600;
+}
+.streak-tooltip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+  z-index: 20;
+  text-align: center;
+}
+.streak-tooltip strong {
+  font-size: 13px;
+  color: var(--text);
+}
+.streak-tooltip span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.streak-badge:hover .streak-tooltip {
+  display: flex;
 }
 .set-name-hint {
   font-size: 12px;
@@ -272,12 +327,22 @@ button.link {
   padding: 20px;
 }
 .progress-card-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
   font-size: 11px;
   font-weight: 600;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin-bottom: 16px;
+}
+.badges-count {
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 11px;
+  color: var(--muted);
 }
 .solved-container {
   display: flex;
@@ -350,7 +415,36 @@ button.link {
 .badges-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+}
+.badges-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.badges-grid .badge-highlight {
+  grid-column: 1 / -1;
+}
+.badges-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+.badges-pager button {
+  padding: 3px 10px;
+  font-size: 13px;
+}
+.badges-pager button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.badges-pager-count {
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 .badge-highlight {
   background: rgba(76, 141, 255, 0.1);

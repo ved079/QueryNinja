@@ -56,8 +56,27 @@ function computeBadges(solvedSet, solvedCount, problems, activeDays, maxStreak) 
   return badges;
 }
 
+// The grid is 2 columns, but the first badge is a highlighted card that
+// spans both columns (its own full row) — so the first page only has room
+// for 2 more regular badges alongside it (3 total), while every later page
+// is a plain 2x2 grid with room for 4.
+const FIRST_BADGE_PAGE_SIZE = 3;
+const BADGES_PER_PAGE = 4;
+
+function badgePageSlice(badges, page) {
+  if (page === 0) return badges.slice(0, FIRST_BADGE_PAGE_SIZE);
+  const offset = FIRST_BADGE_PAGE_SIZE + (page - 1) * BADGES_PER_PAGE;
+  return badges.slice(offset, offset + BADGES_PER_PAGE);
+}
+
+function badgePageCountFor(total) {
+  if (total <= FIRST_BADGE_PAGE_SIZE) return 1;
+  return 1 + Math.ceil((total - FIRST_BADGE_PAGE_SIZE) / BADGES_PER_PAGE);
+}
+
 export default function ProgressPanel({ problems, progress, submissions, userName, onDeleteAccount, onHide }) {
   const [deleting, setDeleting] = useState(false);
+  const [badgePage, setBadgePage] = useState(0);
   const stats = useMemo(() => {
     const solved = problems.filter((p) => progress[p.id]?.status === 'solved').length;
     const attempted = problems.filter((p) => progress[p.id]?.status === 'attempted').length;
@@ -127,6 +146,10 @@ export default function ProgressPanel({ problems, progress, submissions, userNam
     return computeBadges(solvedSet, solvedCount, problems, heatmap.activeDays, heatmap.maxStreak);
   }, [problems, progress, heatmap.activeDays, heatmap.maxStreak]);
 
+  const badgePageCount = badgePageCountFor(badges.length);
+  const clampedBadgePage = Math.min(badgePage, badgePageCount - 1);
+  const badgesOnPage = badgePageSlice(badges, clampedBadgePage);
+
   return (
     <div className="progress-panel">
       <div className="progress-header">
@@ -180,28 +203,52 @@ export default function ProgressPanel({ problems, progress, submissions, userNam
         </div>
 
         <div className="progress-card">
-          <div className="progress-card-label">Badges & Achievements</div>
+          <div className="progress-card-label">
+            Badges & Achievements
+            {badges.length > 0 && (
+              <span className="badges-count">{badges.length} earned</span>
+            )}
+          </div>
           <div className="badges-container">
             {badges.length === 0 ? (
               <p className="muted" style={{ margin: 0, fontSize: 13 }}>Keep solving to earn badges.</p>
             ) : (
               <>
-                <div className="badge-highlight">
-                  <div className="badge-icon">{BADGE_ICON}</div>
-                  <div className="badge-info">
-                    <h4>{badges[0].title}</h4>
-                    <span>{badges[0].desc}</span>
-                  </div>
-                </div>
-                {badges.slice(1).map((b) => (
-                  <div key={b.id} className="badge-row">
-                    <div className="badge-icon">{BADGE_ICON}</div>
-                    <div className="badge-info">
-                      <h4>{b.title}</h4>
-                      <span>{b.desc}</span>
+                <div className="badges-grid">
+                  {badgesOnPage.map((b, i) => (
+                    <div
+                      key={b.id}
+                      className={clampedBadgePage === 0 && i === 0 ? 'badge-highlight' : 'badge-row'}
+                    >
+                      <div className="badge-icon">{BADGE_ICON}</div>
+                      <div className="badge-info">
+                        <h4>{b.title}</h4>
+                        <span>{b.desc}</span>
+                      </div>
                     </div>
+                  ))}
+                </div>
+                {badgePageCount > 1 && (
+                  <div className="badges-pager">
+                    <button
+                      onClick={() => setBadgePage((p) => Math.max(0, p - 1))}
+                      disabled={clampedBadgePage === 0}
+                      title="Previous badges"
+                    >
+                      ‹
+                    </button>
+                    <span className="badges-pager-count">
+                      Page {clampedBadgePage + 1} of {badgePageCount}
+                    </span>
+                    <button
+                      onClick={() => setBadgePage((p) => Math.min(badgePageCount - 1, p + 1))}
+                      disabled={clampedBadgePage === badgePageCount - 1}
+                      title="Next badges"
+                    >
+                      ›
+                    </button>
                   </div>
-                ))}
+                )}
               </>
             )}
           </div>

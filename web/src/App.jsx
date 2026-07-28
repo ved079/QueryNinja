@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ProblemList from './components/ProblemList.jsx';
 import ProgressPanel from './components/ProgressPanel.jsx';
 import ProblemPane from './components/ProblemPane.jsx';
@@ -8,6 +8,7 @@ import TopBar from './components/TopBar.jsx';
 import NameModal from './components/NameModal.jsx';
 import Markdownish from './components/Markdownish.jsx';
 import { compare, createDb, exec, describeTables, gradeAll, testsOf, diffResults } from './lib/db.js';
+import { computeCurrentStreak } from './lib/streak.js';
 
 const STARTER = '-- Write your query here\nSELECT ';
 const NAME_KEY = 'sql-practice-name';
@@ -54,6 +55,7 @@ export default function App() {
   }, [userName, nameSkipped]);
 
   const problem = problems.find((p) => p.id === selectedId) ?? null;
+  const streak = useMemo(() => computeCurrentStreak(submissions), [submissions]);
 
   // The original 90 are numbers 1-90; anything added since is "complex."
   const visibleProblems = problems.filter((p) =>
@@ -320,6 +322,7 @@ export default function App() {
         onToggleMode={toggleMode}
         onShowProgress={() => setProgressOpen(true)}
         userName={userName}
+        streak={streak}
         onChangeName={changeName}
         nav={nav}
         onRun={run}
