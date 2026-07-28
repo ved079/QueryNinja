@@ -1363,6 +1363,16 @@ button.link {
   border-radius: 6px;
   margin-bottom: 12px;
 }
+.output-preview h4 {
+  margin: 14px 0 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+.output-preview h4:first-of-type {
+  margin-top: 4px;
+}
 .verdict.pass {
   background: rgba(53, 196, 107, 0.12);
   color: var(--easy);

@@ -4,11 +4,13 @@
     "number": 111,
     "title": "Product Names Containing A Digit",
     "difficulty": "Easy",
-    "tags": ["String"],
+    "tags": [
+      "String"
+    ],
     "family": "sales",
     "description": "Report the `name` of every product whose name contains at least one digit, using `GLOB` (not `LIKE`).\n\nName the column `name`. Return the result in any order.",
     "solutionSql": "SELECT name FROM products WHERE name GLOB '*[0-9]*';",
-    "outputExplanation": "None of this example's product names — Keyboard, Mouse, Desk, Lamp — contain a digit, so the expected output here is genuinely empty (0 rows is the correct answer, not a placeholder). A hidden test case seeds products literally named `'P1'` and `'P2'` instead — those both contain a digit, so `GLOB '*[0-9]*'` matches them and they come back in the result there.",
+    "outputExplanation": "None of the product names (Keyboard, Mouse, Desk, Lamp) contain a digit, so the result is empty. A hidden test with products named P1 and P2 demonstrates this query working.",
     "orderMatters": false,
     "hint": "SQLite's LIKE has no character-class syntax, but GLOB does — `[0-9]` inside a GLOB pattern matches any single digit, same idea as a tiny regex."
   },
@@ -17,11 +19,13 @@
     "number": 112,
     "title": "Employee Names Containing The Letter A",
     "difficulty": "Easy",
-    "tags": ["String"],
+    "tags": [
+      "String"
+    ],
     "family": "employees",
     "description": "Report the `name` of every employee whose name contains the letter `a` **anywhere**, case-insensitively (not just at the start).\n\nName the column `name`. Return the result in any order.",
     "solutionSql": "SELECT name FROM employees WHERE LOWER(name) LIKE '%a%';",
-    "outputExplanation": "Checking each of the 8 names for the letter 'a' anywhere: Ava (has it), Ben (doesn't), Cara (has it), Dan (has it), Eve (doesn't), Finn (doesn't), Gia (has it), Hal (has it) — five names contain an 'a', and those five are exactly what's returned. Ben and Eve and Finn are excluded correctly even though some of them contain other letters that might look similar at a glance.",
+    "outputExplanation": "Ava, Cara, Dan, Gia and Hal all contain the letter 'a' in their names. Ben, Eve and Finn do not and are excluded.",
     "orderMatters": false,
     "hint": "A leading and trailing `%` means \"anywhere in the string\" — anchoring only the start (`'a%'`) or only the end (`'%a'`) would answer a different question."
   },
@@ -30,11 +34,13 @@
     "number": 113,
     "title": "Hires Per Calendar Quarter",
     "difficulty": "Easy",
-    "tags": ["Date"],
+    "tags": [
+      "Date"
+    ],
     "family": "employees",
     "description": "Report how many employees were hired in each calendar quarter (`Q1` = Jan-Mar, `Q2` = Apr-Jun, `Q3` = Jul-Sep, `Q4` = Oct-Dec), across all years combined.\n\nName the columns `quarter` and `hires`. Return the result in any order.",
     "solutionSql": "SELECT\n  CASE\n    WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 1 AND 3 THEN 'Q1'\n    WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 4 AND 6 THEN 'Q2'\n    WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 7 AND 9 THEN 'Q3'\n    ELSE 'Q4'\n  END AS quarter,\n  COUNT(*) AS hires\nFROM employees\nGROUP BY quarter;",
-    "outputExplanation": "Sorting the 8 hire dates into buckets: Ava (Jan), Ben (Mar), Cara (Mar) and Gia (Feb) all land in Q1 — that's 4 hires. Finn (May) is the only Q2 hire. Dan (Jul) and Hal (Sep) both fall in Q3 — 2 hires. Eve (Nov) is the lone Q4 hire. That gives the four rows: Q1→4, Q2→1, Q3→2, Q4→1 — every employee accounted for exactly once, regardless of which year they were hired in.",
+    "outputExplanation": "Four employees were hired in Q1 (January-March), one in Q2, two in Q3 and one in Q4.",
     "orderMatters": false,
     "hint": "strftime('%m', ...) returns the month as zero-padded text ('04') — CAST it to INTEGER before comparing with BETWEEN, or the comparison happens on the wrong type."
   },
@@ -43,11 +49,13 @@
     "number": 114,
     "title": "Fiscal Year Labels (Year Starts In April)",
     "difficulty": "Medium",
-    "tags": ["Date"],
+    "tags": [
+      "Date"
+    ],
     "family": "employees",
     "description": "This company's fiscal year runs from **April 1st to March 31st** — so a hire on 2022-01-15 belongs to fiscal year `FY2021`, not `FY2022`. Report every employee's `name` and their fiscal year label.\n\nName the columns `name` and `fiscal_year`. Return the result in any order.",
     "solutionSql": "SELECT name,\n  'FY' || (CASE\n    WHEN CAST(strftime('%m', hire_date) AS INTEGER) >= 4 THEN CAST(strftime('%Y', hire_date) AS INTEGER)\n    ELSE CAST(strftime('%Y', hire_date) AS INTEGER) - 1\n  END) AS fiscal_year\nFROM employees;",
-    "outputExplanation": "Ava was hired 2018-01-15 — January is before April, so her hire rolls back into the *previous* year's fiscal label: FY2017. Ben and Cara were both hired 2019-03-01 — March, also before April, so FY2018. Compare that to Dan, hired 2021-07-19 (July, on or after April) who gets FY2021 with no rollback, and Eve, hired 2017-11-02 (November), who gets FY2017 directly. Gia's case is the clearest illustration of the trap: hired 2022-02-14 (February), she gets FY2021 — one year *before* the calendar year she was actually hired in.",
+    "outputExplanation": "Ava (Jan 2018) gets FY2017, Ben and Cara (Mar 2019) get FY2018, Gia (Feb 2022) gets FY2021 — all hired before April roll back one fiscal year. Dan (Jul 2021) and Eve (Nov 2017) stay in their calendar year's FY.",
     "orderMatters": false,
     "hint": "January through March belong to the *previous* calendar year's fiscal year — the classic off-by-one this kind of bucketing trips people up on."
   },
@@ -56,11 +64,13 @@
     "number": 115,
     "title": "Short Product Codes Or Missing Category",
     "difficulty": "Medium",
-    "tags": ["String"],
+    "tags": [
+      "String"
+    ],
     "family": "sales",
     "description": "Report the `name` of every product whose name looks like a short product code — exactly two letters followed by one digit, like `P1` or `B2` — **or** whose `category` is currently unknown (`NULL`).\n\nName the column `name`. Return the result in any order.",
     "solutionSql": "SELECT name FROM products\nWHERE name GLOB '[A-Za-z][A-Za-z][0-9]'\n   OR category IS NULL;",
-    "outputExplanation": "In this example, Keyboard/Mouse/Desk/Lamp all have real categories and none of their names are a two-letter-plus-digit code, so nothing matches either branch of the OR — an empty result is correct here. A hidden test case seeds a product named `'Mystery'` with `category` set to `NULL` — it doesn't match the GLOB code pattern either, but the `OR category IS NULL` branch catches it, so it comes back in that dataset's result.",
+    "outputExplanation": "No product has a two-letter-one-digit code name or a NULL category in this dataset, so the result is empty. A hidden test demonstrates the NULL category case.",
     "orderMatters": false,
     "hint": "GLOB has no length-anchoring shortcut like LIKE's underscore count implies here by construction — three single-character classes back to back means \"exactly three characters, this shape\", nothing shorter or longer will match."
   },
@@ -69,11 +79,13 @@
     "number": 116,
     "title": "Clean Up Messy Customer Names",
     "difficulty": "Medium",
-    "tags": ["String"],
+    "tags": [
+      "String"
+    ],
     "family": "reconciliation",
     "description": "`source_orders.customer_name` has inconsistent formatting — extra whitespace, inconsistent casing. Report the distinct set of customer names after trimming leading/trailing whitespace and lowercasing.\n\nName the column `customer`. Return the result in any order.",
     "solutionSql": "SELECT DISTINCT LOWER(TRIM(customer_name)) AS customer FROM source_orders;",
-    "outputExplanation": "The four names in this example — 'Ann Lee', 'Ben Kim', 'Cy Ortiz', 'Dee Fox' — happen to already be spelled consistently, so lowercasing and trimming them just produces their lowercase forms: 'ann lee', 'ben kim', 'cy ortiz', 'dee fox'. The transformation matters more on messier data — a hidden test case has a name stored as `'  ben kim '` with extra spaces, and TRIM strips exactly that leading/trailing whitespace so it normalizes to the same 'ben kim' as everywhere else.",
+    "outputExplanation": "After trimming and lowercasing, the four distinct names are 'ann lee', 'ben kim', 'cy ortiz' and 'dee fox'. A hidden test shows that TRIM removes leading/trailing spaces from names like '  ben kim '.",
     "orderMatters": false,
     "hint": "TRIM only removes leading/trailing whitespace, not whitespace in the middle — that's enough here since the mess in this dataset is only at the edges and in casing."
   },
@@ -82,11 +94,13 @@
     "number": 117,
     "title": "Hired On The Last Day Of The Month",
     "difficulty": "Medium",
-    "tags": ["Date"],
+    "tags": [
+      "Date"
+    ],
     "family": "employees",
     "description": "Report the `name` of every employee hired on the last calendar day of their hire month (the 28th, 29th, 30th or 31st, whichever is correct for that specific month).\n\nName the column `name`. Return the result in any order.",
     "solutionSql": "SELECT name FROM employees\nWHERE hire_date = date(hire_date, 'start of month', '+1 month', '-1 day');",
-    "outputExplanation": "None of this example's 8 hire dates land on the last day of their month, so the expected output here is correctly empty. Hidden test cases show the real behavior: one employee hired 2021-06-30 qualifies, since June only has 30 days — that IS its last day. Another dataset has an employee hired 2020-02-29 who also qualifies, because 2020 is a leap year and the 29th genuinely is February's last day that year (a hire on 2019-02-28 would qualify in a non-leap year, but 2019-02-29 wouldn't even exist as a date). The query never hardcodes a day number anywhere — it just computes \"the day right before next month starts\" and lets SQLite work out how long each specific month actually is.",
+    "outputExplanation": "None of the 8 hire dates fall on the last day of their month, so the result is empty. Hidden tests demonstrate June 30 and February 29 (leap year) as qualifying last-day hires.",
     "orderMatters": false,
     "hint": "Don't hardcode `'-31'` or check against a fixed day number — months have different lengths (and February has 28 or 29). Compute \"the day before the start of next month\" instead, and SQLite's date() modifiers handle the varying month lengths for you."
   },
@@ -95,11 +109,14 @@
     "number": 118,
     "title": "Calendar Days With Zero Orders",
     "difficulty": "Hard",
-    "tags": ["Date", "Recursive CTE"],
+    "tags": [
+      "Date",
+      "Recursive CTE"
+    ],
     "family": "sales",
     "description": "Considering the full range from the earliest to the latest `order_date` in `orders`, report every calendar date **in that range** on which no order was placed at all.\n\nName the column `missing_date`. Return the result in any order.",
     "solutionSql": "WITH RECURSIVE spine(d) AS (\n  SELECT MIN(order_date) FROM orders\n  UNION ALL\n  SELECT date(d, '+1 day') FROM spine WHERE d < (SELECT MAX(order_date) FROM orders)\n)\nSELECT d AS missing_date\nFROM spine\nWHERE d IS NOT NULL\nAND NOT EXISTS (SELECT 1 FROM orders o WHERE o.order_date = d);",
-    "outputExplanation": "The earliest order in this example is 2022-01-10 and the latest is 2023-01-02 — that's the full range the query walks day by day. Only six calendar dates in that whole span actually have an order: 2022-01-10, 02-14, 02-20, 03-05, 03-06 and 2023-01-02 itself. Every other single day between those two endpoints — well over 300 of them — had zero orders and shows up in the result. The count is large simply because the range is wide and orders are sparse; it isn't a sign of a bug.",
+    "outputExplanation": "Only 6 dates between January 10, 2022 and January 2, 2023 have orders. Every other calendar day in that range — over 300 dates — had no orders and is reported.",
     "orderMatters": false,
     "hint": "There's no table of \"all possible dates\" to join against, so build one: a recursive CTE that starts at the earliest date and adds one day at a time up to the latest. Guard against an empty orders table, where MIN/MAX are both NULL."
   },
@@ -108,11 +125,13 @@
     "number": 119,
     "title": "Fiscal Quarter Labels Across The Year Boundary",
     "difficulty": "Hard",
-    "tags": ["Date"],
+    "tags": [
+      "Date"
+    ],
     "family": "employees",
     "description": "Same fiscal year as before (starts April 1st), but now report each employee's full fiscal quarter label, e.g. `FY2021-Q4` for a hire in January 2022 (fiscal Q4 of FY2021, since FY2021 runs April 2021 through March 2022).\n\nName the columns `name` and `fiscal_quarter`. Return the result in any order.",
     "solutionSql": "SELECT name,\n  'FY' || (CASE WHEN CAST(strftime('%m', hire_date) AS INTEGER) >= 4\n           THEN CAST(strftime('%Y', hire_date) AS INTEGER)\n           ELSE CAST(strftime('%Y', hire_date) AS INTEGER) - 1 END)\n  || '-Q' ||\n  (CASE\n     WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 4 AND 6 THEN 1\n     WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 7 AND 9 THEN 2\n     WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 10 AND 12 THEN 3\n     ELSE 4\n   END) AS fiscal_quarter\nFROM employees;",
-    "outputExplanation": "Ava was hired 2018-01-15 (January) — same rollback as before puts her in FY2017, and January falls in the Jan-Mar bucket, which is always fiscal Q4 — so `FY2017-Q4`. Eve, hired 2017-11-02 (November), doesn't roll back (November is on-or-after April) so she stays in FY2017, and November falls in the Oct-Dec bucket, fiscal Q3 — so `FY2017-Q3`. Notice Ava and Eve share the same fiscal year label (FY2017) despite being hired over a year apart in real time (January 2018 vs November 2017) — that's exactly what a fiscal year spanning across the calendar-year boundary looks like. Dan, hired 2021-07-19 (July), needs no rollback and July falls in the Jul-Sep bucket, fiscal Q2 — so `FY2021-Q2`.",
+    "outputExplanation": "Ava (Jan 2018) gets FY2017-Q4, Eve (Nov 2017) gets FY2017-Q3, and Dan (Jul 2021) gets FY2021-Q2. Each employee's label reflects the fiscal year rules and which quarter their hire month falls in.",
     "orderMatters": false,
     "hint": "The fiscal year part uses the same Jan-Mar-rolls-back-a-year logic as before. The quarter number is independent of that: Apr-Jun is always fiscal Q1, regardless of which calendar year it happened to fall in."
   },
@@ -121,11 +140,13 @@
     "number": 120,
     "title": "Names With The Letter A At Least Twice",
     "difficulty": "Hard",
-    "tags": ["String"],
+    "tags": [
+      "String"
+    ],
     "family": "employees",
     "description": "SQLite has no regular-expression function built in. Report the `name` of every employee whose name contains the letter `a` (case-insensitive) **at least twice**.\n\nName the column `name`. Return the result in any order.",
     "solutionSql": "SELECT name FROM employees\nWHERE LENGTH(LOWER(name)) - LENGTH(REPLACE(LOWER(name), 'a', '')) >= 2;",
-    "outputExplanation": "'Ava' has two a's (positions 1 and 3), and 'Cara' has two a's as well (positions 2 and 4) — both clear the \"at least twice\" bar. Everyone else has at most one: Dan, Gia and Hal each contain exactly one 'a', and Ben, Eve and Finn contain none at all. Working it through the trick: 'ava' is 3 characters long; strip out every 'a' and you're left with just 'v', 1 character — a drop of 2, meaning 2 a's were removed. That's exactly how LENGTH(original) − LENGTH(with the a's removed) tells you the count without ever looking character-by-character.",
+    "outputExplanation": "Ava and Cara each contain the letter 'a' twice. Dan, Gia and Hal contain it only once, and Ben, Eve and Finn have none.",
     "orderMatters": false,
     "hint": "A classic no-regex trick: REPLACE every 'a' with nothing, then the drop in LENGTH tells you exactly how many 'a's were removed — no counting loop needed."
   }

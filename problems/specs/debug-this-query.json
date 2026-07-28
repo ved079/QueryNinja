@@ -4,126 +4,151 @@
     "number": 131,
     "title": "Debug: Every Product Vanished But The Ordered Ones",
     "difficulty": "Easy",
-    "tags": ["Debugging", "Join"],
+    "tags": [
+      "Debugging",
+      "Join"
+    ],
     "family": "sales",
     "description": "Someone wants total quantity ordered **from completed orders only**, for every product — including products with zero completed-order quantity, which should show `0`. The query below runs without error, but silently drops every product that has no completed order at all. Find the bug and fix it.\n\nName the columns `name` and `total_qty`. Return the result in any order.",
     "startingSql": "SELECT p.name, COALESCE(SUM(oi.quantity), 0) AS total_qty\nFROM products p\nLEFT JOIN order_items oi ON oi.product_id = p.id\nLEFT JOIN orders o ON o.id = oi.order_id\nWHERE o.status = 'completed'\nGROUP BY p.id, p.name;",
     "solutionSql": "SELECT p.name, COALESCE(SUM(oi.quantity), 0) AS total_qty\nFROM products p\nLEFT JOIN order_items oi ON oi.product_id = p.id\nLEFT JOIN orders o ON o.id = oi.order_id AND o.status = 'completed'\nGROUP BY p.id, p.name;",
     "orderMatters": false,
     "hint": "A condition on a LEFT-joined table's column, placed in WHERE, quietly turns the join into an INNER JOIN — rows where that table has no match get NULL there, and `NULL = 'completed'` is never true. Move the condition into the join's own ON clause instead, so it only affects which orders count, not which products survive.",
-    "outputExplanation": "The fixed query returns all four products: Keyboard 3, Mouse 6, Desk 1, Lamp 6 — every product appears, even ones with only cancelled/pending orders, because the status filter now lives in the `ON` clause and only decides which order rows count, not which products survive the join.\n\nThe buggy version instead drops any product whose *only* orders are non-completed (or that has no orders at all) — because once the LEFT JOIN produces a NULL row for it, the `WHERE o.status = 'completed'` in the outer clause throws that row away entirely, silently turning the LEFT JOIN back into an INNER JOIN."
+    "outputExplanation": "The fixed query returns all four products: Keyboard (3 units), Mouse (6 units), Desk (1 unit) and Lamp (6 units). The buggy version drops products with no completed orders."
   },
   {
     "id": "debug-integer-division",
     "number": 132,
     "title": "Debug: The Average Is Always A Whole Number",
     "difficulty": "Easy",
-    "tags": ["Debugging"],
+    "tags": [
+      "Debugging"
+    ],
     "family": "sales",
     "description": "Someone computed the average quantity per order line for each product and noticed every result came out as a suspiciously round whole number — real averages should have decimals. Find the bug and fix it.\n\nName the columns `product_id` and `avg_qty` (rounded to 2 decimals). Return the result in any order.",
     "startingSql": "SELECT product_id, SUM(quantity) / COUNT(*) AS avg_qty\nFROM order_items\nGROUP BY product_id;",
     "solutionSql": "SELECT product_id, ROUND(1.0 * SUM(quantity) / COUNT(*), 2) AS avg_qty\nFROM order_items\nGROUP BY product_id;",
     "orderMatters": false,
     "hint": "SUM(quantity) and COUNT(*) are both integers, and SQLite (like most SQL engines) performs integer division when both sides are integers — truncating the decimal part entirely. Multiplying one side by 1.0 forces the whole division to happen in floating point.",
-    "outputExplanation": "Fixed, product 1 shows `avg_qty = 1.5` — a real decimal. The buggy version would have shown `1` for that same product, because `SUM(quantity) / COUNT(*)` divides an integer by an integer and SQLite truncates the result to an integer, throwing away the `.5` entirely. Multiplying by `1.0` first forces floating-point division, so the true average survives."
+    "outputExplanation": "With the fix, product 1 shows an average quantity of 1.5. The buggy version would truncate the decimal and show 1 instead."
   },
   {
     "id": "debug-case-sensitive-match",
     "number": 133,
     "title": "Debug: The Sales Department Query Returns Nothing",
     "difficulty": "Easy",
-    "tags": ["Debugging", "String"],
+    "tags": [
+      "Debugging",
+      "String"
+    ],
     "family": "employees",
     "description": "Someone wants every employee in the Sales department, but this query returns zero rows even though Sales clearly has employees. Find the bug and fix it.\n\nName the column `name`. Return the result in any order.",
     "startingSql": "SELECT e.name\nFROM employees e\nJOIN departments d ON d.id = e.dept_id\nWHERE d.name = 'sales';",
     "solutionSql": "SELECT e.name\nFROM employees e\nJOIN departments d ON d.id = e.dept_id\nWHERE LOWER(d.name) = 'sales';",
     "orderMatters": false,
     "hint": "The `=` operator compares TEXT byte-for-byte by default in SQLite — 'sales' and 'Sales' are not equal. Normalize both sides (or at least the column) with LOWER() before comparing to a lowercase literal.",
-    "outputExplanation": "Fixed, the query returns Eve, Finn and Gia — the Sales department's employees. The department is stored as `'Sales'` (capital S), but the query compares against the lowercase literal `'sales'`. SQLite's `=` on text is case-sensitive, so `'Sales' = 'sales'` is false for every row and the buggy query returns zero rows. Wrapping the column in `LOWER()` before comparing fixes it."
+    "outputExplanation": "The fixed query returns Eve, Finn and Gia — the Sales department's employees. The buggy version matched 'Sales' against 'sales' and found no results due to case sensitivity."
   },
   {
     "id": "debug-union-drops-real-duplicate",
     "number": 135,
     "title": "Debug: The Audit Log Is Missing An Entry",
     "difficulty": "Medium",
-    "tags": ["Debugging", "Set Operations"],
+    "tags": [
+      "Debugging",
+      "Set Operations"
+    ],
     "family": "reconciliation",
     "description": "This is meant to be a complete audit trail of every order line from both `source_orders` and `warehouse_orders` — every real row should show up, even if two rows happen to look identical. But a known duplicate entry in the source system isn't showing up twice in the output like it should. Find the bug and fix it.\n\nName the columns `order_id`, `customer_name` and `amount`. Return the result in any order.",
     "startingSql": "SELECT order_id, customer_name, amount FROM source_orders\nUNION\nSELECT order_id, customer_name, amount FROM warehouse_orders;",
     "solutionSql": "SELECT order_id, customer_name, amount FROM source_orders\nUNION ALL\nSELECT order_id, customer_name, amount FROM warehouse_orders;",
     "orderMatters": true,
     "hint": "UNION always removes duplicate rows across both sides — exactly the wrong behavior for an audit log, where two identical-looking rows might be two genuinely separate events. UNION ALL keeps everything.",
-    "outputExplanation": "Fixed, order_id 1 (Ann Lee, $120) and order_id 2 (Ben Kim, $80) each appear **twice** — once from `source_orders`, once again from `warehouse_orders` — alongside every other row, 7 total. That's the real audit trail: both systems logged those two orders identically, and both entries matter.\n\nThe buggy version uses plain `UNION`, which de-duplicates rows that look identical across the two SELECTs — so Ann Lee's and Ben Kim's repeated entries silently collapse down to one each, even though they represent two separate log events from two separate systems."
+    "outputExplanation": "The fixed query returns 7 rows total, with order 1 and order 2 appearing twice each (once per system). The buggy UNION would collapse those duplicates into single rows."
   },
   {
     "id": "debug-exists-forgot-to-exclude-self",
     "number": 136,
     "title": "Debug: Every Employee \"Shares\" Their Own Salary",
     "difficulty": "Medium",
-    "tags": ["Debugging", "Correlated Subquery"],
+    "tags": [
+      "Debugging",
+      "Correlated Subquery"
+    ],
     "family": "employees",
     "description": "This is meant to report employees who share their exact salary with **someone else** — but it currently returns literally every employee, even ones whose salary is completely unique in the company. Find the bug and fix it.\n\nName the column `name`. Return the result in any order.",
     "startingSql": "SELECT e.name\nFROM employees e\nWHERE EXISTS (\n  SELECT 1 FROM employees e2 WHERE e2.salary = e.salary\n);",
     "solutionSql": "SELECT e.name\nFROM employees e\nWHERE EXISTS (\n  SELECT 1 FROM employees e2 WHERE e2.salary = e.salary AND e2.id <> e.id\n);",
     "orderMatters": false,
-    "hint": "Without excluding the row itself, every employee's salary trivially \"matches\" e2 = themselves — a correlated subquery comparing a table to itself almost always needs an explicit `e2.id <> e.id` (or similar) to rule out the row matching its own reflection."
-,
-    "outputExplanation": "Fixed, only Ben and Cara show up — they're the two employees genuinely tied at $120k, the only real salary match in the company.\n\nThe buggy version's `EXISTS` subquery checks `e2.salary = e.salary` with no exclusion for `e2` being the same row as `e` — so for *every* employee, the subquery trivially finds a match (themselves), and the query returns all 8 employees regardless of whether anyone actually shares their salary. Adding `e2.id <> e.id` forces the subquery to find a genuinely different employee before counting it as a match."
+    "hint": "Without excluding the row itself, every employee's salary trivially \"matches\" e2 = themselves — a correlated subquery comparing a table to itself almost always needs an explicit `e2.id <> e.id` (or similar) to rule out the row matching its own reflection.",
+    "outputExplanation": "The fixed query returns only Ben and Cara — the two employees who share the same salary ($120k). The buggy version returned all 8 employees by matching each person to themselves."
   },
   {
     "id": "debug-window-frame-wrong-direction",
     "number": 137,
     "title": "Debug: The Trailing Average Is Looking The Wrong Way",
     "difficulty": "Medium",
-    "tags": ["Debugging", "Window Function"],
+    "tags": [
+      "Debugging",
+      "Window Function"
+    ],
     "family": "employees",
     "description": "This is meant to be a **trailing** average — for each employee (ordered by hire date), the average salary of themselves and the two people hired immediately *before* them. Instead it's using future hires that haven't happened yet from this row's point of view. Find the bug and fix it.\n\nName the columns `name` and `trailing_avg` (rounded to 2 decimals). Return the result in any order.",
     "startingSql": "SELECT name,\n  ROUND(AVG(salary) OVER (ORDER BY hire_date, id ROWS BETWEEN CURRENT ROW AND 2 FOLLOWING), 2) AS trailing_avg\nFROM employees;",
     "solutionSql": "SELECT name,\n  ROUND(AVG(salary) OVER (ORDER BY hire_date, id ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 2) AS trailing_avg\nFROM employees;",
     "orderMatters": false,
     "hint": "\"CURRENT ROW AND 2 FOLLOWING\" looks ahead to hires that come later — the exact opposite of \"trailing\". A trailing window looks backward: PRECEDING, not FOLLOWING.",
-    "outputExplanation": "Fixed, Eve (the first hire) shows `trailing_avg = 130000` — just her own salary, since there's no one hired before her. Hal (the last hire) shows the average of the last three hires: Dan, Gia and Hal → (95000+85000+60000)/3 = **80000**.\n\nThe buggy version's frame is `CURRENT ROW AND 2 FOLLOWING` — it looks *forward*, so Eve's row would incorrectly average herself with the next two people hired after her, and Hal (the last hire, nothing follows him) would show just his own salary instead of a genuine trailing average. The fix flips the frame to `2 PRECEDING AND CURRENT ROW`."
+    "outputExplanation": "Eve (first hire) shows $130,000 (just herself). Hal (last hire) shows $80,000 — the average of Dan, Gia and Hal. The buggy frame looked forward instead of backward."
   },
   {
     "id": "debug-ungrouped-column-arbitrary-row",
     "number": 138,
     "title": "Debug: The Top Earner's Name Doesn't Match Their Salary",
     "difficulty": "Hard",
-    "tags": ["Debugging", "Aggregation"],
+    "tags": [
+      "Debugging",
+      "Aggregation"
+    ],
     "family": "employees",
     "description": "This is meant to report, per department, the name and salary of that department's **top earner**. It runs without error and returns one row per department — but the name shown is often not actually the person earning that MAX salary. Find the bug and fix it.\n\nName the columns `department`, `top_earner` and `top_salary`. Return the result in any order.",
     "startingSql": "SELECT d.name AS department, e.name AS top_earner, MAX(e.salary) AS top_salary\nFROM departments d\nJOIN employees e ON e.dept_id = d.id\nGROUP BY d.id, d.name;",
     "solutionSql": "SELECT d.name AS department, e.name AS top_earner, e.salary AS top_salary\nFROM departments d\nJOIN employees e ON e.dept_id = d.id\nWHERE e.salary = (SELECT MAX(e2.salary) FROM employees e2 WHERE e2.dept_id = d.id);",
     "orderMatters": false,
     "hint": "SQLite allows selecting a column that's neither aggregated nor in GROUP BY (most other databases reject this outright) — but the value you get back is from an arbitrary row in the group, not necessarily the one MAX() came from. Join back to find the actual row where salary equals the max instead.",
-    "outputExplanation": "Fixed, each department correctly pairs its actual top earner with their salary: Engineering → Ava/150000, Sales → Eve/130000, HR → Hal/60000 (its only employee).\n\nThe buggy version's `GROUP BY d.id, d.name` computes `MAX(e.salary)` correctly, but `e.name` is neither aggregated nor grouped — SQLite silently allows this and just picks `e.name` from *whichever row happens to be in the group*, which is not guaranteed to be the row with the max salary. On a department where the max-salary employee isn't the arbitrary row SQLite picks, the name and salary end up mismatched. The fix re-derives the name by joining back to the row where `salary` actually equals that department's max."
+    "outputExplanation": "Ava ($150k) is Engineering's top earner, Eve ($130k) is Sales', and Hal ($60k) is HR's. The buggy version might show the wrong name for each department's max salary."
   },
   {
     "id": "debug-date-boundary-off-by-one",
     "number": 139,
     "title": "Debug: Revenue Is Missing The Last Day",
     "difficulty": "Hard",
-    "tags": ["Debugging", "Date"],
+    "tags": [
+      "Debugging",
+      "Date"
+    ],
     "family": "sales",
     "description": "This is meant to total revenue for every order placed **on or before** 2021-12-31. It's quietly excluding orders placed exactly on that date. Find the bug and fix it.\n\nName the column `total_revenue` (rounded to 2 decimals). The result is exactly one row.",
     "startingSql": "SELECT ROUND(SUM(oi.quantity * oi.unit_price), 2) AS total_revenue\nFROM orders o\nJOIN order_items oi ON oi.order_id = o.id\nWHERE o.order_date < '2021-12-31';",
     "solutionSql": "SELECT ROUND(SUM(oi.quantity * oi.unit_price), 2) AS total_revenue\nFROM orders o\nJOIN order_items oi ON oi.order_id = o.id\nWHERE o.order_date <= '2021-12-31';",
     "orderMatters": false,
     "hint": "\"On or before\" means the boundary date itself should be included — that's `<=`, not `<`. A strict less-than silently drops every order dated exactly on the cutoff.",
-    "outputExplanation": "On the Example dataset, every order happens to be dated in 2022 or 2023, so both the buggy (`<`) and fixed (`<=`) queries return `NULL` here — there's simply nothing on or before 2021-12-31 to sum either way, so this case alone can't show the bug.\n\nA hidden dataset (\"Same-day repeat orders across month and year boundaries\") makes it visible: it includes an order placed exactly on **2021-12-31** for 1×Keyboard ($80). The fixed query (`<=`) includes that order and returns `total_revenue = 80`. The buggy query (`<`) excludes it — the boundary date itself never counts as \"before\" — and returns `NULL` instead, even though a real qualifying order exists."
+    "outputExplanation": "No orders exist on or before 2021-12-31 in the example data, so both queries return NULL. A hidden test with a 2021-12-31 order shows the fix returning $80 while the buggy version returns NULL."
   },
   {
     "id": "debug-except-union-precedence",
     "number": 140,
     "title": "Debug: The Symmetric Difference Is Missing Half Its Rows",
     "difficulty": "Hard",
-    "tags": ["Debugging", "Set Operations"],
+    "tags": [
+      "Debugging",
+      "Set Operations"
+    ],
     "family": "reconciliation",
     "description": "This is meant to report every `order_id` out of sync between `source_orders` and `warehouse_orders`, **in either direction**. On some data it looks right, but on data where the two systems are completely disjoint, it's clearly missing rows it should report. Find the bug and fix it.\n\nName the column `order_id`. Return the result in any order.",
     "startingSql": "SELECT order_id FROM source_orders EXCEPT SELECT order_id FROM warehouse_orders\nUNION\nSELECT order_id FROM warehouse_orders EXCEPT SELECT order_id FROM source_orders;",
     "solutionSql": "SELECT order_id FROM (SELECT order_id FROM source_orders EXCEPT SELECT order_id FROM warehouse_orders)\nUNION\nSELECT order_id FROM (SELECT order_id FROM warehouse_orders EXCEPT SELECT order_id FROM source_orders);",
     "orderMatters": false,
     "hint": "Chained set operators (EXCEPT, UNION, INTERSECT) evaluate strictly left-to-right at equal precedence in SQLite — `A EXCEPT B UNION C EXCEPT D` is `((A EXCEPT B) UNION C) EXCEPT D`, not two independent EXCEPTs joined by UNION. Wrap each EXCEPT as its own subquery in FROM to force the grouping you actually want.",
-    "outputExplanation": "Fixed, the Example returns order_ids 3, 4 and 5 — every id present in exactly one of the two systems, in either direction.\n\nThe buggy query chains `A EXCEPT B UNION C EXCEPT D` with no parentheses, and SQLite evaluates all set operators strictly left-to-right at the same precedence: that's `((A EXCEPT B) UNION C) EXCEPT D`, not `(A EXCEPT B) UNION (C EXCEPT D)` like the author intended. Concretely, the final `EXCEPT D` (subtracting everything in `source_orders`) strips back out any warehouse-only id that also happens to be a source id from an *earlier* step of the chain, corrupting the result on data where the two systems don't overlap cleanly. Wrapping each `EXCEPT` in its own subquery forces the intended grouping."
+    "outputExplanation": "The fixed query returns the three out-of-sync ids: 3 and 4 (source-only) and 5 (warehouse-only). The buggy version's chain evaluation corrupts this on disjoint datasets."
   }
 ]

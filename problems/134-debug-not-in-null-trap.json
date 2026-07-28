@@ -3,14 +3,17 @@
   "number": 134,
   "title": "Debug: Customers Who Never Ordered — Sometimes Empty, Sometimes Not",
   "difficulty": "Medium",
-  "tags": ["Debugging", "NULL"],
+  "tags": [
+    "Debugging",
+    "NULL"
+  ],
   "description": "This query is supposed to list every customer who has never placed an order. It works on some data, but on other data it mysteriously returns **zero rows even though customers who never ordered clearly exist**. Find the bug and fix it.\n\nName the column `name`. Return the result in any order.",
   "schemaSql": "CREATE TABLE shop_customers (\n  id INTEGER PRIMARY KEY,\n  name TEXT\n);\n\nCREATE TABLE shop_orders (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER\n);",
   "startingSql": "SELECT name\nFROM shop_customers\nWHERE id NOT IN (SELECT customer_id FROM shop_orders);",
   "solutionSql": "SELECT c.name\nFROM shop_customers c\nWHERE NOT EXISTS (SELECT 1 FROM shop_orders o WHERE o.customer_id = c.id);",
   "orderMatters": false,
   "hint": "If even one row in the NOT IN subquery is NULL, the whole NOT IN comparison becomes unknown for every single row — silently emptying the result. NOT EXISTS never has this problem, because it only ever checks for matching rows, not list membership.",
-  "outputExplanation": "On the Example data (no NULLs), both the buggy and fixed queries agree: Henry and Max never ordered, so both come back. The trap only shows up on the hidden \"NULL order\" case — three customers, one order with a `NULL` customer_id. There, `id NOT IN (SELECT customer_id FROM shop_orders)` compares every customer's id against a list that contains a NULL. Since `id = NULL` is neither true nor false but *unknown*, and `NOT IN` needs every comparison in the list to definitively fail, a single NULL in the subquery poisons the whole check — the buggy query returns **zero rows** even though real never-ordered customers exist. `NOT EXISTS` never has this problem: it just checks row-by-row for a match, so a stray NULL customer_id is simply one more order that doesn't match — harmless.",
+  "outputExplanation": "On the example data both queries agree: Henry and Max never ordered. The bug only appears when a NULL customer_id exists in orders — NOT IN silently returns zero rows while NOT EXISTS works correctly.",
   "tests": [
     {
       "name": "Example — no NULLs yet, bug isn't visible here",

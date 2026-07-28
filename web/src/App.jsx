@@ -6,6 +6,7 @@ import SqlEditor from './components/SqlEditor.jsx';
 import ResultsTable from './components/ResultsTable.jsx';
 import TopBar from './components/TopBar.jsx';
 import NameModal from './components/NameModal.jsx';
+import Markdownish from './components/Markdownish.jsx';
 import { compare, createDb, exec, describeTables, gradeAll, testsOf } from './lib/db.js';
 
 const STARTER = '-- Write your query here\nSELECT ';
@@ -444,7 +445,25 @@ export default function App() {
               <ResultsTable result={output.result} empty="Query ran, but returned no rows." />
             )}
 
-            {!output && !verdict && <p className="muted">Run a query to see its output.</p>}
+            {!output && !verdict && (
+              expected ? (
+                <div className="output-preview">
+                  <p className="muted note">Run a query to see your own output — until then, here's what it should look like:</p>
+                  <h4>Expected output</h4>
+                  <ResultsTable result={expected} empty="(no rows)" />
+                  {problem?.outputExplanation && (
+                    <>
+                      <h4>Why the output looks like this</h4>
+                      <div className="prose">
+                        <Markdownish text={problem.outputExplanation} />
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <p className="muted">Run a query to see its output.</p>
+              )
+            )}
           </div>
         </section>
       </main>
