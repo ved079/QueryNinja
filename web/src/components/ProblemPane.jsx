@@ -3,7 +3,7 @@ import Markdownish from './Markdownish.jsx';
 import ResultsTable from './ResultsTable.jsx';
 import CaseDetail from './CaseDetail.jsx';
 
-const TABS = ['Description', 'Test Cases', 'Hint', 'Solution'];
+const TABS = ['Description', 'Test Cases', 'Past Submissions', 'Hint', 'Solution'];
 
 export default function ProblemPane({
   problem,
@@ -16,6 +16,9 @@ export default function ProblemPane({
   onSelectCase,
   onRunCase,
   status,
+  savedCode,
+  submissions,
+  onLoadSubmission,
 }) {
   const [tab, setTab] = useState('Description');
 
@@ -33,6 +36,10 @@ export default function ProblemPane({
   const failingCases = verdict?.cases
     ?.map((c, i) => ({ ...c, i, pass: caseRun?.[i]?.pass ?? c.pass }))
     .filter((c) => !c.pass) ?? [];
+
+  const pastSubs = (submissions ?? [])
+    .filter((s) => s.problemId === problem.id)
+    .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
 
   return (
     <section className="problem-pane">
@@ -110,6 +117,34 @@ export default function ProblemPane({
             </div>
           )}
 
+          {tab === 'Past Submissions' && (
+            <div className="prose">
+              {pastSubs.length === 0 ? (
+                <p className="muted">No past submissions for this problem.</p>
+              ) : (
+                <div className="past-subs">
+                  {pastSubs.map((s) => (
+                    <button
+                      key={s.id ?? s.submittedAt}
+                      className="past-sub-row"
+                      onClick={() => onLoadSubmission(s)}
+                    >
+                      <span className="past-sub-date">
+                        {new Date(s.submittedAt).toLocaleDateString()}
+                        <span className="muted">
+                          {' '}{new Date(s.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </span>
+                      <span className={`past-sub-status ${s.status === 'solved' ? 'solved' : 'attempted'}`}>
+                        {s.status === 'solved' ? 'Solved' : 'Attempted'}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {tab === 'Hint' && (
             <div className="prose">
               {problem.hint ? (
@@ -122,8 +157,21 @@ export default function ProblemPane({
 
           {tab === 'Solution' && (
             <div className="prose">
-              <p className="muted note">One accepted answer — not the only one.</p>
-              <pre className="solution">{problem.solutionSql}</pre>
+              {savedCode ? (
+                <>
+                  <p className="muted note">Your accepted solution:</p>
+                  <pre className="solution">{savedCode}</pre>
+                  <details style={{ marginTop: 12 }}>
+                    <summary className="muted" style={{ cursor: 'pointer', fontSize: 12 }}>Reference answer</summary>
+                    <pre className="solution" style={{ marginTop: 8 }}>{problem.solutionSql}</pre>
+                  </details>
+                </>
+              ) : (
+                <>
+                  <p className="muted note">One accepted answer — not the only one.</p>
+                  <pre className="solution">{problem.solutionSql}</pre>
+                </>
+              )}
             </div>
           )}
         </div>

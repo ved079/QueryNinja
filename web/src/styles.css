@@ -428,6 +428,54 @@ button.link {
 .heatmap-cell.lvl-3 { background: #26a641; }
 .heatmap-cell.lvl-4 { background: #39d353; }
 
+.progress-delete-section {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--edge);
+}
+.delete-btn {
+  background: none;
+  border: none;
+  color: var(--hard);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 4px;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+.delete-btn:hover {
+  opacity: 1;
+  background: rgba(240, 85, 63, 0.1);
+}
+.delete-confirm {
+  text-align: center;
+}
+.delete-confirm p {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+}
+.delete-confirm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.delete-confirm-actions .danger {
+  background: var(--hard);
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+.delete-confirm-actions .danger:hover {
+  opacity: 0.9;
+}
+
 .sidebar-show {
   background: none;
   border: none;
@@ -885,6 +933,37 @@ button.link {
   overflow-x: auto;
   font-family: Consolas, monospace;
   font-size: 13px;
+}
+.past-subs {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.past-sub-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  background: var(--panel-2);
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: left;
+  font-size: 13px;
+  width: 100%;
+}
+.past-sub-row:hover {
+  background: var(--panel);
+}
+.past-sub-date {
+  color: var(--text);
+}
+.past-sub-status.solved {
+  color: var(--easy);
+}
+.past-sub-status.attempted {
+  color: var(--medium);
 }
 
 /* ---------- editor pane ---------- */

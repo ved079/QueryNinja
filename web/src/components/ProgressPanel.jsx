@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 const ARC_LENGTH = 197.92;
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -56,7 +56,8 @@ function computeBadges(solvedSet, solvedCount, problems, activeDays, maxStreak) 
   return badges;
 }
 
-export default function ProgressPanel({ problems, progress, submissions, onHide }) {
+export default function ProgressPanel({ problems, progress, submissions, userName, onDeleteAccount, onHide }) {
+  const [deleting, setDeleting] = useState(false);
   const stats = useMemo(() => {
     const solved = problems.filter((p) => progress[p.id]?.status === 'solved').length;
     const attempted = problems.filter((p) => progress[p.id]?.status === 'attempted').length;
@@ -77,6 +78,12 @@ export default function ProgressPanel({ problems, progress, submissions, onHide 
     const today = new Date();
     const curM = today.getMonth();
     const curY = today.getFullYear();
+    // Build date→count lookup from array of submission entries.
+    const byDate = {};
+    (submissions ?? []).forEach((s) => {
+      const d = s.submittedAt ? s.submittedAt.slice(0, 10) : null;
+      if (d) byDate[d] = (byDate[d] ?? 0) + 1;
+    });
     let totalSubs = 0;
     let activeDays = 0;
     let streak = 0;
@@ -95,7 +102,7 @@ export default function ProgressPanel({ problems, progress, submissions, onHide 
       for (let d = 1; d <= lastDay; d++) {
         const date = new Date(year, m, d);
         const key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-        const count = submissions[key] ?? 0;
+        const count = byDate[key] ?? 0;
         totalSubs += count;
         if (count > 0) activeDays++;
         if (count > 0) { streak++; maxStreak = Math.max(maxStreak, streak); }
@@ -233,6 +240,24 @@ export default function ProgressPanel({ problems, progress, submissions, onHide 
               })}
             </div>
           </div>
+        </div>
+
+        <div className="progress-delete-section">
+          {!deleting ? (
+            <button className="delete-btn" onClick={() => setDeleting(true)}>
+              Delete my data
+            </button>
+          ) : (
+            <div className="delete-confirm">
+              <p className="muted">This will erase all progress and submissions for <strong>{userName || 'anonymous'}</strong>. This cannot be undone.</p>
+              <div className="delete-confirm-actions">
+                <button onClick={() => setDeleting(false)}>Cancel</button>
+                <button className="danger" onClick={() => { setDeleting(false); onDeleteAccount(); }}>
+                  Yes, delete everything
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -73,18 +73,50 @@ app.delete('/api/progress/:id', async (req, res) => {
 });
 
 app.get('/api/submissions', async (req, res) => {
-  res.json(await store.readUserBucket('submissions', req.query.user));
+  let subs = await store.readUserBucket('submissions', req.query.user);
+  // Migrate legacy flat-object format to array of entries.
+  if (!Array.isArray(subs)) {
+    subs = Object.entries(subs).flatMap(([date, count]) =>
+      Array.from({ length: count }, () => ({
+        date,
+        code: null,
+        problemId: null,
+        status: null,
+        submittedAt: date,
+      }))
+    );
+  }
+  if (req.query.problemId) {
+    subs = subs.filter((s) => s.problemId === req.query.problemId);
+  }
+  res.json(subs);
 });
 
-// Body: { user, date }
+// Body: { user, problemId, code, status }
 app.post('/api/submissions', async (req, res) => {
-  const { user, date } = req.body ?? {};
-  if (!date) return res.status(400).json({ error: 'date is required' });
+  const { user, problemId, code, status } = req.body ?? {};
+  if (!problemId) return res.status(400).json({ error: 'problemId is required' });
 
-  const subs = await store.readUserBucket('submissions', user);
-  subs[date] = (subs[date] ?? 0) + 1;
+  let subs = await store.readUserBucket('submissions', user);
+  if (!Array.isArray(subs)) subs = []; // discard legacy flat format
+  const entry = {
+    id: crypto.randomUUID(),
+    problemId,
+    code: code ?? null,
+    status: status ?? 'attempted',
+    submittedAt: new Date().toISOString(),
+  };
+  subs.push(entry);
   await store.writeUserBucket('submissions', user, subs);
-  res.json({ date, count: subs[date] });
+  res.json(entry);
+});
+
+app.delete('/api/user', async (req, res) => {
+  const user = req.query.user;
+  if (!user) return res.status(400).json({ error: 'user is required' });
+  await store.writeUserBucket('progress', user, {});
+  await store.writeUserBucket('submissions', user, []);
+  res.json({ ok: true });
 });
 
 // Only relevant for the "one process serves everything" deployments (local

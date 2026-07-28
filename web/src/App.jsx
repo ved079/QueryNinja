@@ -27,7 +27,7 @@ export default function App() {
   const [caseRun, setCaseRun] = useState({});
   const [splitRatio, setSplitRatio] = useState(40);
   const [workspaceSplit, setWorkspaceSplit] = useState(55);
-  const [submissions, setSubmissions] = useState({});
+  const [submissions, setSubmissions] = useState([]);
   const [userName, setUserName] = useState(() => localStorage.getItem(NAME_KEY) || '');
   const [nameModalOpen, setNameModalOpen] = useState(false);
   const splitterRef = useRef(null);
@@ -38,6 +38,14 @@ export default function App() {
 
   const problem = problems.find((p) => p.id === selectedId) ?? null;
   const index = problems.findIndex((p) => p.id === selectedId);
+
+  const prevId = useRef(null);
+  // Reset editor code synchronously when the problem changes, so the
+  // SqlEditor always renders with the correct initial value from the start.
+  if (problem && problem.id !== prevId.current) {
+    prevId.current = problem.id;
+    setCode(progress[problem.id]?.code || STARTER);
+  }
 
   const nav = {
     hasPrev: index > 0,
@@ -109,7 +117,6 @@ export default function App() {
         dbRef.current?.close();
         dbRef.current = db;
         setTables(describeTables(db));
-        setCode(progress[problem.id]?.code || STARTER);
 
         // Sample output shown with the problem: derived from the reference
         // solution rather than stored, so the two can never disagree.
@@ -191,14 +198,22 @@ export default function App() {
       setOutput(null);
 
       await saveProgress(problem.id, pass ? 'solved' : 'attempted', sqlText);
-      const today = new Date();
-      const key = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-      setSubmissions((prev) => ({ ...prev, [key]: (prev[key] ?? 0) + 1 }));
-      fetch('/api/submissions', {
+      const entry = {
+        problemId: problem.id,
+        code: sqlText,
+        status: pass ? 'solved' : 'attempted',
+        submittedAt: new Date().toISOString(),
+      };
+      const res = await fetch('/api/submissions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user: userName, date: key }),
-      }).catch(() => {});
+        body: JSON.stringify({ user: userName, ...entry }),
+      });
+      if (res.ok) {
+        const saved = await res.json();
+        entry.id = saved.id;
+      }
+      setSubmissions((prev) => [...prev, entry]);
     } catch (err) {
       setOutput({ error: err.message });
       setVerdict({ pass: false, reason: err.message });
@@ -229,6 +244,20 @@ export default function App() {
     }
   }, [problem]);
 
+  const loadSubmission = useCallback((entry) => {
+    setCode(entry.code);
+    setEditorNonce((n) => n + 1);
+  }, []);
+
+  const handleDeleteAccount = useCallback(async () => {
+    await fetch(`/api/user?user=${encodeURIComponent(userName)}`, { method: 'DELETE' });
+    setProgress({});
+    setSubmissions([]);
+    localStorage.removeItem(NAME_KEY);
+    setUserName('');
+    setNameModalOpen(true);
+  }, [userName]);
+
   if (loadError) return <div className="fatal">{loadError}</div>;
   if (!problems.length) return <div className="fatal muted">Loading problems…</div>;
 
@@ -258,6 +287,9 @@ export default function App() {
               onSelectCase={setSelectedCase}
               onRunCase={runCase}
               status={progress[problem.id]?.status}
+              savedCode={progress[problem.id]?.code}
+              submissions={submissions}
+              onLoadSubmission={loadSubmission}
             />
           </div>
         )}
@@ -375,7 +407,7 @@ export default function App() {
           <div className="modal-body name-modal" onClick={(e) => e.stopPropagation()}>
             <div className="name-modal-inner">
               <h3>Set your name</h3>
-              <p className="muted">Just for keeping your own progress separate — no password needed.</p>
+              <p className="muted">This name keeps your progress saved — you will lose it without one.</p>
               <input
                 className="name-input"
                 type="text"
@@ -417,6 +449,8 @@ export default function App() {
               problems={problems}
               progress={progress}
               submissions={submissions}
+              userName={userName}
+              onDeleteAccount={handleDeleteAccount}
               onHide={() => setProgressOpen(false)}
             />
           </div>
