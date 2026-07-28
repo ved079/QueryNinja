@@ -13,7 +13,7 @@ const NAME_KEY = 'sql-practice-name';
 export default function App() {
   const [problems, setProblems] = useState([]);
   const [progress, setProgress] = useState({});
-  const [selectedId, setSelectedId] = useState(null);
+  const [selectedId, setSelectedId] = useState(() => localStorage.getItem('sql-practice-problem') || null);
   const [tables, setTables] = useState([]);
   const [expected, setExpected] = useState(null);
   const [code, setCode] = useState(STARTER);
@@ -21,7 +21,7 @@ export default function App() {
   const [verdict, setVerdict] = useState(null); // { pass, reason }
   const [loadError, setLoadError] = useState(null);
   const [editorNonce, setEditorNonce] = useState(0);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [progressOpen, setProgressOpen] = useState(false);
   const [selectedCase, setSelectedCase] = useState(null);
   const [caseRun, setCaseRun] = useState({});
@@ -70,7 +70,10 @@ export default function App() {
       try {
         const p = await fetch('/api/problems').then((r) => r.json());
         setProblems(p);
-        setSelectedId((cur) => cur ?? p[0]?.id ?? null);
+        setSelectedId((cur) => {
+          if (cur && p.some((prob) => prob.id === cur)) return cur;
+          return p[0]?.id ?? null;
+        });
       } catch (err) {
         setLoadError(`Could not reach the API server. Is it running? (${err.message})`);
       }
@@ -99,6 +102,10 @@ export default function App() {
   const changeName = useCallback(() => {
     setNameModalOpen(true);
   }, []);
+
+  useEffect(() => {
+    if (selectedId) localStorage.setItem('sql-practice-problem', selectedId);
+  }, [selectedId]);
 
   // Rebuild a fresh database whenever the selected problem changes.
   useEffect(() => {
