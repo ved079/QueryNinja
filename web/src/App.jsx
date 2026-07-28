@@ -38,6 +38,15 @@ export default function App() {
   const dbRef = useRef(null);
   const codeRef = useRef(code);
   codeRef.current = code;
+  const namePromptedRef = useRef(false);
+
+  const handleCodeChange = useCallback((val) => {
+    setCode(val);
+    if (!userName && !namePromptedRef.current) {
+      namePromptedRef.current = true;
+      setNameModalOpen(true);
+    }
+  }, [userName]);
 
   const problem = problems.find((p) => p.id === selectedId) ?? null;
 
@@ -373,7 +382,7 @@ export default function App() {
               <SqlEditor
                 value={code}
                 docKey={`${problem.id}:${editorNonce}`}
-                onChange={setCode}
+                onChange={handleCodeChange}
                 onRun={run}
               />
             )}
