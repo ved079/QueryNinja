@@ -108,13 +108,12 @@ export default function ProgressPanel({ problems, progress, submissions, userNam
         if (count > 0) { streak++; maxStreak = Math.max(maxStreak, streak); }
         else streak = 0;
 
+        // More submissions that day = a higher level = a brighter/glowier flame.
         let level = 0;
-        if (count > 0) {
-          if (count === 1) level = 4;
-          else if (count === 2) level = 3;
-          else if (count === 3) level = 2;
-          else level = 1;
-        }
+        if (count === 1) level = 1;
+        else if (count === 2) level = 2;
+        else if (count === 3) level = 3;
+        else if (count > 3) level = 4;
         monthData.cells.push({ level, day: date.getDay(), date, count });
       }
       months.push(monthData);
@@ -232,7 +231,9 @@ export default function ProgressPanel({ problems, progress, submissions, userNam
                       ))}
                       {m.cells.map((c, i) => (
                         <div key={i} className={`heatmap-cell${c.level ? ` lvl-${c.level}` : ''}`}
-                          title={`${c.count} submission${c.count === 1 ? '' : 's'} on ${MONTHS[c.date.getMonth()]} ${c.date.getDate()}, ${c.date.getFullYear()}`} />
+                          title={`${c.count} submission${c.count === 1 ? '' : 's'} on ${MONTHS[c.date.getMonth()]} ${c.date.getDate()}, ${c.date.getFullYear()}`}>
+                          🔥
+                        </div>
                       ))}
                     </div>
                   </div>

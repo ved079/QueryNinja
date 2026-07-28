@@ -61,7 +61,7 @@ const norm = (v) => {
   return s.trim() !== '' && !Number.isNaN(n) ? norm(n) : s;
 };
 
-const rowKey = (row) => JSON.stringify(row.map(norm));
+export const rowKey = (row) => JSON.stringify(row.map(norm));
 
 /**
  * Compare a user result against the expected result.
@@ -112,6 +112,50 @@ export function compare(actual, expected, orderMatters) {
     };
   }
   return { pass: true, reason: 'All rows match the expected output.' };
+}
+
+/**
+ * Cell/row-level diff for highlighting a failing case in the UI. Doesn't
+ * duplicate compare()'s pass/fail logic — this is purely about which
+ * columns/rows to mark, so it degrades gracefully (no highlights) if the
+ * shapes are too different to line up (e.g. mismatched column counts).
+ *
+ * Returns { columnMismatches, expectedRowStatus, actualRowStatus } where
+ * each row status is 'match' | 'diff' (ordered mode) or
+ * 'match' | 'missing' | 'extra' (unordered mode, multiset comparison).
+ */
+export function diffResults(actual, expected, orderMatters) {
+  if (!actual || !expected) return null;
+
+  const sameColumnCount = actual.columns.length === expected.columns.length;
+  const columnMismatches = expected.columns.map((c, i) =>
+    sameColumnCount ? c.toLowerCase() !== String(actual.columns[i] ?? '').toLowerCase() : false
+  );
+
+  if (orderMatters) {
+    const expectedRowStatus = expected.rows.map((row, i) =>
+      i < actual.rows.length && rowKey(actual.rows[i]) === rowKey(row) ? 'match' : 'diff'
+    );
+    const actualRowStatus = actual.rows.map((row, i) =>
+      i < expected.rows.length && rowKey(expected.rows[i]) === rowKey(row) ? 'match' : 'diff'
+    );
+    return { columnMismatches, expectedRowStatus, actualRowStatus };
+  }
+
+  // Unordered: match each expected row against an unused actual row with the
+  // same key, so duplicate rows are each matched at most once.
+  const actualUsed = new Array(actual.rows.length).fill(false);
+  const expectedRowStatus = expected.rows.map((row) => {
+    const key = rowKey(row);
+    const idx = actual.rows.findIndex((r, i) => !actualUsed[i] && rowKey(r) === key);
+    if (idx !== -1) {
+      actualUsed[idx] = true;
+      return 'match';
+    }
+    return 'missing';
+  });
+  const actualRowStatus = actual.rows.map((_, i) => (actualUsed[i] ? 'match' : 'extra'));
+  return { columnMismatches, expectedRowStatus, actualRowStatus };
 }
 
 /**

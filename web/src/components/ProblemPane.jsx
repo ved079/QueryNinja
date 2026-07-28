@@ -229,6 +229,7 @@ export default function ProblemPane({
                 case={caseRun?.[selectedCase] ?? verdict.cases[selectedCase]}
                 onRunCase={onRunCase}
                 isRunResult={selectedCase in (caseRun ?? {})}
+                orderMatters={problem.orderMatters}
               />
             ) : failingCases.length ? (
               <p className="muted">Click a numbered case above to inspect it.</p>

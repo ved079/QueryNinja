@@ -7,7 +7,7 @@ import ResultsTable from './components/ResultsTable.jsx';
 import TopBar from './components/TopBar.jsx';
 import NameModal from './components/NameModal.jsx';
 import Markdownish from './components/Markdownish.jsx';
-import { compare, createDb, exec, describeTables, gradeAll, testsOf } from './lib/db.js';
+import { compare, createDb, exec, describeTables, gradeAll, testsOf, diffResults } from './lib/db.js';
 
 const STARTER = '-- Write your query here\nSELECT ';
 const NAME_KEY = 'sql-practice-name';
@@ -21,6 +21,7 @@ export default function App() {
   const [expected, setExpected] = useState(null);
   const [code, setCode] = useState(STARTER);
   const [output, setOutput] = useState(null); // { result } | { error }
+  const [runMatch, setRunMatch] = useState(null); // null | true | false — vs. the example's expected output
   const [verdict, setVerdict] = useState(null); // { pass, reason }
   const [loadError, setLoadError] = useState(null);
   const [editorNonce, setEditorNonce] = useState(0);
@@ -154,6 +155,7 @@ export default function App() {
     setVerdict(null);
     setSelectedCase(null);
     setCaseRun({});
+    setRunMatch(null);
     setExpected(null);
 
     (async () => {
@@ -200,13 +202,16 @@ export default function App() {
     setVerdict(null);
     setSelectedCase(null);
     setCaseRun({});
+    setRunMatch(null);
     try {
       // Re-seed so a stray UPDATE/DELETE in a previous run can't poison results.
       createDb(problem).then((db) => {
         dbRef.current?.close();
         dbRef.current = db;
         try {
-          setOutput({ result: exec(db, codeRef.current) });
+          const result = exec(db, codeRef.current);
+          setOutput({ result });
+          setRunMatch(expected ? compare(result, expected, problem.orderMatters).pass : null);
         } catch (err) {
           setOutput({ error: err.message });
         }
@@ -214,7 +219,7 @@ export default function App() {
     } catch (err) {
       setOutput({ error: err.message });
     }
-  }, [problem]);
+  }, [problem, expected]);
 
   /**
    * Run against every test case and record the result. Every case's input,
@@ -441,9 +446,51 @@ export default function App() {
             })()}
 
             {!verdict && output?.error && <pre className="error">{output.error}</pre>}
-            {!verdict && output && !output.error && (
-              <ResultsTable result={output.result} empty="Query ran, but returned no rows." />
-            )}
+            {!verdict && output && !output.error && (() => {
+              const diff = runMatch === false && expected
+                ? diffResults(output.result, expected, problem?.orderMatters)
+                : null;
+              return (
+                <>
+                  {runMatch != null && (
+                    <div className={`run-match ${runMatch ? 'pass' : 'fail'}`}>
+                      {runMatch ? '✓ Matches the expected output' : '✗ Doesn\'t match the expected output'}
+                    </div>
+                  )}
+                  {diff ? (
+                    <>
+                      <div className="diff">
+                        <div>
+                          <h4>Expected</h4>
+                          <ResultsTable
+                            result={expected}
+                            empty="(no rows)"
+                            columnStatus={diff.columnMismatches}
+                            rowStatus={diff.expectedRowStatus}
+                          />
+                        </div>
+                        <div>
+                          <h4>Your output</h4>
+                          <ResultsTable
+                            result={output.result}
+                            empty="(no rows)"
+                            columnStatus={diff.columnMismatches}
+                            rowStatus={diff.actualRowStatus}
+                          />
+                        </div>
+                      </div>
+                      <p className="muted note diff-legend">
+                        {problem?.orderMatters
+                          ? 'Highlighted rows are out of place or don\'t match — compare them position by position.'
+                          : 'Highlighted rows in Expected are missing from your output; highlighted rows in Your output aren\'t expected (wrong values, or extras).'}
+                      </p>
+                    </>
+                  ) : (
+                    <ResultsTable result={output.result} empty="Query ran, but returned no rows." />
+                  )}
+                </>
+              );
+            })()}
 
             {!output && !verdict && (
               expected ? (
