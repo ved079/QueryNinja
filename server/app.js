@@ -1,10 +1,13 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { randomInt, createHash } from 'node:crypto';
 import { loadProblems } from './load-problems.js';
 import { createStore, hasRedisEnv } from './store.js';
+import { sendOtpEmail } from './mailer.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -53,6 +56,68 @@ app.get('/api/username-available', async (req, res) => {
   }
   const taken = await store.isUsernameTaken(name, req.query.current);
   res.json({ available: !taken, reason: taken ? 'taken' : null });
+});
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const OTP_TTL_SECONDS = 10 * 60;
+const hashOtp = (code) => createHash('sha256').update(code).digest('hex');
+
+// Body: { user, email } — links an email to a username so it can be used to
+// log back in (via OTP) on another device. Refuses to steal an email that's
+// already linked to a *different* username.
+app.post('/api/auth/link-email', async (req, res) => {
+  const user = (req.body?.user ?? '').trim();
+  const email = (req.body?.email ?? '').trim().toLowerCase();
+  if (!user || !email) return res.status(400).json({ error: 'user and email are required' });
+  if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'That email address looks invalid.' });
+
+  const existingOwner = await store.getUsernameForEmail(email);
+  if (existingOwner && existingOwner.toLowerCase() !== user.toLowerCase()) {
+    return res.status(409).json({ error: 'That email is already linked to a different username.' });
+  }
+  await store.setUserEmail(user, email);
+  res.json({ ok: true, email });
+});
+
+app.get('/api/auth/email', async (req, res) => {
+  const user = req.query.user;
+  if (!user) return res.status(400).json({ error: 'user is required' });
+  res.json({ email: (await store.getEmailForUsername(user)) ?? null });
+});
+
+// Body: { email } — sends a 6-digit code to the email if (and only if) it's
+// linked to a username. Doesn't reveal whether the email exists at all in
+// the response, beyond the generic "check your inbox" framing on the client.
+app.post('/api/auth/request-otp', async (req, res) => {
+  const email = (req.body?.email ?? '').trim().toLowerCase();
+  if (!email || !EMAIL_RE.test(email)) return res.status(400).json({ error: 'A valid email is required.' });
+
+  const username = await store.getUsernameForEmail(email);
+  if (!username) return res.status(404).json({ error: 'No account is linked to that email.' });
+
+  const code = String(randomInt(100000, 1000000));
+  await store.setOtp(email, { codeHash: hashOtp(code), username, expiresAt: Date.now() + OTP_TTL_SECONDS * 1000 }, OTP_TTL_SECONDS);
+  try {
+    await sendOtpEmail(email, code);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+  res.json({ ok: true });
+});
+
+// Body: { email, code } — on success, returns the username this email is
+// linked to; the client then logs in as that username locally.
+app.post('/api/auth/verify-otp', async (req, res) => {
+  const email = (req.body?.email ?? '').trim().toLowerCase();
+  const code = (req.body?.code ?? '').trim();
+  if (!email || !code) return res.status(400).json({ error: 'email and code are required' });
+
+  const record = await store.getOtp(email);
+  if (!record || record.codeHash !== hashOtp(code)) {
+    return res.status(400).json({ error: 'That code is invalid or expired.' });
+  }
+  await store.clearOtp(email);
+  res.json({ username: record.username });
 });
 
 app.get('/api/progress', async (req, res) => {

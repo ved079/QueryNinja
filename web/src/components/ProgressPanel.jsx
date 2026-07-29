@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const ARC_LENGTH = 197.92;
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -126,9 +126,45 @@ function badgePageCountFor(total) {
   return 1 + Math.ceil((total - FIRST_BADGE_PAGE_SIZE) / BADGES_PER_PAGE);
 }
 
-export default function ProgressPanel({ problems, progress, submissions, userName, onDeleteAccount, onHide }) {
+export default function ProgressPanel({ problems, progress, submissions, userName, onDeleteAccount, onLogout, onHide }) {
   const [deleting, setDeleting] = useState(false);
   const [badgePage, setBadgePage] = useState(0);
+  const [linkedEmail, setLinkedEmail] = useState(null);
+  const [emailDraft, setEmailDraft] = useState('');
+  const [emailStatus, setEmailStatus] = useState(null); // null | 'saving' | 'saved' | error message
+  const [editingEmail, setEditingEmail] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLinkedEmail(null);
+    setEmailStatus(null);
+    setEditingEmail(false);
+    fetch(`/api/auth/email?user=${encodeURIComponent(userName || 'anonymous')}`)
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled) setLinkedEmail(d.email ?? null); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [userName]);
+
+  const saveEmail = async () => {
+    const trimmed = emailDraft.trim();
+    if (!trimmed) return;
+    setEmailStatus('saving');
+    try {
+      const res = await fetch('/api/auth/link-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user: userName || 'anonymous', email: trimmed }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not save that email.');
+      setLinkedEmail(data.email);
+      setEditingEmail(false);
+      setEmailStatus(null);
+    } catch (err) {
+      setEmailStatus(err.message);
+    }
+  };
   const stats = useMemo(() => {
     const solved = problems.filter((p) => progress[p.id]?.status === 'solved').length;
     const attempted = problems.filter((p) => progress[p.id]?.status === 'attempted').length;
@@ -343,11 +379,46 @@ export default function ProgressPanel({ problems, progress, submissions, userNam
           </div>
         </div>
 
+        <div className="progress-card recovery-email-card">
+          <div className="progress-card-label">Recovery email</div>
+          {linkedEmail && !editingEmail ? (
+            <div className="recovery-email-row">
+              <span>{linkedEmail}</span>
+              <button onClick={() => { setEditingEmail(true); setEmailDraft(linkedEmail); }}>Change</button>
+            </div>
+          ) : (
+            <div className="recovery-email-row">
+              <input
+                className="name-input"
+                type="email"
+                value={emailDraft}
+                onChange={(e) => setEmailDraft(e.target.value)}
+                placeholder="you@example.com"
+                onKeyDown={(e) => e.key === 'Enter' && saveEmail()}
+              />
+              <button className="primary" disabled={emailStatus === 'saving' || !emailDraft.trim()} onClick={saveEmail}>
+                {emailStatus === 'saving' ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+          )}
+          {emailStatus && emailStatus !== 'saving' && (
+            <p className="name-availability taken" style={{ marginTop: 6 }}>{emailStatus}</p>
+          )}
+          <p className="muted" style={{ margin: '6px 0 0', fontSize: 12 }}>
+            Link an email so you can log back in as <strong>{userName || 'anonymous'}</strong> from another device with a code, no password needed.
+          </p>
+        </div>
+
         <div className="progress-delete-section">
           {!deleting ? (
-            <button className="delete-btn" onClick={() => setDeleting(true)}>
-              Delete my data
-            </button>
+            <div className="delete-confirm-actions" style={{ justifyContent: 'flex-end' }}>
+              <button className="delete-btn" onClick={onLogout}>
+                Log out
+              </button>
+              <button className="delete-btn" onClick={() => setDeleting(true)}>
+                Delete my data
+              </button>
+            </div>
           ) : (
             <div className="delete-confirm">
               <p className="muted">This will erase all progress and submissions for <strong>{userName || 'anonymous'}</strong>. This cannot be undone.</p>

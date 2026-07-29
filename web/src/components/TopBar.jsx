@@ -20,6 +20,7 @@ export default function TopBar({
   userName,
   streak,
   onChangeName,
+  onLoginWithEmail,
   nav,
   onRun,
   onSubmit,
@@ -109,6 +110,9 @@ export default function TopBar({
               title="Set a name so your progress is your own"
             >
               Set name
+            </button>
+            <button className="login-email-link" onClick={onLoginWithEmail} title="Log in with your recovery email">
+              Log in with email
             </button>
           </span>
         )}

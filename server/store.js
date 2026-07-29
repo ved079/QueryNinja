@@ -55,6 +55,48 @@ function createFileStore(dataDir) {
       if (isLegacyFlat(all)) return [];
       return Object.keys(all).filter((k) => k !== ANON);
     },
+
+    // Email <-> username linking (for OTP login on a new device). Two small
+    // JSON files kept in sync so both lookup directions are O(1); fine at
+    // this app's scale.
+    async setUserEmail(username, email) {
+      const byEmail = await readJsonFile(path.join(dataDir, 'users-by-email.json'));
+      const byUser = await readJsonFile(path.join(dataDir, 'users-by-name.json'));
+      byEmail[email] = userKey(username);
+      byUser[userKey(username)] = email;
+      await fs.writeFile(path.join(dataDir, 'users-by-email.json'), JSON.stringify(byEmail, null, 2));
+      await fs.writeFile(path.join(dataDir, 'users-by-name.json'), JSON.stringify(byUser, null, 2));
+    },
+    async getUsernameForEmail(email) {
+      const byEmail = await readJsonFile(path.join(dataDir, 'users-by-email.json'));
+      return byEmail[email] ?? null;
+    },
+    async getEmailForUsername(username) {
+      const byUser = await readJsonFile(path.join(dataDir, 'users-by-name.json'));
+      return byUser[userKey(username)] ?? null;
+    },
+
+    // Short-lived OTP codes for the email login flow. File store has no
+    // native TTL, so expiry is checked (and the stale entry dropped) on read.
+    async setOtp(email, record) {
+      const file = path.join(dataDir, 'otps.json');
+      const all = await readJsonFile(file);
+      all[email] = record;
+      await fs.writeFile(file, JSON.stringify(all, null, 2));
+    },
+    async getOtp(email) {
+      const file = path.join(dataDir, 'otps.json');
+      const all = await readJsonFile(file);
+      const rec = all[email];
+      if (!rec || rec.expiresAt < Date.now()) return null;
+      return rec;
+    },
+    async clearOtp(email) {
+      const file = path.join(dataDir, 'otps.json');
+      const all = await readJsonFile(file);
+      delete all[email];
+      await fs.writeFile(file, JSON.stringify(all, null, 2));
+    },
   };
 }
 
@@ -96,6 +138,34 @@ function createRedisStore() {
       return keys
         .map((k) => k.replace('sql-practice:progress:', ''))
         .filter((k) => k !== ANON);
+    },
+
+    async setUserEmail(username, email) {
+      const redis = await getClient();
+      await redis.set(`sql-practice:email-to-user:${email}`, userKey(username));
+      await redis.set(`sql-practice:user-to-email:${userKey(username)}`, email);
+    },
+    async getUsernameForEmail(email) {
+      const redis = await getClient();
+      return (await redis.get(`sql-practice:email-to-user:${email}`)) ?? null;
+    },
+    async getEmailForUsername(username) {
+      const redis = await getClient();
+      return (await redis.get(`sql-practice:user-to-email:${userKey(username)}`)) ?? null;
+    },
+
+    // Redis's native TTL does the expiry work here — no manual check needed.
+    async setOtp(email, record, ttlSeconds) {
+      const redis = await getClient();
+      await redis.set(`sql-practice:otp:${email}`, record, { ex: ttlSeconds });
+    },
+    async getOtp(email) {
+      const redis = await getClient();
+      return (await redis.get(`sql-practice:otp:${email}`)) ?? null;
+    },
+    async clearOtp(email) {
+      const redis = await getClient();
+      await redis.del(`sql-practice:otp:${email}`);
     },
   };
 }

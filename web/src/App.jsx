@@ -6,6 +6,7 @@ import SqlEditor from './components/SqlEditor.jsx';
 import ResultsTable from './components/ResultsTable.jsx';
 import TopBar from './components/TopBar.jsx';
 import NameModal from './components/NameModal.jsx';
+import LoginModal from './components/LoginModal.jsx';
 import Markdownish from './components/Markdownish.jsx';
 import { compare, createDb, exec, describeTables, gradeAll, testsOf, diffResults } from './lib/db.js';
 import { computeCurrentStreak } from './lib/streak.js';
@@ -39,6 +40,7 @@ export default function App() {
   const [userName, setUserName] = useState(() => localStorage.getItem(NAME_KEY) || '');
   const [nameModalOpen, setNameModalOpen] = useState(false);
   const [nameSkipped, setNameSkipped] = useState(() => localStorage.getItem(NAME_SKIP_KEY) === '1');
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
   const splitterRef = useRef(null);
 
   const dbRef = useRef(null);
@@ -324,6 +326,7 @@ export default function App() {
         userName={userName}
         streak={streak}
         onChangeName={changeName}
+        onLoginWithEmail={() => setLoginModalOpen(true)}
         nav={nav}
         onRun={run}
         onSubmit={submit}
@@ -537,17 +540,31 @@ export default function App() {
         />
       )}
 
+      {loginModalOpen && (
+        <LoginModal
+          onClose={() => setLoginModalOpen(false)}
+          onLoggedIn={(username) => {
+            localStorage.setItem(NAME_KEY, username);
+            localStorage.removeItem(NAME_SKIP_KEY);
+            setNameSkipped(false);
+            setUserName(username);
+            setLoginModalOpen(false);
+          }}
+        />
+      )}
+
       {progressOpen && (
         <div className="modal-overlay" onClick={() => setProgressOpen(false)}>
           <div className="modal-body wide" onClick={(e) => e.stopPropagation()}>
-            <ProgressPanel
-              problems={problems}
-              progress={progress}
-              submissions={submissions}
-              userName={userName}
-              onDeleteAccount={handleDeleteAccount}
-              onHide={() => setProgressOpen(false)}
-            />
+              <ProgressPanel
+                problems={problems}
+                progress={progress}
+                submissions={submissions}
+                userName={userName}
+                onDeleteAccount={handleDeleteAccount}
+                onLogout={() => { setUserName(''); localStorage.removeItem(NAME_KEY); window.location.reload(); }}
+                onHide={() => setProgressOpen(false)}
+              />
           </div>
         </div>
       )}

@@ -3,6 +3,9 @@ dist/
 progress.json
 submissions.json
 .vercel/
+.env
+users.json
+otps.json
 
 # Copied from node_modules by scripts/copy-wasm.mjs on npm install
 web/public/*.wasm
