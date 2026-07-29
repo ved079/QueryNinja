@@ -711,19 +711,28 @@ button.link {
 }
 .splitter-vert {
   flex: none;
-  width: 5px;
+  width: 12px;
   cursor: col-resize;
-  background: var(--border);
+  background: transparent;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
-}
-.splitter-vert:hover,
-.splitter-vert:active {
-  background: var(--accent);
 }
 .splitter-vert::after {
   content: '';
-  position: absolute;
-  inset: 0 -3px;
+  height: 40px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--muted);
+  opacity: 0.3;
+  transition: all 0.2s;
+}
+.splitter-vert:hover::after {
+  background: var(--accent);
+  opacity: 0.6;
 }
 
 /* ---------- sidebar ---------- */
@@ -1349,7 +1358,10 @@ button.link {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--muted);
-  margin: 24px 0 10px;
+  margin: 12px 0 10px;
+}
+.pane-body-scroll h3:first-child {
+  margin-top: 0;
 }
 .table-block h4 {
   margin: 0 0 6px;
@@ -1429,7 +1441,7 @@ button.link {
   flex-direction: column;
   border: 1px solid var(--edge);
   border-radius: 8px;
-  margin: 8px 0;
+  margin: 8px 10px;
   box-shadow: var(--panel-shadow);
 }
 .toolbar {
@@ -1515,22 +1527,32 @@ button.link {
 }
 .splitter {
   flex: none;
-  height: 5px;
+  height: 12px;
   cursor: row-resize;
-  background: var(--border);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
-}
-.splitter:hover,
-.splitter:active {
-  background: var(--accent);
 }
 .splitter::after {
   content: '';
-  position: absolute;
-  inset: -3px 0;
+  width: 40px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--muted);
+  opacity: 0.3;
+  transition: all 0.2s;
+}
+.splitter:hover {
+  background: transparent;
+}
+.splitter:hover::after {
+  background: var(--accent);
+  opacity: 0.6;
 }
 .output {
-  padding: 1.25rem;
+  padding: 0.4rem 1.25rem 1.25rem;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -1538,9 +1560,9 @@ button.link {
   min-height: 0;
   background: var(--panel);
   border: 1px solid var(--edge);
-  border-top: none;
-  border-radius: 0 0 8px 8px;
+  border-radius: 8px;
   box-shadow: var(--panel-shadow);
+  margin: 8px 10px;
 }
 .verdict {
   display: flex;

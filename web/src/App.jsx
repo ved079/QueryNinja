@@ -9,6 +9,7 @@ import NameModal from './components/NameModal.jsx';
 import LoginModal from './components/LoginModal.jsx';
 import Markdownish from './components/Markdownish.jsx';
 import { compare, createDb, exec, describeTables, gradeAll, testsOf, diffResults } from './lib/db.js';
+import { format } from 'sql-formatter';
 import { computeCurrentStreak } from './lib/streak.js';
 
 const STARTER = '-- Write your query here\nSELECT ';
@@ -381,6 +382,20 @@ export default function App() {
             <div className="actions">
               <button
                 onClick={() => {
+                  try {
+                    const formatted = format(code, { language: 'sqlite', uppercase: true, tabWidth: 2 });
+                    if (formatted !== code) {
+                      setCode(formatted);
+                      setEditorNonce((n) => n + 1);
+                    }
+                  } catch { /* leave as-is if formatting fails */ }
+                }}
+                title="Format SQL"
+              >
+                Format
+              </button>
+              <button
+                onClick={() => {
                   setCode(problem?.startingSql || STARTER);
                   // The editor only rebuilds its document when docKey changes.
                   setEditorNonce((n) => n + 1);
@@ -501,7 +516,6 @@ export default function App() {
             {!output && !verdict && (
               expected ? (
                 <div className="output-preview">
-                  <p className="muted note">Run a query to see your own output — until then, here's what it should look like:</p>
                   <h4>Expected output</h4>
                   <ResultsTable result={expected} empty="(no rows)" />
                   {problem?.outputExplanation && (
