@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Dropdown from './Dropdown.jsx';
 
 const DIFFICULTIES = ['All', 'Easy', 'Medium', 'Hard'];
@@ -11,6 +11,7 @@ export default function ProblemList({ problems, progress, selectedId, onSelect, 
   const [status, setStatus] = useState('All');
   const [topic, setTopic] = useState('All');
   const [sortBy, setSortBy] = useState('number');
+  const topicMenuPortalRef = useRef(null);
 
   const isSolved = (p) => progress[p.id]?.status === 'solved';
 
@@ -102,14 +103,15 @@ export default function ProblemList({ problems, progress, selectedId, onSelect, 
                 onClick={() => setStatus(s)}>{s}</button>
             ))}
           </div>
-          <Dropdown label="Topic" value={topic} options={topics} onChange={setTopic} />
+          <Dropdown label="Topic" value={topic} options={topics} onChange={setTopic} menuPortalRef={topicMenuPortalRef} />
           <Dropdown label="Sort" value={sortBy} options={[
             { label: 'Number', value: 'number' },
             { label: 'Difficulty', value: 'difficulty' },
             { label: 'Unsolved first', value: 'status' },
-          ]} onChange={setSortBy} />
+          ]} onChange={setSortBy} menuPortalRef={topicMenuPortalRef} />
         </div>
       </header>
+      <div ref={topicMenuPortalRef} className="topic-menu-portal" />
 
       <div className="fs-list-body">
         <ul className="fs-list-items">
