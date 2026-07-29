@@ -13,7 +13,60 @@
     "solutionSql": "SELECT c.name AS customer,\n       ROUND(COALESCE(SUM(CASE WHEN o.status = 'completed' THEN oi.quantity * oi.unit_price END), 0), 2) AS revenue\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id\nLEFT JOIN order_items oi ON oi.order_id = o.id\nGROUP BY c.id, c.name;",
     "orderMatters": false,
     "hint": "Chain two LEFT JOINs so customers survive, and filter the status inside the SUM rather than in WHERE.",
-    "outputExplanation": "Ada has spent $625, Cy has spent $75, and Bo and Di have spent nothing on completed orders."
+    "outputExplanation": "Ada has spent $625, Cy has spent $75, and Bo and Di have spent nothing on completed orders.",
+    "extraTests": [
+      {
+        "name": "Customer with no orders shows 0",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] }
+        ]
+      },
+      {
+        "name": "Customer with only cancelled orders shows 0",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "cancelled" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Single completed order",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 50 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 2, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "Multiple completed orders summed",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 2, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "Multiple customers different spends",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 3, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "NULL quantity or unit_price excluded",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": null, "unit_price": 100 }] }
+        ]
+      }
+    ]
   },
   {
     "id": "sales-repeat-customers",
@@ -29,7 +82,51 @@
     "solutionSql": "SELECT c.name AS customer, COUNT(*) AS orders\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nGROUP BY c.id, c.name\nHAVING COUNT(*) >= 2;",
     "orderMatters": false,
     "hint": "An inner join is fine here — a customer with fewer than two orders can never qualify.",
-    "outputExplanation": "Ada has placed 3 orders and Cy has placed 2 — both are repeat customers. Bo has only 1 order and Di has none."
+    "outputExplanation": "Ada has placed 3 orders and Cy has placed 2 — both are repeat customers. Bo has only 1 order and Di has none.",
+    "extraTests": [
+      {
+        "name": "Customer with exactly 2 orders",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }] }
+        ]
+      },
+      {
+        "name": "No customer has 2+ orders",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 2, "order_date": "2022-02-10", "status": "completed" }] }
+        ]
+      },
+      {
+        "name": "One repeat, one single",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }, { "id": 3, "customer_id": 1, "order_date": "2022-03-10", "status": "completed" }, { "id": 4, "customer_id": 2, "order_date": "2022-04-10", "status": "completed" }] }
+        ]
+      },
+      {
+        "name": "All customers are repeat",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }, { "id": 3, "customer_id": 2, "order_date": "2022-03-10", "status": "completed" }, { "id": 4, "customer_id": 2, "order_date": "2022-04-10", "status": "completed" }] }
+        ]
+      },
+      {
+        "name": "Customer with 5 orders",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }, { "id": 3, "customer_id": 1, "order_date": "2022-03-10", "status": "completed" }, { "id": 4, "customer_id": 1, "order_date": "2022-04-10", "status": "completed" }, { "id": 5, "customer_id": 1, "order_date": "2022-05-10", "status": "completed" }] }
+        ]
+      },
+      {
+        "name": "Customer with no orders never joins",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 2, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 2, "order_date": "2022-02-10", "status": "completed" }] }
+        ]
+      }
+    ]
   },
   {
     "id": "sales-monthly-revenue",
@@ -45,7 +142,63 @@
     "solutionSql": "SELECT strftime('%Y-%m', o.order_date) AS month,\n       ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue\nFROM orders o\nJOIN order_items oi ON oi.order_id = o.id\nWHERE o.status = 'completed'\nGROUP BY month;",
     "orderMatters": false,
     "hint": "strftime('%Y-%m', ...) truncates a date to its month and groups neatly.",
-    "outputExplanation": "Revenue from completed orders was $185 in January 2022, $300 in February 2022, $75 in March 2022, and $140 in January 2023."
+    "outputExplanation": "Revenue from completed orders was $185 in January 2022, $300 in February 2022, $75 in March 2022, and $140 in January 2023.",
+    "extraTests": [
+      {
+        "name": "Single month with revenue",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 50 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 2, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "Two months with revenue",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 2, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "No completed orders — empty result",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "cancelled" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Multiple orders in same month",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-01-20", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 2, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "Same month different year — separate rows",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2023-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 2, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "NULL status order not counted",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": null }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 1, "unit_price": 50 }] }
+        ]
+      }
+    ]
   },
   {
     "id": "sales-top-product-by-revenue",
@@ -61,7 +214,63 @@
     "solutionSql": "WITH totals AS (\n  SELECT p.name AS product, ROUND(SUM(oi.quantity * oi.unit_price), 2) AS revenue\n  FROM order_items oi\n  JOIN products p ON p.id = oi.product_id\n  GROUP BY p.id, p.name\n)\nSELECT product, revenue\nFROM totals\nWHERE revenue = (SELECT MAX(revenue) FROM totals);",
     "orderMatters": false,
     "hint": "Aggregate first, then compare against the maximum of that aggregate — ORDER BY ... LIMIT 1 would silently drop ties.",
-    "outputExplanation": "Desk generated the most revenue at $300 across all order items."
+    "outputExplanation": "Desk generated the most revenue at $300 across all order items.",
+    "extraTests": [
+      {
+        "name": "Single product sold",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 50 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 2, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "Clear winner",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 10 }, { "id": 2, "name": "Gadget", "category": "Tech", "price": 5 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 10, "unit_price": 10 }, { "id": 2, "order_id": 1, "product_id": 2, "quantity": 1, "unit_price": 5 }] }
+        ]
+      },
+      {
+        "name": "Tie at the top",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }, { "id": 2, "name": "Gadget", "category": "Tech", "price": 50 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 1, "product_id": 2, "quantity": 2, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "Three products with one clear leader",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 500 }, { "id": 2, "name": "Gadget", "category": "Tech", "price": 100 }, { "id": 3, "name": "Doohickey", "category": "Tech", "price": 50 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 500 }, { "id": 2, "order_id": 1, "product_id": 2, "quantity": 1, "unit_price": 100 }, { "id": 3, "order_id": 1, "product_id": 3, "quantity": 2, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "Single order with multiple products",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 30 }, { "id": 2, "name": "Gadget", "category": "Tech", "price": 20 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 2, "unit_price": 30 }, { "id": 2, "order_id": 1, "product_id": 2, "quantity": 3, "unit_price": 20 }] }
+        ]
+      },
+      {
+        "name": "Only one product appears in order_items",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }, { "id": 2, "name": "Gadget", "category": "Tech", "price": 50 }, { "id": 3, "name": "Doohickey", "category": "Tech", "price": 25 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 3, "unit_price": 100 }] }
+        ]
+      }
+    ]
   },
   {
     "id": "sales-first-order-per-customer",
@@ -76,7 +285,51 @@
     "solutionSql": "SELECT c.name AS customer, o.order_date AS first_order\nFROM (\n  SELECT *, ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY order_date, id) AS rn\n  FROM orders\n) o\nJOIN customers c ON c.id = o.customer_id\nWHERE o.rn = 1;",
     "orderMatters": false,
     "hint": "ROW_NUMBER with a tie-breaker in the ORDER BY guarantees exactly one row per customer.",
-    "outputExplanation": "Ada's first order was on 2022-01-10, Bo's on 2022-02-20, and Cy's on 2022-03-05. Di has never ordered."
+    "outputExplanation": "Ada's first order was on 2022-01-10, Bo's on 2022-02-20, and Cy's on 2022-03-05. Di has never ordered.",
+    "extraTests": [
+      {
+        "name": "Single customer with one order",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] }
+        ]
+      },
+      {
+        "name": "Customer with multiple orders",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 3, "customer_id": 1, "order_date": "2022-03-10", "status": "completed" }] }
+        ]
+      },
+      {
+        "name": "Two customers each order once",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 2, "order_date": "2022-02-10", "status": "completed" }] }
+        ]
+      },
+      {
+        "name": "Customer has two orders on same date — smaller id wins",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "orders", "rows": [{ "id": 2, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] }
+        ]
+      },
+      {
+        "name": "Customer with no orders never appears",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] }
+        ]
+      },
+      {
+        "name": "Multiple customers with varied order patterns",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }, { "id": 3, "name": "Cy", "country": "US", "signup_date": "2022-03-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }, { "id": 3, "customer_id": 2, "order_date": "2022-03-10", "status": "completed" }] }
+        ]
+      }
+    ]
   },
   {
     "id": "sales-category-revenue-share",
@@ -91,7 +344,63 @@
     "solutionSql": "SELECT category,\n       ROUND(revenue, 2) AS revenue,\n       ROUND(100.0 * revenue / SUM(revenue) OVER (), 2) AS pct\nFROM (\n  SELECT p.category AS category, SUM(oi.quantity * oi.unit_price) AS revenue\n  FROM order_items oi\n  JOIN products p ON p.id = oi.product_id\n  WHERE p.category IS NOT NULL\n  GROUP BY p.category\n);",
     "orderMatters": false,
     "hint": "Aggregate to one row per category, then use SUM(...) OVER () to reach the grand total without a second scan.",
-    "outputExplanation": "Furniture accounts for 59.38% of total revenue ($570) and Tech accounts for 40.63% ($390)."
+    "outputExplanation": "Furniture accounts for 59.38% of total revenue ($570) and Tech accounts for 40.63% ($390).",
+    "extraTests": [
+      {
+        "name": "Single category — 100%",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Two categories equal share",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }, { "id": 2, "name": "Chair", "category": "Furniture", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 1, "product_id": 2, "quantity": 1, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "One category dominates",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 300 }, { "id": 2, "name": "Chair", "category": "Furniture", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 300 }, { "id": 2, "order_id": 1, "product_id": 2, "quantity": 1, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "NULL category excluded",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }, { "id": 2, "name": "Misc", "category": null, "price": 50 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 1, "product_id": 2, "quantity": 1, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "Three categories",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 200 }, { "id": 2, "name": "Chair", "category": "Furniture", "price": 300 }, { "id": 3, "name": "Pan", "category": "Kitchen", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 200 }, { "id": 2, "order_id": 1, "product_id": 2, "quantity": 1, "unit_price": 300 }, { "id": 3, "order_id": 1, "product_id": 3, "quantity": 1, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Three categories with ties",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 200 }, { "id": 2, "name": "Chair", "category": "Furniture", "price": 200 }, { "id": 3, "name": "Pan", "category": "Kitchen", "price": 200 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 200 }, { "id": 2, "order_id": 1, "product_id": 2, "quantity": 1, "unit_price": 200 }, { "id": 3, "order_id": 1, "product_id": 3, "quantity": 1, "unit_price": 200 }] }
+        ]
+      }
+    ]
   },
   {
     "id": "sales-items-per-order",
@@ -107,7 +416,63 @@
     "solutionSql": "SELECT order_id, COUNT(DISTINCT product_id) AS products\nFROM order_items\nGROUP BY order_id\nHAVING COUNT(DISTINCT product_id) >= 2;",
     "orderMatters": false,
     "hint": "COUNT(DISTINCT col) inside both the SELECT and the HAVING.",
-    "outputExplanation": "Orders 1 and 6 each contain two distinct products. All other orders contain only one product each."
+    "outputExplanation": "Orders 1 and 6 each contain two distinct products. All other orders contain only one product each.",
+    "extraTests": [
+      {
+        "name": "Order with 2 distinct products",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }, { "id": 2, "name": "Gadget", "category": "Tech", "price": 50 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 1, "product_id": 2, "quantity": 1, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "No order has 2+ distinct products — empty",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 2, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "One order qualifies, one does not",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }, { "id": 2, "name": "Gadget", "category": "Tech", "price": 50 }, { "id": 3, "name": "Doohickey", "category": "Tech", "price": 25 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 1, "product_id": 2, "quantity": 1, "unit_price": 50 }, { "id": 3, "order_id": 1, "product_id": 3, "quantity": 1, "unit_price": 25 }, { "id": 4, "order_id": 2, "product_id": 1, "quantity": 2, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Order with 3 distinct products",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }, { "id": 2, "name": "Gadget", "category": "Tech", "price": 50 }, { "id": 3, "name": "Doohickey", "category": "Tech", "price": 25 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 1, "product_id": 2, "quantity": 1, "unit_price": 50 }, { "id": 3, "order_id": 1, "product_id": 3, "quantity": 1, "unit_price": 25 }] }
+        ]
+      },
+      {
+        "name": "All orders qualify",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }, { "id": 2, "name": "Gadget", "category": "Tech", "price": 50 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 2, "order_date": "2022-02-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 1, "product_id": 2, "quantity": 1, "unit_price": 50 }, { "id": 3, "order_id": 2, "product_id": 1, "quantity": 2, "unit_price": 50 }, { "id": 4, "order_id": 2, "product_id": 2, "quantity": 1, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "Order repeats same product — only counts as 1",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 1, "product_id": 1, "quantity": 2, "unit_price": 50 }] }
+        ]
+      }
+    ]
   },
   {
     "id": "sales-customers-above-country-average",
@@ -123,7 +488,63 @@
     "solutionSql": "WITH spend AS (\n  SELECT c.id, c.name, c.country,\n         COALESCE(SUM(oi.quantity * oi.unit_price), 0) AS total\n  FROM customers c\n  LEFT JOIN orders o ON o.customer_id = c.id\n  LEFT JOIN order_items oi ON oi.order_id = o.id\n  GROUP BY c.id, c.name, c.country\n)\nSELECT name AS customer, country, ROUND(total, 2) AS spend\nFROM (SELECT *, AVG(total) OVER (PARTITION BY country) AS country_avg FROM spend)\nWHERE total > country_avg;",
     "orderMatters": false,
     "hint": "Compute the per-customer totals first, then apply a window average over country to that derived table.",
-    "outputExplanation": "Ada spends $625, well above the US average of $350. Cy ($75), Bo ($0) and Di ($0) all spend at or below their country's average."
+    "outputExplanation": "Ada spends $625, well above the US average of $350. Cy ($75), Bo ($0) and Di ($0) all spend at or below their country's average.",
+    "extraTests": [
+      {
+        "name": "Single customer — cannot exceed own average",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "All customers spend the same — none exceeds",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 2, "order_date": "2022-02-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 1, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "One US customer exceeds average",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 2, "order_date": "2022-02-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 3, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 1, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Two countries with one above-avg each",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }, { "id": 3, "name": "Cy", "country": "UK", "signup_date": "2022-03-01" }, { "id": 4, "name": "Di", "country": "UK", "signup_date": "2022-04-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 2, "order_date": "2022-02-10", "status": "completed" }, { "id": 3, "customer_id": 3, "order_date": "2022-03-10", "status": "completed" }, { "id": 4, "customer_id": 4, "order_date": "2022-04-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 3, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 3, "order_id": 3, "product_id": 1, "quantity": 2, "unit_price": 100 }, { "id": 4, "order_id": 4, "product_id": 1, "quantity": 1, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "Customer who never ordered spends 0",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 2, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Multiple customers, only one exceeds",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }, { "id": 3, "name": "Cy", "country": "US", "signup_date": "2022-03-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 2, "order_date": "2022-02-10", "status": "completed" }, { "id": 3, "customer_id": 3, "order_date": "2022-03-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 5, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 3, "order_id": 3, "product_id": 1, "quantity": 1, "unit_price": 100 }] }
+        ]
+      }
+    ]
   },
   {
     "id": "sales-month-over-month",
@@ -139,7 +560,63 @@
     "solutionSql": "WITH monthly AS (\n  SELECT strftime('%Y-%m', o.order_date) AS month,\n         SUM(oi.quantity * oi.unit_price) AS revenue\n  FROM orders o\n  JOIN order_items oi ON oi.order_id = o.id\n  GROUP BY month\n)\nSELECT month,\n       ROUND(revenue, 2) AS revenue,\n       ROUND(revenue - LAG(revenue) OVER (ORDER BY month), 2) AS change\nFROM monthly;",
     "orderMatters": false,
     "hint": "Aggregate by month first; LAG over the aggregated rows compares each month to the previous one.",
-    "outputExplanation": "Revenue rose from $185 in January 2022 to $480 in February, then fell to $155 in March, and was $140 in January 2023."
+    "outputExplanation": "Revenue rose from $185 in January 2022 to $480 in February, then fell to $155 in March, and was $140 in January 2023.",
+    "extraTests": [
+      {
+        "name": "Single month — change is NULL",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Two consecutive months with increase",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 2, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Three months with up then down",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }, { "id": 3, "customer_id": 1, "order_date": "2022-03-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 3, "unit_price": 100 }, { "id": 3, "order_id": 3, "product_id": 1, "quantity": 2, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Non-consecutive months in data",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-03-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 2, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Same month across years",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2023-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 2, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Flat revenue across months",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }, { "id": 3, "customer_id": 1, "order_date": "2022-03-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 3, "order_id": 3, "product_id": 1, "quantity": 1, "unit_price": 100 }] }
+        ]
+      }
+    ]
   },
   {
     "id": "sales-products-above-category-average",
@@ -154,7 +631,45 @@
     "solutionSql": "SELECT name, category, price\nFROM (SELECT *, AVG(price) OVER (PARTITION BY category) AS cat_avg FROM products)\nWHERE price > cat_avg;",
     "orderMatters": false,
     "hint": "PARTITION BY category turns the category average into just another column on each row.",
-    "outputExplanation": "Keyboard ($80 at $52.50 average) and Desk ($300 at $172.50 average) are the pricier item in their respective categories."
+    "outputExplanation": "Keyboard ($80 at $52.50 average) and Desk ($300 at $172.50 average) are the pricier item in their respective categories.",
+    "extraTests": [
+      {
+        "name": "Single product — equals average, not above",
+        "data": [
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 80 }] }
+        ]
+      },
+      {
+        "name": "All products same price — none above",
+        "data": [
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 80 }, { "id": 2, "name": "Gadget", "category": "Tech", "price": 80 }] }
+        ]
+      },
+      {
+        "name": "One product above, one below",
+        "data": [
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }, { "id": 2, "name": "Gadget", "category": "Tech", "price": 50 }] }
+        ]
+      },
+      {
+        "name": "Two categories with above-avg in each",
+        "data": [
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }, { "id": 2, "name": "Gadget", "category": "Tech", "price": 50 }, { "id": 3, "name": "Desk", "category": "Furniture", "price": 300 }, { "id": 4, "name": "Chair", "category": "Furniture", "price": 100 }] }
+        ]
+      },
+      {
+        "name": "NULL category — no PARTITION BY for NULL",
+        "data": [
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 80 }, { "id": 2, "name": "Misc", "category": null, "price": 500 }] }
+        ]
+      },
+      {
+        "name": "Three products, only the highest qualifies",
+        "data": [
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 200 }, { "id": 2, "name": "Gadget", "category": "Tech", "price": 100 }, { "id": 3, "name": "Doohickey", "category": "Tech", "price": 50 }] }
+        ]
+      }
+    ]
   },
   {
     "id": "sales-cancelled-rate",
@@ -170,7 +685,50 @@
     "solutionSql": "SELECT c.name AS customer,\n       ROUND(100.0 * SUM(CASE WHEN o.status = 'cancelled' THEN 1 ELSE 0 END) / COUNT(*), 2) AS cancel_pct\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nGROUP BY c.id, c.name;",
     "orderMatters": false,
     "hint": "SUM(CASE WHEN ... THEN 1 ELSE 0 END) counts conditionally; divide by COUNT(*) using 100.0 to force real division.",
-    "outputExplanation": "Ada and Cy have no cancelled orders (0% each). Bo's only order was cancelled (100%)."
+    "outputExplanation": "Ada and Cy have no cancelled orders (0% each). Bo's only order was cancelled (100%).",
+    "extraTests": [
+      {
+        "name": "Customer with 0% cancelled",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }] }
+        ]
+      },
+      {
+        "name": "Customer with 100% cancelled",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "cancelled" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "cancelled" }] }
+        ]
+      },
+      {
+        "name": "Customer with 50% cancelled",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "cancelled" }] }
+        ]
+      },
+      {
+        "name": "No customer has orders — empty result",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] }
+        ]
+      },
+      {
+        "name": "Two customers: 0% and 100%",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }, { "id": 3, "customer_id": 2, "order_date": "2022-03-10", "status": "cancelled" }, { "id": 4, "customer_id": 2, "order_date": "2022-04-10", "status": "cancelled" }] }
+        ]
+      },
+      {
+        "name": "Customer with 33.33%",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "cancelled" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }, { "id": 3, "customer_id": 1, "order_date": "2022-03-10", "status": "completed" }] }
+        ]
+      }
+    ]
   },
   {
     "id": "sales-running-revenue",
@@ -186,7 +744,63 @@
     "solutionSql": "WITH daily AS (\n  SELECT o.order_date, SUM(oi.quantity * oi.unit_price) AS amount\n  FROM orders o\n  JOIN order_items oi ON oi.order_id = o.id\n  GROUP BY o.order_date\n)\nSELECT order_date,\n       ROUND(amount, 2) AS daily,\n       ROUND(SUM(amount) OVER (ORDER BY order_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW), 2) AS running\nFROM daily;",
     "orderMatters": false,
     "hint": "Collapse to one row per day first, otherwise the running total double-counts multi-item orders.",
-    "outputExplanation": "Revenue accumulated from $185 on Jan 10 to $960 by Jan 2, 2023, with six dates showing activity."
+    "outputExplanation": "Revenue accumulated from $185 on Jan 10 to $960 by Jan 2, 2023, with six dates showing activity.",
+    "extraTests": [
+      {
+        "name": "Single date",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Two dates increasing",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-01-11", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 2, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Three dates with accumulation",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-01-11", "status": "completed" }, { "id": 3, "customer_id": 1, "order_date": "2022-01-12", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 2, "unit_price": 100 }, { "id": 3, "order_id": 3, "product_id": 1, "quantity": 1, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "Multiple orders on same date",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 3, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Dates out of order in insert — ORDER BY fixes",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-11", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 2, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 1, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Larger set across 5 dates",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-01-11", "status": "completed" }, { "id": 3, "customer_id": 1, "order_date": "2022-01-12", "status": "completed" }, { "id": 4, "customer_id": 1, "order_date": "2022-01-13", "status": "completed" }, { "id": 5, "customer_id": 1, "order_date": "2022-01-14", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 2, "unit_price": 100 }, { "id": 3, "order_id": 3, "product_id": 1, "quantity": 3, "unit_price": 100 }, { "id": 4, "order_id": 4, "product_id": 1, "quantity": 2, "unit_price": 100 }, { "id": 5, "order_id": 5, "product_id": 1, "quantity": 2, "unit_price": 100 }] }
+        ]
+      }
+    ]
   },
   {
     "id": "sales-customers-single-category",
@@ -202,7 +816,63 @@
     "solutionSql": "SELECT c.name AS customer, MIN(p.category) AS category\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nJOIN order_items oi ON oi.order_id = o.id\nJOIN products p ON p.id = oi.product_id\nWHERE p.category IS NOT NULL\nGROUP BY c.id, c.name\nHAVING COUNT(DISTINCT p.category) = 1;",
     "orderMatters": false,
     "hint": "When a group has exactly one distinct value, MIN of that column is a safe way to report it.",
-    "outputExplanation": "Bo has only bought from Furniture, and Cy only from Tech. Ada has bought from both categories and is excluded."
+    "outputExplanation": "Bo has only bought from Furniture, and Cy only from Tech. Ada has bought from both categories and is excluded.",
+    "extraTests": [
+      {
+        "name": "Customer bought from one category",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Customer bought from two categories — excluded",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }, { "id": 2, "name": "Chair", "category": "Furniture", "price": 50 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 2, "quantity": 1, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "Two customers, one loyal, one not",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }, { "id": 2, "name": "Chair", "category": "Furniture", "price": 50 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 2, "order_date": "2022-02-10", "status": "completed" }, { "id": 3, "customer_id": 2, "order_date": "2022-03-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 3, "order_id": 3, "product_id": 2, "quantity": 1, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "NULL category ignored by WHERE",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }, { "id": 2, "name": "Misc", "category": null, "price": 50 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 1, "product_id": 2, "quantity": 1, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "All customers loyal",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }, { "id": 3, "name": "Cy", "country": "US", "signup_date": "2022-03-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }, { "id": 2, "name": "Chair", "category": "Furniture", "price": 50 }, { "id": 3, "name": "Pan", "category": "Kitchen", "price": 30 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 2, "order_date": "2022-02-10", "status": "completed" }, { "id": 3, "customer_id": 3, "order_date": "2022-03-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 2, "quantity": 1, "unit_price": 50 }, { "id": 3, "order_id": 3, "product_id": 3, "quantity": 1, "unit_price": 30 }] }
+        ]
+      },
+      {
+        "name": "Customer with multiple orders in same category",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }, { "id": 2, "name": "Gadget", "category": "Tech", "price": 50 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }, { "id": 3, "customer_id": 1, "order_date": "2022-03-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 2, "quantity": 1, "unit_price": 50 }, { "id": 3, "order_id": 3, "product_id": 1, "quantity": 1, "unit_price": 100 }] }
+        ]
+      }
+    ]
   },
   {
     "id": "sales-average-order-value",
@@ -218,7 +888,63 @@
     "solutionSql": "SELECT ROUND(AVG(total), 2) AS aov FROM (\n  SELECT order_id, SUM(quantity * unit_price) AS total\n  FROM order_items\n  GROUP BY order_id\n);",
     "orderMatters": false,
     "hint": "Average of per-order totals — not the average of individual line items, which is a different number.",
-    "outputExplanation": "The average value across all 6 orders that have items is $160."
+    "outputExplanation": "The average value across all 6 orders that have items is $160.",
+    "extraTests": [
+      {
+        "name": "Single order",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Two orders different values",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 2, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Three orders",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }, { "id": 3, "customer_id": 1, "order_date": "2022-03-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 2, "unit_price": 100 }, { "id": 3, "order_id": 3, "product_id": 1, "quantity": 3, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "Order with multiple items",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 80 }, { "id": 2, "name": "Gadget", "category": "Tech", "price": 25 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 80 }, { "id": 2, "order_id": 1, "product_id": 2, "quantity": 2, "unit_price": 25 }] }
+        ]
+      },
+      {
+        "name": "Orders with zero total",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 0, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "No orders at all — AVG of empty = NULL",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [] }
+        ]
+      }
+    ]
   },
   {
     "id": "sales-orders-without-items",
@@ -233,7 +959,61 @@
     "solutionSql": "SELECT o.id AS order_id\nFROM orders o\nWHERE NOT EXISTS (SELECT 1 FROM order_items oi WHERE oi.order_id = o.id);",
     "orderMatters": false,
     "hint": "NOT EXISTS is the safest anti-join — unlike NOT IN, it is unaffected by NULLs in the subquery.",
-    "outputExplanation": "Every order has at least one item, so no empty orders are reported. A hidden test includes an order with no items."
+    "outputExplanation": "Every order has at least one item, so no empty orders are reported. A hidden test includes an order with no items.",
+    "extraTests": [
+      {
+        "name": "One empty order, one with items",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }] }
+        ]
+      },
+      {
+        "name": "All orders have items — empty result",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 2, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "All orders empty",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [] }
+        ]
+      },
+      {
+        "name": "Single empty order",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [] }
+        ]
+      },
+      {
+        "name": "Only one empty among many",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-02-10", "status": "completed" }, { "id": 3, "customer_id": 1, "order_date": "2022-03-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": 1, "product_id": 1, "quantity": 1, "unit_price": 100 }, { "id": 2, "order_id": 2, "product_id": 1, "quantity": 2, "unit_price": 50 }] }
+        ]
+      },
+      {
+        "name": "NULL order_id in order_items — still different",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "products", "rows": [{ "id": 1, "name": "Widget", "category": "Tech", "price": 100 }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] },
+          { "table": "order_items", "rows": [{ "id": 1, "order_id": null, "product_id": 1, "quantity": 1, "unit_price": 100 }] }
+        ]
+      }
+    ]
   },
   {
     "id": "sales-signup-to-first-order",
@@ -249,6 +1029,50 @@
     "solutionSql": "SELECT c.name AS customer,\n       CAST(JULIANDAY(MIN(o.order_date)) - JULIANDAY(c.signup_date) AS INTEGER) AS days_to_first_order\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nGROUP BY c.id, c.name, c.signup_date;",
     "orderMatters": false,
     "hint": "SQLite has no date subtraction operator — JULIANDAY() converts both dates to numbers you can subtract.",
-    "outputExplanation": "Ada waited 370 days from signup to first order, Bo waited 345 days, and Cy's first order predates their signup by 117 days."
+    "outputExplanation": "Ada waited 370 days from signup to first order, Bo waited 345 days, and Cy's first order predates their signup by 117 days.",
+    "extraTests": [
+      {
+        "name": "Zero days — signup and first order same day",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-01", "status": "completed" }] }
+        ]
+      },
+      {
+        "name": "Positive days",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] }
+        ]
+      },
+      {
+        "name": "Multiple orders — uses MIN(order_date)",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }, { "id": 2, "customer_id": 1, "order_date": "2022-01-05", "status": "completed" }] }
+        ]
+      },
+      {
+        "name": "Cross-year dates",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2021-12-25" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-04", "status": "completed" }] }
+        ]
+      },
+      {
+        "name": "Two customers different signup-to-order",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-01-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-01", "status": "completed" }, { "id": 2, "customer_id": 2, "order_date": "2022-01-31", "status": "completed" }] }
+        ]
+      },
+      {
+        "name": "Customer who never ordered is excluded",
+        "data": [
+          { "table": "customers", "rows": [{ "id": 1, "name": "Ada", "country": "US", "signup_date": "2022-01-01" }, { "id": 2, "name": "Bo", "country": "US", "signup_date": "2022-02-01" }] },
+          { "table": "orders", "rows": [{ "id": 1, "customer_id": 1, "order_date": "2022-01-10", "status": "completed" }] }
+        ]
+      }
+    ]
   }
 ]

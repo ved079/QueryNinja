@@ -12,7 +12,33 @@
     "solutionSql": "SELECT name, salary FROM employees WHERE salary > 100000;",
     "orderMatters": false,
     "hint": "A plain WHERE filter. Remember that comparisons against NULL are never true — a NULL salary is not > 100000.",
-    "outputExplanation": "Ava ($150k), Ben ($120k), Cara ($120k) and Eve ($130k) earn more than $100,000. Dan, Finn, Gia and Hal earn $100k or less."
+    "outputExplanation": "Ava ($150k), Ben ($120k), Cara ($120k) and Eve ($130k) earn more than $100,000. Dan, Finn, Gia and Hal earn $100k or less.",
+    "extraTests": [
+      {
+        "name": "Exactly one employee earns more than 100000",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',101000,1,NULL,'2020-01-01'),(2,'B','X',50000,1,1,'2020-01-01'),(3,'C','X',75000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Employee with salary exactly 100000 does not qualify",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100000,1,NULL,'2020-01-01'),(2,'B','X',120000,1,1,'2020-01-01'),(3,'C','X',90000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "No one earns more than 100000",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',80000,1,NULL,'2020-01-01'),(2,'B','X',95000,1,1,'2020-01-01'),(3,'C','X',100000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "All employees earn more than 100000",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',200000,1,NULL,'2020-01-01'),(2,'B','X',150000,1,1,'2020-01-01'),(3,'C','X',999999,1,1,'2020-01-01');"
+      },
+      {
+        "name": "NULL salary is not greater than 100000",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','X',110000,1,NULL,'2020-01-01'),(2,'B','X',NULL,1,1,'2020-01-01'),(3,'C','X',120000,2,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Stress test: 15 employees with mixed salaries, one qualifier",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','E',95000,1,NULL,'2020-01-01'),(2,'B','E',88000,1,1,'2020-01-01'),(3,'C','E',72000,1,1,'2020-01-01'),(4,'D','E',150000,1,1,'2020-01-01'),(5,'E','E',67000,1,1,'2020-01-01'),(6,'F','R',55000,2,NULL,'2020-01-01'),(7,'G','R',82000,2,6,'2020-01-01'),(8,'H','R',91000,2,6,'2020-01-01'),(9,'I','R',44000,2,6,'2020-01-01'),(10,'J','R',100000,2,6,'2020-01-01'),(11,'K','R',NULL,2,6,'2020-01-01'),(12,'L','A',99000,1,NULL,'2020-01-01'),(13,'M','A',NULL,2,6,'2020-01-01'),(14,'N','A',50000,1,1,'2020-01-01'),(15,'O','A',99000,2,6,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-headcount-per-department",
@@ -28,7 +54,33 @@
     "solutionSql": "SELECT d.name AS department, COUNT(e.id) AS employees\nFROM departments d\nLEFT JOIN employees e ON e.dept_id = d.id\nGROUP BY d.id, d.name;",
     "orderMatters": false,
     "hint": "COUNT(*) would count the NULL row a LEFT JOIN produces for an empty department. Count a column from the right table instead.",
-    "outputExplanation": "Engineering has 4 employees, Sales has 3 and HR has 1."
+    "outputExplanation": "Engineering has 4 employees, Sales has 3 and HR has 1.",
+    "extraTests": [
+      {
+        "name": "Every department has at least one employee",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B'),(3,'HR','C');\nINSERT INTO employees VALUES (1,'A','E',100,1,NULL,'2020-01-01'),(2,'B','E',100,1,1,'2020-01-01'),(3,'C','R',100,2,NULL,'2020-01-01'),(4,'D','A',100,3,NULL,'2020-01-01');"
+      },
+      {
+        "name": "One department has zero employees",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Empty','B'),(3,'HR','C');\nINSERT INTO employees VALUES (1,'A','E',100,1,NULL,'2020-01-01'),(2,'B','R',100,3,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Employee with NULL dept_id is not counted in any department",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','E',100,1,NULL,'2020-01-01'),(2,'B','E',100,NULL,NULL,'2020-01-01'),(3,'C','R',100,2,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Four departments with mixed headcounts",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B'),(3,'HR','C'),(4,'Legal','D');\nINSERT INTO employees VALUES (1,'A','X',1,1,NULL,'2020-01-01'),(2,'B','X',1,1,1,'2020-01-01'),(3,'C','X',1,1,1,'2020-01-01'),(4,'D','X',1,2,NULL,'2020-01-01'),(5,'E','X',1,2,4,'2020-01-01'),(6,'F','X',1,2,4,'2020-01-01'),(7,'G','X',1,2,4,'2020-01-01'),(8,'H','X',1,3,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Single department with one employee",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','E',100,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "No employees exist — every department shows zero",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');"
+      }
+    ]
   },
   {
     "id": "emp-no-manager",
@@ -43,7 +95,33 @@
     "solutionSql": "SELECT name FROM employees WHERE manager_id IS NULL;",
     "orderMatters": false,
     "hint": "`manager_id = NULL` is never true. NULL needs its own operator.",
-    "outputExplanation": "Ava, Eve and Hal have no manager — they are the top-level employees in the company."
+    "outputExplanation": "Ava, Eve and Hal have no manager — they are the top-level employees in the company.",
+    "extraTests": [
+      {
+        "name": "No one has a manager — all manager_id values are NULL",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,NULL,'2020-01-01'),(3,'C','X',100,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Only the top-level employee has no manager",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'CEO','M',200,1,NULL,'2020-01-01'),(2,'Mgr','M',150,1,1,'2020-01-01'),(3,'Emp1','E',100,1,2,'2020-01-01'),(4,'Emp2','E',100,1,2,'2020-01-01');"
+      },
+      {
+        "name": "Two employees with no manager across different departments",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','M',200,1,NULL,'2020-01-01'),(2,'B','M',200,2,NULL,'2020-01-01'),(3,'C','E',100,1,1,'2020-01-01'),(4,'D','E',100,2,2,'2020-01-01'),(5,'E','R',80,2,2,'2020-01-01');"
+      },
+      {
+        "name": "Large set with two managerless employees and many subordinates",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'CEO','M',200,1,NULL,'2020-01-01'),(2,'VP1','M',180,1,1,'2020-01-01'),(3,'VP2','M',180,1,1,'2020-01-01'),(4,'Dir1','D',150,1,2,'2020-01-01'),(5,'Dir2','D',150,1,2,'2020-01-01'),(6,'Mgr1','M',120,1,4,'2020-01-01'),(7,'Mgr2','M',120,2,NULL,'2020-01-01'),(8,'Emp1','E',100,2,7,'2020-01-01'),(9,'Emp2','E',90,2,7,'2020-01-01'),(10,'Emp3','E',80,2,7,'2020-01-01');"
+      },
+      {
+        "name": "Single employee with no manager",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','E',100,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Self-referencing manager_id is not NULL — employee reports to themselves",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,1,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-distinct-titles",
@@ -58,7 +136,33 @@
     "solutionSql": "SELECT DISTINCT title FROM employees;",
     "orderMatters": false,
     "hint": "DISTINCT, or an equivalent GROUP BY.",
-    "outputExplanation": "The company has four distinct job titles: Manager, Engineer, Rep and Analyst."
+    "outputExplanation": "The company has four distinct job titles: Manager, Engineer, Rep and Analyst.",
+    "extraTests": [
+      {
+        "name": "NULL title present — NULL is a distinct value",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A',NULL,100,1,NULL,'2020-01-01'),(2,'B','Engineer',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "All employees share the same title",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','Engineer',100,1,NULL,'2020-01-01'),(2,'B','Engineer',100,1,1,'2020-01-01'),(3,'C','Engineer',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Case sensitivity — Engineer, engineer and ENGINEER are three distinct values",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','Engineer',100,1,NULL,'2020-01-01'),(2,'B','engineer',100,1,1,'2020-01-01'),(3,'C','ENGINEER',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Leading and trailing whitespace makes titles distinct",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A',' Engineer',100,1,NULL,'2020-01-01'),(2,'B','Engineer ',100,1,1,'2020-01-01'),(3,'C','Engineer',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Mixed NULLs and duplicate titles",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A',NULL,100,1,NULL,'2020-01-01'),(2,'B',NULL,100,1,1,'2020-01-01'),(3,'C','Engineer',100,2,NULL,'2020-01-01'),(4,'D','Rep',100,2,3,'2020-01-01');"
+      },
+      {
+        "name": "Long title and special characters",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','Senior Principal Engineer Level IV',100,1,NULL,'2020-01-01'),(2,'B','Senior Principal Engineer Level IV',100,1,1,'2020-01-01'),(3,'C','DevOps/SRE Engineer',100,1,1,'2020-01-01'),(4,'D','DevOps/SRE Engineer',100,1,1,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-recent-hires",
@@ -74,7 +178,33 @@
     "solutionSql": "SELECT name, hire_date FROM employees WHERE hire_date >= '2020-01-01';",
     "orderMatters": false,
     "hint": "ISO dates (YYYY-MM-DD) compare correctly as plain strings — no date function needed.",
-    "outputExplanation": "Dan, Finn, Gia and Hal were hired on or after January 1, 2020. Ava, Ben, Cara and Eve were hired earlier."
+    "outputExplanation": "Dan, Finn, Gia and Hal were hired on or after January 1, 2020. Ava, Ben, Cara and Eve were hired earlier.",
+    "extraTests": [
+      {
+        "name": "Exactly on the boundary date qualifies (2020-01-01)",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2019-12-31');"
+      },
+      {
+        "name": "All hired before 2020 — empty result",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2019-06-01'),(2,'B','X',100,1,1,'2018-12-31');"
+      },
+      {
+        "name": "All hired after 2020",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2021-01-01'),(2,'B','X',100,1,1,'2022-06-15');"
+      },
+      {
+        "name": "NULL hire_date is not >= anything",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-06-01'),(2,'B','X',100,1,1,NULL);"
+      },
+      {
+        "name": "Single employee hired exactly on the boundary",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',100,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Stress test with mixed dates across the boundary",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2019-01-01'),(2,'B','X',100,1,1,'2020-01-01'),(3,'C','X',100,1,1,'2021-06-15'),(4,'D','X',100,2,NULL,'2022-12-31'),(5,'E','X',100,2,4,'2018-03-20'),(6,'F','X',100,2,4,NULL);"
+      }
+    ]
   },
   {
     "id": "emp-payroll-per-department",
@@ -90,7 +220,33 @@
     "solutionSql": "SELECT d.name AS department, COALESCE(SUM(e.salary), 0) AS payroll\nFROM departments d\nLEFT JOIN employees e ON e.dept_id = d.id\nGROUP BY d.id, d.name;",
     "orderMatters": false,
     "hint": "SUM over no rows is NULL, not 0. Wrap it in COALESCE or IFNULL.",
-    "outputExplanation": "Engineering's total payroll is $485,000, Sales is $285,000, and HR is $60,000."
+    "outputExplanation": "Engineering's total payroll is $485,000, Sales is $285,000, and HR is $60,000.",
+    "extraTests": [
+      {
+        "name": "All NULL salaries — payroll is 0 for each department",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',NULL,1,NULL,'2020-01-01'),(2,'B','X',NULL,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Empty department shows 0",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Empty','B');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Single employee per department",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','X',50000,1,NULL,'2020-01-01'),(2,'B','X',75000,2,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Mix of NULL and non-NULL salaries",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',NULL,1,1,'2020-01-01'),(3,'C','X',200,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Multiple departments with mixed payrolls",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B'),(3,'Empty','C');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',200,1,1,'2020-01-01'),(3,'C','X',300,2,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Negative salaries",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',-100,1,NULL,'2020-01-01'),(2,'B','X',-50,1,1,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-average-salary",
@@ -105,7 +261,33 @@
     "solutionSql": "SELECT ROUND(AVG(salary), 2) AS avg_salary FROM employees;",
     "orderMatters": false,
     "hint": "AVG skips NULL salaries automatically — and over an empty table it yields NULL, which is the expected answer there.",
-    "outputExplanation": "The average salary across all employees is $103,750."
+    "outputExplanation": "The average salary across all employees is $103,750.",
+    "extraTests": [
+      {
+        "name": "Average of a few integer salaries with clean result",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',200,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Single employee — average equals that salary",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',50000,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "All NULL salaries — average is NULL",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',NULL,1,NULL,'2020-01-01'),(2,'B','X',NULL,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Fractional average requiring rounding",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01'),(3,'C','X',101,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Large numbers",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',2000000,1,NULL,'2020-01-01'),(2,'B','X',3000000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Mix of NULLs and values — NULLs are excluded",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',NULL,1,1,'2020-01-01'),(3,'C','X',200,1,1,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-name-starts-with",
@@ -120,7 +302,33 @@
     "solutionSql": "SELECT name FROM employees WHERE name LIKE 'A%';",
     "orderMatters": false,
     "hint": "LIKE with a trailing wildcard. In SQLite, LIKE is case-insensitive for ASCII by default.",
-    "outputExplanation": "Only Ava has a name beginning with the letter A."
+    "outputExplanation": "Only Ava has a name beginning with the letter A.",
+    "extraTests": [
+      {
+        "name": "Multiple names starting with A — others do not",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Alice','X',100,1,NULL,'2020-01-01'),(2,'Alan','X',100,1,1,'2020-01-01'),(3,'Bob','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Lowercase prefix matches (LIKE is case-insensitive in SQLite for ASCII)",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'alice','X',100,1,NULL,'2020-01-01'),(2,'alan','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "No names starting with A",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Bob','X',100,1,NULL,'2020-01-01'),(2,'Charlie','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "NULL name does not match",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Alice','X',100,1,NULL,'2020-01-01'),(2,NULL,'X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Name is exactly the single letter 'A'",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Mix of different starting letters",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'Aaron','X',100,1,NULL,'2020-01-01'),(2,'Bella','X',100,2,NULL,'2020-01-01'),(3,'Amir','X',100,1,1,'2020-01-01'),(4,'Cara','X',100,2,2,'2020-01-01'),(5,'Alex','X',100,1,1,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-highest-salary",
@@ -135,7 +343,33 @@
     "solutionSql": "SELECT MAX(salary) AS top_salary FROM employees;",
     "orderMatters": false,
     "hint": "A bare aggregate always returns exactly one row, even with no data — which is why MAX beats ORDER BY ... LIMIT 1 here.",
-    "outputExplanation": "The highest salary in the company is $150,000."
+    "outputExplanation": "The highest salary in the company is $150,000.",
+    "extraTests": [
+      {
+        "name": "All NULL salaries — MAX returns NULL",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',NULL,1,NULL,'2020-01-01'),(2,'B','X',NULL,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Single employee",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',50000,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Tie at the top — multiple employees share the max",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01'),(3,'C','X',50,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Mix of negative and positive salaries",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',-100,1,NULL,'2020-01-01'),(2,'B','X',-50,1,1,'2020-01-01'),(3,'C','X',200,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Multiple departments — max is global",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','X',10,1,NULL,'2020-01-01'),(2,'B','X',50,1,1,'2020-01-01'),(3,'C','X',100,1,1,'2020-01-01'),(4,'D','X',75,2,NULL,'2020-01-01'),(5,'E','X',25,2,4,'2020-01-01');"
+      },
+      {
+        "name": "Mix of NULLs and values — NULLs are excluded",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',NULL,1,NULL,'2020-01-01'),(2,'B','X',300,1,1,'2020-01-01'),(3,'C','X',NULL,1,1,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-titles-count",
@@ -150,7 +384,33 @@
     "solutionSql": "SELECT title, COUNT(*) AS headcount\nFROM employees\nGROUP BY title\nHAVING COUNT(*) >= 2;",
     "orderMatters": false,
     "hint": "Filtering on an aggregate is HAVING, not WHERE.",
-    "outputExplanation": "Three employees are Engineers, two are Managers, and two are Reps. Analyst is held by only one person and is not reported."
+    "outputExplanation": "Three employees are Engineers, two are Managers, and two are Reps. Analyst is held by only one person and is not reported.",
+    "extraTests": [
+      {
+        "name": "No title has two or more employees",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Mgr',100,1,1,'2020-01-01'),(3,'C','Rep',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Every title has two or more employees",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Eng',100,1,1,'2020-01-01'),(3,'C','Mgr',100,2,NULL,'2020-01-01'),(4,'D','Mgr',100,2,3,'2020-01-01');"
+      },
+      {
+        "name": "NULL title appears twice — qualifies",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A',NULL,100,1,NULL,'2020-01-01'),(2,'B',NULL,100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "One title with five employees",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Eng',100,1,1,'2020-01-01'),(3,'C','Eng',100,1,1,'2020-01-01'),(4,'D','Eng',100,1,1,'2020-01-01'),(5,'E','Eng',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Mix — some titles qualify, some do not",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Eng',100,1,1,'2020-01-01'),(3,'C','Mgr',100,2,NULL,'2020-01-01'),(4,'D','Rep',100,2,3,'2020-01-01'),(5,'E','Rep',100,2,3,'2020-01-01');"
+      },
+      {
+        "name": "All employees share the same title",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Eng',100,1,1,'2020-01-01'),(3,'C','Eng',100,2,NULL,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-departments-by-location",
@@ -165,7 +425,33 @@
     "solutionSql": "SELECT name FROM departments WHERE location = 'Austin';",
     "orderMatters": false,
     "hint": "Straight equality filter on the departments table alone.",
-    "outputExplanation": "Engineering and HR are located in Austin. Sales is in Denver."
+    "outputExplanation": "Engineering and HR are located in Austin. Sales is in Denver.",
+    "extraTests": [
+      {
+        "name": "No departments in Austin",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','Denver'),(2,'Sales','Boston');"
+      },
+      {
+        "name": "All departments in Austin",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','Austin'),(2,'HR','Austin');"
+      },
+      {
+        "name": "NULL location is not 'Austin'",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','Austin'),(2,'Unknown',NULL);"
+      },
+      {
+        "name": "Single department in Austin",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','Austin');"
+      },
+      {
+        "name": "Trailing whitespace — 'Austin ' does not match 'Austin'",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','Austin'),(2,'HR','Austin ');"
+      },
+      {
+        "name": "Mixed locations across four departments",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','Austin'),(2,'Sales','Denver'),(3,'HR','Austin'),(4,'Legal','New York');"
+      }
+    ]
   },
   {
     "id": "emp-salary-range-per-title",
@@ -181,6 +467,32 @@
     "solutionSql": "SELECT title, MIN(salary) AS min_salary, MAX(salary) AS max_salary\nFROM employees\nGROUP BY title;",
     "orderMatters": false,
     "hint": "Two aggregates over the same GROUP BY.",
-    "outputExplanation": "Manager salaries range from $130k to $150k, Engineers from $95k to $120k, Reps from $70k to $85k, and the single Analyst earns $60k."
+    "outputExplanation": "Manager salaries range from $130k to $150k, Engineers from $95k to $120k, Reps from $70k to $85k, and the single Analyst earns $60k.",
+    "extraTests": [
+      {
+        "name": "Single employee per title — MIN equals MAX",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Mgr',200,1,1,'2020-01-01');"
+      },
+      {
+        "name": "NULL salaries are excluded from MIN/MAX",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Eng',NULL,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Negative and positive within same title",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','Eng',-100,1,NULL,'2020-01-01'),(2,'B','Eng',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "All employees share the same title",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','Eng',50,1,NULL,'2020-01-01'),(2,'B','Eng',100,1,1,'2020-01-01'),(3,'C','Eng',75,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Wide ranges across multiple titles",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Eng',200,1,1,'2020-01-01'),(3,'C','Rep',50,2,NULL,'2020-01-01'),(4,'D','Rep',150,2,3,'2020-01-01');"
+      },
+      {
+        "name": "Larger set with three titles",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Eng',200,1,1,'2020-01-01'),(3,'C','Eng',150,1,1,'2020-01-01'),(4,'D','Mgr',300,2,NULL,'2020-01-01'),(5,'E','Mgr',250,2,4,'2020-01-01'),(6,'F','Rep',80,2,4,'2020-01-01');"
+      }
+    ]
   }
 ]

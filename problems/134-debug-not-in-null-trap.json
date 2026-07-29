@@ -55,5 +55,31 @@
       "name": "Larger mixed set with a NULL order thrown in",
       "seedSql": "INSERT INTO shop_customers VALUES (1,'A'),(2,'B'),(3,'C'),(4,'D'),(5,'E'),(6,'F');\nINSERT INTO shop_orders VALUES (1,2),(2,2),(3,4),(4,6),(5,NULL);"
     }
+  ],
+  "extraTests": [
+    {
+      "name": "All customer_ids are NULL in orders — NOT IN returns nothing",
+      "seedSql": "INSERT INTO shop_customers VALUES (1,'A'),(2,'B');\nINSERT INTO shop_orders VALUES (1,NULL),(2,NULL);"
+    },
+    {
+      "name": "Single NULL among many non-NULL customer_ids",
+      "seedSql": "INSERT INTO shop_customers VALUES (1,'A'),(2,'B'),(3,'C'),(4,'D');\nINSERT INTO shop_orders VALUES (1,1),(2,2),(3,NULL);"
+    },
+    {
+      "name": "Only non-NULL customer_ids — NOT IN works fine",
+      "seedSql": "INSERT INTO shop_customers VALUES (1,'A'),(2,'B'),(3,'C');\nINSERT INTO shop_orders VALUES (1,1),(2,2);"
+    },
+    {
+      "name": "No customers — empty result",
+      "seedSql": "INSERT INTO shop_orders VALUES (1,1);"
+    },
+    {
+      "name": "Customers exist but orders table is empty",
+      "seedSql": "INSERT INTO shop_customers VALUES (1,'A'),(2,'B');"
+    },
+    {
+      "name": "Every customer has ordered, no NULLs — no never-ordered customers",
+      "seedSql": "INSERT INTO shop_customers VALUES (1,'A'),(2,'B');\nINSERT INTO shop_orders VALUES (1,1),(2,2);"
+    }
   ]
 }

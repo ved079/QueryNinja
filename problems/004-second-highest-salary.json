@@ -30,11 +30,11 @@
       "name": "Empty table"
     },
     {
-      "name": "Ties at the top",
+      "name": "Ties at the top — without DISTINCT, OFFSET 1 returns 300 instead of 200",
       "seedSql": "INSERT INTO Employee VALUES (1,300),(2,300),(3,200);"
     },
     {
-      "name": "Exactly two employees, equal salaries",
+      "name": "Exactly two employees with equal salaries",
       "seedSql": "INSERT INTO Employee VALUES (1,500),(2,500);"
     },
     {
@@ -50,8 +50,32 @@
       "seedSql": "INSERT INTO Employee VALUES (1,900),(2,NULL),(3,700);"
     },
     {
-      "name": "Large values",
+      "name": "All salaries are NULL",
+      "seedSql": "INSERT INTO Employee VALUES (1,NULL),(2,NULL);"
+    },
+    {
+      "name": "Duplicate top salary — LIMIT OFFSET without DISTINCT returns 200 instead of 100",
+      "seedSql": "INSERT INTO Employee VALUES (1,200),(2,200),(3,100);"
+    },
+    {
+      "name": "Exactly two employees with distinct salaries",
+      "seedSql": "INSERT INTO Employee VALUES (1,100),(2,200);"
+    },
+    {
+      "name": "Large salary values",
       "seedSql": "INSERT INTO Employee VALUES (1,2000000000),(2,1999999999),(3,5);"
+    },
+    {
+      "name": "Mixed positive, negative, zero and duplicates",
+      "seedSql": "INSERT INTO Employee VALUES (1,10),(2,0),(3,0),(4,-5),(5,-10),(6,10);"
+    },
+    {
+      "name": "Stress test with 30 rows and many duplicates",
+      "seedSql": "INSERT INTO Employee VALUES (1,1000),(2,950),(3,900),(4,850),(5,800),(6,750),(7,700),(8,650),(9,600),(10,550),(11,500),(12,450),(13,400),(14,350),(15,300),(16,250),(17,200),(18,150),(19,100),(20,50),(21,1000),(22,900),(23,800),(24,700),(25,600),(26,500),(27,400),(28,300),(29,200),(30,100);"
+    },
+    {
+      "name": "One non-NULL salary and NULLs — no second distinct value exists",
+      "seedSql": "INSERT INTO Employee VALUES (1,NULL),(2,100);"
     }
   ]
 }

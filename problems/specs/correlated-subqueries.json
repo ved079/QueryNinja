@@ -13,7 +13,33 @@
     "solutionSql": "SELECT p.name\nFROM products p\nWHERE EXISTS (SELECT 1 FROM order_items oi WHERE oi.product_id = p.id);",
     "outputExplanation": "Keyboard, Mouse, Desk and Lamp have all been ordered at least once, so all four are returned.",
     "orderMatters": false,
-    "hint": "The subquery references `p.id` from the outer query — that's what makes it correlated. It's re-evaluated once per product, not once total."
+    "hint": "The subquery references `p.id` from the outer query — that's what makes it correlated. It's re-evaluated once per product, not once total.",
+    "extraTests": [
+      {
+        "name": "No products at all",
+        "seedSql": ""
+      },
+      {
+        "name": "No order items exist — no products qualify",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');"
+      },
+      {
+        "name": "Every product has been ordered",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,1,2,2,25.0);"
+      },
+      {
+        "name": "Some products never ordered",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Desk','Furniture',300.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);"
+      },
+      {
+        "name": "Both products and order_items empty",
+        "seedSql": ""
+      },
+      {
+        "name": "Product ordered multiple times — still appears once",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,1,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,1,2,80.0);"
+      }
+    ]
   },
   {
     "id": "corr-departments-with-staff",
@@ -29,7 +55,33 @@
     "solutionSql": "SELECT d.name\nFROM departments d\nWHERE EXISTS (SELECT 1 FROM employees e WHERE e.dept_id = d.id);",
     "outputExplanation": "Engineering, Sales and HR each have at least one employee, so all three departments are returned.",
     "orderMatters": false,
-    "hint": "EXISTS only cares whether the correlated subquery returns any row at all — SELECT 1 is idiomatic because the actual selected value is never used."
+    "hint": "EXISTS only cares whether the correlated subquery returns any row at all — SELECT 1 is idiomatic because the actual selected value is never used.",
+    "extraTests": [
+      {
+        "name": "No departments at all",
+        "seedSql": ""
+      },
+      {
+        "name": "No employees — no department qualifies",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');"
+      },
+      {
+        "name": "All departments have at least one employee",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES (1,'Ava','E',100000,1,NULL,'2020-01-01'),(2,'Eve','E',90000,2,NULL,'2020-01-01'),(3,'Hal','E',80000,3,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Some departments have no employees",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'HR','Austin');\nINSERT INTO employees VALUES (1,'Ava','E',100000,1,NULL,'2020-01-01'),(2,'Hal','E',80000,3,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Both tables empty",
+        "seedSql": ""
+      },
+      {
+        "name": "Single department with one employee",
+        "seedSql": "INSERT INTO departments VALUES (1,'Solo','Here');\nINSERT INTO employees VALUES (1,'Only','E',50000,1,NULL,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "corr-customers-with-cancelled-order",
@@ -45,7 +97,33 @@
     "solutionSql": "SELECT c.name\nFROM customers c\nWHERE EXISTS (\n  SELECT 1 FROM orders o WHERE o.customer_id = c.id AND o.status = 'cancelled'\n);",
     "outputExplanation": "Only Bo has a cancelled order. Ada's orders are all completed and Cy's are completed or pending.",
     "orderMatters": false,
-    "hint": "Both the correlation (customer_id = c.id) and the extra filter (status = 'cancelled') live inside the same subquery."
+    "hint": "Both the correlation (customer_id = c.id) and the extra filter (status = 'cancelled') live inside the same subquery.",
+    "extraTests": [
+      {
+        "name": "No orders at all",
+        "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','UK','2021-01-01');"
+      },
+      {
+        "name": "No cancelled orders exist",
+        "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,1,'2022-01-02','pending');"
+      },
+      {
+        "name": "All orders are cancelled",
+        "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','UK','2021-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','cancelled'),(2,2,'2022-01-02','cancelled');"
+      },
+      {
+        "name": "Mixed — some customers have cancelled orders, others don't",
+        "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','UK','2021-01-01'),(3,'Cy','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,2,'2022-01-02','cancelled'),(3,3,'2022-01-03','pending');"
+      },
+      {
+        "name": "Empty customers table",
+        "seedSql": ""
+      },
+      {
+        "name": "Customer with multiple cancelled orders — listed once",
+        "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','UK','2021-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','cancelled'),(2,1,'2022-02-01','cancelled'),(3,2,'2022-03-01','completed');"
+      }
+    ]
   },
   {
     "id": "corr-outearns-another-department",
@@ -60,7 +138,33 @@
     "solutionSql": "SELECT e1.name\nFROM employees e1\nWHERE EXISTS (\n  SELECT 1 FROM employees e2\n  WHERE e2.dept_id <> e1.dept_id AND e2.salary < e1.salary\n);",
     "outputExplanation": "Seven of the eight employees earn more than someone in a different department. Hal ($60k) is the lowest-paid person company-wide and doesn't out-earn anyone.",
     "orderMatters": false,
-    "hint": "Two conditions must both hold inside the subquery: a different department AND a lower salary. Getting either condition on the wrong alias (e1 vs e2) silently breaks this."
+    "hint": "Two conditions must both hold inside the subquery: a different department AND a lower salary. Getting either condition on the wrong alias (e1 vs e2) silently breaks this.",
+    "extraTests": [
+      {
+        "name": "Only one department — no cross-dept comparison possible",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Ava','E',100000,1,NULL,'2020-01-01'),(2,'Ben','E',80000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "All salaries identical across departments",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES (1,'Ava','E',100000,1,NULL,'2020-01-01'),(2,'Ben','E',100000,2,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Only one employee total",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','E',100000,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Clear salary hierarchy — lowest earner excluded",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES (1,'High','E',200000,1,NULL,'2020-01-01'),(2,'Mid','E',100000,1,1,'2020-01-01'),(3,'Low','E',50000,2,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Empty employees table",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');"
+      },
+      {
+        "name": "Multiple departments with varied salaries",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES (1,'Ava','E',100000,1,NULL,'2020-01-01'),(2,'Ben','E',90000,2,NULL,'2020-01-01'),(3,'Cara','E',80000,3,NULL,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "corr-most-recent-order-cancelled",
@@ -75,7 +179,33 @@
     "solutionSql": "SELECT DISTINCT c.name\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nWHERE o.order_date = (\n  SELECT MAX(o2.order_date) FROM orders o2 WHERE o2.customer_id = c.id\n)\nAND o.status = 'cancelled';",
     "outputExplanation": "Bo's only order was cancelled, making it both his first and most recent cancelled order. Ada's and Cy's most recent orders are completed and pending respectively.",
     "orderMatters": false,
-    "hint": "The correlated scalar subquery finds each customer's own latest date — compare the joined order's date against that, not against the whole table's max."
+    "hint": "The correlated scalar subquery finds each customer's own latest date — compare the joined order's date against that, not against the whole table's max.",
+    "extraTests": [
+      {
+        "name": "No orders at all",
+        "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','UK','2021-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);"
+      },
+      {
+        "name": "No cancelled orders — nobody qualifies",
+        "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,1,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0),(2,2,1,1,10.0);"
+      },
+      {
+        "name": "Customer with single cancelled order qualifies",
+        "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','UK','2021-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','cancelled'),(2,2,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0),(2,2,1,1,10.0);"
+      },
+      {
+        "name": "Most recent order cancelled, older orders completed",
+        "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','UK','2021-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,1,'2022-02-01','cancelled'),(3,2,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0),(2,2,1,1,10.0),(3,3,1,1,10.0);"
+      },
+      {
+        "name": "Most recent order NOT cancelled — does not qualify",
+        "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','cancelled'),(2,1,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0),(2,2,1,1,10.0);"
+      },
+      {
+        "name": "Empty customers table",
+        "seedSql": ""
+      }
+    ]
   },
   {
     "id": "corr-priced-above-category-average",
@@ -90,7 +220,33 @@
     "solutionSql": "SELECT p.name, p.category, p.price\nFROM products p\nWHERE p.price > (\n  SELECT AVG(p2.price) FROM products p2 WHERE p2.category = p.category\n);",
     "outputExplanation": "Keyboard ($80) beats the Tech average of $52.50, and Desk ($300) beats the Furniture average of $172.50. Mouse and Lamp fall below their category averages.",
     "orderMatters": false,
-    "hint": "Same idea as PARTITION BY category, just expressed as \"for this row's own category, what's the average?\" — recomputed once per row instead of once per partition."
+    "hint": "Same idea as PARTITION BY category, just expressed as \"for this row's own category, what's the average?\" — recomputed once per row instead of once per partition.",
+    "extraTests": [
+      {
+        "name": "Single product per category — cannot be above its own average",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Desk','Furniture',300.0);"
+      },
+      {
+        "name": "All products above their category average",
+        "seedSql": "INSERT INTO products VALUES (1,'Expensive','Tech',100.0),(2,'Cheap','Tech',10.0),(3,'Wallet','Furniture',500.0),(4,'Rug','Furniture',50.0);"
+      },
+      {
+        "name": "All products at or below average — no rows",
+        "seedSql": "INSERT INTO products VALUES (1,'K','Tech',10.0),(2,'M','Tech',20.0),(3,'D','Furniture',50.0),(4,'L','Furniture',60.0);"
+      },
+      {
+        "name": "No products",
+        "seedSql": ""
+      },
+      {
+        "name": "Mixed — some above, some below per category",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Monitor','Tech',150.0),(4,'Desk','Furniture',300.0),(5,'Lamp','Furniture',45.0);"
+      },
+      {
+        "name": "NULL prices are ignored by AVG — still need > to work",
+        "seedSql": "INSERT INTO products VALUES (1,'K','Tech',80.0),(2,'M','Tech',NULL),(3,'D','Furniture',300.0);"
+      }
+    ]
   },
   {
     "id": "corr-above-average-headcount",
@@ -106,7 +262,33 @@
     "solutionSql": "SELECT d.name\nFROM departments d\nWHERE (SELECT COUNT(*) FROM employees e WHERE e.dept_id = d.id) >\n      (SELECT AVG(cnt) FROM (SELECT COUNT(*) AS cnt FROM employees GROUP BY dept_id));",
     "outputExplanation": "Engineering (4 employees) and Sales (3) both have above-average headcount. HR (1 employee) falls below the average of about 2.67.",
     "orderMatters": false,
-    "hint": "The first subquery is correlated (one department's own headcount); the second is not (the average headcount across all staffed departments) — mixing a correlated and a non-correlated subquery in the same WHERE clause is fine."
+    "hint": "The first subquery is correlated (one department's own headcount); the second is not (the average headcount across all staffed departments) — mixing a correlated and a non-correlated subquery in the same WHERE clause is fine.",
+    "extraTests": [
+      {
+        "name": "No departments",
+        "seedSql": ""
+      },
+      {
+        "name": "No employees — empty employees table",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');"
+      },
+      {
+        "name": "Only one department with staff — its headcount equals the average",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'EmptyDept','Nowhere');\nINSERT INTO employees VALUES (1,'Ava','E',100000,1,NULL,'2020-01-01'),(2,'Ben','E',80000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Two departments — one above average, one below",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES (1,'Ava','E',100000,1,NULL,'2020-01-01'),(2,'Ben','E',80000,1,1,'2020-01-01'),(3,'Cara','E',90000,1,1,'2020-01-01'),(4,'Eve','E',70000,2,NULL,'2020-01-01');"
+      },
+      {
+        "name": "All departments have the same headcount — none above average",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES (1,'A1','E',100000,1,NULL,'2020-01-01'),(2,'A2','E',90000,1,1,'2020-01-01'),(3,'B1','E',80000,2,NULL,'2020-01-01'),(4,'B2','E',70000,2,3,'2020-01-01'),(5,'C1','E',60000,3,NULL,'2020-01-01'),(6,'C2','E',50000,3,5,'2020-01-01');"
+      },
+      {
+        "name": "Staffed and unstaffed departments — unstaffed ignored in avg",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Sales','Denver'),(4,'Empty','Nowhere');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2020-01-01'),(2,'B','E',90000,1,1,'2020-01-01'),(3,'C','E',90000,1,1,'2020-01-01'),(4,'D','E',70000,3,NULL,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "corr-bought-every-product-in-category",
@@ -122,7 +304,33 @@
     "solutionSql": "SELECT c.name\nFROM customers c\nWHERE EXISTS (SELECT 1 FROM products WHERE category = 'Tech')\nAND NOT EXISTS (\n  SELECT 1 FROM products p\n  WHERE p.category = 'Tech'\n  AND NOT EXISTS (\n    SELECT 1 FROM orders o\n    JOIN order_items oi ON oi.order_id = o.id\n    WHERE o.customer_id = c.id AND oi.product_id = p.id\n  )\n);",
     "outputExplanation": "Ada and Cy have ordered both Tech products (Keyboard and Mouse). Bo only ordered a Furniture item and Di never ordered.",
     "orderMatters": false,
-    "hint": "This is \"relational division\": find customers with no Tech product they *haven't* ordered — a NOT EXISTS wrapped around another NOT EXISTS. Without the outer guard (a Tech product must exist at all), this would vacuously return every customer when the category is empty."
+    "hint": "This is \"relational division\": find customers with no Tech product they *haven't* ordered — a NOT EXISTS wrapped around another NOT EXISTS. Without the outer guard (a Tech product must exist at all), this would vacuously return every customer when the category is empty.",
+    "extraTests": [
+      {
+        "name": "Category has no products — guard prevents vacuous result",
+        "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','UK','2021-01-01');\nINSERT INTO products VALUES (1,'Desk','Furniture',300.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,300.0);"
+      },
+      {
+        "name": "No orders — no customer can qualify",
+        "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);"
+      },
+      {
+        "name": "One customer bought all Tech products",
+        "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','UK','2021-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,2,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,1,2,1,25.0),(3,2,1,1,80.0);"
+      },
+      {
+        "name": "No customer bought all Tech products",
+        "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','UK','2021-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Monitor','Tech',200.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,2,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,1,25.0);"
+      },
+      {
+        "name": "Customer bought some but not all Tech products",
+        "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);"
+      },
+      {
+        "name": "Multiple customers — some qualify, some don't",
+        "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','UK','2021-01-01'),(3,'Cy','US','2022-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,2,'2022-01-01','completed'),(3,3,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,1,2,1,25.0),(3,2,1,1,80.0),(4,3,2,1,25.0);"
+      }
+    ]
   },
   {
     "id": "corr-second-highest-no-window",
@@ -137,7 +345,33 @@
     "solutionSql": "SELECT e.name, e.dept_id, e.salary\nFROM employees e\nWHERE (\n  SELECT COUNT(DISTINCT e2.salary)\n  FROM employees e2\n  WHERE e2.dept_id = e.dept_id AND e2.salary > e.salary\n) = 1;",
     "outputExplanation": "In Engineering, Ben and Cara earn $120k — the second distinct salary tier. In Sales, Gia at $85k holds that position. HR has only one distinct salary and contributes no rows.",
     "orderMatters": false,
-    "hint": "\"Exactly one distinct salary in my own department beats mine\" is precisely the definition of sitting at the second-highest tier — no DENSE_RANK required."
+    "hint": "\"Exactly one distinct salary in my own department beats mine\" is precisely the definition of sitting at the second-highest tier — no DENSE_RANK required.",
+    "extraTests": [
+      {
+        "name": "Only one employee per department — no second tier",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES (1,'Ava','E',100000,1,NULL,'2020-01-01'),(2,'Eve','E',90000,2,NULL,'2020-01-01');"
+      },
+      {
+        "name": "All salaries identical within each department",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2020-01-01'),(2,'B','E',100000,1,1,'2020-01-01'),(3,'C','E',90000,2,NULL,'2020-01-01'),(4,'D','E',90000,2,3,'2020-01-01');"
+      },
+      {
+        "name": "Two distinct salary tiers — second is clear",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Ava','E',150000,1,NULL,'2020-01-01'),(2,'Ben','E',120000,1,1,'2020-01-01'),(3,'Cara','E',120000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Department with no employees — no rows contributed",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere');\nINSERT INTO employees VALUES (1,'Ava','E',150000,1,NULL,'2020-01-01'),(2,'Ben','E',120000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Empty employees table",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');"
+      },
+      {
+        "name": "Multiple departments — some have second tiers, some don't",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES (1,'Ava','E',150000,1,NULL,'2020-01-01'),(2,'Ben','E',120000,1,1,'2020-01-01'),(3,'Cara','E',120000,1,1,'2020-01-01'),(4,'Eve','E',130000,2,NULL,'2020-01-01'),(5,'Finn','E',70000,2,4,'2020-01-01'),(6,'Gia','E',85000,2,4,'2020-01-01'),(7,'Hal','E',60000,3,NULL,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "corr-priciest-in-every-order",
@@ -152,6 +386,32 @@
     "solutionSql": "SELECT p.name\nFROM products p\nWHERE EXISTS (SELECT 1 FROM order_items oi WHERE oi.product_id = p.id)\nAND NOT EXISTS (\n  SELECT 1 FROM order_items oi\n  WHERE oi.product_id = p.id\n  AND (\n    oi.unit_price IS NULL\n    OR EXISTS (\n      SELECT 1 FROM order_items oi2\n      WHERE oi2.order_id = oi.order_id AND oi2.unit_price > oi.unit_price\n    )\n  )\n);",
     "outputExplanation": "Keyboard ($80), Desk ($300) and Lamp ($45) are never out-priced by another item in any order they appear in. Mouse ($25) is beaten by Keyboard in the same order and is excluded.",
     "orderMatters": false,
-    "hint": "Another double negation: there is no order-line of this product where some other line in the same order costs more. A single-level NOT EXISTS would only prove \"priciest in at least one order,\" not \"priciest in every order.\" Watch out for NULL prices too — `NULL > x` and `x > NULL` are both unknown (never true), so without an explicit NULL check a NULL-priced item would wrongly look unbeatable."
+    "hint": "Another double negation: there is no order-line of this product where some other line in the same order costs more. A single-level NOT EXISTS would only prove \"priciest in at least one order,\" not \"priciest in every order.\" Watch out for NULL prices too — `NULL > x` and `x > NULL` are both unknown (never true), so without an explicit NULL check a NULL-priced item would wrongly look unbeatable.",
+    "extraTests": [
+      {
+        "name": "All products are the priciest in every order — single product per order",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,1,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,1,25.0);"
+      },
+      {
+        "name": "No product is the priciest in every order",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,1,2,2,25.0);"
+      },
+      {
+        "name": "Single product, single order — trivially the priciest",
+        "seedSql": "INSERT INTO products VALUES (1,'Solo','Tech',50.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,50.0);"
+      },
+      {
+        "name": "NULL unit_price in an order line — should not be considered priciest",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mystery','Tech',25.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,1,2,1,NULL);"
+      },
+      {
+        "name": "Empty products table",
+        "seedSql": ""
+      },
+      {
+        "name": "Product is priciest in one order but not another",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Desk','Furniture',300.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,1,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,1,2,3,25.0),(3,2,3,1,300.0),(4,2,2,2,25.0);"
+      }
+    ]
   }
 ]

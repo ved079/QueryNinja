@@ -13,7 +13,33 @@
     "solutionSql": "WITH RECURSIVE chain(id, name, depth) AS (\n  SELECT id, name, 1 FROM employees WHERE manager_id IS NULL\n  UNION ALL\n  SELECT e.id, e.name, c.depth + 1\n  FROM employees e\n  JOIN chain c ON e.manager_id = c.id\n)\nSELECT name, depth FROM chain;",
     "orderMatters": false,
     "hint": "A recursive CTE: the anchor picks the roots (no manager), the recursive arm joins children to already-found parents and adds one.",
-    "outputExplanation": "Ava, Eve and Hal are at depth 1 (no manager). Ben, Cara, Dan, Finn and Gia are at depth 2 (they report to depth-1 managers)."
+    "outputExplanation": "Ava, Eve and Hal are at depth 1 (no manager). Ben, Cara, Dan, Finn and Gia are at depth 2 (they report to depth-1 managers).",
+    "extraTests": [
+      {
+        "name": "Single employee — depth 1",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',100,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Two-level chain",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Mgr','M',100,1,NULL,'2020-01-01'),(2,'Emp','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Three-level chain",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'CEO','M',200,1,NULL,'2020-01-01'),(2,'Mgr','M',150,1,1,'2020-01-01'),(3,'Emp','X',100,1,2,'2020-01-01');"
+      },
+      {
+        "name": "Two roots with their own subtrees",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'M1','M',100,1,NULL,'2020-01-01'),(2,'M2','M',100,2,NULL,'2020-01-01'),(3,'A','X',100,1,1,'2020-01-01'),(4,'B','X',100,1,1,'2020-01-01'),(5,'C','X',100,2,2,'2020-01-01');"
+      },
+      {
+        "name": "Deep four-level chain",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'L1','A',100,1,NULL,'2020-01-01'),(2,'L2','B',100,1,1,'2020-01-01'),(3,'L3','C',100,1,2,'2020-01-01'),(4,'L4','D',100,1,3,'2020-01-01');"
+      },
+      {
+        "name": "Bushy tree with one root and multiple branches",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'CEO','M',200,1,NULL,'2020-01-01'),(2,'VP1','M',180,1,1,'2020-01-01'),(3,'VP2','M',180,2,1,'2020-01-01'),(4,'Mgr1','M',150,1,2,'2020-01-01'),(5,'Mgr2','M',150,1,2,'2020-01-01'),(6,'Emp1','E',100,1,4,'2020-01-01'),(7,'Emp2','E',100,2,3,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-total-team-size",
@@ -29,7 +55,33 @@
     "solutionSql": "WITH RECURSIVE tree(root, id) AS (\n  SELECT manager_id, id FROM employees WHERE manager_id IS NOT NULL\n  UNION ALL\n  SELECT t.root, e.id\n  FROM employees e\n  JOIN tree t ON e.manager_id = t.id\n)\nSELECT m.name AS manager, COUNT(*) AS team_size\nFROM tree t\nJOIN employees m ON m.id = t.root\nGROUP BY t.root, m.name;",
     "orderMatters": false,
     "hint": "Seed the recursion with every (manager, direct report) pair, then keep attaching each report's own reports to the same root.",
-    "outputExplanation": "Ava has 3 people below her in the management tree, and Eve has 2."
+    "outputExplanation": "Ava has 3 people below her in the management tree, and Eve has 2.",
+    "extraTests": [
+      {
+        "name": "Manager with one direct report — team size 1",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Mgr','M',100,1,NULL,'2020-01-01'),(2,'Emp','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Manager with two direct reports",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Mgr','M',100,1,NULL,'2020-01-01'),(2,'A','X',100,1,1,'2020-01-01'),(3,'B','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Three-level chain — top manager has indirect reports",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'CEO','M',200,1,NULL,'2020-01-01'),(2,'Mgr','M',150,1,1,'2020-01-01'),(3,'Emp','X',100,1,2,'2020-01-01');"
+      },
+      {
+        "name": "Two managers with different team sizes",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'M1','M',100,1,NULL,'2020-01-01'),(2,'M2','M',100,2,NULL,'2020-01-01'),(3,'A','X',100,1,1,'2020-01-01'),(4,'B','X',100,1,1,'2020-01-01'),(5,'C','X',100,2,2,'2020-01-01');"
+      },
+      {
+        "name": "Deep four-level chain — each level counts everyone below",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'L1','A',100,1,NULL,'2020-01-01'),(2,'L2','B',100,1,1,'2020-01-01'),(3,'L3','C',100,1,2,'2020-01-01'),(4,'L4','D',100,1,3,'2020-01-01');"
+      },
+      {
+        "name": "Bushy tree from management chain depth test",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'CEO','M',200,1,NULL,'2020-01-01'),(2,'VP1','M',180,1,1,'2020-01-01'),(3,'VP2','M',180,2,1,'2020-01-01'),(4,'Mgr1','M',150,1,2,'2020-01-01'),(5,'Mgr2','M',150,1,2,'2020-01-01'),(6,'Emp1','E',100,1,4,'2020-01-01'),(7,'Emp2','E',100,2,3,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-above-department-median",
@@ -45,7 +97,33 @@
     "solutionSql": "WITH ranked AS (\n  SELECT dept_id, name, salary,\n         ROW_NUMBER() OVER (PARTITION BY dept_id ORDER BY salary) AS rn,\n         COUNT(*) OVER (PARTITION BY dept_id) AS cnt\n  FROM employees\n  WHERE salary IS NOT NULL\n),\nmedians AS (\n  SELECT dept_id, AVG(salary) AS med\n  FROM ranked\n  WHERE rn IN ((cnt + 1) / 2, (cnt + 2) / 2)\n  GROUP BY dept_id\n)\nSELECT r.dept_id, r.name, r.salary\nFROM ranked r\nJOIN medians m ON m.dept_id = r.dept_id\nWHERE r.salary > m.med;",
     "orderMatters": false,
     "hint": "Number the rows inside each department, then average the one or two middle positions — (cnt+1)/2 and (cnt+2)/2 land on the same row when the count is odd.",
-    "outputExplanation": "Ava ($150k) exceeds Engineering's median of $120k, and Eve ($130k) exceeds Sales' median of $85k. No one in HR beats its median."
+    "outputExplanation": "Ava ($150k) exceeds Engineering's median of $120k, and Eve ($130k) exceeds Sales' median of $85k. No one in HR beats its median.",
+    "extraTests": [
+      {
+        "name": "Single employee — no one is strictly above the median",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',100,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Two employees — the higher earner is above median",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',200,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Three employees — only the top earner exceeds the median",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',300,1,NULL,'2020-01-01'),(2,'B','X',200,1,1,'2020-01-01'),(3,'C','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Even count (4) — top two are above the average-of-two median",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',400,1,NULL,'2020-01-01'),(2,'B','X',300,1,1,'2020-01-01'),(3,'C','X',200,1,1,'2020-01-01'),(4,'D','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "NULL salary is excluded from median calculation",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',200,1,NULL,'2020-01-01'),(2,'B','X',NULL,1,1,'2020-01-01'),(3,'C','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Two departments — each has someone above its median",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','X',300,1,NULL,'2020-01-01'),(2,'B','X',200,1,1,'2020-01-01'),(3,'C','X',100,1,1,'2020-01-01'),(4,'D','X',500,2,NULL,'2020-01-01'),(5,'E','X',100,2,4,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-payroll-running-percent",
@@ -60,7 +138,33 @@
     "solutionSql": "SELECT name, salary,\n       ROUND(100.0 * SUM(salary) OVER (ORDER BY salary DESC, id\n                                       ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)\n             / SUM(salary) OVER (), 2) AS running_pct\nFROM employees;",
     "orderMatters": false,
     "hint": "Two windows in one SELECT: a running SUM with a frame, divided by a grand-total SUM OVER () with no partition.",
-    "outputExplanation": "Ava alone accounts for 18.07% of total payroll. By the time we reach Hal, 100% of payroll is covered. Each row shows the cumulative share from the highest earner down."
+    "outputExplanation": "Ava alone accounts for 18.07% of total payroll. By the time we reach Hal, 100% of payroll is covered. Each row shows the cumulative share from the highest earner down.",
+    "extraTests": [
+      {
+        "name": "Single employee — running_pct is 100.00",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',100,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Two employees with equal salary",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Three decreasing salaries — cumulative builds up",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',300,1,NULL,'2020-01-01'),(2,'B','X',200,1,1,'2020-01-01'),(3,'C','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Four identical salaries",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01'),(3,'C','X',100,1,1,'2020-01-01'),(4,'D','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "NULL salary produces NULL running_pct",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',200,1,NULL,'2020-01-01'),(2,'B','X',NULL,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Five employees with varied salaries",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',500,1,NULL,'2020-01-01'),(2,'B','X',300,1,1,'2020-01-01'),(3,'C','X',200,1,1,'2020-01-01'),(4,'D','X',100,1,1,'2020-01-01'),(5,'E','X',100,1,1,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-second-highest-per-department",
@@ -76,7 +180,33 @@
     "solutionSql": "SELECT dept_id, name, salary\nFROM (\n  SELECT *, DENSE_RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS rnk\n  FROM employees\n  WHERE salary IS NOT NULL\n)\nWHERE rnk = 2;",
     "orderMatters": false,
     "hint": "DENSE_RANK numbers distinct salaries, so rank 2 is exactly the second distinct value — and it disappears on its own when there isn't one.",
-    "outputExplanation": "In Engineering the second distinct salary tier is $120k (Ben and Cara). In Sales it is $85k (Gia). HR has only one distinct salary so there is no second tier."
+    "outputExplanation": "In Engineering the second distinct salary tier is $120k (Ben and Cara). In Sales it is $85k (Gia). HR has only one distinct salary so there is no second tier.",
+    "extraTests": [
+      {
+        "name": "Single department with clear second distinct salary",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',300,1,NULL,'2020-01-01'),(2,'B','X',200,1,1,'2020-01-01'),(3,'C','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Tie at the second position",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',300,1,NULL,'2020-01-01'),(2,'B','X',200,1,1,'2020-01-01'),(3,'C','X',200,1,1,'2020-01-01');"
+      },
+      {
+        "name": "No second distinct salary exists",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "NULL salary excluded by WHERE clause",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',200,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01'),(3,'C','X',NULL,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Two departments each with a second earner",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','X',300,1,NULL,'2020-01-01'),(2,'B','X',200,1,1,'2020-01-01'),(3,'C','X',200,2,NULL,'2020-01-01'),(4,'D','X',100,2,3,'2020-01-01');"
+      },
+      {
+        "name": "Three departments — one has no second distinct salary",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B'),(3,'HR','C');\nINSERT INTO employees VALUES (1,'A','X',300,1,NULL,'2020-01-01'),(2,'B','X',200,1,1,'2020-01-01'),(3,'C','X',200,1,1,'2020-01-01'),(4,'D','X',400,2,NULL,'2020-01-01'),(5,'E','X',100,2,4,'2020-01-01'),(6,'F','X',50,3,NULL,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-manager-chain-names",
@@ -92,7 +222,33 @@
     "solutionSql": "WITH RECURSIVE line(id, name, chain) AS (\n  SELECT id, name, name FROM employees WHERE manager_id IS NULL\n  UNION ALL\n  SELECT e.id, e.name, l.chain || ' > ' || e.name\n  FROM employees e\n  JOIN line l ON e.manager_id = l.id\n)\nSELECT name, chain FROM line;",
     "orderMatters": false,
     "hint": "Carry the accumulated string down the recursion, appending with the || operator.",
-    "outputExplanation": "Ava, Eve and Hal are top-level and appear alone. Ben, Cara and Dan fall under Ava. Finn and Gia fall under Eve."
+    "outputExplanation": "Ava, Eve and Hal are top-level and appear alone. Ben, Cara and Dan fall under Ava. Finn and Gia fall under Eve.",
+    "extraTests": [
+      {
+        "name": "Single employee — chain is just their name",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',100,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Two-level chain",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Mgr','M',100,1,NULL,'2020-01-01'),(2,'Emp','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Three-level chain",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'CEO','M',200,1,NULL,'2020-01-01'),(2,'VP','M',150,1,1,'2020-01-01'),(3,'Emp','X',100,1,2,'2020-01-01');"
+      },
+      {
+        "name": "Two roots with their own chains",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'M1','M',100,1,NULL,'2020-01-01'),(2,'M2','M',100,2,NULL,'2020-01-01'),(3,'A','X',100,1,1,'2020-01-01'),(4,'B','X',100,2,2,'2020-01-01');"
+      },
+      {
+        "name": "Deep four-level chain",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'L1','A',100,1,NULL,'2020-01-01'),(2,'L2','B',100,1,1,'2020-01-01'),(3,'L3','C',100,1,2,'2020-01-01'),(4,'L4','D',100,1,3,'2020-01-01');"
+      },
+      {
+        "name": "Bushy tree with multiple branches",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'CEO','M',200,1,NULL,'2020-01-01'),(2,'VP1','M',180,1,1,'2020-01-01'),(3,'VP2','M',180,2,1,'2020-01-01'),(4,'Mgr','M',150,1,2,'2020-01-01'),(5,'Emp','E',100,1,4,'2020-01-01'),(6,'Emp2','E',100,2,3,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-departments-all-above",
@@ -108,7 +264,33 @@
     "solutionSql": "SELECT d.name AS department\nFROM departments d\nWHERE EXISTS (SELECT 1 FROM employees e WHERE e.dept_id = d.id)\n  AND NOT EXISTS (\n    SELECT 1 FROM employees e\n    WHERE e.dept_id = d.id\n      AND (e.salary IS NULL OR e.salary <= 70000)\n  );",
     "orderMatters": false,
     "hint": "\"All rows satisfy X\" is easiest as \"no row violates X\" — but you still need an EXISTS to rule out empty departments.",
-    "outputExplanation": ""
+    "outputExplanation": "",
+    "extraTests": [
+      {
+        "name": "All employees in a department clear 70k",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','X',80000,1,NULL,'2020-01-01'),(2,'B','X',90000,1,1,'2020-01-01'),(3,'C','X',75000,2,NULL,'2020-01-01');"
+      },
+      {
+        "name": "No department qualifies — everyone is mixed",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','X',80000,1,NULL,'2020-01-01'),(2,'B','X',60000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Empty department does not qualify",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Empty','B');\nINSERT INTO employees VALUES (1,'A','X',80000,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "NULL salary disqualifies the department",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',80000,1,NULL,'2020-01-01'),(2,'B','X',NULL,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Exactly 70000 does not clear the threshold",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',70000,1,NULL,'2020-01-01'),(2,'B','X',80000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "All departments qualify",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','X',80000,1,NULL,'2020-01-01'),(2,'B','X',90000,1,1,'2020-01-01'),(3,'C','X',100000,2,NULL,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-salary-percentile",
@@ -124,7 +306,33 @@
     "solutionSql": "SELECT name,\n       ROUND(100.0 * (COUNT(*) OVER (ORDER BY salary RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)\n                      - COUNT(*) OVER (PARTITION BY salary))\n             / COUNT(*) OVER (), 2) AS percentile\nFROM employees\nWHERE salary IS NOT NULL;",
     "orderMatters": false,
     "hint": "A RANGE frame counts every row with an equal salary, so subtract the size of the tie group to get \"strictly less than\".",
-    "outputExplanation": "Hal (0%) is the lowest paid, Finn (12.5%) is next, and Ava (87.5%) is the highest. Ben and Cara are tied at the 50th percentile."
+    "outputExplanation": "Hal (0%) is the lowest paid, Finn (12.5%) is next, and Ava (87.5%) is the highest. Ben and Cara are tied at the 50th percentile.",
+    "extraTests": [
+      {
+        "name": "Single employee — percentile is 0",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',100,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Two employees — lower is 0%, higher is 50%",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',200,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Three distinct salaries",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',300,1,NULL,'2020-01-01'),(2,'B','X',200,1,1,'2020-01-01'),(3,'C','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "All same salary — everyone is at 0%",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01'),(3,'C','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Ties in the middle",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',300,1,NULL,'2020-01-01'),(2,'B','X',200,1,1,'2020-01-01'),(3,'C','X',200,1,1,'2020-01-01'),(4,'D','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Five distinct salaries",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',500,1,NULL,'2020-01-01'),(2,'B','X',400,1,1,'2020-01-01'),(3,'C','X',300,1,1,'2020-01-01'),(4,'D','X',200,1,1,'2020-01-01'),(5,'E','X',100,1,1,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-hired-same-month-pairs",
@@ -140,7 +348,33 @@
     "solutionSql": "SELECT a.name AS first_name, b.name AS second_name,\n       strftime('%Y-%m', a.hire_date) AS month\nFROM employees a\nJOIN employees b\n  ON a.id < b.id\n AND strftime('%Y-%m', a.hire_date) = strftime('%Y-%m', b.hire_date);",
     "orderMatters": false,
     "hint": "Joining on a.id < b.id (rather than <>) is what stops each pair appearing twice.",
-    "outputExplanation": "Ben and Cara were both hired in March 2019 — the only pair hired in the same calendar month."
+    "outputExplanation": "Ben and Cara were both hired in March 2019 — the only pair hired in the same calendar month.",
+    "extraTests": [
+      {
+        "name": "Two pairs in different months",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-15'),(2,'B','X',100,1,1,'2020-01-20'),(3,'C','X',100,1,1,'2020-02-01'),(4,'D','X',100,1,1,'2020-02-10');"
+      },
+      {
+        "name": "No pairs — all in different months",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-02-01'),(3,'C','X',100,1,1,'2020-03-01');"
+      },
+      {
+        "name": "Three people hired in the same month — three pairs",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-05-10'),(2,'B','X',100,1,1,'2020-05-15'),(3,'C','X',100,1,1,'2020-05-20');"
+      },
+      {
+        "name": "Same month, different year — not a pair",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-06-01'),(2,'B','X',100,1,1,'2021-06-01');"
+      },
+      {
+        "name": "NULL hire_date — not paired with anything",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-07-01'),(2,'B','X',100,1,1,NULL);"
+      },
+      {
+        "name": "Single employee — no pair possible",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',100,1,NULL,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "emp-dept-pay-compression",
@@ -156,6 +390,32 @@
     "solutionSql": "SELECT d.name AS department,\n       ROUND(1.0 * MAX(e.salary) / MIN(e.salary), 2) AS ratio\nFROM employees e\nJOIN departments d ON d.id = e.dept_id\nWHERE e.salary IS NOT NULL\nGROUP BY d.id, d.name\nHAVING COUNT(*) >= 2 AND MIN(e.salary) > 0;",
     "orderMatters": false,
     "hint": "Everything you need is in HAVING: both the count check and the guard against a zero or negative denominator.",
-    "outputExplanation": "Engineering's highest salary is 1.58 times its lowest. Sales' ratio is 1.86. HR has only one salaried employee and is excluded."
+    "outputExplanation": "Engineering's highest salary is 1.58 times its lowest. Sales' ratio is 1.86. HR has only one salaried employee and is excluded.",
+    "extraTests": [
+      {
+        "name": "Single department with equal salaries — ratio is 1.00",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Department with only one salaried employee — excluded",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',100,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Department with a zero salary — skipped",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',0,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Department with a negative salary — skipped",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',-100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Two departments with different ratios",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','X',200,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01'),(3,'C','X',300,2,NULL,'2020-01-01'),(4,'D','X',100,2,3,'2020-01-01');"
+      },
+      {
+        "name": "NULL salaries excluded — still qualifies with >= 2 non-NULL",
+        "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',200,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01'),(3,'C','X',NULL,1,1,'2020-01-01');"
+      }
+    ]
   }
 ]

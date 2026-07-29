@@ -14,7 +14,32 @@
     "solutionSql": "SELECT p.name, COALESCE(SUM(oi.quantity), 0) AS total_qty\nFROM products p\nLEFT JOIN order_items oi ON oi.product_id = p.id\nLEFT JOIN orders o ON o.id = oi.order_id AND o.status = 'completed'\nGROUP BY p.id, p.name;",
     "orderMatters": false,
     "hint": "A condition on a LEFT-joined table's column, placed in WHERE, quietly turns the join into an INNER JOIN — rows where that table has no match get NULL there, and `NULL = 'completed'` is never true. Move the condition into the join's own ON clause instead, so it only affects which orders count, not which products survive.",
-    "outputExplanation": "The fixed query returns all four products: Keyboard (3 units), Mouse (6 units), Desk (1 unit) and Lamp (6 units). The buggy version drops products with no completed orders."
+    "extraTests": [
+      {
+        "name": "Products with no completed orders — buggy query drops them",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','pending');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);"
+      },
+      {
+        "name": "Products with no orders at all",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);"
+      },
+      {
+        "name": "Only some products have completed orders",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Desk','Furniture',300.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,1,'2022-02-01','cancelled');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,3,1,300.0);"
+      },
+      {
+        "name": "Products with only non-completed orders",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','cancelled'),(2,1,'2022-02-01','pending');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,2,25.0);"
+      },
+      {
+        "name": "Both products and orders empty",
+        "seedSql": ""
+      },
+      {
+        "name": "Mixed — some products have completed, some have cancelled, some have none",
+        "seedSql": "INSERT INTO products VALUES (1,'K','Tech',80.0),(2,'M','Tech',25.0),(3,'D','Furniture',300.0),(4,'L','Furniture',45.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,1,'2022-02-01','cancelled');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,4,2,45.0);"
+      }
+    ]
   },
   {
     "id": "debug-integer-division",
@@ -30,7 +55,32 @@
     "solutionSql": "SELECT product_id, ROUND(1.0 * SUM(quantity) / COUNT(*), 2) AS avg_qty\nFROM order_items\nGROUP BY product_id;",
     "orderMatters": false,
     "hint": "SUM(quantity) and COUNT(*) are both integers, and SQLite (like most SQL engines) performs integer division when both sides are integers — truncating the decimal part entirely. Multiplying one side by 1.0 forces the whole division to happen in floating point.",
-    "outputExplanation": "With the fix, product 1 shows an average quantity of 1.5. The buggy version would truncate the decimal and show 1 instead."
+    "extraTests": [
+      {
+        "name": "Average has clear decimal component — bug truncates it",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,1,1,2,80.0);"
+      },
+      {
+        "name": "Single order line with odd quantity",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,3,80.0);"
+      },
+      {
+        "name": "Multiple products with various decimal averages",
+        "seedSql": "INSERT INTO products VALUES (1,'K','Tech',80.0),(2,'M','Tech',25.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,1,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,1,1,1,80.0),(3,2,2,3,25.0);"
+      },
+      {
+        "name": "Products with no order items — excluded from result",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'NeverSold','Tech',25.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);"
+      },
+      {
+        "name": "Average of 2 and 1 should be 1.50",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,1,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,2,1,1,80.0);"
+      },
+      {
+        "name": "NULL quantities are excluded from average",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,5,80.0),(2,1,2,NULL,25.0);"
+      }
+    ]
   },
   {
     "id": "debug-case-sensitive-match",
@@ -47,7 +97,32 @@
     "solutionSql": "SELECT e.name\nFROM employees e\nJOIN departments d ON d.id = e.dept_id\nWHERE LOWER(d.name) = 'sales';",
     "orderMatters": false,
     "hint": "The `=` operator compares TEXT byte-for-byte by default in SQLite — 'sales' and 'Sales' are not equal. Normalize both sides (or at least the column) with LOWER() before comparing to a lowercase literal.",
-    "outputExplanation": "The fixed query returns Eve, Finn and Gia — the Sales department's employees. The buggy version matched 'Sales' against 'sales' and found no results due to case sensitivity."
+    "extraTests": [
+      {
+        "name": "Department name in all uppercase — 'SALES' does not match 'sales'",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'SALES','Denver');\nINSERT INTO employees VALUES (1,'Eve','E',100000,2,NULL,'2020-01-01'),(2,'Finn','E',90000,2,1,'2020-01-01');"
+      },
+      {
+        "name": "Mixed case — 'Sales' is the original bug",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES (1,'Eve','E',100000,2,NULL,'2020-01-01');"
+      },
+      {
+        "name": "No 'Sales' department at all — empty result is correct",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'HR','Austin');\nINSERT INTO employees VALUES (1,'Eve','E',100000,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Department name with lowercase 'sales' — both queries work",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'sales','Denver');\nINSERT INTO employees VALUES (1,'Eve','E',100000,2,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Multiple department name casings",
+        "seedSql": "INSERT INTO departments VALUES (1,'engineering','Austin'),(2,'SALES','Denver'),(3,'Hr','Austin');\nINSERT INTO employees VALUES (1,'Eve','E',100000,2,NULL,'2020-01-01'),(2,'Finn','E',90000,2,1,'2020-01-01');"
+      },
+      {
+        "name": "Empty departments and employees",
+        "seedSql": ""
+      }
+    ]
   },
   {
     "id": "debug-union-drops-real-duplicate",
@@ -64,7 +139,32 @@
     "solutionSql": "SELECT order_id, customer_name, amount FROM source_orders\nUNION ALL\nSELECT order_id, customer_name, amount FROM warehouse_orders;",
     "orderMatters": true,
     "hint": "UNION always removes duplicate rows across both sides — exactly the wrong behavior for an audit log, where two identical-looking rows might be two genuinely separate events. UNION ALL keeps everything.",
-    "outputExplanation": "The fixed query returns 7 rows total, with order 1 and order 2 appearing twice each (once per system). The buggy UNION would collapse those duplicates into single rows."
+    "extraTests": [
+      {
+        "name": "Duplicate rows in source only",
+        "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(1,'A',100.0),(2,'B',200.0);"
+      },
+      {
+        "name": "Identical rows exist in both tables",
+        "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0);\nINSERT INTO warehouse_orders VALUES (1,'A',100.0);"
+      },
+      {
+        "name": "No duplicate rows — UNION and UNION ALL agree",
+        "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(2,'B',200.0);\nINSERT INTO warehouse_orders VALUES (3,'C',300.0);"
+      },
+      {
+        "name": "Only source has data — all rows kept",
+        "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(2,'B',200.0);"
+      },
+      {
+        "name": "Only warehouse has data",
+        "seedSql": "INSERT INTO warehouse_orders VALUES (3,'C',300.0);"
+      },
+      {
+        "name": "Both tables empty",
+        "seedSql": ""
+      }
+    ]
   },
   {
     "id": "debug-exists-forgot-to-exclude-self",
@@ -81,7 +181,32 @@
     "solutionSql": "SELECT e.name\nFROM employees e\nWHERE EXISTS (\n  SELECT 1 FROM employees e2 WHERE e2.salary = e.salary AND e2.id <> e.id\n);",
     "orderMatters": false,
     "hint": "Without excluding the row itself, every employee's salary trivially \"matches\" e2 = themselves — a correlated subquery comparing a table to itself almost always needs an explicit `e2.id <> e.id` (or similar) to rule out the row matching its own reflection.",
-    "outputExplanation": "The fixed query returns only Ben and Cara — the two employees who share the same salary ($120k). The buggy version returned all 8 employees by matching each person to themselves."
+    "extraTests": [
+      {
+        "name": "All salaries unique — buggy query returns everyone, correct returns none",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'Ava','E',100000,1,NULL,'2020-01-01'),(2,'Ben','E',90000,1,1,'2020-01-01'),(3,'Cara','E',80000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "All salaries identical — everyone shares with others",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2020-01-01'),(2,'B','E',100000,1,1,'2020-01-01'),(3,'C','E',100000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Some tied, some unique",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'Ava','E',120000,1,NULL,'2020-01-01'),(2,'Ben','E',120000,1,1,'2020-01-01'),(3,'Cara','E',100000,1,1,'2020-01-01'),(4,'Dan','E',90000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Single employee — buggy returns them, correct returns none",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'Solo','E',100000,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Two employees with same salary",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2020-01-01'),(2,'B','E',100000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Empty employees table",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');"
+      }
+    ]
   },
   {
     "id": "debug-window-frame-wrong-direction",
@@ -98,7 +223,32 @@
     "solutionSql": "SELECT name,\n  ROUND(AVG(salary) OVER (ORDER BY hire_date, id ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 2) AS trailing_avg\nFROM employees;",
     "orderMatters": false,
     "hint": "\"CURRENT ROW AND 2 FOLLOWING\" looks ahead to hires that come later — the exact opposite of \"trailing\". A trailing window looks backward: PRECEDING, not FOLLOWING.",
-    "outputExplanation": "Eve (first hire) shows $130,000 (just herself). Hal (last hire) shows $80,000 — the average of Dan, Gia and Hal. The buggy frame looked forward instead of backward."
+    "extraTests": [
+      {
+        "name": "Forward-looking frame includes future hires — backward does not",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',50000,1,NULL,'2020-01-01'),(2,'B','E',100000,1,1,'2020-02-01'),(3,'C','E',150000,1,1,'2020-03-01');"
+      },
+      {
+        "name": "Single employee — both frames give the same result",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'Solo','E',100000,1,NULL,'2022-01-01');"
+      },
+      {
+        "name": "Two employees — first row differs between forward and backward",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'First','E',50000,1,NULL,'2020-01-01'),(2,'Second','E',100000,1,1,'2020-02-01');"
+      },
+      {
+        "name": "Empty employees table",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');"
+      },
+      {
+        "name": "Many employees — trailing avg should only look back",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',10000,1,NULL,'2020-01-01'),(2,'B','E',20000,1,1,'2020-02-01'),(3,'C','E',30000,1,1,'2020-03-01'),(4,'D','E',100000,1,1,'2020-04-01'),(5,'E','E',200000,1,1,'2020-05-01');"
+      },
+      {
+        "name": "Same hire dates — tie-breaker determines order",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',50000,1,NULL,'2020-01-01'),(2,'B','E',100000,1,1,'2020-01-01'),(3,'C','E',150000,1,1,'2020-02-01');"
+      }
+    ]
   },
   {
     "id": "debug-ungrouped-column-arbitrary-row",
@@ -115,7 +265,32 @@
     "solutionSql": "SELECT d.name AS department, e.name AS top_earner, e.salary AS top_salary\nFROM departments d\nJOIN employees e ON e.dept_id = d.id\nWHERE e.salary = (SELECT MAX(e2.salary) FROM employees e2 WHERE e2.dept_id = d.id);",
     "orderMatters": false,
     "hint": "SQLite allows selecting a column that's neither aggregated nor in GROUP BY (most other databases reject this outright) — but the value you get back is from an arbitrary row in the group, not necessarily the one MAX() came from. Join back to find the actual row where salary equals the max instead.",
-    "outputExplanation": "Ava ($150k) is Engineering's top earner, Eve ($130k) is Sales', and Hal ($60k) is HR's. The buggy version might show the wrong name for each department's max salary."
+    "extraTests": [
+      {
+        "name": "Max earner has a lower id — arbitrary row is wrong",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES (1,'LowEarner','E',50000,1,NULL,'2020-01-01'),(2,'TopEarner','E',150000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Single employee per department — no ambiguity",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES (1,'Ava','E',100000,1,NULL,'2020-01-01'),(2,'Eve','E',90000,2,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Tie for max salary — both should show same name",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'A','E',150000,1,NULL,'2020-01-01'),(2,'B','E',150000,1,1,'2020-01-01'),(3,'C','E',120000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Department with zero employees — no row contributed",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere');\nINSERT INTO employees VALUES (1,'Ava','E',100000,1,NULL,'2020-01-01');"
+      },
+      {
+        "name": "Empty employees table",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');"
+      },
+      {
+        "name": "High earner not the first-listed employee — arbitrary row trap",
+        "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'A','E',50000,1,NULL,'2020-01-01'),(2,'B','E',60000,1,1,'2020-01-01'),(3,'C','E',200000,1,1,'2020-01-01'),(4,'D','E',70000,1,1,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "debug-date-boundary-off-by-one",
@@ -132,7 +307,32 @@
     "solutionSql": "SELECT ROUND(SUM(oi.quantity * oi.unit_price), 2) AS total_revenue\nFROM orders o\nJOIN order_items oi ON oi.order_id = o.id\nWHERE o.order_date <= '2021-12-31';",
     "orderMatters": false,
     "hint": "\"On or before\" means the boundary date itself should be included — that's `<=`, not `<`. A strict less-than silently drops every order dated exactly on the cutoff.",
-    "outputExplanation": "No orders exist on or before 2021-12-31 in the example data, so both queries return NULL. A hidden test with a 2021-12-31 order shows the fix returning $80 while the buggy version returns NULL."
+    "extraTests": [
+      {
+        "name": "Order exactly on the cutoff date — buggy query excludes it",
+        "seedSql": "INSERT INTO customers VALUES (1,'C','US','2021-01-01');\nINSERT INTO products VALUES (1,'K','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2021-12-31','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);"
+      },
+      {
+        "name": "Orders before cutoff — both queries include them",
+        "seedSql": "INSERT INTO customers VALUES (1,'C','US','2021-01-01');\nINSERT INTO products VALUES (1,'K','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2021-12-30','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);"
+      },
+      {
+        "name": "Orders after cutoff — both queries exclude them",
+        "seedSql": "INSERT INTO customers VALUES (1,'C','US','2021-01-01');\nINSERT INTO products VALUES (1,'K','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);"
+      },
+      {
+        "name": "No orders on or before cutoff — both return NULL",
+        "seedSql": "INSERT INTO customers VALUES (1,'C','US','2021-01-01');\nINSERT INTO products VALUES (1,'K','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-01-15','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);"
+      },
+      {
+        "name": "Empty orders table",
+        "seedSql": ""
+      },
+      {
+        "name": "Multiple orders, one exactly on cutoff — bug under-reports total",
+        "seedSql": "INSERT INTO customers VALUES (1,'C','US','2021-01-01');\nINSERT INTO products VALUES (1,'K','Tech',80.0),(2,'M','Tech',25.0);\nINSERT INTO orders VALUES (1,1,'2021-12-30','completed'),(2,1,'2021-12-31','completed'),(3,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,2,50.0),(3,3,1,1,80.0);"
+      }
+    ]
   },
   {
     "id": "debug-except-union-precedence",
@@ -149,6 +349,31 @@
     "solutionSql": "SELECT order_id FROM (SELECT order_id FROM source_orders EXCEPT SELECT order_id FROM warehouse_orders)\nUNION\nSELECT order_id FROM (SELECT order_id FROM warehouse_orders EXCEPT SELECT order_id FROM source_orders);",
     "orderMatters": false,
     "hint": "Chained set operators (EXCEPT, UNION, INTERSECT) evaluate strictly left-to-right at equal precedence in SQLite — `A EXCEPT B UNION C EXCEPT D` is `((A EXCEPT B) UNION C) EXCEPT D`, not two independent EXCEPTs joined by UNION. Wrap each EXCEPT as its own subquery in FROM to force the grouping you actually want.",
-    "outputExplanation": "The fixed query returns the three out-of-sync ids: 3 and 4 (source-only) and 5 (warehouse-only). The buggy version's chain evaluation corrupts this on disjoint datasets."
+    "extraTests": [
+      {
+        "name": "Disjoint data — buggy chain evaluation gives wrong result",
+        "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(2,'B',200.0);\nINSERT INTO warehouse_orders VALUES (3,'C',300.0),(4,'D',400.0);"
+      },
+      {
+        "name": "All synced — both queries agree (empty result)",
+        "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(2,'B',200.0);\nINSERT INTO warehouse_orders VALUES (1,'A',100.0),(2,'B',200.0);"
+      },
+      {
+        "name": "Only source has data",
+        "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(2,'B',200.0);"
+      },
+      {
+        "name": "Only warehouse has data",
+        "seedSql": "INSERT INTO warehouse_orders VALUES (3,'C',300.0);"
+      },
+      {
+        "name": "Partial overlap — buggy chain can give wrong result",
+        "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(2,'B',200.0),(3,'C',300.0);\nINSERT INTO warehouse_orders VALUES (2,'B',200.0),(4,'D',400.0);"
+      },
+      {
+        "name": "Both tables empty",
+        "seedSql": ""
+      }
+    ]
   }
 ]

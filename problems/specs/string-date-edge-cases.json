@@ -12,7 +12,33 @@
     "solutionSql": "SELECT name FROM products WHERE name GLOB '*[0-9]*';",
     "outputExplanation": "None of the product names (Keyboard, Mouse, Desk, Lamp) contain a digit, so the result is empty. A hidden test with products named P1 and P2 demonstrates this query working.",
     "orderMatters": false,
-    "hint": "SQLite's LIKE has no character-class syntax, but GLOB does — `[0-9]` inside a GLOB pattern matches any single digit, same idea as a tiny regex."
+    "hint": "SQLite's LIKE has no character-class syntax, but GLOB does — `[0-9]` inside a GLOB pattern matches any single digit, same idea as a tiny regex.",
+    "extraTests": [
+      {
+        "name": "All products have digits in their names",
+        "seedSql": "INSERT INTO products VALUES (1,'P1','Tech',10.0),(2,'M2','Tech',20.0);"
+      },
+      {
+        "name": "No products contain digits",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);"
+      },
+      {
+        "name": "Empty products table",
+        "seedSql": ""
+      },
+      {
+        "name": "Mixed — some with digits, some without",
+        "seedSql": "INSERT INTO products VALUES (1,'Chair','Furniture',150.0),(2,'P1-Tech','Tech',10.0),(3,'Lamp','Furniture',45.0),(4,'R2D2','Tech',200.0);"
+      },
+      {
+        "name": "Digit at start, middle, and end of name",
+        "seedSql": "INSERT INTO products VALUES (1,'1stPlace','Tech',100.0),(2,'Item2','Tech',50.0),(3,'Version3','Tech',75.0);"
+      },
+      {
+        "name": "Name with digit characters but not matching GLOB pattern due to length",
+        "seedSql": "INSERT INTO products VALUES (1,'A1','Tech',10.0),(2,'B2','Tech',20.0),(3,'AB1','Tech',30.0);"
+      }
+    ]
   },
   {
     "id": "str-name-contains-letter-a",
@@ -27,7 +53,33 @@
     "solutionSql": "SELECT name FROM employees WHERE LOWER(name) LIKE '%a%';",
     "outputExplanation": "Ava, Cara, Dan, Gia and Hal all contain the letter 'a' in their names. Ben, Eve and Finn do not and are excluded.",
     "orderMatters": false,
-    "hint": "A leading and trailing `%` means \"anywhere in the string\" — anchoring only the start (`'a%'`) or only the end (`'%a'`) would answer a different question."
+    "hint": "A leading and trailing `%` means \"anywhere in the string\" — anchoring only the start (`'a%'`) or only the end (`'%a'`) would answer a different question.",
+    "extraTests": [
+      {
+        "name": "All employees contain the letter 'a'",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'Ada','E',100000,1,NULL,'2020-01-01'),(2,'Ava','E',90000,1,1,'2020-01-01'),(3,'Ana','E',80000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "No employees contain the letter 'a'",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'Ben','E',100000,1,NULL,'2020-01-01'),(2,'Cy','E',90000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Empty employees table",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');"
+      },
+      {
+        "name": "Mixed — some have 'a', some don't",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'Ava','E',100000,1,NULL,'2020-01-01'),(2,'Ben','E',90000,1,1,'2020-01-01'),(3,'Cara','E',80000,1,1,'2020-01-01'),(4,'Dan','E',70000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Case insensitive — uppercase 'A' should also match",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'ALICE','E',100000,1,NULL,'2020-01-01'),(2,'Bob','E',90000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "'a' at various positions — start, middle, end",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'Alice','E',100000,1,NULL,'2020-01-01'),(2,'Diana','E',90000,1,1,'2020-01-01'),(3,'Linda','E',80000,1,1,'2020-01-01');"
+      }
+    ]
   },
   {
     "id": "str-hires-per-quarter",
@@ -42,7 +94,33 @@
     "solutionSql": "SELECT\n  CASE\n    WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 1 AND 3 THEN 'Q1'\n    WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 4 AND 6 THEN 'Q2'\n    WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 7 AND 9 THEN 'Q3'\n    ELSE 'Q4'\n  END AS quarter,\n  COUNT(*) AS hires\nFROM employees\nGROUP BY quarter;",
     "outputExplanation": "Four employees were hired in Q1 (January-March), one in Q2, two in Q3 and one in Q4.",
     "orderMatters": false,
-    "hint": "strftime('%m', ...) returns the month as zero-padded text ('04') — CAST it to INTEGER before comparing with BETWEEN, or the comparison happens on the wrong type."
+    "hint": "strftime('%m', ...) returns the month as zero-padded text ('04') — CAST it to INTEGER before comparing with BETWEEN, or the comparison happens on the wrong type.",
+    "extraTests": [
+      {
+        "name": "No employees — empty result",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');"
+      },
+      {
+        "name": "All hires in the same quarter",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-01-10'),(2,'B','E',90000,1,1,'2022-02-15'),(3,'C','E',80000,1,1,'2022-03-20');"
+      },
+      {
+        "name": "One hire in each quarter across different years",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-02-01'),(2,'B','E',90000,1,1,'2022-05-01'),(3,'C','E',80000,1,1,'2022-08-01'),(4,'D','E',70000,1,1,'2022-11-01');"
+      },
+      {
+        "name": "Boundary months — March, June, September, December",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-03-31'),(2,'B','E',90000,1,1,'2022-06-30'),(3,'C','E',80000,1,1,'2022-09-30'),(4,'D','E',70000,1,1,'2022-12-31');"
+      },
+      {
+        "name": "Multiple years — quarters aggregate across all years",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2020-01-01'),(2,'B','E',90000,1,1,'2021-01-01'),(3,'C','E',80000,1,1,'2022-04-01'),(4,'D','E',70000,1,1,'2023-04-01');"
+      },
+      {
+        "name": "February 29 in leap year 2020 — Q1",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2020-02-29'),(2,'B','E',90000,1,1,'2021-02-28');"
+      }
+    ]
   },
   {
     "id": "str-fiscal-year-label",
@@ -57,7 +135,33 @@
     "solutionSql": "SELECT name,\n  'FY' || (CASE\n    WHEN CAST(strftime('%m', hire_date) AS INTEGER) >= 4 THEN CAST(strftime('%Y', hire_date) AS INTEGER)\n    ELSE CAST(strftime('%Y', hire_date) AS INTEGER) - 1\n  END) AS fiscal_year\nFROM employees;",
     "outputExplanation": "Ava (Jan 2018) gets FY2017, Ben and Cara (Mar 2019) get FY2018, Gia (Feb 2022) gets FY2021 — all hired before April roll back one fiscal year. Dan (Jul 2021) and Eve (Nov 2017) stay in their calendar year's FY.",
     "orderMatters": false,
-    "hint": "January through March belong to the *previous* calendar year's fiscal year — the classic off-by-one this kind of bucketing trips people up on."
+    "hint": "January through March belong to the *previous* calendar year's fiscal year — the classic off-by-one this kind of bucketing trips people up on.",
+    "extraTests": [
+      {
+        "name": "All hires before April — all roll back one fiscal year",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-01-15'),(2,'B','E',90000,1,1,'2022-02-15'),(3,'C','E',80000,1,1,'2022-03-15');"
+      },
+      {
+        "name": "All hires in or after April — FY matches calendar year",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-04-01'),(2,'B','E',90000,1,1,'2022-07-15'),(3,'C','E',80000,1,1,'2022-12-31');"
+      },
+      {
+        "name": "Empty employees table",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');"
+      },
+      {
+        "name": "Single employee in January — rolls back to previous FY",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'Jan','E',100000,1,NULL,'2023-01-01');"
+      },
+      {
+        "name": "Boundary — March 31 vs April 1",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'LateMarch','E',100000,1,NULL,'2022-03-31'),(2,'EarlyApr','E',90000,1,1,'2022-04-01');"
+      },
+      {
+        "name": "Multiple years — each year boundary is correct",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2020-12-31'),(2,'B','E',90000,1,1,'2021-01-01'),(3,'C','E',80000,1,1,'2021-04-01'),(4,'D','E',70000,1,1,'2022-03-31');"
+      }
+    ]
   },
   {
     "id": "str-product-code-or-uncategorized",
@@ -72,7 +176,33 @@
     "solutionSql": "SELECT name FROM products\nWHERE name GLOB '[A-Za-z][A-Za-z][0-9]'\n   OR category IS NULL;",
     "outputExplanation": "No product has a two-letter-one-digit code name or a NULL category in this dataset, so the result is empty. A hidden test demonstrates the NULL category case.",
     "orderMatters": false,
-    "hint": "GLOB has no length-anchoring shortcut like LIKE's underscore count implies here by construction — three single-character classes back to back means \"exactly three characters, this shape\", nothing shorter or longer will match."
+    "hint": "GLOB has no length-anchoring shortcut like LIKE's underscore count implies here by construction — three single-character classes back to back means \"exactly three characters, this shape\", nothing shorter or longer will match.",
+    "extraTests": [
+      {
+        "name": "All products have normal names and non-NULL categories",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);"
+      },
+      {
+        "name": "Some products have short code names",
+        "seedSql": "INSERT INTO products VALUES (1,'P1','Tech',10.0),(2,'B2','Furniture',20.0),(3,'Keyboard','Tech',80.0);"
+      },
+      {
+        "name": "Some products have NULL category",
+        "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mystery',NULL,25.0);"
+      },
+      {
+        "name": "Both code names and NULL categories present",
+        "seedSql": "INSERT INTO products VALUES (1,'P1','Tech',10.0),(2,'Unknown',NULL,25.0),(3,'C3',NULL,30.0);"
+      },
+      {
+        "name": "Empty products table",
+        "seedSql": ""
+      },
+      {
+        "name": "Names that almost match code pattern — wrong length",
+        "seedSql": "INSERT INTO products VALUES (1,'A','Tech',10.0),(2,'AB','Tech',20.0),(3,'ABC','Tech',30.0),(4,'AB1C','Tech',40.0);"
+      }
+    ]
   },
   {
     "id": "str-clean-messy-names",
@@ -87,7 +217,33 @@
     "solutionSql": "SELECT DISTINCT LOWER(TRIM(customer_name)) AS customer FROM source_orders;",
     "outputExplanation": "After trimming and lowercasing, the four distinct names are 'ann lee', 'ben kim', 'cy ortiz' and 'dee fox'. A hidden test shows that TRIM removes leading/trailing spaces from names like '  ben kim '.",
     "orderMatters": false,
-    "hint": "TRIM only removes leading/trailing whitespace, not whitespace in the middle — that's enough here since the mess in this dataset is only at the edges and in casing."
+    "hint": "TRIM only removes leading/trailing whitespace, not whitespace in the middle — that's enough here since the mess in this dataset is only at the edges and in casing.",
+    "extraTests": [
+      {
+        "name": "All names already clean",
+        "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',100.0),(2,'Ben Kim',200.0);"
+      },
+      {
+        "name": "Extra leading and trailing spaces",
+        "seedSql": "INSERT INTO source_orders VALUES (1,'  Ann Lee  ',100.0),(2,'  Ben Kim  ',200.0);"
+      },
+      {
+        "name": "Inconsistent casing only",
+        "seedSql": "INSERT INTO source_orders VALUES (1,'ANN LEE',100.0),(2,'ben kim',200.0),(3,'Cy Ortiz',300.0);"
+      },
+      {
+        "name": "Both spaces and casing mixed",
+        "seedSql": "INSERT INTO source_orders VALUES (1,'  ANN LEE ',100.0),(2,'ben kim  ',200.0),(3,'  Cy Ortiz  ',300.0);"
+      },
+      {
+        "name": "Empty source_orders",
+        "seedSql": ""
+      },
+      {
+        "name": "Duplicate names after normalization — DISTINCT required",
+        "seedSql": "INSERT INTO source_orders VALUES (1,'  Ann Lee ',100.0),(2,'ANN LEE',200.0),(3,'ann lee  ',300.0);"
+      }
+    ]
   },
   {
     "id": "str-hired-last-day-of-month",
@@ -102,7 +258,33 @@
     "solutionSql": "SELECT name FROM employees\nWHERE hire_date = date(hire_date, 'start of month', '+1 month', '-1 day');",
     "outputExplanation": "None of the 8 hire dates fall on the last day of their month, so the result is empty. Hidden tests demonstrate June 30 and February 29 (leap year) as qualifying last-day hires.",
     "orderMatters": false,
-    "hint": "Don't hardcode `'-31'` or check against a fixed day number — months have different lengths (and February has 28 or 29). Compute \"the day before the start of next month\" instead, and SQLite's date() modifiers handle the varying month lengths for you."
+    "hint": "Don't hardcode `'-31'` or check against a fixed day number — months have different lengths (and February has 28 or 29). Compute \"the day before the start of next month\" instead, and SQLite's date() modifiers handle the varying month lengths for you.",
+    "extraTests": [
+      {
+        "name": "No one hired on the last day of any month",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-01-15'),(2,'B','E',90000,1,1,'2022-02-14');"
+      },
+      {
+        "name": "One employee hired on a month's last day",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-01-31'),(2,'B','E',90000,1,1,'2022-02-14');"
+      },
+      {
+        "name": "Multiple employees on last days of different months",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-01-31'),(2,'B','E',90000,1,1,'2022-04-30'),(3,'C','E',80000,1,1,'2022-07-31'),(4,'D','E',70000,1,1,'2022-10-31');"
+      },
+      {
+        "name": "February 28 in non-leap year — is last day",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-02-28');"
+      },
+      {
+        "name": "February 29 in leap year — is last day",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2020-02-29');"
+      },
+      {
+        "name": "Empty employees table",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');"
+      }
+    ]
   },
   {
     "id": "str-missing-order-dates",
@@ -118,7 +300,33 @@
     "solutionSql": "WITH RECURSIVE spine(d) AS (\n  SELECT MIN(order_date) FROM orders\n  UNION ALL\n  SELECT date(d, '+1 day') FROM spine WHERE d < (SELECT MAX(order_date) FROM orders)\n)\nSELECT d AS missing_date\nFROM spine\nWHERE d IS NOT NULL\nAND NOT EXISTS (SELECT 1 FROM orders o WHERE o.order_date = d);",
     "outputExplanation": "Only 6 dates between January 10, 2022 and January 2, 2023 have orders. Every other calendar day in that range — over 300 dates — had no orders and is reported.",
     "orderMatters": false,
-    "hint": "There's no table of \"all possible dates\" to join against, so build one: a recursive CTE that starts at the earliest date and adds one day at a time up to the latest. Guard against an empty orders table, where MIN/MAX are both NULL."
+    "hint": "There's no table of \"all possible dates\" to join against, so build one: a recursive CTE that starts at the earliest date and adds one day at a time up to the latest. Guard against an empty orders table, where MIN/MAX are both NULL.",
+    "extraTests": [
+      {
+        "name": "Every day in range has an order — no gaps",
+        "seedSql": "INSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,1,'2022-01-02','completed'),(3,1,'2022-01-03','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0),(2,2,1,1,10.0),(3,3,1,1,10.0);"
+      },
+      {
+        "name": "Single day range — one order on that single day",
+        "seedSql": "INSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0);"
+      },
+      {
+        "name": "Empty orders table — no range, no rows",
+        "seedSql": ""
+      },
+      {
+        "name": "Gaps between orders spread across a month",
+        "seedSql": "INSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,1,'2022-01-10','completed'),(3,1,'2022-01-20','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0),(2,2,1,1,10.0),(3,3,1,1,10.0);"
+      },
+      {
+        "name": "Range spanning February in leap year",
+        "seedSql": "INSERT INTO customers VALUES (1,'C','US','2020-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2020-01-01','completed'),(2,1,'2020-03-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0),(2,2,1,1,10.0);"
+      },
+      {
+        "name": "All consecutive dates from single to single — no gap",
+        "seedSql": "INSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2022-06-15','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0);"
+      }
+    ]
   },
   {
     "id": "str-fiscal-quarter-boundary",
@@ -133,7 +341,33 @@
     "solutionSql": "SELECT name,\n  'FY' || (CASE WHEN CAST(strftime('%m', hire_date) AS INTEGER) >= 4\n           THEN CAST(strftime('%Y', hire_date) AS INTEGER)\n           ELSE CAST(strftime('%Y', hire_date) AS INTEGER) - 1 END)\n  || '-Q' ||\n  (CASE\n     WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 4 AND 6 THEN 1\n     WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 7 AND 9 THEN 2\n     WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 10 AND 12 THEN 3\n     ELSE 4\n   END) AS fiscal_quarter\nFROM employees;",
     "outputExplanation": "Ava (Jan 2018) gets FY2017-Q4, Eve (Nov 2017) gets FY2017-Q3, and Dan (Jul 2021) gets FY2021-Q2. Each employee's label reflects the fiscal year rules and which quarter their hire month falls in.",
     "orderMatters": false,
-    "hint": "The fiscal year part uses the same Jan-Mar-rolls-back-a-year logic as before. The quarter number is independent of that: Apr-Jun is always fiscal Q1, regardless of which calendar year it happened to fall in."
+    "hint": "The fiscal year part uses the same Jan-Mar-rolls-back-a-year logic as before. The quarter number is independent of that: Apr-Jun is always fiscal Q1, regardless of which calendar year it happened to fall in.",
+    "extraTests": [
+      {
+        "name": "All hires from April onward — FY matches calendar year",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-04-01'),(2,'B','E',90000,1,1,'2022-07-15'),(3,'C','E',80000,1,1,'2022-10-31');"
+      },
+      {
+        "name": "All hires from January to March — FY rolls back",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-01-01'),(2,'B','E',90000,1,1,'2022-02-15'),(3,'C','E',80000,1,1,'2022-03-31');"
+      },
+      {
+        "name": "Empty employees table",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');"
+      },
+      {
+        "name": "Boundary months — each quarter boundary covered",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-03-31'),(2,'B','E',90000,1,1,'2022-04-01'),(3,'C','E',80000,1,1,'2022-06-30'),(4,'D','E',70000,1,1,'2022-07-01'),(5,'E','E',60000,1,1,'2022-09-30'),(6,'F','E',50000,1,1,'2022-10-01'),(7,'G','E',40000,1,1,'2022-12-31');"
+      },
+      {
+        "name": "All four fiscal quarters represented across years",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2021-05-01'),(2,'B','E',90000,1,1,'2021-08-15'),(3,'C','E',80000,1,1,'2021-11-30'),(4,'D','E',70000,1,1,'2022-02-15');"
+      },
+      {
+        "name": "Multiple calendar years — FY rolls correctly at each boundary",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2020-12-31'),(2,'B','E',90000,1,1,'2021-01-15'),(3,'C','E',80000,1,1,'2022-03-01'),(4,'D','E',70000,1,1,'2023-04-01');"
+      }
+    ]
   },
   {
     "id": "str-name-two-or-more-as",
@@ -148,6 +382,32 @@
     "solutionSql": "SELECT name FROM employees\nWHERE LENGTH(LOWER(name)) - LENGTH(REPLACE(LOWER(name), 'a', '')) >= 2;",
     "outputExplanation": "Ava and Cara each contain the letter 'a' twice. Dan, Gia and Hal contain it only once, and Ben, Eve and Finn have none.",
     "orderMatters": false,
-    "hint": "A classic no-regex trick: REPLACE every 'a' with nothing, then the drop in LENGTH tells you exactly how many 'a's were removed — no counting loop needed."
+    "hint": "A classic no-regex trick: REPLACE every 'a' with nothing, then the drop in LENGTH tells you exactly how many 'a's were removed — no counting loop needed.",
+    "extraTests": [
+      {
+        "name": "Multiple employees with 2+ 'a's",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'Ava','E',100000,1,NULL,'2020-01-01'),(2,'Cara','E',90000,1,1,'2020-01-01'),(3,'Aaliyah','E',80000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "No employee has 'a' twice or more",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'Ben','E',100000,1,NULL,'2020-01-01'),(2,'Eve','E',90000,1,1,'2020-01-01'),(3,'Finn','E',80000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Empty employees table",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');"
+      },
+      {
+        "name": "Case insensitive — uppercase A should count too",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'AVA','E',100000,1,NULL,'2020-01-01'),(2,'CArA','E',90000,1,1,'2020-01-01'),(3,'Alice','E',80000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "Names with exactly 2 'a's vs names with more",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'Ava','E',100000,1,NULL,'2020-01-01'),(2,'Aaliyah','E',90000,1,1,'2020-01-01'),(3,'Bananarama','E',80000,1,1,'2020-01-01'),(4,'Dan','E',70000,1,1,'2020-01-01');"
+      },
+      {
+        "name": "'a' at start and end — counts as two",
+        "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'Ana','E',100000,1,NULL,'2020-01-01'),(2,'Amanda','E',90000,1,1,'2020-01-01');"
+      }
+    ]
   }
 ]

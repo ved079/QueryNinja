@@ -19,39 +19,63 @@
       "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1),(3,1),(4,2),(5,1),(6,2),(7,2),(8,2),(9,2);"
     },
     {
-      "name": "No run reaches three",
+      "name": "No run reaches three — only pairs",
       "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1),(3,2),(4,2),(5,3),(6,3);"
     },
     {
-      "name": "Exactly three in a row",
+      "name": "Exactly three in a row — minimum qualifying run",
       "seedSql": "INSERT INTO Logs VALUES (1,5),(2,5),(3,5),(4,9);"
     },
     {
-      "name": "Every row identical",
+      "name": "Every row identical — single run spanning all rows",
       "seedSql": "INSERT INTO Logs VALUES (1,7),(2,7),(3,7),(4,7),(5,7);"
     },
     {
-      "name": "Two different numbers each qualify",
+      "name": "Two different numbers each have a qualifying run",
       "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1),(3,1),(4,2),(5,2),(6,2);"
     },
     {
-      "name": "Same number in two separate runs",
+      "name": "Same number in two separate runs — without DISTINCT the number appears twice",
       "seedSql": "INSERT INTO Logs VALUES (1,4),(2,4),(3,4),(4,8),(5,4),(6,4),(7,4);"
     },
     {
-      "name": "Fewer than three rows",
+      "name": "Fewer than three rows — impossible to have three consecutive",
       "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1);"
     },
     {
       "name": "Empty table"
     },
     {
-      "name": "Alternating values",
+      "name": "Alternating values — never three in a row",
       "seedSql": "INSERT INTO Logs VALUES (1,1),(2,2),(3,1),(4,2),(5,1),(6,2);"
     },
     {
-      "name": "Negative numbers and a long run",
+      "name": "Negative numbers with a long run and mixed positives",
       "seedSql": "INSERT INTO Logs VALUES (1,-3),(2,-3),(3,-3),(4,-3),(5,0),(6,0),(7,1),(8,1),(9,1),(10,2);"
+    },
+    {
+      "name": "Run of exactly three at the very start",
+      "seedSql": "INSERT INTO Logs VALUES (1,9),(2,9),(3,9),(4,5),(5,6),(6,7);"
+    },
+    {
+      "name": "Run of exactly three at the very end",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,2),(3,3),(4,8),(5,8),(6,8);"
+    },
+    {
+      "name": "Number appears six times consecutively — reported once",
+      "seedSql": "INSERT INTO Logs VALUES (1,3),(2,3),(3,3),(4,3),(5,3),(6,3),(7,5);"
+    },
+    {
+      "name": "Three different numbers each with a qualifying run",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1),(3,1),(4,2),(5,2),(6,2),(7,3),(8,3),(9,3);"
+    },
+    {
+      "name": "Stress test with 20 rows — mixed runs, pairs, and singletons",
+      "seedSql": "INSERT INTO Logs VALUES (1,5),(2,5),(3,5),(4,5),(5,1),(6,2),(7,2),(8,2),(9,3),(10,3),(11,4),(12,4),(13,4),(14,4),(15,4),(16,6),(17,6),(18,7),(19,7),(20,7);"
+    },
+    {
+      "name": "Only one qualifying run — rest are pairs or singletons",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1),(3,2),(4,2),(5,3),(6,3),(7,8),(8,8),(9,8);"
     }
   ]
 }

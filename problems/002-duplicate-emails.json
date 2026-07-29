@@ -19,39 +19,63 @@
       "seedSql": "INSERT INTO Person VALUES (1,'a@b.com'),(2,'c@d.com'),(3,'a@b.com'),(4,'e@f.com'),(5,'c@d.com'),(6,'a@b.com');"
     },
     {
-      "name": "No duplicates at all",
-      "seedSql": "INSERT INTO Person VALUES (1,'a@b.com'),(2,'c@d.com'),(3,'e@f.com');"
+      "name": "All emails are unique",
+      "seedSql": "INSERT INTO Person VALUES (1,'a@x.com'),(2,'b@x.com'),(3,'c@x.com');"
     },
     {
       "name": "Every row is the same email",
-      "seedSql": "INSERT INTO Person VALUES (1,'same@x.com'),(2,'same@x.com'),(3,'same@x.com'),(4,'same@x.com');"
+      "seedSql": "INSERT INTO Person VALUES (1,'dup@x.com'),(2,'dup@x.com'),(3,'dup@x.com'),(4,'dup@x.com'),(5,'dup@x.com');"
     },
     {
       "name": "Empty table"
     },
     {
-      "name": "Single row",
+      "name": "Single row only",
       "seedSql": "INSERT INTO Person VALUES (1,'only@x.com');"
     },
     {
-      "name": "Two separate duplicate groups",
-      "seedSql": "INSERT INTO Person VALUES (1,'x@x.com'),(2,'y@y.com'),(3,'x@x.com'),(4,'y@y.com'),(5,'z@z.com');"
+      "name": "Minimum duplicate — exactly two rows same email",
+      "seedSql": "INSERT INTO Person VALUES (1,'pair@x.com'),(2,'pair@x.com');"
     },
     {
-      "name": "Exactly one email appears twice",
-      "seedSql": "INSERT INTO Person VALUES (1,'p@q.com'),(2,'r@s.com'),(3,'t@u.com'),(4,'r@s.com');"
+      "name": "Two separate duplicate groups",
+      "seedSql": "INSERT INTO Person VALUES (1,'a@x.com'),(2,'b@x.com'),(3,'a@x.com'),(4,'c@x.com'),(5,'b@x.com');"
+    },
+    {
+      "name": "Scattered duplicate — same email at start, middle and end of insert order",
+      "seedSql": "INSERT INTO Person VALUES (1,'scattered@x.com'),(2,'u1@x.com'),(3,'u2@x.com'),(4,'u3@x.com'),(5,'scattered@x.com'),(6,'u4@x.com'),(7,'scattered@x.com');"
+    },
+    {
+      "name": "One email appearing six times, rest unique",
+      "seedSql": "INSERT INTO Person VALUES (1,'freq@x.com'),(2,'freq@x.com'),(3,'freq@x.com'),(4,'freq@x.com'),(5,'freq@x.com'),(6,'freq@x.com'),(7,'unique@x.com');"
+    },
+    {
+      "name": "Leading whitespace makes an email distinct",
+      "seedSql": "INSERT INTO Person VALUES (1,'trim@x.com'),(2,'trim@x.com'),(3,' trim@x.com');"
+    },
+    {
+      "name": "Special characters in local-part — plus, dot, hyphen",
+      "seedSql": "INSERT INTO Person VALUES (1,'user+tag@x.com'),(2,'user.name@x.com'),(3,'user+tag@x.com'),(4,'user-name@x.com'),(5,'user.name@x.com');"
     },
     {
       "name": "Case differences are distinct emails",
-      "seedSql": "INSERT INTO Person VALUES (1,'Bob@x.com'),(2,'bob@x.com'),(3,'BOB@x.com');"
+      "seedSql": "INSERT INTO Person VALUES (1,'Alice@x.com'),(2,'alice@x.com'),(3,'ALICE@x.com');"
     },
     {
-      "name": "Plus-addressing and long domains",
-      "seedSql": "INSERT INTO Person VALUES (1,'user+tag@mail.example.co.uk'),(2,'user@mail.example.co.uk'),(3,'user+tag@mail.example.co.uk');"
+      "name": "Very long email address with long local-part and domain",
+      "seedSql": "INSERT INTO Person VALUES (1,'abcdefghij.klmnopqrst.uvwxyzabcdef@very-long-domain-name.example.com'),(2,'short@x.com'),(3,'abcdefghij.klmnopqrst.uvwxyzabcdef@very-long-domain-name.example.com'),(4,'short@x.com');"
     },
     {
-      "name": "Larger mixed set",
-      "seedSql": "INSERT INTO Person VALUES (1,'a@x.com'),(2,'b@x.com'),(3,'c@x.com'),(4,'a@x.com'),(5,'d@x.com'),(6,'b@x.com'),(7,'e@x.com'),(8,'a@x.com'),(9,'f@x.com'),(10,'g@x.com');"
+      "name": "Stress test with 30 rows and 10 qualifying emails",
+      "seedSql": "INSERT INTO Person VALUES (1,'a@x.com'),(2,'b@x.com'),(3,'c@x.com'),(4,'a@x.com'),(5,'d@x.com'),(6,'b@x.com'),(7,'e@x.com'),(8,'a@x.com'),(9,'f@x.com'),(10,'g@x.com'),(11,'h@x.com'),(12,'c@x.com'),(13,'i@x.com'),(14,'j@x.com'),(15,'d@x.com'),(16,'k@x.com'),(17,'l@x.com'),(18,'e@x.com'),(19,'m@x.com'),(20,'n@x.com'),(21,'o@x.com'),(22,'f@x.com'),(23,'p@x.com'),(24,'q@x.com'),(25,'r@x.com'),(26,'s@x.com'),(27,'g@x.com'),(28,'h@x.com'),(29,'i@x.com'),(30,'j@x.com');"
+    },
+    {
+      "name": "All unique emails except one pair at the very end",
+      "seedSql": "INSERT INTO Person VALUES (1,'a@x.com'),(2,'b@x.com'),(3,'c@x.com'),(4,'d@x.com'),(5,'e@x.com'),(6,'f@x.com'),(7,'g@x.com'),(8,'h@x.com'),(9,'i@x.com'),(10,'last@x.com'),(11,'last@x.com');"
+    },
+    {
+      "name": "Every qualifying email appears exactly twice",
+      "seedSql": "INSERT INTO Person VALUES (1,'pair1@x.com'),(2,'pair2@x.com'),(3,'pair1@x.com'),(4,'pair3@x.com'),(5,'pair2@x.com'),(6,'pair3@x.com');"
     }
   ]
 }

@@ -51,6 +51,30 @@
     {
       "name": "Larger mixed set",
       "seedSql": "INSERT INTO Person VALUES (1,'A','Ann'),(2,'B','Ben'),(3,'C','Cal'),(4,'D','Dee'),(5,'E','Eli'),(6,'F','Fay');\nINSERT INTO Address VALUES (1,1,'Austin','Texas'),(2,3,'Reno','Nevada'),(3,4,'Tulsa','Oklahoma'),(4,6,'Boise','Idaho');"
+    },
+    {
+      "name": "Three addresses for one person",
+      "seedSql": "INSERT INTO Person VALUES (1,'Park','Lynn');\nINSERT INTO Address VALUES (1,1,'Seoul','Seoul'),(2,1,'Busan','Busan'),(3,1,'Jeju','Jeju');"
+    },
+    {
+      "name": "No address rows match any person",
+      "seedSql": "INSERT INTO Person VALUES (1,'One','Uno'),(2,'Two','Dos'),(3,'Three','Tres');\nINSERT INTO Address VALUES (10,99,'Nowhere','Null'),(11,98,'Void','Empty');"
+    },
+    {
+      "name": "Address table contains duplicate rows",
+      "seedSql": "INSERT INTO Person VALUES (1,'Ray','Sat');\nINSERT INTO Address VALUES (1,1,'Delhi','Delhi'),(2,1,'Delhi','Delhi');"
+    },
+    {
+      "name": "Empty string city is not NULL",
+      "seedSql": "INSERT INTO Person VALUES (1,'Khan','Ali'),(2,'Li','Wei');\nINSERT INTO Address VALUES (1,1,'',''),(2,2,'Shanghai','Shanghai');"
+    },
+    {
+      "name": "Stress test with 25 persons, mixed addresses",
+      "seedSql": "INSERT INTO Person VALUES (1,'A','U'),(2,'B','U'),(3,'C','U'),(4,'D','U'),(5,'E','U'),(6,'F','U'),(7,'G','U'),(8,'H','U'),(9,'I','U'),(10,'J','U'),(11,'K','U'),(12,'L','U'),(13,'M','U'),(14,'N','U'),(15,'O','U'),(16,'P','U'),(17,'Q','U'),(18,'R','U'),(19,'S','U'),(20,'T','U'),(21,'U','U'),(22,'V','U'),(23,'W','U'),(24,'X','U'),(25,'Y','U');\nINSERT INTO Address VALUES (1,1,'City1','S1'),(2,2,'City2','S2'),(3,4,'City4','S4'),(4,6,'City6','S6'),(5,8,'City8','S8'),(6,10,'City10','SA'),(7,12,'City12','SB'),(8,14,'City14','SC'),(9,16,'City16','SD'),(10,18,'City18','SE'),(11,20,'City20','SF'),(12,22,'City22','SG'),(13,24,'City24','SH');"
+    },
+    {
+      "name": "All have addresses, some have multiple",
+      "seedSql": "INSERT INTO Person VALUES (1,'Singh','Raj'),(2,'Chen','Yun'),(3,'Ivanov','Alex');\nINSERT INTO Address VALUES (1,1,'Mumbai','Maharashtra'),(2,2,'Beijing','Beijing'),(3,3,'Moscow','Russia'),(4,3,'Kazan','Tatarstan');"
     }
   ]
 }
