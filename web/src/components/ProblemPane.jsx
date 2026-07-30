@@ -3,7 +3,7 @@ import Markdownish from './Markdownish.jsx';
 import ResultsTable from './ResultsTable.jsx';
 import CaseDetail from './CaseDetail.jsx';
 
-const TABS = ['Description', 'Test Cases', 'Past Submissions', 'Hint', 'Solution'];
+const TABS = ['Description', 'Past Submissions', 'Hint', 'Solution'];
 
 export default function ProblemPane({
   problem,
@@ -18,20 +18,11 @@ export default function ProblemPane({
   status,
   savedCode,
   savedSolution,
-  savedHint,
   savedOutputExplanation,
   submissions,
   onLoadSubmission,
 }) {
   const [tab, setTab] = useState('Description');
-
-  useEffect(() => setTab('Description'), [problem.id]);
-
-  // Jump to the Test Cases tab automatically whenever a case gets selected —
-  // i.e. right after Submit picks the first failure, or a pill is clicked.
-  useEffect(() => {
-    if (selectedCase != null) setTab('Test Cases');
-  }, [selectedCase]);
 
   // Only failing cases are worth looking at once you've passed the rest —
   // a re-run via "Run again" can flip a case's pass state without a fresh
@@ -39,6 +30,20 @@ export default function ProblemPane({
   const failingCases = verdict?.cases
     ?.map((c, i) => ({ ...c, i, pass: caseRun?.[i]?.pass ?? c.pass }))
     .filter((c) => !c.pass) ?? [];
+
+  useEffect(() => setTab('Description'), [problem.id]);
+
+  // Jump to the Test Cases tab automatically whenever a case gets selected —
+  // i.e. right after Submit picks the first failure, or a pill is clicked.
+  // If no failures, fall back to Description.
+  useEffect(() => {
+    if (selectedCase != null) setTab('Test Cases');
+  }, [selectedCase]);
+  useEffect(() => {
+    if (tab === 'Test Cases' && !failingCases.length) setTab('Description');
+  }, [tab, failingCases.length]);
+
+  const tabs = failingCases.length ? ['Description', 'Test Cases', 'Past Submissions', 'Hint', 'Solution'] : TABS;
 
   const pastSubs = (submissions ?? [])
     .filter((s) => s.problemId === problem.id)
@@ -48,7 +53,7 @@ export default function ProblemPane({
     <section className="problem-pane">
       <nav className="pane-nav">
         <div className="tabs">
-          {TABS.map((t) => (
+          {tabs.map((t) => (
             <button
               key={t}
               className={`tab ${tab === t ? 'active' : ''}`}
@@ -120,71 +125,68 @@ export default function ProblemPane({
             </div>
           )}
 
-          {tab === 'Past Submissions' && (
-            <div className="prose">
-              {pastSubs.length === 0 ? (
-                <p className="muted">No past submissions for this problem.</p>
-              ) : (
-                <div className="past-subs">
-                  {pastSubs.map((s) => (
-                    <button
-                      key={s.id ?? s.submittedAt}
-                      className="past-sub-row"
-                      onClick={() => onLoadSubmission(s)}
-                    >
-                      <span className="past-sub-date">
-                        {new Date(s.submittedAt).toLocaleDateString()}
-                        <span className="muted">
-                          {' '}{new Date(s.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </span>
-                      <span className={`past-sub-status ${s.status === 'solved' ? 'solved' : 'attempted'}`}>
-                        {s.status === 'solved' ? 'Solved' : 'Attempted'}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {tab === 'Hint' && (
-            <div className="prose">
-              {status === 'solved' ? (
-                savedHint ? (
-                  <p className="hint">{savedHint}</p>
-                ) : (
-                  <p className="muted">No hint for this one — you're on your own.</p>
-                )
-              ) : (
-                <p className="muted">Solve this problem to unlock the hint.</p>
-              )}
-            </div>
-          )}
-
-          {tab === 'Solution' && (
-            <div className="prose">
-              {status === 'solved' ? (
-                <>
-                  {savedCode && (
-                    <>
-                      <p className="muted note">Your accepted solution:</p>
-                      <pre className="solution">{savedCode}</pre>
-                    </>
-                  )}
-                  {savedSolution && (
-                    <details style={{ marginTop: 12 }} open={!savedCode}>
-                      <summary className="muted" style={{ cursor: 'pointer', fontSize: 12 }}>Reference answer</summary>
-                      <pre className="solution" style={{ marginTop: 8 }}>{savedSolution}</pre>
-                    </details>
-                  )}
-                </>
-              ) : (
-                <p className="muted">Solve this problem to unlock the solution.</p>
-              )}
-            </div>
-          )}
         </div>
+
+        {tab === 'Past Submissions' && (
+          <div className="pane-body-scroll">
+            {pastSubs.length === 0 ? (
+              <p className="muted">No past submissions for this problem.</p>
+            ) : (
+              <div className="past-subs">
+                {pastSubs.map((s) => (
+                  <button
+                    key={s.id ?? s.submittedAt}
+                    className="past-sub-row"
+                    onClick={() => onLoadSubmission(s)}
+                  >
+                    <span className="past-sub-date">
+                      {new Date(s.submittedAt).toLocaleDateString()}
+                      <span className="muted">
+                        {' '}{new Date(s.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </span>
+                    <span className={`past-sub-status ${s.status === 'solved' ? 'solved' : 'attempted'}`}>
+                      {s.status === 'solved' ? 'Solved' : 'Attempted'}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === 'Hint' && (
+          <div className="prose">
+            {problem.hint ? (
+              <p className="hint">{problem.hint}</p>
+            ) : (
+              <p className="muted">No hint for this one — you're on your own.</p>
+            )}
+          </div>
+        )}
+
+        {tab === 'Solution' && (
+          <div className="prose">
+            {status === 'solved' ? (
+              <>
+                {savedCode && (
+                  <>
+                    <p className="muted note">Your accepted solution:</p>
+                    <pre className="solution">{savedCode}</pre>
+                  </>
+                )}
+                {savedSolution && (
+                  <details style={{ marginTop: 12 }} open={!savedCode}>
+                    <summary className="muted" style={{ cursor: 'pointer', fontSize: 12 }}>Reference answer</summary>
+                    <pre className="solution" style={{ marginTop: 8 }}>{savedSolution}</pre>
+                  </details>
+                )}
+              </>
+            ) : (
+              <p className="muted">Solve this problem to unlock the solution.</p>
+            )}
+          </div>
+        )}
 
         {tab === 'Description' && (
           <div className="pane-body-scroll">

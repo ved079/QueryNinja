@@ -48,6 +48,9 @@ export default function App() {
   const codeRef = useRef(code);
   codeRef.current = code;
   const namePromptedRef = useRef(false);
+  // Caches solutionSql/hint/outputExplanation per problem (fetched separately
+  // so the public /api/problems list never leaks them).
+  const solutionsCache = useRef({});
 
   const handleCodeChange = useCallback((val) => {
     setCode(val);
@@ -59,6 +62,18 @@ export default function App() {
 
   const problem = problems.find((p) => p.id === selectedId) ?? null;
   const streak = useMemo(() => computeCurrentStreak(submissions), [submissions]);
+
+  // Fetch solution data for the current problem (needed for client-side grading).
+  // Populates solutionsCache so the setup effect and gradeAll can access it.
+  useEffect(() => {
+    if (!selectedId) return;
+    fetch(`/api/problem/${encodeURIComponent(selectedId)}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data) solutionsCache.current[data.id] = data;
+      })
+      .catch(() => {});
+  }, [selectedId]);
 
   // The original 90 are numbers 1-90; anything added since is "complex."
   const visibleProblems = problems.filter((p) =>
@@ -173,11 +188,25 @@ export default function App() {
 
         // Sample output shown with the problem: derived from the reference
         // solution rather than stored, so the two can never disagree.
-        const refDb = await createDb(problem);
-        try {
-          setExpected(exec(refDb, problem.solutionSql));
-        } finally {
-          refDb.close();
+        // The solution is fetched separately from /api/problem/:id since the
+        // public list strips it; if it hasn't arrived yet, wait for it here.
+        let solutionSql = solutionsCache.current[problem.id]?.solutionSql;
+        if (!solutionSql) {
+          try {
+            const data = await fetch(`/api/problem/${encodeURIComponent(problem.id)}`).then((r) => r.json());
+            solutionsCache.current[problem.id] = data;
+            solutionSql = data.solutionSql;
+          } catch {
+            // fall through — expected will remain null
+          }
+        }
+        if (solutionSql) {
+          const refDb = await createDb(problem);
+          try {
+            setExpected(exec(refDb, solutionSql));
+          } finally {
+            refDb.close();
+          }
         }
       } catch (err) {
         setLoadError(`Failed to set up "${problem.title}": ${err.message}`);
@@ -231,14 +260,23 @@ export default function App() {
    * expected and actual output are kept (not just the first failure) so any
    * pill in the verdict can be clicked to inspect that case.
    */
+  const ensureSolution = useCallback(async (id) => {
+    if (solutionsCache.current[id]?.solutionSql) return;
+    try {
+      const data = await fetch(`/api/problem/${encodeURIComponent(id)}`).then((r) => r.json());
+      solutionsCache.current[id] = data;
+    } catch { /* leave cache as-is */ }
+  }, []);
+
   const submit = useCallback(async () => {
     if (!problem) return;
+    await ensureSolution(problem.id);
     const sqlText = codeRef.current;
     setVerdict({ pending: true });
     setSelectedCase(null);
     setCaseRun({});
     try {
-      const report = await gradeAll(problem, sqlText);
+      const report = await gradeAll({ ...problem, ...solutionsCache.current[problem.id] }, sqlText);
       const pass = report.passed === report.total;
 
       setVerdict({
@@ -278,6 +316,7 @@ export default function App() {
 
   const runCase = useCallback(async (index) => {
     if (!problem) return;
+    await ensureSolution(problem.id);
     const sqlText = codeRef.current;
     const test = testsOf(problem)[index];
     const db = await createDb(problem, test);
@@ -286,7 +325,7 @@ export default function App() {
       const refDb = await createDb(problem, test);
       let expected;
       try {
-        expected = exec(refDb, problem.solutionSql);
+        expected = exec(refDb, solutionsCache.current[problem.id]?.solutionSql ?? problem.solutionSql);
       } finally {
         refDb.close();
       }
@@ -349,7 +388,6 @@ export default function App() {
               status={progress[problem.id]?.status}
               savedCode={progress[problem.id]?.code}
               savedSolution={progress[problem.id]?.solutionSql}
-              savedHint={progress[problem.id]?.hint}
               savedOutputExplanation={progress[problem.id]?.outputExplanation}
               submissions={submissions}
               onLoadSubmission={loadSubmission}

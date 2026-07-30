@@ -712,7 +712,6 @@ button.link {
 }
 .workspace > div:first-child {
   display: flex;
-  overflow: hidden;
 }
 .splitter-vert {
   flex: none;
@@ -1063,10 +1062,18 @@ button.link {
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 0 12px;
+  padding: 0 0 0 12px;
   border-bottom: 1px solid var(--border);
   background: var(--panel);
   flex: none;
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+.pane-nav::-webkit-scrollbar {
+  display: none;
 }
 .tabs {
   display: flex;
@@ -1143,6 +1150,7 @@ button.link {
 .pane-body-top {
   flex: none;
 }
+.pane-body-top > .prose,
 .pane-body-scroll {
   overflow-y: auto;
   flex: 1;
@@ -1174,20 +1182,21 @@ button.link {
 .pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 8px;
+  gap: 3px;
+  margin-top: 6px;
 }
 .pill {
-  min-width: 22px;
+  min-width: 18px;
   text-align: center;
-  font-size: 11px;
-  padding: 2px 5px;
-  border-radius: 4px;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
   background: var(--panel-2);
   color: var(--muted);
   cursor: pointer;
   border: 1px solid transparent;
   font: inherit;
+  line-height: 1.3;
 }
 .pill:hover {
   filter: brightness(1.2);
@@ -1320,7 +1329,8 @@ button.link {
   flex-direction: column;
   min-height: 0;
   min-width: 0;
-  overflow: hidden;
+  width: 100%;
+  height: 100%;
 }
 .problem-head h2 {
   margin: 0 0 8px;

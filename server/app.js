@@ -23,13 +23,27 @@ app.use(cors());
 app.use(express.json());
 
 // Problems are re-read on every request so you can add/edit JSON files
-// without restarting the server. Never expose solution/hint/outputExplanation
+// without restarting the server. Never expose solutionSql/outputExplanation
 // publicly — those are only sent on solve or via the progress endpoint.
 app.get('/api/problems', async (_req, res) => {
   try {
     const all = await loadProblems();
-    const sanitized = all.map(({ solutionSql, hint, outputExplanation, ...rest }) => rest);
+    const sanitized = all.map(({ solutionSql, outputExplanation, ...rest }) => rest);
     res.json(sanitized);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Returns the full problem (including solutionSql) for a single problem.
+// Needed by the client for client-side grading (sql.js WASM) and expected
+// output computation. The bulk /api/problems endpoint never leaks these.
+app.get('/api/problem/:id', async (req, res) => {
+  try {
+    const all = await loadProblems();
+    const problem = all.find((p) => p.id === req.params.id);
+    if (!problem) return res.status(404).json({ error: 'Problem not found' });
+    res.json(problem);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
