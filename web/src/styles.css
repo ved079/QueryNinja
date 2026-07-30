@@ -1158,14 +1158,15 @@ button.link {
   overflow: hidden;
 }
 .pane-body-scroll {
-  overflow-y: auto;
+  overflow: auto;
   flex: 1;
   min-height: 0;
   min-width: 0;
-  border: 2px solid var(--border);
+  background: var(--panel);
+  border: 1px solid var(--edge);
   border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 0 16px rgba(76, 141, 255, 0.12);
+  box-shadow: var(--panel-shadow);
+  padding: 0.4rem 1.25rem 1.25rem;
 }
 /* ---------- scrolling stays, the bar itself doesn't render ---------- */
 .pane-body-scroll,
