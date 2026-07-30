@@ -23,6 +23,7 @@ export default function ProblemPane({
   onLoadSubmission,
 }) {
   const [tab, setTab] = useState('Description');
+  const [bodySplit, setBodySplit] = useState(40);
 
   // Only failing cases are worth looking at once you've passed the rest —
   // a re-run via "Run again" can flip a case's pass state without a fresh
@@ -66,188 +67,232 @@ export default function ProblemPane({
       </nav>
 
       <div className="pane-body">
-        <div className="pane-body-top">
-          <div className="problem-head">
-            <h2>
-              {problem.number}. {problem.title}
-            </h2>
-            <div className="badges">
-              <span className={`difficulty ${problem.difficulty.toLowerCase()}`}>
-                {problem.difficulty}
-              </span>
-              {status === 'solved' && <span className="badge solved">Solved</span>}
-              {status === 'attempted' && <span className="badge attempted">Attempted</span>}
-              {(problem.tags ?? []).map((t) => (
-                <span key={t} className="badge">
-                  {t}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {tab === 'Description' && (
-            <div className="prose">
-              <Markdownish text={problem.description} />
-            </div>
-          )}
-
-          {tab === 'Test Cases' && verdict?.cases && (
-            failingCases.length ? (
-              <div className="pills">
-                {failingCases.map((c) => (
-                  <button
-                    key={c.i}
-                    className={`pill bad ${selectedCase === c.i ? 'selected' : ''}`}
-                    title={`Case ${c.i + 1} — ${c.name}`}
-                    onClick={() => onSelectCase(selectedCase === c.i ? null : c.i)}
-                  >
-                    {c.i + 1}
-                  </button>
-                ))}
+        <div className="pane-body-top" style={{ flex: bodySplit }}>
+          {tab !== 'Description' && tab !== 'Test Cases' && tab !== 'Past Submissions' && (
+              <div className="problem-head">
+                <h2>
+                  {problem.number}. {problem.title}
+                </h2>
+                <div className="badges">
+                  <span className={`difficulty ${problem.difficulty.toLowerCase()}`}>
+                    {problem.difficulty}
+                  </span>
+                  {status === 'solved' && <span className="badge solved">Solved</span>}
+                  {status === 'attempted' && <span className="badge attempted">Attempted</span>}
+                  {(problem.tags ?? []).map((t) => (
+                    <span key={t} className="badge">
+                      {t}
+                    </span>
+                  ))}
+                </div>
               </div>
-            ) : (
-              <p className="muted note">All {verdict.cases.length} test cases passed.</p>
-            )
-          )}
+            )}
 
-          {tab === 'Test Cases' && !verdict?.cases && (
-            <div className="pills">
-              {tests.map((t, i) => (
-                <button
-                  key={i}
-                  className={`pill ${selectedCase === i ? 'selected' : ''}`}
-                  title={`Case ${i + 1} — ${t.name}`}
-                  onClick={() => onSelectCase(selectedCase === i ? null : i)}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
-          )}
-
-        </div>
-
-        {tab === 'Past Submissions' && (
-          <div className="pane-body-scroll">
-            {pastSubs.length === 0 ? (
-              <p className="muted">No past submissions for this problem.</p>
-            ) : (
-              <div className="past-subs">
-                {pastSubs.map((s) => (
-                  <button
-                    key={s.id ?? s.submittedAt}
-                    className="past-sub-row"
-                    onClick={() => onLoadSubmission(s)}
-                  >
-                    <span className="past-sub-date">
-                      {new Date(s.submittedAt).toLocaleDateString()}
-                      <span className="muted">
-                        {' '}{new Date(s.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            {tab === 'Description' && (
+              <>
+                <div className="problem-head">
+                  <h2>
+                    {problem.number}. {problem.title}
+                  </h2>
+                  <div className="badges">
+                    <span className={`difficulty ${problem.difficulty.toLowerCase()}`}>
+                      {problem.difficulty}
+                    </span>
+                    {status === 'solved' && <span className="badge solved">Solved</span>}
+                    {status === 'attempted' && <span className="badge attempted">Attempted</span>}
+                    {(problem.tags ?? []).map((t) => (
+                      <span key={t} className="badge">
+                        {t}
                       </span>
-                    </span>
-                    <span className={`past-sub-status ${s.status === 'solved' ? 'solved' : 'attempted'}`}>
-                      {s.status === 'solved' ? 'Solved' : 'Attempted'}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {tab === 'Hint' && (
-          <div className="prose">
-            {problem.hint ? (
-              <p className="hint">{problem.hint}</p>
-            ) : (
-              <p className="muted">No hint for this one — you're on your own.</p>
-            )}
-          </div>
-        )}
-
-        {tab === 'Solution' && (
-          <div className="prose">
-            {status === 'solved' ? (
-              <>
-                {savedCode && (
-                  <>
-                    <p className="muted note">Your accepted solution:</p>
-                    <pre className="solution">{savedCode}</pre>
-                  </>
-                )}
-                {savedSolution && (
-                  <details style={{ marginTop: 12 }} open={!savedCode}>
-                    <summary className="muted" style={{ cursor: 'pointer', fontSize: 12 }}>Reference answer</summary>
-                    <pre className="solution" style={{ marginTop: 8 }}>{savedSolution}</pre>
-                  </details>
-                )}
-              </>
-            ) : (
-              <p className="muted">Solve this problem to unlock the solution.</p>
-            )}
-          </div>
-        )}
-
-        {tab === 'Description' && (
-          <div className="pane-body-scroll">
-            <h3>Example input</h3>
-            {tables.map((t) => (
-              <div key={t.name} className="table-block">
-                <h4>{t.name}</h4>
-                <ResultsTable result={t} empty="(empty table)" />
-              </div>
-            ))}
-
-            <h3>Expected output</h3>
-            {expected ? (
-              <>
-                <ResultsTable result={expected} empty="(no rows)" />
-                <p className="muted note">
-                  {expected.rows.length} row{expected.rows.length === 1 ? '' : 's'}
-                  {problem.orderMatters ? ' — order matters' : ' — any row order accepted'}
-                </p>
-              </>
-            ) : (
-              <p className="muted">Computing…</p>
-            )}
-
-            {status === 'solved' && savedOutputExplanation ? (
-              <>
-                <h3>Why the output looks like this</h3>
+                    ))}
+                  </div>
+                </div>
                 <div className="prose">
-                  <Markdownish text={savedOutputExplanation} />
+                  <Markdownish text={problem.description} />
                 </div>
               </>
-            ) : (
-              <p className="muted note">
-                Submit runs your query against <strong>{tests.length} test cases</strong> — this
-                example plus hidden ones covering empty tables, ties, duplicates and NULLs.
-              </p>
+            )}
+
+            {tab === 'Test Cases' && verdict?.cases && (
+              failingCases.length ? (
+                <div className="pills">
+                  {failingCases.map((c) => (
+                    <button
+                      key={c.i}
+                      className={`pill bad ${selectedCase === c.i ? 'selected' : ''}`}
+                      title={`Case ${c.i + 1} — ${c.name}`}
+                      onClick={() => onSelectCase(selectedCase === c.i ? null : c.i)}
+                    >
+                      {c.i + 1}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="muted note">All {verdict.cases.length} test cases passed.</p>
+              )
+            )}
+
+            {tab === 'Test Cases' && !verdict?.cases && (
+              <div className="pills">
+                {tests.map((t, i) => (
+                  <button
+                    key={i}
+                    className={`pill ${selectedCase === i ? 'selected' : ''}`}
+                    title={`Case ${i + 1} — ${t.name}`}
+                    onClick={() => onSelectCase(selectedCase === i ? null : i)}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {tab === 'Hint' && (
+              <div className="prose">
+                {problem.hint ? (
+                  <p className="hint">{problem.hint}</p>
+                ) : (
+                  <p className="muted">No hint for this one — you're on your own.</p>
+                )}
+              </div>
+            )}
+
+            {tab === 'Solution' && (
+              <div className="prose">
+                {status === 'solved' ? (
+                  <>
+                    {savedCode && (
+                      <>
+                        <p className="muted note">Your accepted solution:</p>
+                        <pre className="solution">{savedCode}</pre>
+                      </>
+                    )}
+                    {savedSolution && (
+                      <details style={{ marginTop: 12 }} open={!savedCode}>
+                        <summary className="muted" style={{ cursor: 'pointer', fontSize: 12 }}>Reference answer</summary>
+                        <pre className="solution" style={{ marginTop: 8 }}>{savedSolution}</pre>
+                      </details>
+                    )}
+                  </>
+                ) : (
+                  <p className="muted">Solve this problem to unlock the solution.</p>
+                )}
+              </div>
             )}
           </div>
-        )}
 
-        {tab === 'Test Cases' && (
-          <div className="pane-body-scroll">
-            {!verdict?.cases ? (
-              <p className="muted">
-                {selectedCase != null
-                  ? 'Submit your query first to see this test case’s result.'
-                  : 'Submit your query first to see test case results here.'}
-              </p>
-            ) : selectedCase != null ? (
-              <CaseDetail
-                index={selectedCase}
-                case={caseRun?.[selectedCase] ?? verdict.cases[selectedCase]}
-                onRunCase={onRunCase}
-                isRunResult={selectedCase in (caseRun ?? {})}
-                orderMatters={problem.orderMatters}
-              />
-            ) : failingCases.length ? (
-              <p className="muted">Click a numbered case above to inspect it.</p>
-            ) : null}
-          </div>
-        )}
+        <div
+          className="splitter"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            const pane = e.currentTarget.parentElement;
+            const totalH = pane.offsetHeight - pane.querySelector('.splitter').offsetHeight;
+            const startY = e.clientY;
+            const startPct = bodySplit;
+            const onMove = (me) => {
+              const dy = me.clientY - startY;
+              const pct = startPct + (dy / totalH) * 100;
+              setBodySplit(Math.min(90, Math.max(10, pct)));
+            };
+            const onUp = () => {
+              document.removeEventListener('mousemove', onMove);
+              document.removeEventListener('mouseup', onUp);
+            };
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+          }}
+        />
+
+        <div className="pane-body-bottom" style={{ flex: 100 - bodySplit }}>
+          {tab === 'Description' && (
+            <div className="pane-body-scroll">
+              <h3>Example input</h3>
+              {tables.map((t) => (
+                <div key={t.name} className="table-block">
+                  <h4>{t.name}</h4>
+                  <ResultsTable result={t} empty="(empty table)" />
+                </div>
+              ))}
+
+              <h3>Expected output</h3>
+              {expected ? (
+                <>
+                  <ResultsTable result={expected} empty="(no rows)" />
+                  <p className="muted note">
+                    {expected.rows.length} row{expected.rows.length === 1 ? '' : 's'}
+                    {problem.orderMatters ? ' — order matters' : ' — any row order accepted'}
+                  </p>
+                </>
+              ) : (
+                <p className="muted">Computing…</p>
+              )}
+
+              {status === 'solved' && savedOutputExplanation ? (
+                <>
+                  <h3>Why the output looks like this</h3>
+                  <div className="prose">
+                    <Markdownish text={savedOutputExplanation} />
+                  </div>
+                </>
+              ) : (
+                <p className="muted note">
+                  Submit runs your query against <strong>{tests.length} test cases</strong> — this
+                  example plus hidden ones covering empty tables, ties, duplicates and NULLs.
+                </p>
+              )}
+            </div>
+          )}
+
+          {tab === 'Past Submissions' && (
+            <div className="pane-body-scroll" style={{ flex: 'none' }}>
+              {pastSubs.length === 0 ? (
+                <p className="muted">No past submissions for this problem.</p>
+              ) : (
+                <div className="past-subs">
+                  {pastSubs.map((s) => (
+                    <button
+                      key={s.id ?? s.submittedAt}
+                      className="past-sub-row"
+                      onClick={() => onLoadSubmission(s)}
+                    >
+                      <span className="past-sub-date">
+                        {new Date(s.submittedAt).toLocaleDateString()}
+                        <span className="muted">
+                          {' '}{new Date(s.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </span>
+                      <span className={`past-sub-status ${s.status === 'solved' ? 'solved' : 'attempted'}`}>
+                        {s.status === 'solved' ? 'Solved' : 'Attempted'}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {tab === 'Test Cases' && (
+            <div className="pane-body-scroll">
+              {!verdict?.cases ? (
+                <p className="muted">
+                  {selectedCase != null
+                    ? 'Submit your query first to see this test case’s result.'
+                    : 'Submit your query first to see test case results here.'}
+                </p>
+              ) : selectedCase != null ? (
+                <CaseDetail
+                  index={selectedCase}
+                  case={caseRun?.[selectedCase] ?? verdict.cases[selectedCase]}
+                  onRunCase={onRunCase}
+                  isRunResult={selectedCase in (caseRun ?? {})}
+                  orderMatters={problem.orderMatters}
+                />
+              ) : failingCases.length ? (
+                <p className="muted">Click a numbered case above to inspect it.</p>
+              ) : null}
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
