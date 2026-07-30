@@ -17,6 +17,9 @@ export default function ProblemPane({
   onRunCase,
   status,
   savedCode,
+  savedSolution,
+  savedHint,
+  savedOutputExplanation,
   submissions,
   onLoadSubmission,
 }) {
@@ -147,30 +150,37 @@ export default function ProblemPane({
 
           {tab === 'Hint' && (
             <div className="prose">
-              {problem.hint ? (
-                <p className="hint">{problem.hint}</p>
+              {status === 'solved' ? (
+                savedHint ? (
+                  <p className="hint">{savedHint}</p>
+                ) : (
+                  <p className="muted">No hint for this one — you're on your own.</p>
+                )
               ) : (
-                <p className="muted">No hint for this one — you're on your own.</p>
+                <p className="muted">Solve this problem to unlock the hint.</p>
               )}
             </div>
           )}
 
           {tab === 'Solution' && (
             <div className="prose">
-              {savedCode ? (
+              {status === 'solved' ? (
                 <>
-                  <p className="muted note">Your accepted solution:</p>
-                  <pre className="solution">{savedCode}</pre>
-                  <details style={{ marginTop: 12 }}>
-                    <summary className="muted" style={{ cursor: 'pointer', fontSize: 12 }}>Reference answer</summary>
-                    <pre className="solution" style={{ marginTop: 8 }}>{problem.solutionSql}</pre>
-                  </details>
+                  {savedCode && (
+                    <>
+                      <p className="muted note">Your accepted solution:</p>
+                      <pre className="solution">{savedCode}</pre>
+                    </>
+                  )}
+                  {savedSolution && (
+                    <details style={{ marginTop: 12 }} open={!savedCode}>
+                      <summary className="muted" style={{ cursor: 'pointer', fontSize: 12 }}>Reference answer</summary>
+                      <pre className="solution" style={{ marginTop: 8 }}>{savedSolution}</pre>
+                    </details>
+                  )}
                 </>
               ) : (
-                <>
-                  <p className="muted note">One accepted answer — not the only one.</p>
-                  <pre className="solution">{problem.solutionSql}</pre>
-                </>
+                <p className="muted">Solve this problem to unlock the solution.</p>
               )}
             </div>
           )}
@@ -199,11 +209,11 @@ export default function ProblemPane({
               <p className="muted">Computing…</p>
             )}
 
-            {problem.outputExplanation ? (
+            {status === 'solved' && savedOutputExplanation ? (
               <>
                 <h3>Why the output looks like this</h3>
                 <div className="prose">
-                  <Markdownish text={problem.outputExplanation} />
+                  <Markdownish text={savedOutputExplanation} />
                 </div>
               </>
             ) : (

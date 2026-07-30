@@ -348,6 +348,9 @@ export default function App() {
               onRunCase={runCase}
               status={progress[problem.id]?.status}
               savedCode={progress[problem.id]?.code}
+              savedSolution={progress[problem.id]?.solutionSql}
+              savedHint={progress[problem.id]?.hint}
+              savedOutputExplanation={progress[problem.id]?.outputExplanation}
               submissions={submissions}
               onLoadSubmission={loadSubmission}
             />
@@ -518,11 +521,11 @@ export default function App() {
                 <div className="output-preview">
                   <h4>Expected output</h4>
                   <ResultsTable result={expected} empty="(no rows)" />
-                  {problem?.outputExplanation && (
+                  {progress[problem.id]?.status === 'solved' && progress[problem.id]?.outputExplanation && (
                     <>
                       <h4>Why the output looks like this</h4>
                       <div className="prose">
-                        <Markdownish text={problem.outputExplanation} />
+                        <Markdownish text={progress[problem.id].outputExplanation} />
                       </div>
                     </>
                   )}

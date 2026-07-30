@@ -23,10 +23,13 @@ app.use(cors());
 app.use(express.json());
 
 // Problems are re-read on every request so you can add/edit JSON files
-// without restarting the server.
+// without restarting the server. Never expose solution/hint/outputExplanation
+// publicly — those are only sent on solve or via the progress endpoint.
 app.get('/api/problems', async (_req, res) => {
   try {
-    res.json(await loadProblems());
+    const all = await loadProblems();
+    const sanitized = all.map(({ solutionSql, hint, outputExplanation, ...rest }) => rest);
+    res.json(sanitized);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -120,8 +123,31 @@ app.post('/api/auth/verify-otp', async (req, res) => {
   res.json({ username: record.username });
 });
 
+// Writes solution/hint/outputExplanation into solved progress entries so the
+// client can show them without exposing them in the public problems list.
+async function attachSolutions(progress) {
+  const solvedIds = Object.entries(progress)
+    .filter(([, v]) => v?.status === 'solved')
+    .map(([id]) => id);
+  if (!solvedIds.length) return progress;
+  const all = await loadProblems();
+  const byId = Object.fromEntries(all.map((p) => [p.id, p]));
+  for (const id of solvedIds) {
+    const p = byId[id];
+    if (!p) continue;
+    progress[id] = {
+      ...progress[id],
+      solutionSql: p.solutionSql,
+      hint: p.hint,
+      outputExplanation: p.outputExplanation,
+    };
+  }
+  return progress;
+}
+
 app.get('/api/progress', async (req, res) => {
-  res.json(await store.readUserBucket('progress', req.query.user));
+  const progress = await store.readUserBucket('progress', req.query.user);
+  res.json(await attachSolutions(progress));
 });
 
 // Body: { user, id, status: "solved" | "attempted", code }
@@ -140,7 +166,7 @@ app.post('/api/progress', async (req, res) => {
     updatedAt: new Date().toISOString(),
   };
   await store.writeUserBucket('progress', user, progress);
-  res.json(progress[id]);
+  res.json(await attachSolutions({ [id]: progress[id] }).then((m) => m[id]));
 });
 
 app.delete('/api/progress/:id', async (req, res) => {
