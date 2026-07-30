@@ -44,6 +44,7 @@ export default function TopBar({
   return (
     <header className="top-bar">
       <div className="top-bar-left">
+        <img src="/logo.png" alt="QueryNinja" className="top-logo" />
         <button className="sidebar-show" onClick={onShowSidebar} title="Show problem list">
           Problem List
         </button>

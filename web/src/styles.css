@@ -86,6 +86,11 @@ button.link {
   align-items: center;
   gap: 6px;
 }
+.top-logo {
+  height: 22px;
+  width: auto;
+  margin-right: 4px;
+}
 .top-bar-center {
   grid-column: 2;
   justify-self: center;
@@ -839,6 +844,7 @@ button.link {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   margin-bottom: 20px;
 }
 .fs-list-head-top h1 {
