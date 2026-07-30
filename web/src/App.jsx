@@ -230,6 +230,26 @@ export default function App() {
     setProgress((prev) => ({ ...prev, [id]: saved }));
   }, [userName]);
 
+  const handleToggleStar = useCallback(async (id) => {
+    const current = progress[id]?.starred ?? false;
+    // Optimistic update — flip immediately, no flash.
+    setProgress((prev) => ({ ...prev, [id]: { ...prev[id], starred: !current } }));
+    try {
+      const res = await fetch('/api/progress/star', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user: userName, id, starred: !current }),
+      });
+      if (res.ok) {
+        const saved = await res.json();
+        setProgress((prev) => ({ ...prev, [id]: { ...prev[id], ...saved } }));
+      }
+    } catch {
+      // Revert on network error.
+      setProgress((prev) => ({ ...prev, [id]: { ...prev[id], starred: current } }));
+    }
+  }, [userName, progress]);
+
   /** Run the query for its output only — no grading. */
   const run = useCallback(() => {
     if (!problem || !dbRef.current) return;
@@ -386,11 +406,13 @@ export default function App() {
               onSelectCase={setSelectedCase}
               onRunCase={runCase}
               status={progress[problem.id]?.status}
+              starred={progress[problem.id]?.starred ?? false}
               savedCode={progress[problem.id]?.code}
               savedSolution={progress[problem.id]?.solutionSql}
               savedOutputExplanation={progress[problem.id]?.outputExplanation}
               submissions={submissions}
               onLoadSubmission={loadSubmission}
+              onToggleStar={handleToggleStar}
             />
           </div>
         )}
@@ -632,6 +654,7 @@ export default function App() {
             selectedId={selectedId}
             onSelect={(id) => { setSelectedId(id); setSidebarOpen(false); }}
             onHide={() => setSidebarOpen(false)}
+            onToggleStar={handleToggleStar}
           />
         </div>
       )}

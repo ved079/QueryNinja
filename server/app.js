@@ -190,6 +190,16 @@ app.delete('/api/progress/:id', async (req, res) => {
   res.json({ ok: true });
 });
 
+app.post('/api/progress/star', async (req, res) => {
+  const { user, id, starred } = req.body ?? {};
+  if (!id) return res.status(400).json({ error: 'id is required' });
+  const progress = await store.readUserBucket('progress', user);
+  const prev = progress[id] ?? {};
+  progress[id] = { ...prev, starred: !!starred, updatedAt: new Date().toISOString() };
+  await store.writeUserBucket('progress', user, progress);
+  res.json(progress[id]);
+});
+
 app.get('/api/submissions', async (req, res) => {
   let subs = await store.readUserBucket('submissions', req.query.user);
   // Migrate legacy flat-object format to array of entries.
