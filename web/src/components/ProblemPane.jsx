@@ -71,7 +71,7 @@ export default function ProblemPane({
       </nav>
 
       <div className="pane-body">
-        <div className="pane-body-top" style={{ flex: tab === 'Past Submissions' ? 0 : hasBottom ? bodySplit : 100 }}>
+        <div className="pane-body-top" style={{ flex: tab === 'Past Submissions' ? 0 : tab === 'Test Cases' ? '0 0 auto' : hasBottom ? bodySplit : 100 }}>
           {tab !== 'Description' && tab !== 'Test Cases' && tab !== 'Past Submissions' && (
               <div className="problem-head">
                 <h2>
@@ -203,7 +203,7 @@ export default function ProblemPane({
             )}
           </div>
 
-        {(tab === 'Description' || tab === 'Test Cases') && (
+        {(tab === 'Description') && (
         <div
           className="splitter"
           onMouseDown={(e) => {
@@ -228,7 +228,7 @@ export default function ProblemPane({
         )}
 
         {hasBottom && (
-        <div className="pane-body-bottom" style={{ flex: 100 - bodySplit }}>
+        <div className="pane-body-bottom" style={{ flex: tab === 'Test Cases' ? 1 : 100 - bodySplit }}>
           {tab === 'Description' && (
             <div className="pane-body-scroll">
               <h3>Example input</h3>

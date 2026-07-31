@@ -388,14 +388,29 @@ export default function App() {
         refDb.close();
       }
       const tables = describeTables(db);
-      const verdict = actual && expected ? compare(actual, expected, problem.orderMatters) : { pass: false, reason: 'Could not compare results.' };
-      setCaseRun((prev) => ({ ...prev, [index]: { index, name: test.name, tables, expected, actual, pass: verdict.pass, reason: verdict.reason } }));
+      const res = actual && expected ? compare(actual, expected, problem.orderMatters) : { pass: false, reason: 'Could not compare results.' };
+      const run = { index, name: test.name, tables, expected, actual, pass: res.pass, reason: res.reason };
+      setCaseRun((prev) => ({ ...prev, [index]: run }));
+      // If this case just flipped to passing, jump the panel to the next failure
+      // so the user keeps working through remaining failing cases.
+      if (run.pass) {
+        const updated = { ...caseRun, [index]: run };
+        const failing = verdict?.cases
+          ?.map((c, i) => ({ ...c, i, pass: updated[i]?.pass ?? c.pass }))
+          .filter((c) => !c.pass) ?? [];
+        if (!failing.length) {
+          setSelectedCase(null);
+        } else {
+          const next = failing.find((c) => c.i > index) ?? failing[0];
+          setSelectedCase(next.i);
+        }
+      }
     } catch (err) {
       setCaseRun((prev) => ({ ...prev, [index]: { index, name: test.name, pass: false, error: err.message } }));
     } finally {
       db.close();
     }
-  }, [problem]);
+  }, [problem, verdict, caseRun]);
 
   const loadSubmission = useCallback((entry) => {
     setCode(entry.code);

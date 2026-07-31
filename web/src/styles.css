@@ -1217,6 +1217,7 @@ button.link {
   flex-wrap: wrap;
   gap: 3px;
   margin-top: 6px;
+  margin-bottom: 14px;
 }
 .pill {
   min-width: 18px;
