@@ -16,10 +16,19 @@ const STARTER = '-- Write your query here\nSELECT ';
 const NAME_KEY = 'sql-practice-name';
 const NAME_SKIP_KEY = 'sql-practice-name-skip';
 
+// Route format: /normal_problems/<id> or /complex_problems/<id>
+const parseRoute = () => {
+  const m = window.location.pathname.match(/^\/(normal|complex)_problems\/([^/]+)/);
+  return m ? { mode: m[1], id: decodeURIComponent(m[2]) } : null;
+};
+
 export default function App() {
   const [problems, setProblems] = useState([]);
   const [progress, setProgress] = useState({});
-  const [selectedId, setSelectedId] = useState(() => localStorage.getItem('sql-practice-problem') || null);
+  const [selectedId, setSelectedId] = useState(() => {
+    const route = parseRoute();
+    return route?.id ?? localStorage.getItem('sql-practice-problem') ?? null;
+  });
   const [tables, setTables] = useState([]);
   const [expected, setExpected] = useState(null);
   const [code, setCode] = useState(STARTER);
@@ -31,7 +40,7 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // 'normal' = the original 90; 'complex' = whatever's been added since —
   // toggling this scopes prev/next/Go-to/Problem-List to just that set.
-  const [problemMode, setProblemMode] = useState('normal');
+  const [problemMode, setProblemMode] = useState(() => parseRoute()?.mode ?? 'normal');
   const [progressOpen, setProgressOpen] = useState(false);
   const [selectedCase, setSelectedCase] = useState(null);
   const [caseRun, setCaseRun] = useState({});
@@ -124,6 +133,35 @@ export default function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [problemMode, problems]);
+
+  // Keep the address bar in sync with the current problem. Waits for the
+  // selection to settle into the active set (so a mode toggle doesn't push a
+  // half-resolved URL), then pushState if the path doesn't already match.
+  // A bare "/" load is normalized in place so back doesn't land on an empty URL.
+  useEffect(() => {
+    if (!visibleProblems.length || !selectedId) return;
+    if (!visibleProblems.some((p) => p.id === selectedId)) return;
+    const target = `/${problemMode}_problems/${encodeURIComponent(selectedId)}`;
+    if (window.location.pathname === '/') {
+      window.history.replaceState(null, '', target);
+    } else if (window.location.pathname !== target) {
+      window.history.pushState(null, '', target);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [problemMode, selectedId, visibleProblems]);
+
+  // Browser back/forward: read the new URL and reapply it to app state.
+  useEffect(() => {
+    const onPop = () => {
+      const route = parseRoute();
+      if (route) {
+        setProblemMode(route.mode);
+        setSelectedId(route.id);
+      }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   useEffect(() => {
     (async () => {

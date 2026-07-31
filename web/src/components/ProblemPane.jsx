@@ -48,6 +48,8 @@ export default function ProblemPane({
 
   const tabs = failingCases.length ? ['Description', 'Test Cases', 'Past Submissions', 'Hint', 'Solution'] : TABS;
 
+  const hasBottom = tab === 'Description' || tab === 'Test Cases' || tab === 'Past Submissions';
+
   const pastSubs = (submissions ?? [])
     .filter((s) => s.problemId === problem.id)
     .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
@@ -69,7 +71,7 @@ export default function ProblemPane({
       </nav>
 
       <div className="pane-body">
-        <div className="pane-body-top" style={{ flex: bodySplit }}>
+        <div className="pane-body-top" style={{ flex: tab === 'Past Submissions' ? 0 : hasBottom ? bodySplit : 100 }}>
           {tab !== 'Description' && tab !== 'Test Cases' && tab !== 'Past Submissions' && (
               <div className="problem-head">
                 <h2>
@@ -201,6 +203,7 @@ export default function ProblemPane({
             )}
           </div>
 
+        {(tab === 'Description' || tab === 'Test Cases') && (
         <div
           className="splitter"
           onMouseDown={(e) => {
@@ -222,7 +225,9 @@ export default function ProblemPane({
             document.addEventListener('mouseup', onUp);
           }}
         />
+        )}
 
+        {hasBottom && (
         <div className="pane-body-bottom" style={{ flex: 100 - bodySplit }}>
           {tab === 'Description' && (
             <div className="pane-body-scroll">
@@ -264,7 +269,7 @@ export default function ProblemPane({
           )}
 
           {tab === 'Past Submissions' && (
-            <div className="pane-body-scroll" style={{ flex: 'none' }}>
+            <div className="pane-body-scroll past-sub-pane">
               {pastSubs.length === 0 ? (
                 <p className="muted">No past submissions for this problem.</p>
               ) : (
@@ -313,6 +318,7 @@ export default function ProblemPane({
             </div>
           )}
         </div>
+        )}
       </div>
     </section>
   );

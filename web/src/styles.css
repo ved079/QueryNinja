@@ -1172,12 +1172,16 @@ button.link {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+  scrollbar-width: none;
+}
+.pane-body-top::-webkit-scrollbar {
+  display: none;
 }
 .pane-body-bottom {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  overflow: hidden;
+  overflow: auto;
 }
 .pane-body-scroll {
   overflow: auto;
@@ -1444,6 +1448,22 @@ button.link {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+.past-sub-pane {
+  margin: 8px 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.past-sub-pane .past-subs {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  padding-right: 4px;
+  scrollbar-width: none;
+}
+.past-sub-pane .past-subs::-webkit-scrollbar {
+  display: none;
 }
 .past-sub-row {
   display: flex;
