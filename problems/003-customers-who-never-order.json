@@ -5,14 +5,16 @@
   "difficulty": "Easy",
   "tags": [
     "Join",
-    "Subquery"
+    "Subquery",
+    "Anti-Join",
+    "NULL Handling"
   ],
   "description": "Table `Customers` holds all customers and table `Orders` holds orders placed, referencing `Customers.id` via `customerId`.\n\nWrite a query to report the names of all customers who have **never** placed an order. Name the output column `Customers`.\n\nReturn the result in any order.",
   "schemaSql": "CREATE TABLE Customers (\n  id INTEGER PRIMARY KEY,\n  name TEXT\n);\n\nCREATE TABLE Orders (\n  id INTEGER PRIMARY KEY,\n  customerId INTEGER\n);",
   "solutionSql": "SELECT c.name AS Customers\nFROM Customers c\nLEFT JOIN Orders o ON c.id = o.customerId\nWHERE o.id IS NULL;",
   "orderMatters": false,
   "hint": "An anti-join (LEFT JOIN ... WHERE right side IS NULL) or NOT EXISTS both work. Watch out: NOT IN returns nothing at all if the subquery contains a NULL.",
-  "outputExplanation": "Each output row is a customer name with no matching order. A customer who ordered at least once is excluded, even if they also have orphan orders.",
+  "outputExplanation": "Each output row is a customer name with no matching order. A customer who ordered at least once is excluded, even if they also have orphan orders. Customers sharing the same name each appear once per row (no deduplication). Result order is arbitrary.",
   "tests": [
     {
       "name": "Example",
@@ -195,6 +197,41 @@
       "expectedOutput": [
         {"Customers": "Idle1"},
         {"Customers": "Idle2"}
+      ]
+    },
+    {
+      "name": "Unicode customer names, none ordered",
+      "seedSql": "INSERT INTO Customers VALUES (1,'张三'),(2,'José'),(3,'Søren'),(4,'Алекс');",
+      "expectedOutput": [
+        {"Customers": "张三"},
+        {"Customers": "José"},
+        {"Customers": "Søren"},
+        {"Customers": "Алекс"}
+      ]
+    },
+    {
+      "name": "Unicode names, some ordered some did not",
+      "seedSql": "INSERT INTO Customers VALUES (1,'张三'),(2,'José'),(3,'Søren'),(4,'Алекс');\nINSERT INTO Orders VALUES (1,2),(2,4);",
+      "expectedOutput": [
+        {"Customers": "张三"},
+        {"Customers": "Søren"}
+      ]
+    },
+    {
+      "name": "30-row stress with NULL customerId mixed in",
+      "seedSql": "INSERT INTO Customers VALUES (1,'A'),(2,'B'),(3,'C'),(4,'D'),(5,'E'),(6,'F'),(7,'G'),(8,'H'),(9,'I'),(10,'J'),(11,'K'),(12,'L'),(13,'M'),(14,'N'),(15,'O'),(16,'P'),(17,'Q'),(18,'R'),(19,'S'),(20,'T'),(21,'U'),(22,'V'),(23,'W'),(24,'X'),(25,'Y'),(26,'Z'),(27,'AA'),(28,'AB'),(29,'AC'),(30,'AD');\nINSERT INTO Orders VALUES (1,1),(2,3),(3,5),(4,7),(5,9),(6,11),(7,13),(8,15),(9,17),(10,19),(11,21),(12,23),(13,25),(14,27),(15,29),(16,NULL),(17,2),(18,4),(19,6),(20,8);",
+      "expectedOutput": [
+        {"Customers": "J"},
+        {"Customers": "L"},
+        {"Customers": "N"},
+        {"Customers": "P"},
+        {"Customers": "R"},
+        {"Customers": "T"},
+        {"Customers": "V"},
+        {"Customers": "X"},
+        {"Customers": "Z"},
+        {"Customers": "AB"},
+        {"Customers": "AD"}
       ]
     }
   ]
