@@ -147,7 +147,7 @@
       ]
     },
     {
-      "name": "Two rows: one NULL, one NULL — no distinct value at all",
+      "name": "Only NULL salaries — no distinct value exists",
       "seedSql": "INSERT INTO Employee VALUES (1,NULL),(2,NULL),(3,NULL);",
       "expectedOutput": [
         {"SecondHighestSalary": null}
@@ -165,6 +165,20 @@
       "seedSql": "INSERT INTO Employee VALUES (1,500),(2,500),(3,480),(4,480),(5,460),(6,440),(7,420),(8,400),(9,400),(10,380),(11,360),(12,340),(13,320),(14,300),(15,280),(16,260),(17,240),(18,220),(19,200),(20,180),(21,160),(22,140),(23,120),(24,100),(25,80),(26,60),(27,40),(28,20),(29,500),(30,500),(31,480),(32,460),(33,440),(34,420),(35,380),(36,360),(37,340),(38,320),(39,300),(40,280),(41,260),(42,240),(43,220),(44,200),(45,180),(46,160),(47,140),(48,120),(49,100),(50,80);",
       "expectedOutput": [
         {"SecondHighestSalary": 480}
+      ]
+    },
+    {
+      "name": "NULL salaries mixed with negative distinct values",
+      "seedSql": "INSERT INTO Employee VALUES (1,NULL),(2,-5),(3,-10),(4,-10);",
+      "expectedOutput": [
+        {"SecondHighestSalary": -10}
+      ]
+    },
+    {
+      "name": "Top and second both heavily duplicated",
+      "seedSql": "INSERT INTO Employee VALUES (1,200),(2,200),(3,200),(4,200),(5,100),(6,100),(7,100),(8,100),(9,100);",
+      "expectedOutput": [
+        {"SecondHighestSalary": 100}
       ]
     }
   ]
