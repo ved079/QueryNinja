@@ -12,71 +12,190 @@
   "solutionSql": "SELECT c.name AS Customers\nFROM Customers c\nLEFT JOIN Orders o ON c.id = o.customerId\nWHERE o.id IS NULL;",
   "orderMatters": false,
   "hint": "An anti-join (LEFT JOIN ... WHERE right side IS NULL) or NOT EXISTS both work. Watch out: NOT IN returns nothing at all if the subquery contains a NULL.",
-  "outputExplanation": "Henry and Max have no orders and are the two customers reported. Joe and Sam both have at least one order and are excluded.",
+  "outputExplanation": "Each output row is a customer name with no matching order. A customer who ordered at least once is excluded, even if they also have orphan orders.",
   "tests": [
     {
       "name": "Example",
-      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry'),(3,'Sam'),(4,'Max');\nINSERT INTO Orders VALUES (1,3),(2,1);"
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry'),(3,'Sam'),(4,'Max');\nINSERT INTO Orders VALUES (1,3),(2,1);",
+      "expectedOutput": [
+        {"Customers": "Henry"},
+        {"Customers": "Max"}
+      ]
     },
     {
       "name": "Every customer has ordered",
-      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO Orders VALUES (1,1),(2,2);"
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO Orders VALUES (1,1),(2,2);",
+      "expectedOutput": []
     },
     {
       "name": "No orders exist at all",
-      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry'),(3,'Sam');"
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry'),(3,'Sam');",
+      "expectedOutput": [
+        {"Customers": "Joe"},
+        {"Customers": "Henry"},
+        {"Customers": "Sam"}
+      ]
     },
     {
       "name": "No customers exist",
-      "seedSql": "INSERT INTO Orders VALUES (1,5);"
+      "seedSql": "INSERT INTO Orders VALUES (1,5);",
+      "expectedOutput": []
     },
     {
       "name": "Single customer, never ordered",
-      "seedSql": "INSERT INTO Customers VALUES (1,'Solo');"
+      "seedSql": "INSERT INTO Customers VALUES (1,'Solo');",
+      "expectedOutput": [
+        {"Customers": "Solo"}
+      ]
     },
     {
       "name": "Single customer, has ordered",
-      "seedSql": "INSERT INTO Customers VALUES (1,'Solo');\nINSERT INTO Orders VALUES (1,1);"
+      "seedSql": "INSERT INTO Customers VALUES (1,'Solo');\nINSERT INTO Orders VALUES (1,1);",
+      "expectedOutput": []
     },
     {
       "name": "NULL customerId — NOT IN returns empty",
-      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry'),(3,'Sam');\nINSERT INTO Orders VALUES (1,1),(2,NULL);"
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry'),(3,'Sam');\nINSERT INTO Orders VALUES (1,1),(2,NULL);",
+      "expectedOutput": [
+        {"Customers": "Henry"},
+        {"Customers": "Sam"}
+      ]
     },
     {
       "name": "All orders have NULL customerId",
-      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO Orders VALUES (1,NULL),(2,NULL);"
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO Orders VALUES (1,NULL),(2,NULL);",
+      "expectedOutput": [
+        {"Customers": "Joe"},
+        {"Customers": "Henry"}
+      ]
     },
     {
       "name": "Two customers share a name, one has ordered",
-      "seedSql": "INSERT INTO Customers VALUES (1,'Alex'),(2,'Alex'),(3,'Ravi');\nINSERT INTO Orders VALUES (1,3);"
+      "seedSql": "INSERT INTO Customers VALUES (1,'Alex'),(2,'Alex'),(3,'Ravi');\nINSERT INTO Orders VALUES (1,3);",
+      "expectedOutput": [
+        {"Customers": "Alex"},
+        {"Customers": "Alex"}
+      ]
     },
     {
       "name": "Customer with NULL name, no orders",
-      "seedSql": "INSERT INTO Customers VALUES (1,NULL);"
+      "seedSql": "INSERT INTO Customers VALUES (1,NULL);",
+      "expectedOutput": [
+        {"Customers": null}
+      ]
     },
     {
       "name": "Orphan order plus a valid order",
-      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO Orders VALUES (1,99),(2,1);"
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO Orders VALUES (1,99),(2,1);",
+      "expectedOutput": [
+        {"Customers": "Henry"}
+      ]
     },
     {
       "name": "One customer with many orders, the other never ordered",
-      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO Orders VALUES (1,1),(2,1),(3,1),(4,1);"
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO Orders VALUES (1,1),(2,1),(3,1),(4,1);",
+      "expectedOutput": [
+        {"Customers": "Henry"}
+      ]
     },
     {
       "name": "All customers ordered except one",
-      "seedSql": "INSERT INTO Customers VALUES (1,'Ann'),(2,'Ben'),(3,'Cal');\nINSERT INTO Orders VALUES (1,1),(2,2);"
+      "seedSql": "INSERT INTO Customers VALUES (1,'Ann'),(2,'Ben'),(3,'Cal');\nINSERT INTO Orders VALUES (1,1),(2,2);",
+      "expectedOutput": [
+        {"Customers": "Cal"}
+      ]
     },
     {
       "name": "All orders reference non-existent customers",
-      "seedSql": "INSERT INTO Customers VALUES (1,'Only');\nINSERT INTO Orders VALUES (1,99),(2,100);"
+      "seedSql": "INSERT INTO Customers VALUES (1,'Only');\nINSERT INTO Orders VALUES (1,99),(2,100);",
+      "expectedOutput": [
+        {"Customers": "Only"}
+      ]
     },
     {
       "name": "Stress test — 20 customers, 15 orders, mixed with NULL",
-      "seedSql": "INSERT INTO Customers VALUES (1,'A'),(2,'B'),(3,'C'),(4,'D'),(5,'E'),(6,'F'),(7,'G'),(8,'H'),(9,'I'),(10,'J'),(11,'K'),(12,'L'),(13,'M'),(14,'N'),(15,'O'),(16,'P'),(17,'Q'),(18,'R'),(19,'S'),(20,'T');\nINSERT INTO Orders VALUES (1,1),(2,2),(3,1),(4,4),(5,6),(6,8),(7,10),(8,NULL),(9,12),(10,14),(11,16),(12,18),(13,20),(14,3),(15,5);"
+      "seedSql": "INSERT INTO Customers VALUES (1,'A'),(2,'B'),(3,'C'),(4,'D'),(5,'E'),(6,'F'),(7,'G'),(8,'H'),(9,'I'),(10,'J'),(11,'K'),(12,'L'),(13,'M'),(14,'N'),(15,'O'),(16,'P'),(17,'Q'),(18,'R'),(19,'S'),(20,'T');\nINSERT INTO Orders VALUES (1,1),(2,2),(3,1),(4,4),(5,6),(6,8),(7,10),(8,NULL),(9,12),(10,14),(11,16),(12,18),(13,20),(14,3),(15,5);",
+      "expectedOutput": [
+        {"Customers": "G"},
+        {"Customers": "I"},
+        {"Customers": "K"},
+        {"Customers": "M"},
+        {"Customers": "O"},
+        {"Customers": "Q"},
+        {"Customers": "S"}
+      ]
     },
     {
       "name": "Half the customers ordered, half never ordered",
-      "seedSql": "INSERT INTO Customers VALUES (1,'A'),(2,'B'),(3,'C'),(4,'D'),(5,'E'),(6,'F');\nINSERT INTO Orders VALUES (1,1),(2,3),(3,5);"
+      "seedSql": "INSERT INTO Customers VALUES (1,'A'),(2,'B'),(3,'C'),(4,'D'),(5,'E'),(6,'F');\nINSERT INTO Orders VALUES (1,1),(2,3),(3,5);",
+      "expectedOutput": [
+        {"Customers": "B"},
+        {"Customers": "D"},
+        {"Customers": "F"}
+      ]
+    },
+    {
+      "name": "Negative and non-sequential customer ids",
+      "seedSql": "INSERT INTO Customers VALUES (-5,'Neg'),(100,'Hundred'),(7,'Seven');\nINSERT INTO Orders VALUES (1,100);",
+      "expectedOutput": [
+        {"Customers": "Neg"},
+        {"Customers": "Seven"}
+      ]
+    },
+    {
+      "name": "Customer name with empty string, no orders",
+      "seedSql": "INSERT INTO Customers VALUES (1,''),(2,'Named');",
+      "expectedOutput": [
+        {"Customers": ""},
+        {"Customers": "Named"}
+      ]
+    },
+    {
+      "name": "Whitespace-only customer name, has ordered",
+      "seedSql": "INSERT INTO Customers VALUES (1,' '),(2,'Real');\nINSERT INTO Orders VALUES (1,1);",
+      "expectedOutput": [
+        {"Customers": "Real"}
+      ]
+    },
+    {
+      "name": "Very long customer name, never ordered",
+      "seedSql": "INSERT INTO Customers VALUES (1,'ThisIsAnExtremelyLongCustomerNameThatGoesOnAndOn'),(2,'Short');\nINSERT INTO Orders VALUES (1,2);",
+      "expectedOutput": [
+        {"Customers": "ThisIsAnExtremelyLongCustomerNameThatGoesOnAndOn"}
+      ]
+    },
+    {
+      "name": "Orders reference NULL and orphans alongside valid orders",
+      "seedSql": "INSERT INTO Customers VALUES (1,'A'),(2,'B'),(3,'C'),(4,'D');\nINSERT INTO Orders VALUES (1,1),(2,NULL),(3,99);",
+      "expectedOutput": [
+        {"Customers": "B"},
+        {"Customers": "C"},
+        {"Customers": "D"}
+      ]
+    },
+    {
+      "name": "All customers never ordered — 10 rows",
+      "seedSql": "INSERT INTO Customers VALUES (1,'A'),(2,'B'),(3,'C'),(4,'D'),(5,'E'),(6,'F'),(7,'G'),(8,'H'),(9,'I'),(10,'J');",
+      "expectedOutput": [
+        {"Customers": "A"},
+        {"Customers": "B"},
+        {"Customers": "C"},
+        {"Customers": "D"},
+        {"Customers": "E"},
+        {"Customers": "F"},
+        {"Customers": "G"},
+        {"Customers": "H"},
+        {"Customers": "I"},
+        {"Customers": "J"}
+      ]
+    },
+    {
+      "name": "One customer with orders and NULLs and orphans — others never ordered",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Busy'),(2,'Idle1'),(3,'Idle2');\nINSERT INTO Orders VALUES (1,1),(2,1),(3,NULL),(4,999);",
+      "expectedOutput": [
+        {"Customers": "Idle1"},
+        {"Customers": "Idle2"}
+      ]
     }
   ]
 }

@@ -16,66 +16,156 @@
   "tests": [
     {
       "name": "Example",
-      "seedSql": "INSERT INTO Employee VALUES (1,100),(2,200),(3,300),(4,200);"
+      "seedSql": "INSERT INTO Employee VALUES (1,100),(2,200),(3,300),(4,200);",
+      "expectedOutput": [
+        {"SecondHighestSalary": 200}
+      ]
     },
     {
       "name": "Only one distinct salary",
-      "seedSql": "INSERT INTO Employee VALUES (1,100),(2,100),(3,100);"
+      "seedSql": "INSERT INTO Employee VALUES (1,100),(2,100),(3,100);",
+      "expectedOutput": [
+        {"SecondHighestSalary": null}
+      ]
     },
     {
       "name": "Single employee",
-      "seedSql": "INSERT INTO Employee VALUES (1,150);"
+      "seedSql": "INSERT INTO Employee VALUES (1,150);",
+      "expectedOutput": [
+        {"SecondHighestSalary": null}
+      ]
     },
     {
-      "name": "Empty table"
+      "name": "Empty table",
+      "expectedOutput": [
+        {"SecondHighestSalary": null}
+      ]
     },
     {
       "name": "Ties at the top — without DISTINCT, OFFSET 1 returns 300 instead of 200",
-      "seedSql": "INSERT INTO Employee VALUES (1,300),(2,300),(3,200);"
+      "seedSql": "INSERT INTO Employee VALUES (1,300),(2,300),(3,200);",
+      "expectedOutput": [
+        {"SecondHighestSalary": 200}
+      ]
     },
     {
       "name": "Exactly two employees with equal salaries",
-      "seedSql": "INSERT INTO Employee VALUES (1,500),(2,500);"
+      "seedSql": "INSERT INTO Employee VALUES (1,500),(2,500);",
+      "expectedOutput": [
+        {"SecondHighestSalary": null}
+      ]
     },
     {
       "name": "Many distinct salaries",
-      "seedSql": "INSERT INTO Employee VALUES (1,10),(2,20),(3,30),(4,40),(5,50),(6,60);"
+      "seedSql": "INSERT INTO Employee VALUES (1,10),(2,20),(3,30),(4,40),(5,50),(6,60);",
+      "expectedOutput": [
+        {"SecondHighestSalary": 50}
+      ]
     },
     {
       "name": "Zero and negative salaries",
-      "seedSql": "INSERT INTO Employee VALUES (1,0),(2,-50),(3,-10);"
+      "seedSql": "INSERT INTO Employee VALUES (1,0),(2,-50),(3,-10);",
+      "expectedOutput": [
+        {"SecondHighestSalary": -10}
+      ]
     },
     {
       "name": "NULL salary present",
-      "seedSql": "INSERT INTO Employee VALUES (1,900),(2,NULL),(3,700);"
+      "seedSql": "INSERT INTO Employee VALUES (1,900),(2,NULL),(3,700);",
+      "expectedOutput": [
+        {"SecondHighestSalary": 700}
+      ]
     },
     {
       "name": "All salaries are NULL",
-      "seedSql": "INSERT INTO Employee VALUES (1,NULL),(2,NULL);"
+      "seedSql": "INSERT INTO Employee VALUES (1,NULL),(2,NULL);",
+      "expectedOutput": [
+        {"SecondHighestSalary": null}
+      ]
     },
     {
       "name": "Duplicate top salary — LIMIT OFFSET without DISTINCT returns 200 instead of 100",
-      "seedSql": "INSERT INTO Employee VALUES (1,200),(2,200),(3,100);"
+      "seedSql": "INSERT INTO Employee VALUES (1,200),(2,200),(3,100);",
+      "expectedOutput": [
+        {"SecondHighestSalary": 100}
+      ]
     },
     {
       "name": "Exactly two employees with distinct salaries",
-      "seedSql": "INSERT INTO Employee VALUES (1,100),(2,200);"
+      "seedSql": "INSERT INTO Employee VALUES (1,100),(2,200);",
+      "expectedOutput": [
+        {"SecondHighestSalary": 100}
+      ]
     },
     {
       "name": "Large salary values",
-      "seedSql": "INSERT INTO Employee VALUES (1,2000000000),(2,1999999999),(3,5);"
+      "seedSql": "INSERT INTO Employee VALUES (1,2000000000),(2,1999999999),(3,5);",
+      "expectedOutput": [
+        {"SecondHighestSalary": 1999999999}
+      ]
     },
     {
       "name": "Mixed positive, negative, zero and duplicates",
-      "seedSql": "INSERT INTO Employee VALUES (1,10),(2,0),(3,0),(4,-5),(5,-10),(6,10);"
+      "seedSql": "INSERT INTO Employee VALUES (1,10),(2,0),(3,0),(4,-5),(5,-10),(6,10);",
+      "expectedOutput": [
+        {"SecondHighestSalary": 0}
+      ]
     },
     {
       "name": "Stress test with 30 rows and many duplicates",
-      "seedSql": "INSERT INTO Employee VALUES (1,1000),(2,950),(3,900),(4,850),(5,800),(6,750),(7,700),(8,650),(9,600),(10,550),(11,500),(12,450),(13,400),(14,350),(15,300),(16,250),(17,200),(18,150),(19,100),(20,50),(21,1000),(22,900),(23,800),(24,700),(25,600),(26,500),(27,400),(28,300),(29,200),(30,100);"
+      "seedSql": "INSERT INTO Employee VALUES (1,1000),(2,950),(3,900),(4,850),(5,800),(6,750),(7,700),(8,650),(9,600),(10,550),(11,500),(12,450),(13,400),(14,350),(15,300),(16,250),(17,200),(18,150),(19,100),(20,50),(21,1000),(22,900),(23,800),(24,700),(25,600),(26,500),(27,400),(28,300),(29,200),(30,100);",
+      "expectedOutput": [
+        {"SecondHighestSalary": 950}
+      ]
     },
     {
       "name": "One non-NULL salary and NULLs — no second distinct value exists",
-      "seedSql": "INSERT INTO Employee VALUES (1,NULL),(2,100);"
+      "seedSql": "INSERT INTO Employee VALUES (1,NULL),(2,100);",
+      "expectedOutput": [
+        {"SecondHighestSalary": null}
+      ]
+    },
+    {
+      "name": "Huge gap between top and second",
+      "seedSql": "INSERT INTO Employee VALUES (1,999999999),(2,1);",
+      "expectedOutput": [
+        {"SecondHighestSalary": 1}
+      ]
+    },
+    {
+      "name": "All identical except a single outlier lower",
+      "seedSql": "INSERT INTO Employee VALUES (1,777),(2,777),(3,777),(4,5);",
+      "expectedOutput": [
+        {"SecondHighestSalary": 5}
+      ]
+    },
+    {
+      "name": "Duplicate second-highest value",
+      "seedSql": "INSERT INTO Employee VALUES (1,300),(2,200),(3,200),(4,200),(5,100);",
+      "expectedOutput": [
+        {"SecondHighestSalary": 200}
+      ]
+    },
+    {
+      "name": "Two rows: one NULL, one NULL — no distinct value at all",
+      "seedSql": "INSERT INTO Employee VALUES (1,NULL),(2,NULL),(3,NULL);",
+      "expectedOutput": [
+        {"SecondHighestSalary": null}
+      ]
+    },
+    {
+      "name": "Negative-only distinct salaries",
+      "seedSql": "INSERT INTO Employee VALUES (1,-100),(2,-100),(3,-50),(4,-1);",
+      "expectedOutput": [
+        {"SecondHighestSalary": -50}
+      ]
+    },
+    {
+      "name": "50-row mixed stress with random duplicates",
+      "seedSql": "INSERT INTO Employee VALUES (1,500),(2,500),(3,480),(4,480),(5,460),(6,440),(7,420),(8,400),(9,400),(10,380),(11,360),(12,340),(13,320),(14,300),(15,280),(16,260),(17,240),(18,220),(19,200),(20,180),(21,160),(22,140),(23,120),(24,100),(25,80),(26,60),(27,40),(28,20),(29,500),(30,500),(31,480),(32,460),(33,440),(34,420),(35,380),(36,360),(37,340),(38,320),(39,300),(40,280),(41,260),(42,240),(43,220),(44,200),(45,180),(46,160),(47,140),(48,120),(49,100),(50,80);",
+      "expectedOutput": [
+        {"SecondHighestSalary": 480}
+      ]
     }
   ]
 }

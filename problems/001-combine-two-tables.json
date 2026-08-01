@@ -3,78 +3,259 @@
   "number": 1,
   "title": "Combine Two Tables",
   "difficulty": "Easy",
-  "tags": [
-    "Join"
-  ],
-  "description": "Table `Person` holds people and table `Address` holds their addresses.\n\nWrite a query to report the `firstName`, `lastName`, `city` and `state` of every person. If a person has no address recorded, still report them, with `NULL` for `city` and `state`.\n\nReturn the result in any order.",
+  "tags": ["Join", "Left Join", "NULL Handling"],
+  "description": "Table `Person` holds people and table `Address` holds their addresses.\n\nWrite a query to report the `firstName`, `lastName`, `city` and `state` of every person. **If a person has no address recorded, still report them**, with `NULL` for `city` and `state`.\n\nReturn the result in any order.",
   "schemaSql": "CREATE TABLE Person (\n  personId INTEGER PRIMARY KEY,\n  lastName TEXT,\n  firstName TEXT\n);\n\nCREATE TABLE Address (\n  addressId INTEGER PRIMARY KEY,\n  personId INTEGER,\n  city TEXT,\n  state TEXT\n);",
   "solutionSql": "SELECT p.firstName, p.lastName, a.city, a.state\nFROM Person p\nLEFT JOIN Address a ON p.personId = a.personId;",
   "orderMatters": false,
   "hint": "A plain INNER JOIN would drop people with no address. Which join keeps every row from the left table?",
-  "outputExplanation": "Allen Wang has no address on file so city and state are NULL. Alice Bob lives in New York City, NY, and Vedant Deo lives in Leetcode, California.",
+  "outputExplanation": "Each row of the result corresponds to one (person, address) pair. People without a matching address still appear once, with city and state set to NULL. People with multiple addresses appear once per address (fan-out).",
   "tests": [
     {
       "name": "Example",
-      "seedSql": "INSERT INTO Person VALUES (1,'Wang','Allen'),(2,'Alice','Bob'),(3,'Deo','Vedant');\nINSERT INTO Address VALUES (1,2,'New York City','New York'),(2,3,'Leetcode','California');"
+      "seedSql": "INSERT INTO Person VALUES (1,'Wang','Allen'),(2,'Alice','Bob'),(3,'Deo','Vedant');\nINSERT INTO Address VALUES (1,2,'New York City','New York'),(2,3,'Leetcode','California');",
+      "expectedOutput": [
+        {"firstName": "Allen", "lastName": "Wang", "city": null, "state": null},
+        {"firstName": "Bob", "lastName": "Alice", "city": "New York City", "state": "New York"},
+        {"firstName": "Vedant", "lastName": "Deo", "city": "Leetcode", "state": "California"}
+      ]
     },
     {
       "name": "Nobody has an address",
-      "seedSql": "INSERT INTO Person VALUES (1,'Smith','Ann'),(2,'Jones','Ben');"
+      "seedSql": "INSERT INTO Person VALUES (1,'Smith','Ann'),(2,'Jones','Ben');",
+      "expectedOutput": [
+        {"firstName": "Ann", "lastName": "Smith", "city": null, "state": null},
+        {"firstName": "Ben", "lastName": "Jones", "city": null, "state": null}
+      ]
     },
     {
       "name": "Everyone has an address",
-      "seedSql": "INSERT INTO Person VALUES (1,'Smith','Ann'),(2,'Jones','Ben');\nINSERT INTO Address VALUES (10,1,'Austin','Texas'),(11,2,'Reno','Nevada');"
+      "seedSql": "INSERT INTO Person VALUES (1,'Smith','Ann'),(2,'Jones','Ben');\nINSERT INTO Address VALUES (10,1,'Austin','Texas'),(11,2,'Reno','Nevada');",
+      "expectedOutput": [
+        {"firstName": "Ann", "lastName": "Smith", "city": "Austin", "state": "Texas"},
+        {"firstName": "Ben", "lastName": "Jones", "city": "Reno", "state": "Nevada"}
+      ]
     },
     {
-      "name": "Both tables empty"
+      "name": "Both tables empty",
+      "expectedOutput": []
     },
     {
       "name": "Single person, no address",
-      "seedSql": "INSERT INTO Person VALUES (7,'Solo','Han');"
+      "seedSql": "INSERT INTO Person VALUES (7,'Solo','Han');",
+      "expectedOutput": [
+        {"firstName": "Han", "lastName": "Solo", "city": null, "state": null}
+      ]
     },
     {
       "name": "One person with two addresses",
-      "seedSql": "INSERT INTO Person VALUES (1,'Kim','Sara');\nINSERT INTO Address VALUES (1,1,'Boston','Massachusetts'),(2,1,'Miami','Florida');"
+      "seedSql": "INSERT INTO Person VALUES (1,'Kim','Sara');\nINSERT INTO Address VALUES (1,1,'Boston','Massachusetts'),(2,1,'Miami','Florida');",
+      "expectedOutput": [
+        {"firstName": "Sara", "lastName": "Kim", "city": "Boston", "state": "Massachusetts"},
+        {"firstName": "Sara", "lastName": "Kim", "city": "Miami", "state": "Florida"}
+      ]
     },
     {
       "name": "Orphan address rows",
-      "seedSql": "INSERT INTO Person VALUES (1,'Lee','Min');\nINSERT INTO Address VALUES (1,99,'Ghost Town','Nowhere'),(2,1,'Denver','Colorado');"
+      "seedSql": "INSERT INTO Person VALUES (1,'Lee','Min');\nINSERT INTO Address VALUES (1,99,'Ghost Town','Nowhere'),(2,1,'Denver','Colorado');",
+      "expectedOutput": [
+        {"firstName": "Min", "lastName": "Lee", "city": "Denver", "state": "Colorado"}
+      ]
     },
     {
       "name": "Address stored with NULL city and state",
-      "seedSql": "INSERT INTO Person VALUES (1,'Patel','Riya'),(2,'Novak','Ivan');\nINSERT INTO Address VALUES (1,1,NULL,NULL),(2,2,'Seattle','Washington');"
+      "seedSql": "INSERT INTO Person VALUES (1,'Patel','Riya'),(2,'Novak','Ivan');\nINSERT INTO Address VALUES (1,1,NULL,NULL),(2,2,'Seattle','Washington');",
+      "expectedOutput": [
+        {"firstName": "Riya", "lastName": "Patel", "city": null, "state": null},
+        {"firstName": "Ivan", "lastName": "Novak", "city": "Seattle", "state": "Washington"}
+      ]
     },
     {
       "name": "Names with quotes and accents",
-      "seedSql": "INSERT INTO Person VALUES (1,'O''Brien','Sean'),(2,'Munoz','Jose');\nINSERT INTO Address VALUES (1,1,'Cork','Munster');"
+      "seedSql": "INSERT INTO Person VALUES (1,'O''Brien','Sean'),(2,'Munoz','Jose');\nINSERT INTO Address VALUES (1,1,'Cork','Munster');",
+      "expectedOutput": [
+        {"firstName": "Sean", "lastName": "O'Brien", "city": "Cork", "state": "Munster"},
+        {"firstName": "Jose", "lastName": "Munoz", "city": null, "state": null}
+      ]
     },
     {
       "name": "Larger mixed set",
-      "seedSql": "INSERT INTO Person VALUES (1,'A','Ann'),(2,'B','Ben'),(3,'C','Cal'),(4,'D','Dee'),(5,'E','Eli'),(6,'F','Fay');\nINSERT INTO Address VALUES (1,1,'Austin','Texas'),(2,3,'Reno','Nevada'),(3,4,'Tulsa','Oklahoma'),(4,6,'Boise','Idaho');"
+      "seedSql": "INSERT INTO Person VALUES (1,'A','Ann'),(2,'B','Ben'),(3,'C','Cal'),(4,'D','Dee'),(5,'E','Eli'),(6,'F','Fay');\nINSERT INTO Address VALUES (1,1,'Austin','Texas'),(2,3,'Reno','Nevada'),(3,4,'Tulsa','Oklahoma'),(4,6,'Boise','Idaho');",
+      "expectedOutput": [
+        {"firstName": "Ann", "lastName": "A", "city": "Austin", "state": "Texas"},
+        {"firstName": "Ben", "lastName": "B", "city": null, "state": null},
+        {"firstName": "Cal", "lastName": "C", "city": "Reno", "state": "Nevada"},
+        {"firstName": "Dee", "lastName": "D", "city": "Tulsa", "state": "Oklahoma"},
+        {"firstName": "Eli", "lastName": "E", "city": null, "state": null},
+        {"firstName": "Fay", "lastName": "F", "city": "Boise", "state": "Idaho"}
+      ]
     },
     {
       "name": "Three addresses for one person",
-      "seedSql": "INSERT INTO Person VALUES (1,'Park','Lynn');\nINSERT INTO Address VALUES (1,1,'Seoul','Seoul'),(2,1,'Busan','Busan'),(3,1,'Jeju','Jeju');"
+      "seedSql": "INSERT INTO Person VALUES (1,'Park','Lynn');\nINSERT INTO Address VALUES (1,1,'Seoul','Seoul'),(2,1,'Busan','Busan'),(3,1,'Jeju','Jeju');",
+      "expectedOutput": [
+        {"firstName": "Lynn", "lastName": "Park", "city": "Seoul", "state": "Seoul"},
+        {"firstName": "Lynn", "lastName": "Park", "city": "Busan", "state": "Busan"},
+        {"firstName": "Lynn", "lastName": "Park", "city": "Jeju", "state": "Jeju"}
+      ]
     },
     {
       "name": "No address rows match any person",
-      "seedSql": "INSERT INTO Person VALUES (1,'One','Uno'),(2,'Two','Dos'),(3,'Three','Tres');\nINSERT INTO Address VALUES (10,99,'Nowhere','Null'),(11,98,'Void','Empty');"
+      "seedSql": "INSERT INTO Person VALUES (1,'One','Uno'),(2,'Two','Dos'),(3,'Three','Tres');\nINSERT INTO Address VALUES (10,99,'Nowhere','Null'),(11,98,'Void','Empty');",
+      "expectedOutput": [
+        {"firstName": "Uno", "lastName": "One", "city": null, "state": null},
+        {"firstName": "Dos", "lastName": "Two", "city": null, "state": null},
+        {"firstName": "Tres", "lastName": "Three", "city": null, "state": null}
+      ]
     },
     {
       "name": "Address table contains duplicate rows",
-      "seedSql": "INSERT INTO Person VALUES (1,'Ray','Sat');\nINSERT INTO Address VALUES (1,1,'Delhi','Delhi'),(2,1,'Delhi','Delhi');"
+      "seedSql": "INSERT INTO Person VALUES (1,'Ray','Sat');\nINSERT INTO Address VALUES (1,1,'Delhi','Delhi'),(2,1,'Delhi','Delhi');",
+      "expectedOutput": [
+        {"firstName": "Sat", "lastName": "Ray", "city": "Delhi", "state": "Delhi"},
+        {"firstName": "Sat", "lastName": "Ray", "city": "Delhi", "state": "Delhi"}
+      ]
     },
     {
       "name": "Empty string city is not NULL",
-      "seedSql": "INSERT INTO Person VALUES (1,'Khan','Ali'),(2,'Li','Wei');\nINSERT INTO Address VALUES (1,1,'',''),(2,2,'Shanghai','Shanghai');"
+      "seedSql": "INSERT INTO Person VALUES (1,'Khan','Ali'),(2,'Li','Wei');\nINSERT INTO Address VALUES (1,1,'',''),(2,2,'Shanghai','Shanghai');",
+      "expectedOutput": [
+        {"firstName": "Ali", "lastName": "Khan", "city": "", "state": ""},
+        {"firstName": "Wei", "lastName": "Li", "city": "Shanghai", "state": "Shanghai"}
+      ]
     },
     {
       "name": "Stress test with 25 persons, mixed addresses",
-      "seedSql": "INSERT INTO Person VALUES (1,'A','U'),(2,'B','U'),(3,'C','U'),(4,'D','U'),(5,'E','U'),(6,'F','U'),(7,'G','U'),(8,'H','U'),(9,'I','U'),(10,'J','U'),(11,'K','U'),(12,'L','U'),(13,'M','U'),(14,'N','U'),(15,'O','U'),(16,'P','U'),(17,'Q','U'),(18,'R','U'),(19,'S','U'),(20,'T','U'),(21,'U','U'),(22,'V','U'),(23,'W','U'),(24,'X','U'),(25,'Y','U');\nINSERT INTO Address VALUES (1,1,'City1','S1'),(2,2,'City2','S2'),(3,4,'City4','S4'),(4,6,'City6','S6'),(5,8,'City8','S8'),(6,10,'City10','SA'),(7,12,'City12','SB'),(8,14,'City14','SC'),(9,16,'City16','SD'),(10,18,'City18','SE'),(11,20,'City20','SF'),(12,22,'City22','SG'),(13,24,'City24','SH');"
+      "seedSql": "INSERT INTO Person VALUES (1,'A','U'),(2,'B','U'),(3,'C','U'),(4,'D','U'),(5,'E','U'),(6,'F','U'),(7,'G','U'),(8,'H','U'),(9,'I','U'),(10,'J','U'),(11,'K','U'),(12,'L','U'),(13,'M','U'),(14,'N','U'),(15,'O','U'),(16,'P','U'),(17,'Q','U'),(18,'R','U'),(19,'S','U'),(20,'T','U'),(21,'U','U'),(22,'V','U'),(23,'W','U'),(24,'X','U'),(25,'Y','U');\nINSERT INTO Address VALUES (1,1,'City1','S1'),(2,2,'City2','S2'),(3,4,'City4','S4'),(4,6,'City6','S6'),(5,8,'City8','S8'),(6,10,'City10','SA'),(7,12,'City12','SB'),(8,14,'City14','SC'),(9,16,'City16','SD'),(10,18,'City18','SE'),(11,20,'City20','SF'),(12,22,'City22','SG'),(13,24,'City24','SH');",
+      "expectedOutput": [
+        {"firstName": "U", "lastName": "A", "city": "City1", "state": "S1"},
+        {"firstName": "U", "lastName": "B", "city": "City2", "state": "S2"},
+        {"firstName": "U", "lastName": "C", "city": null, "state": null},
+        {"firstName": "U", "lastName": "D", "city": "City4", "state": "S4"},
+        {"firstName": "U", "lastName": "E", "city": null, "state": null},
+        {"firstName": "U", "lastName": "F", "city": "City6", "state": "S6"},
+        {"firstName": "U", "lastName": "G", "city": null, "state": null},
+        {"firstName": "U", "lastName": "H", "city": "City8", "state": "S8"},
+        {"firstName": "U", "lastName": "I", "city": null, "state": null},
+        {"firstName": "U", "lastName": "J", "city": "City10", "state": "SA"},
+        {"firstName": "U", "lastName": "K", "city": null, "state": null},
+        {"firstName": "U", "lastName": "L", "city": "City12", "state": "SB"},
+        {"firstName": "U", "lastName": "M", "city": null, "state": null},
+        {"firstName": "U", "lastName": "N", "city": "City14", "state": "SC"},
+        {"firstName": "U", "lastName": "O", "city": null, "state": null},
+        {"firstName": "U", "lastName": "P", "city": "City16", "state": "SD"},
+        {"firstName": "U", "lastName": "Q", "city": null, "state": null},
+        {"firstName": "U", "lastName": "R", "city": "City18", "state": "SE"},
+        {"firstName": "U", "lastName": "S", "city": null, "state": null},
+        {"firstName": "U", "lastName": "T", "city": "City20", "state": "SF"},
+        {"firstName": "U", "lastName": "U", "city": null, "state": null},
+        {"firstName": "U", "lastName": "V", "city": "City22", "state": "SG"},
+        {"firstName": "U", "lastName": "W", "city": null, "state": null},
+        {"firstName": "U", "lastName": "X", "city": "City24", "state": "SH"},
+        {"firstName": "U", "lastName": "Y", "city": null, "state": null}
+      ]
     },
     {
       "name": "All have addresses, some have multiple",
-      "seedSql": "INSERT INTO Person VALUES (1,'Singh','Raj'),(2,'Chen','Yun'),(3,'Ivanov','Alex');\nINSERT INTO Address VALUES (1,1,'Mumbai','Maharashtra'),(2,2,'Beijing','Beijing'),(3,3,'Moscow','Russia'),(4,3,'Kazan','Tatarstan');"
+      "seedSql": "INSERT INTO Person VALUES (1,'Singh','Raj'),(2,'Chen','Yun'),(3,'Ivanov','Alex');\nINSERT INTO Address VALUES (1,1,'Mumbai','Maharashtra'),(2,2,'Beijing','Beijing'),(3,3,'Moscow','Russia'),(4,3,'Kazan','Tatarstan');",
+      "expectedOutput": [
+        {"firstName": "Raj", "lastName": "Singh", "city": "Mumbai", "state": "Maharashtra"},
+        {"firstName": "Yun", "lastName": "Chen", "city": "Beijing", "state": "Beijing"},
+        {"firstName": "Alex", "lastName": "Ivanov", "city": "Moscow", "state": "Russia"},
+        {"firstName": "Alex", "lastName": "Ivanov", "city": "Kazan", "state": "Tatarstan"}
+      ]
+    },
+    {
+      "name": "NULL personId in Address does not match anyone",
+      "seedSql": "INSERT INTO Person VALUES (1,'A','Ann'),(2,'B','Ben');\nINSERT INTO Address VALUES (1,1,'Austin','Texas'),(2,NULL,'Nowhere','Void');",
+      "expectedOutput": [
+        {"firstName": "Ann", "lastName": "A", "city": "Austin", "state": "Texas"},
+        {"firstName": "Ben", "lastName": "B", "city": null, "state": null}
+      ]
+    },
+    {
+      "name": "Person with NULL firstName and lastName",
+      "seedSql": "INSERT INTO Person VALUES (1,NULL,NULL),(2,'Smith','Ann');\nINSERT INTO Address VALUES (1,2,'Austin','Texas');",
+      "expectedOutput": [
+        {"firstName": null, "lastName": null, "city": null, "state": null},
+        {"firstName": "Ann", "lastName": "Smith", "city": "Austin", "state": "Texas"}
+      ]
+    },
+    {
+      "name": "Address with NULL city but non-NULL state",
+      "seedSql": "INSERT INTO Person VALUES (1,'A','Ann');\nINSERT INTO Address VALUES (1,1,NULL,'Texas');",
+      "expectedOutput": [
+        {"firstName": "Ann", "lastName": "A", "city": null, "state": "Texas"}
+      ]
+    },
+    {
+      "name": "Address with NULL state but non-NULL city",
+      "seedSql": "INSERT INTO Person VALUES (1,'A','Ann');\nINSERT INTO Address VALUES (1,1,'Austin',NULL);",
+      "expectedOutput": [
+        {"firstName": "Ann", "lastName": "A", "city": "Austin", "state": null}
+      ]
+    },
+    {
+      "name": "Whitespace-only city is not NULL",
+      "seedSql": "INSERT INTO Person VALUES (1,'A','Ann'),(2,'B','Ben');\nINSERT INTO Address VALUES (1,1,'  ','Texas'),(2,2,'Austin','Texas');",
+      "expectedOutput": [
+        {"firstName": "Ann", "lastName": "A", "city": "  ", "state": "Texas"},
+        {"firstName": "Ben", "lastName": "B", "city": "Austin", "state": "Texas"}
+      ]
+    },
+    {
+      "name": "Very long city and state names",
+      "seedSql": "INSERT INTO Person VALUES (1,'A','Ann');\nINSERT INTO Address VALUES (1,1,'ThisIsAVeryLongCityNameThatGoesOnAndOnAndOnWithoutStopping','ThisIsAVeryLongStateNameThatGoesOnAndOnAndOnWithoutStopping');",
+      "expectedOutput": [
+        {"firstName": "Ann", "lastName": "A", "city": "ThisIsAVeryLongCityNameThatGoesOnAndOnAndOnWithoutStopping", "state": "ThisIsAVeryLongStateNameThatGoesOnAndOnAndOnWithoutStopping"}
+      ]
+    },
+    {
+      "name": "Multiple persons with identical names",
+      "seedSql": "INSERT INTO Person VALUES (1,'Smith','Ann'),(2,'Smith','Ann');\nINSERT INTO Address VALUES (1,1,'Austin','Texas');",
+      "expectedOutput": [
+        {"firstName": "Ann", "lastName": "Smith", "city": "Austin", "state": "Texas"},
+        {"firstName": "Ann", "lastName": "Smith", "city": null, "state": null}
+      ]
+    },
+    {
+      "name": "Large fan-out: one person with five addresses",
+      "seedSql": "INSERT INTO Person VALUES (1,'Park','Lynn');\nINSERT INTO Address VALUES (1,1,'Seoul','S1'),(2,1,'Busan','S2'),(3,1,'Jeju','S3'),(4,1,'Incheon','S4'),(5,1,'Daegu','S5');",
+      "expectedOutput": [
+        {"firstName": "Lynn", "lastName": "Park", "city": "Seoul", "state": "S1"},
+        {"firstName": "Lynn", "lastName": "Park", "city": "Busan", "state": "S2"},
+        {"firstName": "Lynn", "lastName": "Park", "city": "Jeju", "state": "S3"},
+        {"firstName": "Lynn", "lastName": "Park", "city": "Incheon", "state": "S4"},
+        {"firstName": "Lynn", "lastName": "Park", "city": "Daegu", "state": "S5"}
+      ]
+    },
+    {
+      "name": "Mixed: multiples, none, and orphan addresses",
+      "seedSql": "INSERT INTO Person VALUES (1,'A','Ann'),(2,'B','Ben'),(3,'C','Cal'),(4,'D','Dee');\nINSERT INTO Address VALUES (1,1,'Austin','Texas'),(2,1,'Reno','Nevada'),(3,3,'Tulsa','Oklahoma'),(4,99,'Orphan','Void');",
+      "expectedOutput": [
+        {"firstName": "Ann", "lastName": "A", "city": "Austin", "state": "Texas"},
+        {"firstName": "Ann", "lastName": "A", "city": "Reno", "state": "Nevada"},
+        {"firstName": "Ben", "lastName": "B", "city": null, "state": null},
+        {"firstName": "Cal", "lastName": "C", "city": "Tulsa", "state": "Oklahoma"},
+        {"firstName": "Dee", "lastName": "D", "city": null, "state": null}
+      ]
+    },
+    {
+      "name": "Negative personId values",
+      "seedSql": "INSERT INTO Person VALUES (-1,'Neg','Ann'),(1,'Pos','Ben');\nINSERT INTO Address VALUES (1,-1,'Cold','North'),(2,1,'Warm','South');",
+      "expectedOutput": [
+        {"firstName": "Ann", "lastName": "Neg", "city": "Cold", "state": "North"},
+        {"firstName": "Ben", "lastName": "Pos", "city": "Warm", "state": "South"}
+      ]
+    },
+    {
+      "name": "Address table empty, Person has rows",
+      "seedSql": "INSERT INTO Person VALUES (1,'A','Ann'),(2,'B','Ben'),(3,'C','Cal');",
+      "expectedOutput": [
+        {"firstName": "Ann", "lastName": "A", "city": null, "state": null},
+        {"firstName": "Ben", "lastName": "B", "city": null, "state": null},
+        {"firstName": "Cal", "lastName": "C", "city": null, "state": null}
+      ]
     }
   ]
 }

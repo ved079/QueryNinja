@@ -16,67 +16,160 @@
   "tests": [
     {
       "name": "Example",
-      "seedSql": "INSERT INTO Weather VALUES (1,'2015-01-01',10),(2,'2015-01-02',25),(3,'2015-01-03',20),(4,'2015-01-04',30),(5,'2015-01-06',40);"
+      "seedSql": "INSERT INTO Weather VALUES (1,'2015-01-01',10),(2,'2015-01-02',25),(3,'2015-01-03',20),(4,'2015-01-04',30),(5,'2015-01-06',40);",
+      "expectedOutput": [
+        {"id": 2},
+        {"id": 4}
+      ]
     },
     {
       "name": "Strictly decreasing — no dates are warmer than the previous day",
-      "seedSql": "INSERT INTO Weather VALUES (1,'2020-03-01',30),(2,'2020-03-02',20),(3,'2020-03-03',10);"
+      "seedSql": "INSERT INTO Weather VALUES (1,'2020-03-01',30),(2,'2020-03-02',20),(3,'2020-03-03',10);",
+      "expectedOutput": []
     },
     {
       "name": "Strictly increasing — every consecutive pair qualifies",
-      "seedSql": "INSERT INTO Weather VALUES (1,'2020-03-01',10),(2,'2020-03-02',20),(3,'2020-03-03',30);"
+      "seedSql": "INSERT INTO Weather VALUES (1,'2020-03-01',10),(2,'2020-03-02',20),(3,'2020-03-03',30);",
+      "expectedOutput": [
+        {"id": 2},
+        {"id": 3}
+      ]
     },
     {
       "name": "Equal temperatures are not a rise",
-      "seedSql": "INSERT INTO Weather VALUES (1,'2020-03-01',15),(2,'2020-03-02',15),(3,'2020-03-03',15);"
+      "seedSql": "INSERT INTO Weather VALUES (1,'2020-03-01',15),(2,'2020-03-02',15),(3,'2020-03-03',15);",
+      "expectedOutput": []
     },
     {
       "name": "Every date is a gap — LAG over ORDER BY would incorrectly match non-consecutive days",
-      "seedSql": "INSERT INTO Weather VALUES (1,'2020-03-01',10),(2,'2020-03-05',20),(3,'2020-03-09',30);"
+      "seedSql": "INSERT INTO Weather VALUES (1,'2020-03-01',10),(2,'2020-03-05',20),(3,'2020-03-09',30);",
+      "expectedOutput": []
     },
     {
       "name": "Single row — no previous day exists",
-      "seedSql": "INSERT INTO Weather VALUES (1,'2020-03-01',10);"
+      "seedSql": "INSERT INTO Weather VALUES (1,'2020-03-01',10);",
+      "expectedOutput": []
     },
     {
       "name": "Ids not in date order — an id-based join would give wrong results",
-      "seedSql": "INSERT INTO Weather VALUES (5,'2020-03-01',10),(2,'2020-03-02',30),(9,'2020-03-03',20),(1,'2020-03-04',35);"
+      "seedSql": "INSERT INTO Weather VALUES (5,'2020-03-01',10),(2,'2020-03-02',30),(9,'2020-03-03',20),(1,'2020-03-04',35);",
+      "expectedOutput": [
+        {"id": 2},
+        {"id": 1}
+      ]
     },
     {
       "name": "Across a month boundary — January 31 to February 1",
-      "seedSql": "INSERT INTO Weather VALUES (1,'2020-01-31',5),(2,'2020-02-01',9),(3,'2020-02-02',3);"
+      "seedSql": "INSERT INTO Weather VALUES (1,'2020-01-31',5),(2,'2020-02-01',9),(3,'2020-02-02',3);",
+      "expectedOutput": [
+        {"id": 2}
+      ]
     },
     {
       "name": "Across a leap day — February 28 to February 29 to March 1",
-      "seedSql": "INSERT INTO Weather VALUES (1,'2020-02-28',1),(2,'2020-02-29',7),(3,'2020-03-01',8);"
+      "seedSql": "INSERT INTO Weather VALUES (1,'2020-02-28',1),(2,'2020-02-29',7),(3,'2020-03-01',8);",
+      "expectedOutput": [
+        {"id": 2},
+        {"id": 3}
+      ]
     },
     {
       "name": "Across a year boundary — December 31 to January 1",
-      "seedSql": "INSERT INTO Weather VALUES (1,'2023-12-31',1),(2,'2024-01-01',5);"
+      "seedSql": "INSERT INTO Weather VALUES (1,'2023-12-31',1),(2,'2024-01-01',5);",
+      "expectedOutput": [
+        {"id": 2}
+      ]
+    },
+    {
+      "name": "Non-leap February — 2021-02-28 to 2021-03-01 is a gap",
+      "seedSql": "INSERT INTO Weather VALUES (1,'2021-02-27',1),(2,'2021-02-28',9),(3,'2021-03-01',5);",
+      "expectedOutput": [
+        {"id": 2}
+      ]
     },
     {
       "name": "Negative temperatures, zeros and duplicates in a longer consecutive run",
-      "seedSql": "INSERT INTO Weather VALUES (1,'2021-12-01',-10),(2,'2021-12-02',-5),(3,'2021-12-03',-8),(4,'2021-12-04',0),(5,'2021-12-05',0),(6,'2021-12-06',3);"
+      "seedSql": "INSERT INTO Weather VALUES (1,'2021-12-01',-10),(2,'2021-12-02',-5),(3,'2021-12-03',-8),(4,'2021-12-04',0),(5,'2021-12-05',0),(6,'2021-12-06',3);",
+      "expectedOutput": [
+        {"id": 2},
+        {"id": 4},
+        {"id": 6}
+      ]
     },
     {
       "name": "Long consecutive run of 10 days with multiple rises and drops",
-      "seedSql": "INSERT INTO Weather VALUES (1,'2024-01-01',10),(2,'2024-01-02',12),(3,'2024-01-03',11),(4,'2024-01-04',13),(5,'2024-01-05',15),(6,'2024-01-06',14),(7,'2024-01-07',16),(8,'2024-01-08',18),(9,'2024-01-09',17),(10,'2024-01-10',19);"
+      "seedSql": "INSERT INTO Weather VALUES (1,'2024-01-01',10),(2,'2024-01-02',12),(3,'2024-01-03',11),(4,'2024-01-04',13),(5,'2024-01-05',15),(6,'2024-01-06',14),(7,'2024-01-07',16),(8,'2024-01-08',18),(9,'2024-01-09',17),(10,'2024-01-10',19);",
+      "expectedOutput": [
+        {"id": 2},
+        {"id": 4},
+        {"id": 5},
+        {"id": 7},
+        {"id": 8},
+        {"id": 10}
+      ]
     },
     {
       "name": "Dates all have gaps, temperature always rises — LAG would falsely match all",
-      "seedSql": "INSERT INTO Weather VALUES (1,'2024-06-01',20),(2,'2024-06-04',25),(3,'2024-06-07',30),(4,'2024-06-10',35);"
+      "seedSql": "INSERT INTO Weather VALUES (1,'2024-06-01',20),(2,'2024-06-04',25),(3,'2024-06-07',30),(4,'2024-06-10',35);",
+      "expectedOutput": []
     },
     {
       "name": "Rise, drop, then rise again over 4 consecutive days",
-      "seedSql": "INSERT INTO Weather VALUES (1,'2024-07-01',10),(2,'2024-07-02',20),(3,'2024-07-03',15),(4,'2024-07-04',25);"
+      "seedSql": "INSERT INTO Weather VALUES (1,'2024-07-01',10),(2,'2024-07-02',20),(3,'2024-07-03',15),(4,'2024-07-04',25);",
+      "expectedOutput": [
+        {"id": 2},
+        {"id": 4}
+      ]
     },
     {
       "name": "Stress test with 20 dates, mix of consecutive and gaps, across month boundary",
-      "seedSql": "INSERT INTO Weather VALUES (1,'2024-01-01',5),(2,'2024-01-02',8),(3,'2024-01-05',12),(4,'2024-01-06',10),(5,'2024-01-07',15),(6,'2024-01-10',20),(7,'2024-01-11',18),(8,'2024-01-12',22),(9,'2024-01-15',25),(10,'2024-01-16',24),(11,'2024-01-17',28),(12,'2024-01-20',30),(13,'2024-01-21',26),(14,'2024-01-22',32),(15,'2024-01-25',35),(16,'2024-01-26',33),(17,'2024-01-27',38),(18,'2024-01-30',40),(19,'2024-01-31',36),(20,'2024-02-01',42);"
+      "seedSql": "INSERT INTO Weather VALUES (1,'2024-01-01',5),(2,'2024-01-02',8),(3,'2024-01-05',12),(4,'2024-01-06',10),(5,'2024-01-07',15),(6,'2024-01-10',20),(7,'2024-01-11',18),(8,'2024-01-12',22),(9,'2024-01-15',25),(10,'2024-01-16',24),(11,'2024-01-17',28),(12,'2024-01-20',30),(13,'2024-01-21',26),(14,'2024-01-22',32),(15,'2024-01-25',35),(16,'2024-01-26',33),(17,'2024-01-27',38),(18,'2024-01-30',40),(19,'2024-01-31',36),(20,'2024-02-01',42);",
+      "expectedOutput": [
+        {"id": 2},
+        {"id": 5},
+        {"id": 8},
+        {"id": 11},
+        {"id": 14},
+        {"id": 17},
+        {"id": 20}
+      ]
     },
     {
       "name": "All consecutive, only one day qualifies — at the very end",
-      "seedSql": "INSERT INTO Weather VALUES (1,'2024-08-01',30),(2,'2024-08-02',20),(3,'2024-08-03',20),(4,'2024-08-04',20),(5,'2024-08-05',25);"
+      "seedSql": "INSERT INTO Weather VALUES (1,'2024-08-01',30),(2,'2024-08-02',20),(3,'2024-08-03',20),(4,'2024-08-04',20),(5,'2024-08-05',25);",
+      "expectedOutput": [
+        {"id": 5}
+      ]
+    },
+    {
+      "name": "Duplicate recordDate impossible, but ids can repeat in reverse order",
+      "seedSql": "INSERT INTO Weather VALUES (7,'2024-09-10',40),(3,'2024-09-11',30),(5,'2024-09-12',35);",
+      "expectedOutput": [
+        {"id": 5}
+      ]
+    },
+    {
+      "name": "Rise only on the first consecutive pair after a gap",
+      "seedSql": "INSERT INTO Weather VALUES (1,'2024-10-01',10),(2,'2024-10-05',10),(3,'2024-10-06',12),(4,'2024-10-07',11);",
+      "expectedOutput": [
+        {"id": 3}
+      ]
+    },
+    {
+      "name": "Two separate consecutive runs with drops between",
+      "seedSql": "INSERT INTO Weather VALUES (1,'2024-11-01',1),(2,'2024-11-02',2),(3,'2024-11-03',1),(4,'2024-11-04',2),(5,'2024-11-05',3);",
+      "expectedOutput": [
+        {"id": 2},
+        {"id": 4},
+        {"id": 5}
+      ]
+    },
+    {
+      "name": "Descending then a single rise at the very end",
+      "seedSql": "INSERT INTO Weather VALUES (1,'2024-12-01',30),(2,'2024-12-02',20),(3,'2024-12-03',10),(4,'2024-12-04',25);",
+      "expectedOutput": [
+        {"id": 4}
+      ]
     }
   ]
 }
