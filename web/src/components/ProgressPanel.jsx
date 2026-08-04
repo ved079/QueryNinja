@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { firstSolvedDays } from '../lib/streak.js';
 
 const ARC_LENGTH = 197.92;
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -185,6 +186,9 @@ export default function ProgressPanel({ problems, progress, submissions, userNam
     const today = new Date();
     const curM = today.getMonth();
     const curY = today.getFullYear();
+    // Days with a first-time solve drive the max-streak stat; submission
+    // volume below still counts every entry (level + total count).
+    const solveDays = firstSolvedDays(submissions);
     // Build date→count lookup from array of submission entries.
     const byDate = {};
     (submissions ?? []).forEach((s) => {
@@ -212,7 +216,7 @@ export default function ProgressPanel({ problems, progress, submissions, userNam
         const count = byDate[key] ?? 0;
         totalSubs += count;
         if (count > 0) activeDays++;
-        if (count > 0) { streak++; maxStreak = Math.max(maxStreak, streak); }
+        if (solveDays.has(key)) { streak++; maxStreak = Math.max(maxStreak, streak); }
         else streak = 0;
 
         // More submissions that day = a higher level = a brighter/glowier flame.
