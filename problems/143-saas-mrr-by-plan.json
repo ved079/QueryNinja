@@ -1,0 +1,135 @@
+{
+  "id": "saas-mrr-by-plan",
+  "number": 143,
+  "title": "MRR by Plan per Month",
+  "difficulty": "Hard",
+  "tags": [
+    "CTE",
+    "Join",
+    "Date",
+    "SaaS",
+    "Aggregation"
+  ],
+  "orderMatters": false,
+  "schemaSql": "CREATE TABLE plans (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  monthly_price REAL\n);\nCREATE TABLE users (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  signup_date TEXT\n);\nCREATE TABLE subscriptions (\n  id INTEGER PRIMARY KEY,\n  user_id INTEGER,\n  plan_id INTEGER,\n  started_at TEXT,\n  ended_at TEXT\n);",
+  "description": "Monthly Recurring Revenue (MRR) is the sum of `monthly_price` for every active subscription in a given month.\n\nFor each calendar month that overlaps with at least one subscription, and for each plan, report the total MRR contributed by that plan. Return columns `month` (YYYY-MM), `plan`, and `mrr` (rounded to 2 decimal places). Only include (month, plan) pairs with mrr > 0. Order by `month`, then `plan`.",
+  "hint": "Join the months spine (recursive CTE or derived) with subscriptions and plans, filtering to active subscriptions in each month.",
+  "solutionSql": "WITH RECURSIVE months(m, m_start, m_next) AS (\n  SELECT\n    strftime('%Y-%m', MIN(started_at)),\n    date(MIN(started_at), 'start of month'),\n    date(MIN(started_at), 'start of month', '+1 month')\n  FROM subscriptions\n  UNION ALL\n  SELECT\n    strftime('%Y-%m', m_next),\n    m_next,\n    date(m_next, '+1 month')\n  FROM months\n  WHERE m_start <= (\n    SELECT date(COALESCE(MAX(ended_at), '2025-12-31'), 'start of month')\n    FROM subscriptions\n  )\n)\nSELECT m.m AS month,\n       p.name AS plan,\n       ROUND(SUM(p.monthly_price), 2) AS mrr\nFROM months m\nJOIN subscriptions s\n  ON s.started_at < m.m_next\n AND (s.ended_at IS NULL OR s.ended_at >= m.m_start)\nJOIN plans p ON p.id = s.plan_id\nGROUP BY m.m, p.name\nHAVING mrr > 0\nORDER BY m.m, p.name;",
+  "outputExplanation": "Each active subscription contributes its plan price to MRR for every month it overlaps. The recursive spine ensures every month between earliest start and latest end is represented.",
+  "tests": [
+    {
+      "name": "Example — two plans, mixed churn",
+      "seedSql": "INSERT INTO plans VALUES (1,'starter',29),(2,'pro',99),(3,'enterprise',299);\nINSERT INTO users VALUES (1,'Alice','2022-01-01'),(2,'Bob','2022-01-01'),(3,'Carol','2022-02-01'),(4,'Dave','2022-03-01');\nINSERT INTO subscriptions VALUES\n  (1,1,1,'2022-01-01','2022-03-31'),\n  (2,2,2,'2022-01-01',NULL),\n  (3,3,1,'2022-02-01','2022-03-31'),\n  (4,4,3,'2022-03-01',NULL);",
+      "expectedOutput": [
+        {
+          "month": "2022-01",
+          "plan": "pro",
+          "mrr": 99
+        },
+        {
+          "month": "2022-01",
+          "plan": "starter",
+          "mrr": 29
+        },
+        {
+          "month": "2022-02",
+          "plan": "pro",
+          "mrr": 99
+        },
+        {
+          "month": "2022-02",
+          "plan": "starter",
+          "mrr": 58
+        },
+        {
+          "month": "2022-03",
+          "plan": "enterprise",
+          "mrr": 299
+        },
+        {
+          "month": "2022-03",
+          "plan": "pro",
+          "mrr": 99
+        },
+        {
+          "month": "2022-03",
+          "plan": "starter",
+          "mrr": 58
+        },
+        {
+          "month": "2022-04",
+          "plan": "enterprise",
+          "mrr": 299
+        },
+        {
+          "month": "2022-04",
+          "plan": "pro",
+          "mrr": 99
+        }
+      ]
+    },
+    {
+      "name": "Single plan, single user",
+      "seedSql": "INSERT INTO plans VALUES (1,'starter',29);\nINSERT INTO users VALUES (1,'Solo','2022-01-01');\nINSERT INTO subscriptions VALUES (1,1,1,'2022-01-01','2022-03-31');",
+      "expectedOutput": [
+        {
+          "month": "2022-01",
+          "plan": "starter",
+          "mrr": 29
+        },
+        {
+          "month": "2022-02",
+          "plan": "starter",
+          "mrr": 29
+        },
+        {
+          "month": "2022-03",
+          "plan": "starter",
+          "mrr": 29
+        }
+      ]
+    },
+    {
+      "name": "All churn same month",
+      "seedSql": "INSERT INTO plans VALUES (1,'pro',99);\nINSERT INTO users VALUES (1,'A','2022-06-01'),(2,'B','2022-06-01');\nINSERT INTO subscriptions VALUES\n  (1,1,1,'2022-06-01','2022-07-31'),\n  (2,2,1,'2022-06-01','2022-07-31');",
+      "expectedOutput": [
+        {
+          "month": "2022-06",
+          "plan": "pro",
+          "mrr": 198
+        },
+        {
+          "month": "2022-07",
+          "plan": "pro",
+          "mrr": 198
+        }
+      ]
+    },
+    {
+      "name": "No subscriptions",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Plan upgrade — two subs for one user",
+      "seedSql": "INSERT INTO plans VALUES (1,'starter',29),(2,'pro',99);\nINSERT INTO users VALUES (1,'Upgrader','2022-01-01');\nINSERT INTO subscriptions VALUES\n  (1,1,1,'2022-01-01','2022-02-28'),\n  (2,1,2,'2022-03-01',NULL);",
+      "expectedOutput": [
+        {
+          "month": "2022-01",
+          "plan": "starter",
+          "mrr": 29
+        },
+        {
+          "month": "2022-02",
+          "plan": "starter",
+          "mrr": 29
+        },
+        {
+          "month": "2022-03",
+          "plan": "pro",
+          "mrr": 99
+        }
+      ]
+    }
+  ]
+}

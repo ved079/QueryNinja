@@ -1,0 +1,62 @@
+{
+  "id": "rides-revenue-per-trip-hour",
+  "number": 151,
+  "title": "Revenue per Trip-Hour by Driver",
+  "difficulty": "Medium",
+  "tags": [
+    "Aggregation",
+    "Date",
+    "Rides"
+  ],
+  "orderMatters": false,
+  "schemaSql": "CREATE TABLE drivers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  city TEXT\n);\nCREATE TABLE riders (\n  id INTEGER PRIMARY KEY,\n  name TEXT\n);\nCREATE TABLE trips (\n  id INTEGER PRIMARY KEY,\n  driver_id INTEGER,\n  rider_id INTEGER,\n  requested_at TEXT,\n  started_at TEXT,\n  ended_at TEXT,\n  status TEXT,\n  fare REAL\n);",
+  "description": "For each driver who completed at least one trip, compute their **revenue per trip-hour**: total fare from completed trips divided by total trip duration in hours across all their completed trips.\n\nTrip duration in hours = (julianday(ended_at) - julianday(started_at)) * 24.\n\nReturn columns `driver_id`, `driver_name`, `total_fare` (rounded to 2), `total_hours` (rounded to 2), and `fare_per_hour` (rounded to 2). Order by `fare_per_hour` descending, then `driver_id` ascending.",
+  "hint": "Sum fare and sum (julianday(ended_at) - julianday(started_at)) * 24 per driver, then divide.",
+  "solutionSql": "SELECT t.driver_id,\n       d.name AS driver_name,\n       ROUND(SUM(t.fare), 2) AS total_fare,\n       ROUND(SUM((julianday(t.ended_at) - julianday(t.started_at)) * 24), 2) AS total_hours,\n       ROUND(\n         SUM(t.fare) / SUM((julianday(t.ended_at) - julianday(t.started_at)) * 24),\n         2\n       ) AS fare_per_hour\nFROM trips t\nJOIN drivers d ON d.id = t.driver_id\nWHERE t.status = 'completed'\n  AND t.started_at IS NOT NULL\n  AND t.ended_at IS NOT NULL\nGROUP BY t.driver_id, d.name\nORDER BY fare_per_hour DESC, t.driver_id ASC;",
+  "outputExplanation": "Summing fares and trip hours separately then dividing gives average earnings per hour of driving. Drivers with short, high-fare trips rank highest.",
+  "tests": [
+    {
+      "name": "Example — two drivers, different efficiencies",
+      "seedSql": "INSERT INTO drivers VALUES (1,'FastAce','NYC'),(2,'SlowBen','NYC');\nINSERT INTO riders VALUES (1,'X'),(2,'Y');\nINSERT INTO trips VALUES\n  (1,1,1,'2022-01-01 09:00','2022-01-01 09:00','2022-01-01 09:30','completed',20.0),\n  (2,1,2,'2022-01-02 10:00','2022-01-02 10:00','2022-01-02 10:20','completed',15.0),\n  (3,2,1,'2022-01-01 14:00','2022-01-01 14:00','2022-01-01 15:00','completed',18.0),\n  (4,2,2,'2022-01-02 16:00','2022-01-02 16:00','2022-01-02 17:30','completed',12.0);",
+      "expectedOutput": [
+        {
+          "driver_id": 1,
+          "driver_name": "FastAce",
+          "total_fare": 35,
+          "total_hours": 0.83,
+          "fare_per_hour": 42
+        },
+        {
+          "driver_id": 2,
+          "driver_name": "SlowBen",
+          "total_fare": 30,
+          "total_hours": 2.5,
+          "fare_per_hour": 12
+        }
+      ]
+    },
+    {
+      "name": "Cancelled trips excluded",
+      "seedSql": "INSERT INTO drivers VALUES (1,'D','NYC');\nINSERT INTO riders VALUES (1,'X');\nINSERT INTO trips VALUES\n  (1,1,1,'2022-01-01 09:00','2022-01-01 09:00','2022-01-01 10:00','completed',30.0),\n  (2,1,1,'2022-01-02 09:00',NULL,NULL,'cancelled',0.0);",
+      "expectedOutput": [
+        {
+          "driver_id": 1,
+          "driver_name": "D",
+          "total_fare": 30,
+          "total_hours": 1,
+          "fare_per_hour": 30
+        }
+      ]
+    },
+    {
+      "name": "No completed trips — empty",
+      "seedSql": "INSERT INTO drivers VALUES (1,'D','NYC');\nINSERT INTO riders VALUES (1,'X');\nINSERT INTO trips VALUES (1,1,1,'2022-01-01',NULL,NULL,'cancelled',0.0);",
+      "expectedOutput": []
+    },
+    {
+      "name": "Empty tables",
+      "seedSql": "",
+      "expectedOutput": []
+    }
+  ]
+}

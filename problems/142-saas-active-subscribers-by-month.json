@@ -1,0 +1,261 @@
+{
+  "id": "saas-active-subscribers-by-month",
+  "number": 142,
+  "title": "Active Subscribers by Month",
+  "difficulty": "Hard",
+  "tags": [
+    "CTE",
+    "Date",
+    "SaaS",
+    "Window Functions"
+  ],
+  "orderMatters": false,
+  "schemaSql": "CREATE TABLE plans (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  monthly_price REAL\n);\nCREATE TABLE users (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  signup_date TEXT\n);\nCREATE TABLE subscriptions (\n  id INTEGER PRIMARY KEY,\n  user_id INTEGER,\n  plan_id INTEGER,\n  started_at TEXT,\n  ended_at TEXT\n);",
+  "description": "For each calendar month that overlaps with any subscription in the data, count the number of subscriptions that were **active at any point during that month**.\n\nA subscription is active during month M if:\n- `started_at` < the **first day of the month after M**\n- AND `ended_at` IS NULL **or** `ended_at` ≥ the **first day of M**\n\nReturn columns `month` (YYYY-MM) and `active_subscribers`. Include only months where at least one subscription was active. Order by `month` ascending.",
+  "hint": "Generate the universe of relevant months from the min started_at to the max ended_at (or today), then for each month count subscriptions that overlap it.",
+  "solutionSql": "WITH RECURSIVE months(m, m_start, m_end_excl) AS (\n  SELECT\n    strftime('%Y-%m', MIN(started_at)),\n    date(MIN(started_at), 'start of month'),\n    date(MIN(started_at), 'start of month', '+1 month')\n  FROM subscriptions\n  UNION ALL\n  SELECT\n    strftime('%Y-%m', m_end_excl),\n    m_end_excl,\n    date(m_end_excl, '+1 month')\n  FROM months\n  WHERE m_start <= (\n    SELECT date(COALESCE(MAX(ended_at), '2025-12-31'), 'start of month')\n    FROM subscriptions\n  )\n)\nSELECT m.m AS month,\n       COUNT(s.id) AS active_subscribers\nFROM months m\nJOIN subscriptions s\n  ON s.started_at < m.m_end_excl\n AND (s.ended_at IS NULL OR s.ended_at >= m.m_start)\nGROUP BY m.m\nORDER BY m.m;",
+  "outputExplanation": "The recursive CTE generates every month from the earliest subscription start to the latest end. For each month the JOIN picks subscriptions whose date range overlaps with that month window.",
+  "tests": [
+    {
+      "name": "Example — 3 users, overlapping months",
+      "seedSql": "INSERT INTO plans VALUES (1,'starter',29),(2,'pro',99);\nINSERT INTO users VALUES (1,'Alice','2022-01-01'),(2,'Bob','2022-02-01'),(3,'Carol','2022-01-01');\nINSERT INTO subscriptions VALUES\n  (1,1,1,'2022-01-01','2022-03-31'),\n  (2,2,2,'2022-02-15',NULL),\n  (3,3,1,'2022-01-15','2022-02-28');",
+      "expectedOutput": [
+        {
+          "month": "2022-01",
+          "active_subscribers": 2
+        },
+        {
+          "month": "2022-02",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2022-03",
+          "active_subscribers": 2
+        },
+        {
+          "month": "2022-04",
+          "active_subscribers": 1
+        }
+      ]
+    },
+    {
+      "name": "Single subscription entire year",
+      "seedSql": "INSERT INTO plans VALUES (1,'starter',29);\nINSERT INTO users VALUES (1,'Solo','2022-01-01');\nINSERT INTO subscriptions VALUES (1,1,1,'2022-01-01','2022-06-30');",
+      "expectedOutput": [
+        {
+          "month": "2022-01",
+          "active_subscribers": 1
+        },
+        {
+          "month": "2022-02",
+          "active_subscribers": 1
+        },
+        {
+          "month": "2022-03",
+          "active_subscribers": 1
+        },
+        {
+          "month": "2022-04",
+          "active_subscribers": 1
+        },
+        {
+          "month": "2022-05",
+          "active_subscribers": 1
+        },
+        {
+          "month": "2022-06",
+          "active_subscribers": 1
+        }
+      ]
+    },
+    {
+      "name": "No subscriptions — empty",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Two non-overlapping subscriptions",
+      "seedSql": "INSERT INTO plans VALUES (1,'pro',99);\nINSERT INTO users VALUES (1,'A','2022-01-01'),(2,'B','2022-06-01');\nINSERT INTO subscriptions VALUES\n  (1,1,1,'2022-01-01','2022-03-31'),\n  (2,2,1,'2022-06-01','2022-08-31');",
+      "expectedOutput": [
+        {
+          "month": "2022-01",
+          "active_subscribers": 1
+        },
+        {
+          "month": "2022-02",
+          "active_subscribers": 1
+        },
+        {
+          "month": "2022-03",
+          "active_subscribers": 1
+        },
+        {
+          "month": "2022-06",
+          "active_subscribers": 1
+        },
+        {
+          "month": "2022-07",
+          "active_subscribers": 1
+        },
+        {
+          "month": "2022-08",
+          "active_subscribers": 1
+        }
+      ]
+    },
+    {
+      "name": "All still active",
+      "seedSql": "INSERT INTO plans VALUES (1,'starter',29),(2,'pro',99);\nINSERT INTO users VALUES (1,'A','2023-01-01'),(2,'B','2023-02-01'),(3,'C','2023-03-01');\nINSERT INTO subscriptions VALUES\n  (1,1,1,'2023-01-01',NULL),\n  (2,2,2,'2023-02-01',NULL),\n  (3,3,1,'2023-03-01',NULL);",
+      "expectedOutput": [
+        {
+          "month": "2023-01",
+          "active_subscribers": 1
+        },
+        {
+          "month": "2023-02",
+          "active_subscribers": 2
+        },
+        {
+          "month": "2023-03",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2023-04",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2023-05",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2023-06",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2023-07",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2023-08",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2023-09",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2023-10",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2023-11",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2023-12",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2024-01",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2024-02",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2024-03",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2024-04",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2024-05",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2024-06",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2024-07",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2024-08",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2024-09",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2024-10",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2024-11",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2024-12",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2025-01",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2025-02",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2025-03",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2025-04",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2025-05",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2025-06",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2025-07",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2025-08",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2025-09",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2025-10",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2025-11",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2025-12",
+          "active_subscribers": 3
+        },
+        {
+          "month": "2026-01",
+          "active_subscribers": 3
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "id": "bank-mom-balance-change",
+  "number": 156,
+  "title": "Month-over-Month Balance Change",
+  "difficulty": "Hard",
+  "tags": [
+    "CTE",
+    "Window Functions",
+    "Date",
+    "Banking"
+  ],
+  "orderMatters": false,
+  "schemaSql": "CREATE TABLE accounts (\n  id INTEGER PRIMARY KEY,\n  user_id INTEGER,\n  account_type TEXT,\n  opened_date TEXT\n);\nCREATE TABLE transactions (\n  id INTEGER PRIMARY KEY,\n  account_id INTEGER,\n  txn_type TEXT,\n  amount REAL,\n  txn_date TEXT\n);",
+  "description": "For each account, compute the **end-of-month balance** (sum of all credits minus all debits up to and including the last day of each month). Then compute the **month-over-month change** in balance.\n\nReturn columns `account_id`, `month` (YYYY-MM), `end_balance` (rounded to 2), and `mom_change` (end_balance minus prior month's end_balance, rounded to 2; NULL for the first month of each account).\n\nOnly include months where the account had at least one transaction. Order by `account_id` ascending, `month` ascending.",
+  "hint": "Compute cumulative balance up to end of each month using a subquery or window function, then use LAG(end_balance) to subtract the prior month.",
+  "solutionSql": "WITH monthly_end AS (\n  SELECT account_id,\n         strftime('%Y-%m', txn_date) AS month,\n         SUM(CASE WHEN txn_type = 'credit' THEN amount ELSE -amount END) AS net_change\n  FROM transactions\n  GROUP BY account_id, month\n),\nwith_running AS (\n  SELECT account_id,\n         month,\n         ROUND(\n           SUM(net_change) OVER (PARTITION BY account_id ORDER BY month\n                                  ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW),\n           2\n         ) AS end_balance\n  FROM monthly_end\n)\nSELECT account_id,\n       month,\n       end_balance,\n       ROUND(\n         end_balance - LAG(end_balance) OVER (PARTITION BY account_id ORDER BY month),\n         2\n       ) AS mom_change\nFROM with_running\nORDER BY account_id, month;",
+  "outputExplanation": "Monthly net change (credits minus debits) is computed first. A running SUM window gives the cumulative balance at end of each month. LAG then computes the difference from the prior month.",
+  "tests": [
+    {
+      "name": "Example — two accounts",
+      "seedSql": "INSERT INTO accounts VALUES (1,1,'checking','2022-01-01'),(2,2,'savings','2022-01-01');\nINSERT INTO transactions VALUES\n  (1,1,'credit',1000.0,'2022-01-10'),\n  (2,1,'debit',300.0,'2022-01-20'),\n  (3,1,'credit',500.0,'2022-02-05'),\n  (4,1,'debit',100.0,'2022-02-15'),\n  (5,1,'credit',200.0,'2022-03-01'),\n  (6,2,'credit',5000.0,'2022-01-05'),\n  (7,2,'debit',1000.0,'2022-02-10');",
+      "expectedOutput": [
+        {
+          "account_id": 1,
+          "month": "2022-01",
+          "end_balance": 700,
+          "mom_change": null
+        },
+        {
+          "account_id": 1,
+          "month": "2022-02",
+          "end_balance": 1100,
+          "mom_change": 400
+        },
+        {
+          "account_id": 1,
+          "month": "2022-03",
+          "end_balance": 1300,
+          "mom_change": 200
+        },
+        {
+          "account_id": 2,
+          "month": "2022-01",
+          "end_balance": 5000,
+          "mom_change": null
+        },
+        {
+          "account_id": 2,
+          "month": "2022-02",
+          "end_balance": 4000,
+          "mom_change": -1000
+        }
+      ]
+    },
+    {
+      "name": "Single month — mom_change is NULL",
+      "seedSql": "INSERT INTO accounts VALUES (1,1,'checking','2022-01-01');\nINSERT INTO transactions VALUES (1,1,'credit',500.0,'2022-06-15');",
+      "expectedOutput": [
+        {
+          "account_id": 1,
+          "month": "2022-06",
+          "end_balance": 500,
+          "mom_change": null
+        }
+      ]
+    },
+    {
+      "name": "Balance decreasing every month",
+      "seedSql": "INSERT INTO accounts VALUES (1,1,'checking','2022-01-01');\nINSERT INTO transactions VALUES\n  (1,1,'credit',1000.0,'2022-01-01'),\n  (2,1,'debit',400.0,'2022-02-01'),\n  (3,1,'debit',300.0,'2022-03-01'),\n  (4,1,'debit',200.0,'2022-04-01');",
+      "expectedOutput": [
+        {
+          "account_id": 1,
+          "month": "2022-01",
+          "end_balance": 1000,
+          "mom_change": null
+        },
+        {
+          "account_id": 1,
+          "month": "2022-02",
+          "end_balance": 600,
+          "mom_change": -400
+        },
+        {
+          "account_id": 1,
+          "month": "2022-03",
+          "end_balance": 300,
+          "mom_change": -300
+        },
+        {
+          "account_id": 1,
+          "month": "2022-04",
+          "end_balance": 100,
+          "mom_change": -200
+        }
+      ]
+    },
+    {
+      "name": "Empty tables",
+      "seedSql": "",
+      "expectedOutput": []
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "id": "bank-overdraft-detection",
+  "number": 157,
+  "title": "Overdraft Detection",
+  "difficulty": "Hard",
+  "tags": [
+    "CTE",
+    "Window Functions",
+    "Banking"
+  ],
+  "orderMatters": false,
+  "schemaSql": "CREATE TABLE accounts (\n  id INTEGER PRIMARY KEY,\n  user_id INTEGER,\n  account_type TEXT,\n  opened_date TEXT\n);\nCREATE TABLE transactions (\n  id INTEGER PRIMARY KEY,\n  account_id INTEGER,\n  txn_type TEXT,\n  amount REAL,\n  txn_date TEXT\n);",
+  "description": "An **overdraft** occurs when an account's running balance drops below zero after any transaction.\n\nIdentify all accounts that experienced at least one overdraft. For each such account return `account_id`, `account_type`, and `overdraft_count` — the number of individual transactions that pushed the balance below zero. Order by `overdraft_count` descending, then `account_id` ascending.",
+  "hint": "Compute the running balance after every transaction using a window SUM, then count rows where running_balance < 0 per account.",
+  "solutionSql": "WITH running AS (\n  SELECT account_id,\n         SUM(CASE WHEN txn_type = 'credit' THEN amount ELSE -amount END)\n           OVER (PARTITION BY account_id ORDER BY txn_date, id\n                 ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_balance\n  FROM transactions\n)\nSELECT r.account_id,\n       a.account_type,\n       COUNT(*) AS overdraft_count\nFROM running r\nJOIN accounts a ON a.id = r.account_id\nWHERE r.running_balance < 0\nGROUP BY r.account_id, a.account_type\nORDER BY overdraft_count DESC, r.account_id ASC;",
+  "outputExplanation": "The running balance is computed transaction by transaction. Any row where the cumulative balance is negative represents a transaction that caused an overdraft. Accounts with no such rows are excluded.",
+  "tests": [
+    {
+      "name": "Example — one account overdraws twice",
+      "seedSql": "INSERT INTO accounts VALUES (1,1,'checking','2022-01-01'),(2,2,'savings','2022-01-01');\nINSERT INTO transactions VALUES\n  (1,1,'credit',100.0,'2022-01-01'),\n  (2,1,'debit',200.0,'2022-01-05'),\n  (3,1,'credit',500.0,'2022-01-10'),\n  (4,1,'debit',600.0,'2022-01-15'),\n  (5,2,'credit',1000.0,'2022-01-01'),\n  (6,2,'debit',200.0,'2022-01-10');",
+      "expectedOutput": [
+        {
+          "account_id": 1,
+          "account_type": "checking",
+          "overdraft_count": 2
+        }
+      ]
+    },
+    {
+      "name": "No overdrafts — empty result",
+      "seedSql": "INSERT INTO accounts VALUES (1,1,'checking','2022-01-01');\nINSERT INTO transactions VALUES\n  (1,1,'credit',500.0,'2022-01-01'),\n  (2,1,'debit',100.0,'2022-01-05');",
+      "expectedOutput": []
+    },
+    {
+      "name": "First transaction is a debit causing overdraft",
+      "seedSql": "INSERT INTO accounts VALUES (1,1,'checking','2022-01-01');\nINSERT INTO transactions VALUES\n  (1,1,'debit',50.0,'2022-01-01'),\n  (2,1,'credit',200.0,'2022-01-05');",
+      "expectedOutput": [
+        {
+          "account_id": 1,
+          "account_type": "checking",
+          "overdraft_count": 1
+        }
+      ]
+    },
+    {
+      "name": "Multiple accounts multiple overdrafts",
+      "seedSql": "INSERT INTO accounts VALUES (1,1,'checking','2022-01-01'),(2,2,'checking','2022-01-01'),(3,3,'savings','2022-01-01');\nINSERT INTO transactions VALUES\n  (1,1,'debit',100.0,'2022-01-01'),\n  (2,1,'debit',50.0,'2022-01-02'),\n  (3,1,'credit',500.0,'2022-01-03'),\n  (4,2,'credit',200.0,'2022-01-01'),\n  (5,2,'debit',300.0,'2022-01-05'),\n  (6,3,'credit',1000.0,'2022-01-01'),\n  (7,3,'debit',200.0,'2022-01-10');",
+      "expectedOutput": [
+        {
+          "account_id": 1,
+          "account_type": "checking",
+          "overdraft_count": 2
+        },
+        {
+          "account_id": 2,
+          "account_type": "checking",
+          "overdraft_count": 1
+        }
+      ]
+    },
+    {
+      "name": "Empty tables",
+      "seedSql": "",
+      "expectedOutput": []
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "market-sellers-with-repeat-buyers",
+  "number": 145,
+  "title": "Sellers with Repeat Buyers",
+  "difficulty": "Hard",
+  "tags": [
+    "CTE",
+    "Join",
+    "Aggregation",
+    "Marketplace"
+  ],
+  "orderMatters": false,
+  "schemaSql": "CREATE TABLE sellers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  category TEXT,\n  joined_date TEXT\n);\nCREATE TABLE buyers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  joined_date TEXT\n);\nCREATE TABLE transactions (\n  id INTEGER PRIMARY KEY,\n  seller_id INTEGER,\n  buyer_id INTEGER,\n  amount REAL,\n  transacted_at TEXT,\n  status TEXT\n);\nCREATE TABLE reviews (\n  id INTEGER PRIMARY KEY,\n  transaction_id INTEGER,\n  seller_id INTEGER,\n  buyer_id INTEGER,\n  rating INTEGER,\n  reviewed_at TEXT\n);",
+  "description": "A **repeat buyer** for a seller is a buyer who has completed **at least 2 transactions** with that seller.\n\nFor each seller who has at least one repeat buyer, return:\n- `seller_id`\n- `seller_name`\n- `repeat_buyer_count` — number of distinct buyers who bought from this seller 2 or more times\n\nOrder by `repeat_buyer_count` descending, then `seller_id` ascending.",
+  "hint": "Count transactions per (seller, buyer) pair first, then filter to pairs with count >= 2, then count distinct buyers per seller.",
+  "solutionSql": "WITH buyer_txn_counts AS (\n  SELECT seller_id, buyer_id, COUNT(*) AS txn_count\n  FROM transactions\n  WHERE status = 'completed'\n  GROUP BY seller_id, buyer_id\n),\nrepeat_buyers AS (\n  SELECT seller_id, COUNT(*) AS repeat_buyer_count\n  FROM buyer_txn_counts\n  WHERE txn_count >= 2\n  GROUP BY seller_id\n)\nSELECT r.seller_id,\n       s.name AS seller_name,\n       r.repeat_buyer_count\nFROM repeat_buyers r\nJOIN sellers s ON s.id = r.seller_id\nORDER BY r.repeat_buyer_count DESC, r.seller_id ASC;",
+  "outputExplanation": "First aggregate to count completed transactions per (seller, buyer) pair. Then keep only pairs with 2+ purchases. Finally count those repeat buyer pairs per seller.",
+  "tests": [
+    {
+      "name": "Example — mixed repeat and one-time buyers",
+      "seedSql": "INSERT INTO sellers VALUES (1,'ShopA','Electronics','2020-01-01'),(2,'ShopB','Clothing','2020-06-01'),(3,'ShopC','Books','2021-01-01');\nINSERT INTO buyers VALUES (1,'Alice','2021-01-01'),(2,'Bob','2021-02-01'),(3,'Carol','2021-03-01'),(4,'Dave','2021-04-01');\nINSERT INTO transactions VALUES\n  (1,1,1,50.0,'2022-01-10','completed'),\n  (2,1,1,80.0,'2022-03-15','completed'),\n  (3,1,2,30.0,'2022-02-01','completed'),\n  (4,1,2,30.0,'2022-04-01','completed'),\n  (5,2,3,100.0,'2022-01-20','completed'),\n  (6,2,4,45.0,'2022-02-10','completed'),\n  (7,3,1,15.0,'2022-05-01','completed'),\n  (8,1,3,20.0,'2022-06-01','completed');",
+      "expectedOutput": [
+        {
+          "seller_id": 1,
+          "seller_name": "ShopA",
+          "repeat_buyer_count": 2
+        }
+      ]
+    },
+    {
+      "name": "No repeat buyers — empty result",
+      "seedSql": "INSERT INTO sellers VALUES (1,'ShopA','Electronics','2020-01-01');\nINSERT INTO buyers VALUES (1,'Alice','2021-01-01'),(2,'Bob','2021-02-01');\nINSERT INTO transactions VALUES\n  (1,1,1,50.0,'2022-01-01','completed'),\n  (2,1,2,80.0,'2022-02-01','completed');",
+      "expectedOutput": []
+    },
+    {
+      "name": "Cancelled transactions should not count",
+      "seedSql": "INSERT INTO sellers VALUES (1,'ShopA','Electronics','2020-01-01');\nINSERT INTO buyers VALUES (1,'Alice','2021-01-01');\nINSERT INTO transactions VALUES\n  (1,1,1,50.0,'2022-01-01','completed'),\n  (2,1,1,80.0,'2022-02-01','cancelled'),\n  (3,1,1,30.0,'2022-03-01','cancelled');",
+      "expectedOutput": []
+    },
+    {
+      "name": "Single seller, many repeat buyers",
+      "seedSql": "INSERT INTO sellers VALUES (1,'Mega','Electronics','2019-01-01');\nINSERT INTO buyers VALUES (1,'A','2021-01-01'),(2,'B','2021-01-01'),(3,'C','2021-01-01'),(4,'D','2021-01-01');\nINSERT INTO transactions VALUES\n  (1,1,1,10.0,'2022-01-01','completed'),(2,1,1,10.0,'2022-02-01','completed'),\n  (3,1,2,10.0,'2022-01-01','completed'),(4,1,2,10.0,'2022-03-01','completed'),\n  (5,1,3,10.0,'2022-01-01','completed'),(6,1,3,10.0,'2022-04-01','completed'),\n  (7,1,4,10.0,'2022-05-01','completed');",
+      "expectedOutput": [
+        {
+          "seller_id": 1,
+          "seller_name": "Mega",
+          "repeat_buyer_count": 3
+        }
+      ]
+    },
+    {
+      "name": "Empty tables",
+      "seedSql": "",
+      "expectedOutput": []
+    }
+  ]
+}

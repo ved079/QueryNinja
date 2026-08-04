@@ -1,0 +1,40 @@
+{
+  "id": "market-seller-rating-decline",
+  "number": 148,
+  "title": "Seller Rating Decline",
+  "difficulty": "Hard",
+  "tags": [
+    "CTE",
+    "Window Functions",
+    "Join",
+    "Marketplace"
+  ],
+  "orderMatters": false,
+  "schemaSql": "CREATE TABLE sellers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  category TEXT,\n  joined_date TEXT\n);\nCREATE TABLE buyers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  joined_date TEXT\n);\nCREATE TABLE transactions (\n  id INTEGER PRIMARY KEY,\n  seller_id INTEGER,\n  buyer_id INTEGER,\n  amount REAL,\n  transacted_at TEXT,\n  status TEXT\n);\nCREATE TABLE reviews (\n  id INTEGER PRIMARY KEY,\n  transaction_id INTEGER,\n  seller_id INTEGER,\n  buyer_id INTEGER,\n  rating INTEGER,\n  reviewed_at TEXT\n);",
+  "description": "Identify sellers whose **average rating in their 3 most recent reviews** is strictly lower than their **average rating in the 3 reviews before that** (reviews 4–6 most recent).\n\nA seller must have **at least 6 reviews** to be included.\n\nReturn columns `seller_id`, `seller_name`, `recent_avg` (avg of last 3, rounded to 2), and `prior_avg` (avg of reviews 4–6 most recent, rounded to 2). Order by `(recent_avg - prior_avg)` ascending (worst decline first), then `seller_id` ascending.",
+  "hint": "Number each seller's reviews by recency using ROW_NUMBER(), then filter to rows 1–3 vs 4–6 and average each group.",
+  "solutionSql": "WITH numbered AS (\n  SELECT *,\n         ROW_NUMBER() OVER (PARTITION BY seller_id ORDER BY reviewed_at DESC, id DESC) AS rn\n  FROM reviews\n),\ngroups AS (\n  SELECT seller_id,\n         AVG(CASE WHEN rn <= 3 THEN rating END) AS recent_avg,\n         AVG(CASE WHEN rn BETWEEN 4 AND 6 THEN rating END) AS prior_avg,\n         COUNT(*) AS total\n  FROM numbered\n  WHERE rn <= 6\n  GROUP BY seller_id\n  HAVING total = 6\n)\nSELECT g.seller_id,\n       s.name AS seller_name,\n       ROUND(g.recent_avg, 2) AS recent_avg,\n       ROUND(g.prior_avg, 2) AS prior_avg\nFROM groups g\nJOIN sellers s ON s.id = g.seller_id\nWHERE g.recent_avg < g.prior_avg\nORDER BY (g.recent_avg - g.prior_avg) ASC, g.seller_id ASC;",
+  "outputExplanation": "ROW_NUMBER() ranks reviews newest-first per seller. Averaging ratings for rows 1–3 vs 4–6 compares recent vs prior performance. Only sellers with exactly 6+ reviews in scope (rn ≤ 6) who show a drop are returned.",
+  "tests": [
+    {
+      "name": "Example — one declining seller",
+      "seedSql": "INSERT INTO sellers VALUES (1,'ShopA','Electronics','2020-01-01'),(2,'ShopB','Clothing','2020-06-01');\nINSERT INTO buyers VALUES (1,'A','2021-01-01'),(2,'B','2021-01-01'),(3,'C','2021-01-01');\nINSERT INTO transactions VALUES (1,1,1,10.0,'2022-01-01','completed'),(2,1,2,10.0,'2022-01-02','completed'),(3,1,3,10.0,'2022-01-03','completed'),(4,2,1,10.0,'2022-01-04','completed'),(5,2,2,10.0,'2022-01-05','completed'),(6,2,3,10.0,'2022-01-06','completed'),(7,1,1,10.0,'2022-01-07','completed'),(8,1,2,10.0,'2022-01-08','completed'),(9,1,3,10.0,'2022-01-09','completed'),(10,2,1,10.0,'2022-01-10','completed'),(11,2,2,10.0,'2022-01-11','completed'),(12,2,3,10.0,'2022-01-12','completed');\nINSERT INTO reviews VALUES\n  (1,1,1,1,5,'2022-01-15'),(2,2,2,1,5,'2022-02-01'),(3,3,3,1,5,'2022-03-01'),\n  (4,4,1,1,2,'2022-04-01'),(5,5,2,1,2,'2022-05-01'),(6,6,3,1,2,'2022-06-01'),\n  (7,7,1,2,4,'2022-01-20'),(8,8,2,2,4,'2022-02-05'),(9,9,3,2,4,'2022-03-05'),\n  (10,10,1,2,4,'2022-04-05'),(11,11,2,2,4,'2022-05-05'),(12,12,3,2,4,'2022-06-05');",
+      "expectedOutput": []
+    },
+    {
+      "name": "Not enough reviews — empty",
+      "seedSql": "INSERT INTO sellers VALUES (1,'ShopA','Electronics','2020-01-01');\nINSERT INTO buyers VALUES (1,'A','2021-01-01');\nINSERT INTO transactions VALUES (1,1,1,10.0,'2022-01-01','completed'),(2,1,1,10.0,'2022-02-01','completed'),(3,1,1,10.0,'2022-03-01','completed');\nINSERT INTO reviews VALUES (1,1,1,1,3,'2022-01-15'),(2,2,1,1,4,'2022-02-15'),(3,3,1,1,5,'2022-03-15');",
+      "expectedOutput": []
+    },
+    {
+      "name": "Rating improving — empty result",
+      "seedSql": "INSERT INTO sellers VALUES (1,'Good','Electronics','2020-01-01');\nINSERT INTO buyers VALUES (1,'A','2021-01-01');\nINSERT INTO transactions VALUES (1,1,1,10.0,'2022-01-01','completed'),(2,1,1,10.0,'2022-02-01','completed'),(3,1,1,10.0,'2022-03-01','completed'),(4,1,1,10.0,'2022-04-01','completed'),(5,1,1,10.0,'2022-05-01','completed'),(6,1,1,10.0,'2022-06-01','completed');\nINSERT INTO reviews VALUES\n  (1,1,1,1,2,'2022-01-15'),(2,2,1,1,2,'2022-02-15'),(3,3,1,1,2,'2022-03-15'),\n  (4,4,1,1,5,'2022-04-15'),(5,5,1,1,5,'2022-05-15'),(6,6,1,1,5,'2022-06-15');",
+      "expectedOutput": []
+    },
+    {
+      "name": "Empty tables",
+      "seedSql": "",
+      "expectedOutput": []
+    }
+  ]
+}
