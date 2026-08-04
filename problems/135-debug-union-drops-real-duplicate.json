@@ -1,0 +1,366 @@
+{
+  "id": "debug-union-drops-real-duplicate",
+  "number": 135,
+  "title": "Debug: The Audit Log Is Missing An Entry",
+  "difficulty": "Medium",
+  "tags": [
+    "Debugging",
+    "Set Operations"
+  ],
+  "description": "This is meant to be a complete audit trail of every order line from both `source_orders` and `warehouse_orders` — every real row should show up, even if two rows happen to look identical. But a known duplicate entry in the source system isn't showing up twice in the output like it should. Find the bug and fix it.\n\nName the columns `order_id`, `customer_name` and `amount`. Return the result in any order.",
+  "solutionSql": "SELECT order_id, customer_name, amount FROM source_orders\nUNION ALL\nSELECT order_id, customer_name, amount FROM warehouse_orders;",
+  "orderMatters": true,
+  "hint": "UNION always removes duplicate rows across both sides — exactly the wrong behavior for an audit log, where two identical-looking rows might be two genuinely separate events. UNION ALL keeps everything.",
+  "schemaSql": "CREATE TABLE source_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);\n\nCREATE TABLE warehouse_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);\n\nCREATE TABLE vendor_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5),(4,'Dee Fox',200.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(5,'Eli Park',60.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(3,'Cy Ortiz',45.5),(6,'Fay Nolan',15.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80
+        },
+        {
+          "order_id": 3,
+          "customer_name": "Cy Ortiz",
+          "amount": 45.5
+        },
+        {
+          "order_id": 4,
+          "customer_name": "Dee Fox",
+          "amount": 200
+        },
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80
+        },
+        {
+          "order_id": 5,
+          "customer_name": "Eli Park",
+          "amount": 60
+        }
+      ]
+    },
+    {
+      "name": "All three systems fully agree",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80
+        },
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80
+        }
+      ]
+    },
+    {
+      "name": "Completely disjoint across all three",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO warehouse_orders VALUES (2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (3,'Cy Ortiz',45.5);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80
+        }
+      ]
+    },
+    {
+      "name": "Source has an accidental duplicate row",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120
+        },
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80
+        },
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120
+        }
+      ]
+    },
+    {
+      "name": "All three systems empty",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Only source has any data",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80
+        },
+        {
+          "order_id": 3,
+          "customer_name": "Cy Ortiz",
+          "amount": 45.5
+        }
+      ]
+    },
+    {
+      "name": "Same order, inconsistent name formatting",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'  ben kim ',80.0);\nINSERT INTO warehouse_orders VALUES (1,'ANN LEE',120.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'ann lee',120.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120
+        },
+        {
+          "order_id": 2,
+          "customer_name": "  ben kim ",
+          "amount": 80
+        },
+        {
+          "order_id": 1,
+          "customer_name": "ANN LEE",
+          "amount": 120
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80
+        }
+      ]
+    },
+    {
+      "name": "Matching ids, mismatched amounts",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',125.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80
+        },
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 125
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80
+        }
+      ]
+    },
+    {
+      "name": "Single matching order everywhere",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120
+        },
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120
+        }
+      ]
+    },
+    {
+      "name": "Larger mixed set: some in all three, some in two, some in one, duplicates and a mismatch",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5),(4,'Dee Fox',200.0),(7,'Gio Ruiz',33.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',99.0),(5,'Eli Park',60.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(4,'Dee Fox',200.0),(6,'Fay Nolan',15.0),(8,'Hana Cole',72.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80
+        },
+        {
+          "order_id": 3,
+          "customer_name": "Cy Ortiz",
+          "amount": 45.5
+        },
+        {
+          "order_id": 4,
+          "customer_name": "Dee Fox",
+          "amount": 200
+        },
+        {
+          "order_id": 7,
+          "customer_name": "Gio Ruiz",
+          "amount": 33
+        },
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80
+        },
+        {
+          "order_id": 3,
+          "customer_name": "Cy Ortiz",
+          "amount": 99
+        },
+        {
+          "order_id": 5,
+          "customer_name": "Eli Park",
+          "amount": 60
+        }
+      ]
+    },
+    {
+      "name": "Duplicate rows in source only",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(1,'A',100.0),(2,'B',200.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "A",
+          "amount": 100
+        },
+        {
+          "order_id": 1,
+          "customer_name": "A",
+          "amount": 100
+        },
+        {
+          "order_id": 2,
+          "customer_name": "B",
+          "amount": 200
+        }
+      ]
+    },
+    {
+      "name": "Identical rows exist in both tables",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0);\nINSERT INTO warehouse_orders VALUES (1,'A',100.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "A",
+          "amount": 100
+        },
+        {
+          "order_id": 1,
+          "customer_name": "A",
+          "amount": 100
+        }
+      ]
+    },
+    {
+      "name": "No duplicate rows — UNION and UNION ALL agree",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(2,'B',200.0);\nINSERT INTO warehouse_orders VALUES (3,'C',300.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "A",
+          "amount": 100
+        },
+        {
+          "order_id": 2,
+          "customer_name": "B",
+          "amount": 200
+        },
+        {
+          "order_id": 3,
+          "customer_name": "C",
+          "amount": 300
+        }
+      ]
+    },
+    {
+      "name": "Only source has data — all rows kept",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(2,'B',200.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "A",
+          "amount": 100
+        },
+        {
+          "order_id": 2,
+          "customer_name": "B",
+          "amount": 200
+        }
+      ]
+    },
+    {
+      "name": "Only warehouse has data",
+      "seedSql": "INSERT INTO warehouse_orders VALUES (3,'C',300.0);",
+      "expectedOutput": [
+        {
+          "order_id": 3,
+          "customer_name": "C",
+          "amount": 300
+        }
+      ]
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": []
+    }
+  ]
+}

@@ -1,0 +1,623 @@
+{
+  "id": "act-time-between-events",
+  "number": 78,
+  "title": "Minutes Since Your Last Event",
+  "difficulty": "Medium",
+  "tags": [
+    "Window Function",
+    "Date"
+  ],
+  "description": "For every event report how many minutes passed since that user's previous event, rounded to 2 decimals. A user's first event reports NULL.\n\nName the columns `id`, `user_id` and `minutes_since_prev`. Return the result in any order.",
+  "solutionSql": "SELECT id, user_id,\n       ROUND((JULIANDAY(event_time) - JULIANDAY(LAG(event_time) OVER (PARTITION BY user_id ORDER BY event_time, id))) * 24 * 60, 2) AS minutes_since_prev\nFROM events;",
+  "orderMatters": false,
+  "hint": "JULIANDAY returns days as a float — multiply the difference by 24*60 for minutes.",
+  "outputExplanation": "Each user's first event has NULL minutes since previous. Subsequent gaps range from 5 minutes to over 4 days.",
+  "schemaSql": "CREATE TABLE users (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  plan TEXT,\n  signup_date TEXT\n);\n\nCREATE TABLE events (\n  id INTEGER PRIMARY KEY,\n  user_id INTEGER,\n  event_type TEXT,\n  event_time TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO users VALUES (1,'Ada','pro','2022-01-01'),(2,'Bo','free','2022-01-03'),(3,'Cy','pro','2022-02-10'),(4,'Di','free','2022-03-01');\nINSERT INTO events VALUES\n (1,1,'login','2022-03-01 09:00:00'),\n (2,1,'view','2022-03-01 09:05:00'),\n (3,1,'purchase','2022-03-01 09:40:00'),\n (4,1,'login','2022-03-02 10:00:00'),\n (5,1,'login','2022-03-03 11:00:00'),\n (6,2,'login','2022-03-01 08:00:00'),\n (7,2,'view','2022-03-05 08:10:00'),\n (8,3,'login','2022-03-02 20:00:00'),\n (9,3,'purchase','2022-03-02 20:30:00'),\n (10,3,'login','2022-03-04 21:00:00');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "minutes_since_prev": 5
+        },
+        {
+          "id": 3,
+          "user_id": 1,
+          "minutes_since_prev": 35
+        },
+        {
+          "id": 4,
+          "user_id": 1,
+          "minutes_since_prev": 1460
+        },
+        {
+          "id": 5,
+          "user_id": 1,
+          "minutes_since_prev": 1500
+        },
+        {
+          "id": 6,
+          "user_id": 2,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 7,
+          "user_id": 2,
+          "minutes_since_prev": 5770
+        },
+        {
+          "id": 8,
+          "user_id": 3,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 9,
+          "user_id": 3,
+          "minutes_since_prev": 30
+        },
+        {
+          "id": 10,
+          "user_id": 3,
+          "minutes_since_prev": 2910
+        }
+      ]
+    },
+    {
+      "name": "A user with a long unbroken streak",
+      "seedSql": "INSERT INTO users VALUES (1,'Streak','pro','2022-01-01'),(2,'Sparse','free','2022-01-01');\nINSERT INTO events VALUES\n (1,1,'login','2022-05-01 10:00:00'),\n (2,1,'login','2022-05-02 10:00:00'),\n (3,1,'login','2022-05-03 10:00:00'),\n (4,1,'login','2022-05-04 10:00:00'),\n (5,1,'login','2022-05-05 10:00:00'),\n (6,2,'login','2022-05-01 10:00:00'),\n (7,2,'login','2022-05-03 10:00:00'),\n (8,2,'login','2022-05-05 10:00:00');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "minutes_since_prev": 1440
+        },
+        {
+          "id": 3,
+          "user_id": 1,
+          "minutes_since_prev": 1440
+        },
+        {
+          "id": 4,
+          "user_id": 1,
+          "minutes_since_prev": 1440
+        },
+        {
+          "id": 5,
+          "user_id": 1,
+          "minutes_since_prev": 1440
+        },
+        {
+          "id": 6,
+          "user_id": 2,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 7,
+          "user_id": 2,
+          "minutes_since_prev": 2880
+        },
+        {
+          "id": 8,
+          "user_id": 2,
+          "minutes_since_prev": 2880
+        }
+      ]
+    },
+    {
+      "name": "Users with no events at all",
+      "seedSql": "INSERT INTO users VALUES (1,'Active','pro','2022-01-01'),(2,'Silent','free','2022-01-02'),(3,'AlsoSilent','free','2022-01-03');\nINSERT INTO events VALUES (1,1,'login','2022-04-01 12:00:00'),(2,1,'view','2022-04-01 12:30:00');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "minutes_since_prev": 30
+        }
+      ]
+    },
+    {
+      "name": "Everything empty",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Several events at the exact same timestamp",
+      "seedSql": "INSERT INTO users VALUES (1,'Ada','pro','2022-01-01'),(2,'Bo','free','2022-01-01');\nINSERT INTO events VALUES\n (1,1,'login','2022-06-01 09:00:00'),\n (2,1,'view','2022-06-01 09:00:00'),\n (3,1,'purchase','2022-06-01 09:00:00'),\n (4,2,'login','2022-06-01 09:00:00'),\n (5,2,'login','2022-06-01 09:00:00');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "minutes_since_prev": 0
+        },
+        {
+          "id": 3,
+          "user_id": 1,
+          "minutes_since_prev": 0
+        },
+        {
+          "id": 4,
+          "user_id": 2,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 5,
+          "user_id": 2,
+          "minutes_since_prev": 0
+        }
+      ]
+    },
+    {
+      "name": "Single user, single event",
+      "seedSql": "INSERT INTO users VALUES (1,'Solo','free','2022-01-01');\nINSERT INTO events VALUES (1,1,'login','2022-07-04 15:00:00');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "minutes_since_prev": null
+        }
+      ]
+    },
+    {
+      "name": "Events with NULL type and orphan user ids",
+      "seedSql": "INSERT INTO users VALUES (1,'Ada','pro','2022-01-01'),(2,'Bo',NULL,'2022-01-05');\nINSERT INTO events VALUES\n (1,1,'login','2022-08-01 09:00:00'),\n (2,1,NULL,'2022-08-01 10:00:00'),\n (3,99,'login','2022-08-01 11:00:00'),\n (4,2,'purchase','2022-08-02 09:00:00');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "minutes_since_prev": 60
+        },
+        {
+          "id": 4,
+          "user_id": 2,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 3,
+          "user_id": 99,
+          "minutes_since_prev": null
+        }
+      ]
+    },
+    {
+      "name": "A streak spanning a month boundary",
+      "seedSql": "INSERT INTO users VALUES (1,'Ada','pro','2022-01-01');\nINSERT INTO events VALUES\n (1,1,'login','2022-01-30 09:00:00'),\n (2,1,'login','2022-01-31 09:00:00'),\n (3,1,'login','2022-02-01 09:00:00'),\n (4,1,'login','2022-02-02 09:00:00'),\n (5,1,'login','2022-02-05 09:00:00');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "minutes_since_prev": 1440
+        },
+        {
+          "id": 3,
+          "user_id": 1,
+          "minutes_since_prev": 1440
+        },
+        {
+          "id": 4,
+          "user_id": 1,
+          "minutes_since_prev": 1440
+        },
+        {
+          "id": 5,
+          "user_id": 1,
+          "minutes_since_prev": 4320
+        }
+      ]
+    },
+    {
+      "name": "Purchases only, no logins",
+      "seedSql": "INSERT INTO users VALUES (1,'Ada','pro','2022-01-01'),(2,'Bo','pro','2022-01-01');\nINSERT INTO events VALUES\n (1,1,'purchase','2022-09-01 09:00:00'),\n (2,1,'purchase','2022-09-01 18:00:00'),\n (3,2,'purchase','2022-09-02 09:00:00');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "minutes_since_prev": 540
+        },
+        {
+          "id": 3,
+          "user_id": 2,
+          "minutes_since_prev": null
+        }
+      ]
+    },
+    {
+      "name": "Larger multi-user activity log",
+      "seedSql": "INSERT INTO users VALUES (1,'A','pro','2022-01-01'),(2,'B','free','2022-01-02'),(3,'C','pro','2022-01-03'),(4,'D','free','2022-02-01'),(5,'E','pro','2022-02-15');\nINSERT INTO events VALUES\n (1,1,'login','2022-03-01 08:00:00'),\n (2,1,'view','2022-03-01 08:20:00'),\n (3,1,'purchase','2022-03-01 09:15:00'),\n (4,1,'login','2022-03-02 08:00:00'),\n (5,1,'view','2022-03-02 08:05:00'),\n (6,2,'login','2022-03-01 12:00:00'),\n (7,2,'view','2022-03-01 12:45:00'),\n (8,2,'login','2022-03-03 12:00:00'),\n (9,3,'login','2022-03-01 22:00:00'),\n (10,3,'purchase','2022-03-01 22:30:00'),\n (11,3,'login','2022-03-02 22:00:00'),\n (12,3,'login','2022-03-03 22:00:00'),\n (13,3,'view','2022-03-03 22:10:00'),\n (14,4,'login','2022-03-05 06:00:00'),\n (15,4,'view','2022-03-05 06:30:00'),\n (16,5,'login','2022-03-01 18:00:00'),\n (17,5,'view','2022-03-01 18:02:00'),\n (18,5,'view','2022-03-01 18:50:00'),\n (19,5,'purchase','2022-03-06 19:00:00'),\n (20,5,'login','2022-03-07 19:00:00');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "minutes_since_prev": 20
+        },
+        {
+          "id": 3,
+          "user_id": 1,
+          "minutes_since_prev": 55
+        },
+        {
+          "id": 4,
+          "user_id": 1,
+          "minutes_since_prev": 1365
+        },
+        {
+          "id": 5,
+          "user_id": 1,
+          "minutes_since_prev": 5
+        },
+        {
+          "id": 6,
+          "user_id": 2,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 7,
+          "user_id": 2,
+          "minutes_since_prev": 45
+        },
+        {
+          "id": 8,
+          "user_id": 2,
+          "minutes_since_prev": 2835
+        },
+        {
+          "id": 9,
+          "user_id": 3,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 10,
+          "user_id": 3,
+          "minutes_since_prev": 30
+        },
+        {
+          "id": 11,
+          "user_id": 3,
+          "minutes_since_prev": 1410
+        },
+        {
+          "id": 12,
+          "user_id": 3,
+          "minutes_since_prev": 1440
+        },
+        {
+          "id": 13,
+          "user_id": 3,
+          "minutes_since_prev": 10
+        },
+        {
+          "id": 14,
+          "user_id": 4,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 15,
+          "user_id": 4,
+          "minutes_since_prev": 30
+        },
+        {
+          "id": 16,
+          "user_id": 5,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 17,
+          "user_id": 5,
+          "minutes_since_prev": 2
+        },
+        {
+          "id": 18,
+          "user_id": 5,
+          "minutes_since_prev": 48
+        },
+        {
+          "id": 19,
+          "user_id": 5,
+          "minutes_since_prev": 7210
+        },
+        {
+          "id": 20,
+          "user_id": 5,
+          "minutes_since_prev": 1440
+        }
+      ]
+    },
+    {
+      "name": "Single event — minutes_since_prev is NULL",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        }
+      ],
+      "expected": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "minutes_since_prev": null
+        }
+      ],
+      "expectedOutput": []
+    },
+    {
+      "name": "Two events 30 min apart",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:30:00"
+        }
+      ],
+      "expected": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "minutes_since_prev": 30
+        }
+      ],
+      "expectedOutput": []
+    },
+    {
+      "name": "Three events with various gaps",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:30:00"
+        },
+        {
+          "id": 3,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 11:00:00"
+        }
+      ],
+      "expected": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "minutes_since_prev": 30
+        },
+        {
+          "id": 3,
+          "user_id": 1,
+          "minutes_since_prev": 90
+        }
+      ],
+      "expectedOutput": []
+    },
+    {
+      "name": "Two users each with their own timeline",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        },
+        {
+          "id": 2,
+          "name": "Bo",
+          "plan": "free",
+          "signup_date": "2022-01-02"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:10:00"
+        },
+        {
+          "id": 3,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 14:00:00"
+        },
+        {
+          "id": 4,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 14:20:00"
+        }
+      ],
+      "expected": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "minutes_since_prev": 10
+        },
+        {
+          "id": 3,
+          "user_id": 2,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 4,
+          "user_id": 2,
+          "minutes_since_prev": 20
+        }
+      ],
+      "expectedOutput": []
+    },
+    {
+      "name": "Events with NULL event_time — LAG diff is NULL",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": null
+        }
+      ],
+      "expected": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "minutes_since_prev": null
+        }
+      ],
+      "expectedOutput": []
+    },
+    {
+      "name": "Events spanning multiple days",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-02 09:00:00"
+        }
+      ],
+      "expected": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "minutes_since_prev": null
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "minutes_since_prev": 1440
+        }
+      ],
+      "expectedOutput": []
+    }
+  ]
+}

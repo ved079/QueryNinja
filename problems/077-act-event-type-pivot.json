@@ -1,0 +1,479 @@
+{
+  "id": "act-event-type-pivot",
+  "number": 77,
+  "title": "Pivot Events Into Columns",
+  "difficulty": "Medium",
+  "tags": [
+    "CASE",
+    "Pivot"
+  ],
+  "description": "For every user with events, report how many logins, views and purchases they have — one row per user, three columns.\n\nName the columns `name`, `logins`, `views` and `purchases`. Return the result in any order.",
+  "solutionSql": "SELECT u.name,\n       SUM(CASE WHEN e.event_type = 'login' THEN 1 ELSE 0 END) AS logins,\n       SUM(CASE WHEN e.event_type = 'view' THEN 1 ELSE 0 END) AS views,\n       SUM(CASE WHEN e.event_type = 'purchase' THEN 1 ELSE 0 END) AS purchases\nFROM users u\nJOIN events e ON e.user_id = u.id\nGROUP BY u.id, u.name;",
+  "orderMatters": false,
+  "hint": "SQL has no PIVOT here — conditional aggregation with CASE inside SUM does the same job.",
+  "outputExplanation": "Ada: 3 logins, 1 view, 1 purchase. Bo: 1 login, 1 view, 0 purchases. Cy: 2 logins, 0 views, 1 purchase.",
+  "schemaSql": "CREATE TABLE users (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  plan TEXT,\n  signup_date TEXT\n);\n\nCREATE TABLE events (\n  id INTEGER PRIMARY KEY,\n  user_id INTEGER,\n  event_type TEXT,\n  event_time TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO users VALUES (1,'Ada','pro','2022-01-01'),(2,'Bo','free','2022-01-03'),(3,'Cy','pro','2022-02-10'),(4,'Di','free','2022-03-01');\nINSERT INTO events VALUES\n (1,1,'login','2022-03-01 09:00:00'),\n (2,1,'view','2022-03-01 09:05:00'),\n (3,1,'purchase','2022-03-01 09:40:00'),\n (4,1,'login','2022-03-02 10:00:00'),\n (5,1,'login','2022-03-03 11:00:00'),\n (6,2,'login','2022-03-01 08:00:00'),\n (7,2,'view','2022-03-05 08:10:00'),\n (8,3,'login','2022-03-02 20:00:00'),\n (9,3,'purchase','2022-03-02 20:30:00'),\n (10,3,'login','2022-03-04 21:00:00');",
+      "expectedOutput": [
+        {
+          "name": "Ada",
+          "logins": 3,
+          "views": 1,
+          "purchases": 1
+        },
+        {
+          "name": "Bo",
+          "logins": 1,
+          "views": 1,
+          "purchases": 0
+        },
+        {
+          "name": "Cy",
+          "logins": 2,
+          "views": 0,
+          "purchases": 1
+        }
+      ]
+    },
+    {
+      "name": "A user with a long unbroken streak",
+      "seedSql": "INSERT INTO users VALUES (1,'Streak','pro','2022-01-01'),(2,'Sparse','free','2022-01-01');\nINSERT INTO events VALUES\n (1,1,'login','2022-05-01 10:00:00'),\n (2,1,'login','2022-05-02 10:00:00'),\n (3,1,'login','2022-05-03 10:00:00'),\n (4,1,'login','2022-05-04 10:00:00'),\n (5,1,'login','2022-05-05 10:00:00'),\n (6,2,'login','2022-05-01 10:00:00'),\n (7,2,'login','2022-05-03 10:00:00'),\n (8,2,'login','2022-05-05 10:00:00');",
+      "expectedOutput": [
+        {
+          "name": "Streak",
+          "logins": 5,
+          "views": 0,
+          "purchases": 0
+        },
+        {
+          "name": "Sparse",
+          "logins": 3,
+          "views": 0,
+          "purchases": 0
+        }
+      ]
+    },
+    {
+      "name": "Users with no events at all",
+      "seedSql": "INSERT INTO users VALUES (1,'Active','pro','2022-01-01'),(2,'Silent','free','2022-01-02'),(3,'AlsoSilent','free','2022-01-03');\nINSERT INTO events VALUES (1,1,'login','2022-04-01 12:00:00'),(2,1,'view','2022-04-01 12:30:00');",
+      "expectedOutput": [
+        {
+          "name": "Active",
+          "logins": 1,
+          "views": 1,
+          "purchases": 0
+        }
+      ]
+    },
+    {
+      "name": "Everything empty",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Several events at the exact same timestamp",
+      "seedSql": "INSERT INTO users VALUES (1,'Ada','pro','2022-01-01'),(2,'Bo','free','2022-01-01');\nINSERT INTO events VALUES\n (1,1,'login','2022-06-01 09:00:00'),\n (2,1,'view','2022-06-01 09:00:00'),\n (3,1,'purchase','2022-06-01 09:00:00'),\n (4,2,'login','2022-06-01 09:00:00'),\n (5,2,'login','2022-06-01 09:00:00');",
+      "expectedOutput": [
+        {
+          "name": "Ada",
+          "logins": 1,
+          "views": 1,
+          "purchases": 1
+        },
+        {
+          "name": "Bo",
+          "logins": 2,
+          "views": 0,
+          "purchases": 0
+        }
+      ]
+    },
+    {
+      "name": "Single user, single event",
+      "seedSql": "INSERT INTO users VALUES (1,'Solo','free','2022-01-01');\nINSERT INTO events VALUES (1,1,'login','2022-07-04 15:00:00');",
+      "expectedOutput": [
+        {
+          "name": "Solo",
+          "logins": 1,
+          "views": 0,
+          "purchases": 0
+        }
+      ]
+    },
+    {
+      "name": "Events with NULL type and orphan user ids",
+      "seedSql": "INSERT INTO users VALUES (1,'Ada','pro','2022-01-01'),(2,'Bo',NULL,'2022-01-05');\nINSERT INTO events VALUES\n (1,1,'login','2022-08-01 09:00:00'),\n (2,1,NULL,'2022-08-01 10:00:00'),\n (3,99,'login','2022-08-01 11:00:00'),\n (4,2,'purchase','2022-08-02 09:00:00');",
+      "expectedOutput": [
+        {
+          "name": "Ada",
+          "logins": 1,
+          "views": 0,
+          "purchases": 0
+        },
+        {
+          "name": "Bo",
+          "logins": 0,
+          "views": 0,
+          "purchases": 1
+        }
+      ]
+    },
+    {
+      "name": "A streak spanning a month boundary",
+      "seedSql": "INSERT INTO users VALUES (1,'Ada','pro','2022-01-01');\nINSERT INTO events VALUES\n (1,1,'login','2022-01-30 09:00:00'),\n (2,1,'login','2022-01-31 09:00:00'),\n (3,1,'login','2022-02-01 09:00:00'),\n (4,1,'login','2022-02-02 09:00:00'),\n (5,1,'login','2022-02-05 09:00:00');",
+      "expectedOutput": [
+        {
+          "name": "Ada",
+          "logins": 5,
+          "views": 0,
+          "purchases": 0
+        }
+      ]
+    },
+    {
+      "name": "Purchases only, no logins",
+      "seedSql": "INSERT INTO users VALUES (1,'Ada','pro','2022-01-01'),(2,'Bo','pro','2022-01-01');\nINSERT INTO events VALUES\n (1,1,'purchase','2022-09-01 09:00:00'),\n (2,1,'purchase','2022-09-01 18:00:00'),\n (3,2,'purchase','2022-09-02 09:00:00');",
+      "expectedOutput": [
+        {
+          "name": "Ada",
+          "logins": 0,
+          "views": 0,
+          "purchases": 2
+        },
+        {
+          "name": "Bo",
+          "logins": 0,
+          "views": 0,
+          "purchases": 1
+        }
+      ]
+    },
+    {
+      "name": "Larger multi-user activity log",
+      "seedSql": "INSERT INTO users VALUES (1,'A','pro','2022-01-01'),(2,'B','free','2022-01-02'),(3,'C','pro','2022-01-03'),(4,'D','free','2022-02-01'),(5,'E','pro','2022-02-15');\nINSERT INTO events VALUES\n (1,1,'login','2022-03-01 08:00:00'),\n (2,1,'view','2022-03-01 08:20:00'),\n (3,1,'purchase','2022-03-01 09:15:00'),\n (4,1,'login','2022-03-02 08:00:00'),\n (5,1,'view','2022-03-02 08:05:00'),\n (6,2,'login','2022-03-01 12:00:00'),\n (7,2,'view','2022-03-01 12:45:00'),\n (8,2,'login','2022-03-03 12:00:00'),\n (9,3,'login','2022-03-01 22:00:00'),\n (10,3,'purchase','2022-03-01 22:30:00'),\n (11,3,'login','2022-03-02 22:00:00'),\n (12,3,'login','2022-03-03 22:00:00'),\n (13,3,'view','2022-03-03 22:10:00'),\n (14,4,'login','2022-03-05 06:00:00'),\n (15,4,'view','2022-03-05 06:30:00'),\n (16,5,'login','2022-03-01 18:00:00'),\n (17,5,'view','2022-03-01 18:02:00'),\n (18,5,'view','2022-03-01 18:50:00'),\n (19,5,'purchase','2022-03-06 19:00:00'),\n (20,5,'login','2022-03-07 19:00:00');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "logins": 2,
+          "views": 2,
+          "purchases": 1
+        },
+        {
+          "name": "B",
+          "logins": 2,
+          "views": 1,
+          "purchases": 0
+        },
+        {
+          "name": "C",
+          "logins": 3,
+          "views": 1,
+          "purchases": 1
+        },
+        {
+          "name": "D",
+          "logins": 1,
+          "views": 1,
+          "purchases": 0
+        },
+        {
+          "name": "E",
+          "logins": 2,
+          "views": 2,
+          "purchases": 1
+        }
+      ]
+    },
+    {
+      "name": "User with one of each type",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "event_type": "view",
+          "event_time": "2022-03-01 09:05:00"
+        },
+        {
+          "id": 3,
+          "user_id": 1,
+          "event_type": "purchase",
+          "event_time": "2022-03-01 09:10:00"
+        }
+      ],
+      "expected": [
+        {
+          "name": "Ada",
+          "logins": 1,
+          "views": 1,
+          "purchases": 1
+        }
+      ],
+      "expectedOutput": []
+    },
+    {
+      "name": "User with only logins",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:00:00"
+        },
+        {
+          "id": 3,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 11:00:00"
+        }
+      ],
+      "expected": [
+        {
+          "name": "Ada",
+          "logins": 3,
+          "views": 0,
+          "purchases": 0
+        }
+      ],
+      "expectedOutput": []
+    },
+    {
+      "name": "NULL event_type — excluded from all counts",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "event_type": null,
+          "event_time": "2022-03-01 10:00:00"
+        }
+      ],
+      "expected": [
+        {
+          "name": "Ada",
+          "logins": 1,
+          "views": 0,
+          "purchases": 0
+        }
+      ],
+      "expectedOutput": []
+    },
+    {
+      "name": "Two users different patterns",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        },
+        {
+          "id": 2,
+          "name": "Bo",
+          "plan": "free",
+          "signup_date": "2022-01-02"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:00:00"
+        },
+        {
+          "id": 3,
+          "user_id": 1,
+          "event_type": "purchase",
+          "event_time": "2022-03-01 11:00:00"
+        },
+        {
+          "id": 4,
+          "user_id": 2,
+          "event_type": "view",
+          "event_time": "2022-03-01 09:00:00"
+        }
+      ],
+      "expected": [
+        {
+          "name": "Ada",
+          "logins": 2,
+          "views": 0,
+          "purchases": 1
+        },
+        {
+          "name": "Bo",
+          "logins": 0,
+          "views": 1,
+          "purchases": 0
+        }
+      ],
+      "expectedOutput": []
+    },
+    {
+      "name": "User with many events",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:05:00"
+        },
+        {
+          "id": 3,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:10:00"
+        },
+        {
+          "id": 4,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:15:00"
+        },
+        {
+          "id": 5,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:20:00"
+        },
+        {
+          "id": 6,
+          "user_id": 1,
+          "event_type": "view",
+          "event_time": "2022-03-01 09:25:00"
+        },
+        {
+          "id": 7,
+          "user_id": 1,
+          "event_type": "view",
+          "event_time": "2022-03-01 09:30:00"
+        },
+        {
+          "id": 8,
+          "user_id": 1,
+          "event_type": "view",
+          "event_time": "2022-03-01 09:35:00"
+        },
+        {
+          "id": 9,
+          "user_id": 1,
+          "event_type": "purchase",
+          "event_time": "2022-03-01 09:40:00"
+        },
+        {
+          "id": 10,
+          "user_id": 1,
+          "event_type": "purchase",
+          "event_time": "2022-03-01 09:45:00"
+        }
+      ],
+      "expected": [
+        {
+          "name": "Ada",
+          "logins": 5,
+          "views": 3,
+          "purchases": 2
+        }
+      ],
+      "expectedOutput": []
+    },
+    {
+      "name": "User with no events excluded",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        },
+        {
+          "id": 2,
+          "name": "Bo",
+          "plan": "free",
+          "signup_date": "2022-01-02"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        }
+      ],
+      "expected": [
+        {
+          "name": "Ada",
+          "logins": 1,
+          "views": 0,
+          "purchases": 0
+        }
+      ],
+      "expectedOutput": []
+    }
+  ]
+}

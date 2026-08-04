@@ -1,0 +1,379 @@
+{
+  "id": "str-fiscal-quarter-boundary",
+  "number": 119,
+  "title": "Fiscal Quarter Labels Across The Year Boundary",
+  "difficulty": "Hard",
+  "tags": [
+    "Date"
+  ],
+  "description": "Same fiscal year as before (starts April 1st), but now report each employee's full fiscal quarter label, e.g. `FY2021-Q4` for a hire in January 2022 (fiscal Q4 of FY2021, since FY2021 runs April 2021 through March 2022).\n\nName the columns `name` and `fiscal_quarter`. Return the result in any order.",
+  "solutionSql": "SELECT name,\n  'FY' || (CASE WHEN CAST(strftime('%m', hire_date) AS INTEGER) >= 4\n           THEN CAST(strftime('%Y', hire_date) AS INTEGER)\n           ELSE CAST(strftime('%Y', hire_date) AS INTEGER) - 1 END)\n  || '-Q' ||\n  (CASE\n     WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 4 AND 6 THEN 1\n     WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 7 AND 9 THEN 2\n     WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 10 AND 12 THEN 3\n     ELSE 4\n   END) AS fiscal_quarter\nFROM employees;",
+  "orderMatters": false,
+  "hint": "The fiscal year part uses the same Jan-Mar-rolls-back-a-year logic as before. The quarter number is independent of that: Apr-Jun is always fiscal Q1, regardless of which calendar year it happened to fall in.",
+  "outputExplanation": "Ava (Jan 2018) gets FY2017-Q4, Eve (Nov 2017) gets FY2017-Q3, and Dan (Jul 2021) gets FY2021-Q2. Each employee's label reflects the fiscal year rules and which quarter their hire month falls in.",
+  "schemaSql": "CREATE TABLE departments (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  location TEXT\n);\n\nCREATE TABLE employees (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  title TEXT,\n  salary INTEGER,\n  dept_id INTEGER,\n  manager_id INTEGER,\n  hire_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',150000,1,NULL,'2018-01-15'),\n (2,'Ben','Engineer',120000,1,1,'2019-03-01'),\n (3,'Cara','Engineer',120000,1,1,'2019-03-01'),\n (4,'Dan','Engineer',95000,1,1,'2021-07-19'),\n (5,'Eve','Manager',130000,2,NULL,'2017-11-02'),\n (6,'Finn','Rep',70000,2,5,'2020-05-30'),\n (7,'Gia','Rep',85000,2,5,'2022-02-14'),\n (8,'Hal','Analyst',60000,3,NULL,'2023-09-01');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "fiscal_quarter": "FY2017-Q4"
+        },
+        {
+          "name": "Ben",
+          "fiscal_quarter": "FY2018-Q4"
+        },
+        {
+          "name": "Cara",
+          "fiscal_quarter": "FY2018-Q4"
+        },
+        {
+          "name": "Dan",
+          "fiscal_quarter": "FY2021-Q2"
+        },
+        {
+          "name": "Eve",
+          "fiscal_quarter": "FY2017-Q3"
+        },
+        {
+          "name": "Finn",
+          "fiscal_quarter": "FY2020-Q1"
+        },
+        {
+          "name": "Gia",
+          "fiscal_quarter": "FY2021-Q4"
+        },
+        {
+          "name": "Hal",
+          "fiscal_quarter": "FY2023-Q2"
+        }
+      ]
+    },
+    {
+      "name": "Ties on every salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'A','Engineer',100000,1,NULL,'2020-01-01'),\n (2,'B','Engineer',100000,1,1,'2020-01-01'),\n (3,'C','Engineer',100000,1,1,'2020-01-01'),\n (4,'D','Rep',100000,2,NULL,'2020-01-01'),\n (5,'E','Rep',100000,2,4,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "fiscal_quarter": "FY2019-Q4"
+        },
+        {
+          "name": "B",
+          "fiscal_quarter": "FY2019-Q4"
+        },
+        {
+          "name": "C",
+          "fiscal_quarter": "FY2019-Q4"
+        },
+        {
+          "name": "D",
+          "fiscal_quarter": "FY2019-Q4"
+        },
+        {
+          "name": "E",
+          "fiscal_quarter": "FY2019-Q4"
+        }
+      ]
+    },
+    {
+      "name": "Department with no employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "fiscal_quarter": "FY2018-Q4"
+        },
+        {
+          "name": "Ben",
+          "fiscal_quarter": "FY2020-Q1"
+        }
+      ]
+    },
+    {
+      "name": "Employees with NULL department and NULL salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "fiscal_quarter": "FY2018-Q4"
+        },
+        {
+          "name": "Ben",
+          "fiscal_quarter": "FY2020-Q1"
+        },
+        {
+          "name": "Cara",
+          "fiscal_quarter": "FY2020-Q4"
+        },
+        {
+          "name": "Dan",
+          "fiscal_quarter": "FY2020-Q4"
+        }
+      ]
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Single employee, single department",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
+      "expectedOutput": [
+        {
+          "name": "Solo",
+          "fiscal_quarter": "FY2022-Q1"
+        }
+      ]
+    },
+    {
+      "name": "Everyone reports to someone (deep chain)",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
+      "expectedOutput": [
+        {
+          "name": "L1",
+          "fiscal_quarter": "FY2009-Q4"
+        },
+        {
+          "name": "L2",
+          "fiscal_quarter": "FY2011-Q4"
+        },
+        {
+          "name": "L3",
+          "fiscal_quarter": "FY2013-Q4"
+        },
+        {
+          "name": "L4",
+          "fiscal_quarter": "FY2015-Q4"
+        },
+        {
+          "name": "L5",
+          "fiscal_quarter": "FY2017-Q4"
+        }
+      ]
+    },
+    {
+      "name": "Duplicate names and same hire dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Austin');\nINSERT INTO employees VALUES\n (1,'Sam','Engineer',90000,1,NULL,'2021-01-01'),\n (2,'Sam','Engineer',95000,2,NULL,'2021-01-01'),\n (3,'Sam','Rep',60000,2,2,'2021-01-01'),\n (4,'Alex','Rep',60000,2,2,'2021-06-30');",
+      "expectedOutput": [
+        {
+          "name": "Sam",
+          "fiscal_quarter": "FY2020-Q4"
+        },
+        {
+          "name": "Sam",
+          "fiscal_quarter": "FY2020-Q4"
+        },
+        {
+          "name": "Sam",
+          "fiscal_quarter": "FY2020-Q4"
+        },
+        {
+          "name": "Alex",
+          "fiscal_quarter": "FY2021-Q1"
+        }
+      ]
+    },
+    {
+      "name": "Zero and negative salaries, boundary dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Intern',0,1,NULL,'2019-12-31'),\n (2,'Ben','Engineer',-100,1,1,'2020-01-01'),\n (3,'Cara','Engineer',1,2,NULL,'2020-02-29'),\n (4,'Dan','Rep',2000000,2,3,'2020-12-31');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "fiscal_quarter": "FY2019-Q3"
+        },
+        {
+          "name": "Ben",
+          "fiscal_quarter": "FY2019-Q4"
+        },
+        {
+          "name": "Cara",
+          "fiscal_quarter": "FY2019-Q4"
+        },
+        {
+          "name": "Dan",
+          "fiscal_quarter": "FY2020-Q3"
+        }
+      ]
+    },
+    {
+      "name": "Larger multi-department set",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin'),(4,'Finance','Boston');\nINSERT INTO employees VALUES\n (1,'A','Manager',140000,1,NULL,'2015-02-10'),\n (2,'B','Engineer',130000,1,1,'2016-04-11'),\n (3,'C','Engineer',130000,1,1,'2017-06-12'),\n (4,'D','Engineer',110000,1,1,'2018-08-13'),\n (5,'E','Engineer',90000,1,1,'2019-10-14'),\n (6,'F','Manager',125000,2,NULL,'2015-03-15'),\n (7,'G','Rep',88000,2,6,'2016-05-16'),\n (8,'H','Rep',88000,2,6,'2017-07-17'),\n (9,'I','Rep',64000,2,6,'2018-09-18'),\n (10,'J','Manager',99000,3,NULL,'2019-11-19'),\n (11,'K','Analyst',72000,3,10,'2020-01-20'),\n (12,'L','Analyst',150000,4,NULL,'2021-03-21'),\n (13,'M','Analyst',150000,4,12,'2022-05-22');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "fiscal_quarter": "FY2014-Q4"
+        },
+        {
+          "name": "B",
+          "fiscal_quarter": "FY2016-Q1"
+        },
+        {
+          "name": "C",
+          "fiscal_quarter": "FY2017-Q1"
+        },
+        {
+          "name": "D",
+          "fiscal_quarter": "FY2018-Q2"
+        },
+        {
+          "name": "E",
+          "fiscal_quarter": "FY2019-Q3"
+        },
+        {
+          "name": "F",
+          "fiscal_quarter": "FY2014-Q4"
+        },
+        {
+          "name": "G",
+          "fiscal_quarter": "FY2016-Q1"
+        },
+        {
+          "name": "H",
+          "fiscal_quarter": "FY2017-Q2"
+        },
+        {
+          "name": "I",
+          "fiscal_quarter": "FY2018-Q2"
+        },
+        {
+          "name": "J",
+          "fiscal_quarter": "FY2019-Q3"
+        },
+        {
+          "name": "K",
+          "fiscal_quarter": "FY2019-Q4"
+        },
+        {
+          "name": "L",
+          "fiscal_quarter": "FY2020-Q4"
+        },
+        {
+          "name": "M",
+          "fiscal_quarter": "FY2022-Q1"
+        }
+      ]
+    },
+    {
+      "name": "All hires from April onward — FY matches calendar year",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-04-01'),(2,'B','E',90000,1,1,'2022-07-15'),(3,'C','E',80000,1,1,'2022-10-31');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "fiscal_quarter": "FY2022-Q1"
+        },
+        {
+          "name": "B",
+          "fiscal_quarter": "FY2022-Q2"
+        },
+        {
+          "name": "C",
+          "fiscal_quarter": "FY2022-Q3"
+        }
+      ]
+    },
+    {
+      "name": "All hires from January to March — FY rolls back",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-01-01'),(2,'B','E',90000,1,1,'2022-02-15'),(3,'C','E',80000,1,1,'2022-03-31');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "fiscal_quarter": "FY2021-Q4"
+        },
+        {
+          "name": "B",
+          "fiscal_quarter": "FY2021-Q4"
+        },
+        {
+          "name": "C",
+          "fiscal_quarter": "FY2021-Q4"
+        }
+      ]
+    },
+    {
+      "name": "Empty employees table",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');",
+      "expectedOutput": []
+    },
+    {
+      "name": "Boundary months — each quarter boundary covered",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-03-31'),(2,'B','E',90000,1,1,'2022-04-01'),(3,'C','E',80000,1,1,'2022-06-30'),(4,'D','E',70000,1,1,'2022-07-01'),(5,'E','E',60000,1,1,'2022-09-30'),(6,'F','E',50000,1,1,'2022-10-01'),(7,'G','E',40000,1,1,'2022-12-31');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "fiscal_quarter": "FY2021-Q4"
+        },
+        {
+          "name": "B",
+          "fiscal_quarter": "FY2022-Q1"
+        },
+        {
+          "name": "C",
+          "fiscal_quarter": "FY2022-Q1"
+        },
+        {
+          "name": "D",
+          "fiscal_quarter": "FY2022-Q2"
+        },
+        {
+          "name": "E",
+          "fiscal_quarter": "FY2022-Q2"
+        },
+        {
+          "name": "F",
+          "fiscal_quarter": "FY2022-Q3"
+        },
+        {
+          "name": "G",
+          "fiscal_quarter": "FY2022-Q3"
+        }
+      ]
+    },
+    {
+      "name": "All four fiscal quarters represented across years",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2021-05-01'),(2,'B','E',90000,1,1,'2021-08-15'),(3,'C','E',80000,1,1,'2021-11-30'),(4,'D','E',70000,1,1,'2022-02-15');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "fiscal_quarter": "FY2021-Q1"
+        },
+        {
+          "name": "B",
+          "fiscal_quarter": "FY2021-Q2"
+        },
+        {
+          "name": "C",
+          "fiscal_quarter": "FY2021-Q3"
+        },
+        {
+          "name": "D",
+          "fiscal_quarter": "FY2021-Q4"
+        }
+      ]
+    },
+    {
+      "name": "Multiple calendar years — FY rolls correctly at each boundary",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2020-12-31'),(2,'B','E',90000,1,1,'2021-01-15'),(3,'C','E',80000,1,1,'2022-03-01'),(4,'D','E',70000,1,1,'2023-04-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "fiscal_quarter": "FY2020-Q3"
+        },
+        {
+          "name": "B",
+          "fiscal_quarter": "FY2020-Q4"
+        },
+        {
+          "name": "C",
+          "fiscal_quarter": "FY2021-Q4"
+        },
+        {
+          "name": "D",
+          "fiscal_quarter": "FY2023-Q1"
+        }
+      ]
+    }
+  ]
+}

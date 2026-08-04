@@ -1,0 +1,538 @@
+{
+  "id": "sales-category-revenue-share",
+  "number": 63,
+  "title": "Each Category's Share Of Revenue",
+  "difficulty": "Medium",
+  "tags": [
+    "Window Function"
+  ],
+  "description": "Report each product category's total revenue and its percentage of overall revenue, both rounded to 2 decimals. Ignore items whose product has no category.\n\nName the columns `category`, `revenue` and `pct`. Return the result in any order.",
+  "solutionSql": "SELECT category,\n       ROUND(revenue, 2) AS revenue,\n       ROUND(100.0 * revenue / SUM(revenue) OVER (), 2) AS pct\nFROM (\n  SELECT p.category AS category, SUM(oi.quantity * oi.unit_price) AS revenue\n  FROM order_items oi\n  JOIN products p ON p.id = oi.product_id\n  WHERE p.category IS NOT NULL\n  GROUP BY p.category\n);",
+  "orderMatters": false,
+  "hint": "Aggregate to one row per category, then use SUM(...) OVER () to reach the grand total without a second scan.",
+  "outputExplanation": "Furniture accounts for 59.38% of total revenue ($570) and Tech accounts for 40.63% ($390).",
+  "schemaSql": "CREATE TABLE customers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  country TEXT,\n  signup_date TEXT\n);\n\nCREATE TABLE products (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  category TEXT,\n  price REAL\n);\n\nCREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER,\n  order_date TEXT,\n  status TEXT\n);\n\nCREATE TABLE order_items (\n  id INTEGER PRIMARY KEY,\n  order_id INTEGER,\n  product_id INTEGER,\n  quantity INTEGER,\n  unit_price REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12'),(3,'Cy','US','2022-06-30'),(4,'Di','IN','2022-11-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Desk','Furniture',300.0),(4,'Lamp','Furniture',45.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2022-02-14','completed'),(3,2,'2022-02-20','cancelled'),(4,3,'2022-03-05','completed'),(5,3,'2022-03-06','pending'),(6,1,'2023-01-02','completed');\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,1,2,1,25.0),(3,2,3,1,300.0),(4,3,4,4,45.0),(5,4,2,3,25.0),(6,5,1,1,80.0),(7,6,4,2,45.0),(8,6,2,2,25.0);",
+      "expectedOutput": [
+        {
+          "category": "Furniture",
+          "revenue": 570,
+          "pct": 59.38
+        },
+        {
+          "category": "Tech",
+          "revenue": 390,
+          "pct": 40.63
+        }
+      ]
+    },
+    {
+      "name": "Customer who never ordered",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12'),(3,'NoOrders','FR','2023-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,2,'2022-01-11','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,2,25.0);",
+      "expectedOutput": [
+        {
+          "category": "Tech",
+          "revenue": 130,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "name": "All orders cancelled",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','cancelled'),(2,2,'2022-01-11','cancelled');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,1,2,80.0);",
+      "expectedOutput": [
+        {
+          "category": "Tech",
+          "revenue": 240,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Everything empty",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Orders with no items, products never sold",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'NeverSold','Tech',999.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2022-01-11','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "category": "Tech",
+          "revenue": 80,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "name": "NULL prices, quantities and statuses",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo',NULL,'2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mystery',NULL,NULL);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,2,'2022-01-11',NULL);\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,1,2,NULL,NULL),(3,2,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "category": "Tech",
+          "revenue": 240,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Single customer, single order",
+      "seedSql": "INSERT INTO customers VALUES (1,'Solo','US','2022-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-05-05','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "category": "Tech",
+          "revenue": 80,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Ties in revenue between products and customers",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','US','2021-01-01');\nINSERT INTO products VALUES (1,'P1','Tech',50.0),(2,'P2','Tech',50.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,2,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,2,50.0),(2,2,2,2,50.0);",
+      "expectedOutput": [
+        {
+          "category": "Tech",
+          "revenue": 200,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Same-day repeat orders across month and year boundaries",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2020-12-31'),(2,'Bo','UK','2021-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Desk','Furniture',300.0);\nINSERT INTO orders VALUES (1,1,'2021-12-31','completed'),(2,1,'2022-01-01','completed'),(3,1,'2022-01-01','completed'),(4,2,'2022-01-31','completed'),(5,2,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,1,300.0),(3,3,1,3,80.0),(4,4,2,2,300.0),(5,5,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "category": "Furniture",
+          "revenue": 900,
+          "pct": 69.23
+        },
+        {
+          "category": "Tech",
+          "revenue": 400,
+          "pct": 30.77
+        }
+      ]
+    },
+    {
+      "name": "Larger multi-country set",
+      "seedSql": "INSERT INTO customers VALUES (1,'A','US','2020-01-01'),(2,'B','US','2020-02-01'),(3,'C','UK','2020-03-01'),(4,'D','UK','2021-04-01'),(5,'E','IN','2021-05-01'),(6,'F','IN','2022-06-01'),(7,'G','FR','2022-07-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Desk','Furniture',300.0),(4,'Lamp','Furniture',45.0),(5,'Mug','Kitchen',12.5);\nINSERT INTO orders VALUES (1,1,'2022-01-03','completed'),(2,1,'2022-02-03','completed'),(3,2,'2022-02-14','completed'),(4,3,'2022-03-21','cancelled'),(5,4,'2022-04-02','completed'),(6,5,'2022-05-19','pending'),(7,5,'2022-06-19','completed'),(8,6,'2023-01-11','completed'),(9,7,'2023-02-28','completed'),(10,1,'2023-03-15','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,1,5,4,12.5),(3,2,3,1,300.0),(4,3,2,2,25.0),(5,4,4,1,45.0),(6,5,1,2,80.0),(7,6,5,10,12.5),(8,7,3,1,300.0),(9,7,4,2,45.0),(10,8,2,5,25.0),(11,9,1,1,80.0),(12,10,3,2,300.0),(13,10,5,1,12.5);",
+      "expectedOutput": [
+        {
+          "category": "Furniture",
+          "revenue": 1335,
+          "pct": 66.17
+        },
+        {
+          "category": "Kitchen",
+          "revenue": 187.5,
+          "pct": 9.29
+        },
+        {
+          "category": "Tech",
+          "revenue": 495,
+          "pct": 24.54
+        }
+      ]
+    },
+    {
+      "name": "Single category — 100%",
+      "data": [
+        {
+          "table": "customers",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Ada",
+              "country": "US",
+              "signup_date": "2022-01-01"
+            }
+          ]
+        },
+        {
+          "table": "products",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Widget",
+              "category": "Tech",
+              "price": 100
+            }
+          ]
+        },
+        {
+          "table": "orders",
+          "rows": [
+            {
+              "id": 1,
+              "customer_id": 1,
+              "order_date": "2022-01-10",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "table": "order_items",
+          "rows": [
+            {
+              "id": 1,
+              "order_id": 1,
+              "product_id": 1,
+              "quantity": 1,
+              "unit_price": 100
+            }
+          ]
+        }
+      ],
+      "expectedOutput": []
+    },
+    {
+      "name": "Two categories equal share",
+      "data": [
+        {
+          "table": "customers",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Ada",
+              "country": "US",
+              "signup_date": "2022-01-01"
+            }
+          ]
+        },
+        {
+          "table": "products",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Widget",
+              "category": "Tech",
+              "price": 100
+            },
+            {
+              "id": 2,
+              "name": "Chair",
+              "category": "Furniture",
+              "price": 100
+            }
+          ]
+        },
+        {
+          "table": "orders",
+          "rows": [
+            {
+              "id": 1,
+              "customer_id": 1,
+              "order_date": "2022-01-10",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "table": "order_items",
+          "rows": [
+            {
+              "id": 1,
+              "order_id": 1,
+              "product_id": 1,
+              "quantity": 1,
+              "unit_price": 100
+            },
+            {
+              "id": 2,
+              "order_id": 1,
+              "product_id": 2,
+              "quantity": 1,
+              "unit_price": 100
+            }
+          ]
+        }
+      ],
+      "expectedOutput": []
+    },
+    {
+      "name": "One category dominates",
+      "data": [
+        {
+          "table": "customers",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Ada",
+              "country": "US",
+              "signup_date": "2022-01-01"
+            }
+          ]
+        },
+        {
+          "table": "products",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Widget",
+              "category": "Tech",
+              "price": 300
+            },
+            {
+              "id": 2,
+              "name": "Chair",
+              "category": "Furniture",
+              "price": 100
+            }
+          ]
+        },
+        {
+          "table": "orders",
+          "rows": [
+            {
+              "id": 1,
+              "customer_id": 1,
+              "order_date": "2022-01-10",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "table": "order_items",
+          "rows": [
+            {
+              "id": 1,
+              "order_id": 1,
+              "product_id": 1,
+              "quantity": 1,
+              "unit_price": 300
+            },
+            {
+              "id": 2,
+              "order_id": 1,
+              "product_id": 2,
+              "quantity": 1,
+              "unit_price": 100
+            }
+          ]
+        }
+      ],
+      "expectedOutput": []
+    },
+    {
+      "name": "NULL category excluded",
+      "data": [
+        {
+          "table": "customers",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Ada",
+              "country": "US",
+              "signup_date": "2022-01-01"
+            }
+          ]
+        },
+        {
+          "table": "products",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Widget",
+              "category": "Tech",
+              "price": 100
+            },
+            {
+              "id": 2,
+              "name": "Misc",
+              "category": null,
+              "price": 50
+            }
+          ]
+        },
+        {
+          "table": "orders",
+          "rows": [
+            {
+              "id": 1,
+              "customer_id": 1,
+              "order_date": "2022-01-10",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "table": "order_items",
+          "rows": [
+            {
+              "id": 1,
+              "order_id": 1,
+              "product_id": 1,
+              "quantity": 1,
+              "unit_price": 100
+            },
+            {
+              "id": 2,
+              "order_id": 1,
+              "product_id": 2,
+              "quantity": 1,
+              "unit_price": 50
+            }
+          ]
+        }
+      ],
+      "expectedOutput": []
+    },
+    {
+      "name": "Three categories",
+      "data": [
+        {
+          "table": "customers",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Ada",
+              "country": "US",
+              "signup_date": "2022-01-01"
+            }
+          ]
+        },
+        {
+          "table": "products",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Widget",
+              "category": "Tech",
+              "price": 200
+            },
+            {
+              "id": 2,
+              "name": "Chair",
+              "category": "Furniture",
+              "price": 300
+            },
+            {
+              "id": 3,
+              "name": "Pan",
+              "category": "Kitchen",
+              "price": 100
+            }
+          ]
+        },
+        {
+          "table": "orders",
+          "rows": [
+            {
+              "id": 1,
+              "customer_id": 1,
+              "order_date": "2022-01-10",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "table": "order_items",
+          "rows": [
+            {
+              "id": 1,
+              "order_id": 1,
+              "product_id": 1,
+              "quantity": 1,
+              "unit_price": 200
+            },
+            {
+              "id": 2,
+              "order_id": 1,
+              "product_id": 2,
+              "quantity": 1,
+              "unit_price": 300
+            },
+            {
+              "id": 3,
+              "order_id": 1,
+              "product_id": 3,
+              "quantity": 1,
+              "unit_price": 100
+            }
+          ]
+        }
+      ],
+      "expectedOutput": []
+    },
+    {
+      "name": "Three categories with ties",
+      "data": [
+        {
+          "table": "customers",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Ada",
+              "country": "US",
+              "signup_date": "2022-01-01"
+            }
+          ]
+        },
+        {
+          "table": "products",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Widget",
+              "category": "Tech",
+              "price": 200
+            },
+            {
+              "id": 2,
+              "name": "Chair",
+              "category": "Furniture",
+              "price": 200
+            },
+            {
+              "id": 3,
+              "name": "Pan",
+              "category": "Kitchen",
+              "price": 200
+            }
+          ]
+        },
+        {
+          "table": "orders",
+          "rows": [
+            {
+              "id": 1,
+              "customer_id": 1,
+              "order_date": "2022-01-10",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "table": "order_items",
+          "rows": [
+            {
+              "id": 1,
+              "order_id": 1,
+              "product_id": 1,
+              "quantity": 1,
+              "unit_price": 200
+            },
+            {
+              "id": 2,
+              "order_id": 1,
+              "product_id": 2,
+              "quantity": 1,
+              "unit_price": 200
+            },
+            {
+              "id": 3,
+              "order_id": 1,
+              "product_id": 3,
+              "quantity": 1,
+              "unit_price": 200
+            }
+          ]
+        }
+      ],
+      "expectedOutput": []
+    }
+  ]
+}

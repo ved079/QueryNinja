@@ -1,0 +1,169 @@
+{
+  "id": "recon-messy-name-match",
+  "number": 99,
+  "title": "Match Customers Despite Messy Formatting",
+  "difficulty": "Hard",
+  "tags": [
+    "Set Operations",
+    "String"
+  ],
+  "description": "The same customer is recorded with inconsistent formatting across systems — `'Ann Lee'` in one, `'ANN LEE'` or `'  ann lee '` in another. Report every customer name (normalized to lowercase with no leading/trailing whitespace) that appears in **both** `source_orders` and `warehouse_orders`, once formatting differences are accounted for.\n\nName the column `customer`. Return the result in any order.",
+  "solutionSql": "SELECT LOWER(TRIM(customer_name)) AS customer FROM source_orders\nINTERSECT\nSELECT LOWER(TRIM(customer_name)) AS customer FROM warehouse_orders;",
+  "orderMatters": false,
+  "hint": "Normalize both sides the same way (LOWER + TRIM) before comparing — INTERSECT on the raw customer_name column would miss matches that are really the same person.",
+  "outputExplanation": "After normalizing names to lowercase with trimmed whitespace, 'ann lee' and 'ben kim' appear in both systems. A hidden test shows that without normalization, '  ben kim ' and 'BEN KIM' would be missed as matches.",
+  "schemaSql": "CREATE TABLE source_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);\n\nCREATE TABLE warehouse_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);\n\nCREATE TABLE vendor_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5),(4,'Dee Fox',200.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(5,'Eli Park',60.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(3,'Cy Ortiz',45.5),(6,'Fay Nolan',15.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        }
+      ]
+    },
+    {
+      "name": "All three systems fully agree",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        }
+      ]
+    },
+    {
+      "name": "Completely disjoint across all three",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO warehouse_orders VALUES (2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (3,'Cy Ortiz',45.5);",
+      "expectedOutput": []
+    },
+    {
+      "name": "Source has an accidental duplicate row",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        }
+      ]
+    },
+    {
+      "name": "All three systems empty",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Only source has any data",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5);",
+      "expectedOutput": []
+    },
+    {
+      "name": "Same order, inconsistent name formatting",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'  ben kim ',80.0);\nINSERT INTO warehouse_orders VALUES (1,'ANN LEE',120.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'ann lee',120.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        }
+      ]
+    },
+    {
+      "name": "Matching ids, mismatched amounts",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',125.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        }
+      ]
+    },
+    {
+      "name": "Single matching order everywhere",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        }
+      ]
+    },
+    {
+      "name": "Larger mixed set: some in all three, some in two, some in one, duplicates and a mismatch",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5),(4,'Dee Fox',200.0),(7,'Gio Ruiz',33.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',99.0),(5,'Eli Park',60.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(4,'Dee Fox',200.0),(6,'Fay Nolan',15.0),(8,'Hana Cole',72.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        },
+        {
+          "customer": "cy ortiz"
+        }
+      ]
+    },
+    {
+      "name": "No formatting issues — clean match",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',100.0),(2,'Ben Kim',200.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',100.0),(2,'Ben Kim',200.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        }
+      ]
+    },
+    {
+      "name": "Source has extra spaces and uppercase",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'  ANN LEE ',100.0),(2,'  BEN KIM ',200.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',100.0),(2,'Ben Kim',200.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        }
+      ]
+    },
+    {
+      "name": "No real matches after normalization",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Alice',100.0),(2,'Bob',200.0);\nINSERT INTO warehouse_orders VALUES (1,'Charlie',300.0),(2,'Diana',400.0);",
+      "expectedOutput": []
+    },
+    {
+      "name": "Warehouse has messy formatting",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',100.0);\nINSERT INTO warehouse_orders VALUES (1,'ANN LEE',100.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        }
+      ]
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Mixed cases and spacing across both tables",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'  Cy Ortiz ',45.5),(2,'dee fox',200.0);\nINSERT INTO warehouse_orders VALUES (1,'CY ORTIZ',45.5),(2,'Dee Fox ',200.0),(3,'  ann lee  ',50.0);",
+      "expectedOutput": [
+        {
+          "customer": "cy ortiz"
+        },
+        {
+          "customer": "dee fox"
+        }
+      ]
+    }
+  ]
+}

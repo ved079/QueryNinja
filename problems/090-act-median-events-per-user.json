@@ -1,0 +1,582 @@
+{
+  "id": "act-median-events-per-user",
+  "number": 90,
+  "title": "Median Events Per User",
+  "difficulty": "Hard",
+  "tags": [
+    "Statistics",
+    "Subquery"
+  ],
+  "description": "Considering only users who have at least one event, report the median number of events per user.\n\nName the column `median_events`. The result is exactly one row.",
+  "solutionSql": "WITH per_user AS (\n  SELECT user_id, COUNT(*) AS n FROM events GROUP BY user_id\n)\nSELECT AVG(n) AS median_events FROM (\n  SELECT n FROM per_user\n  ORDER BY n\n  LIMIT 2 - (SELECT COUNT(*) FROM per_user) % 2\n  OFFSET (SELECT (COUNT(*) - 1) / 2 FROM per_user)\n);",
+  "orderMatters": false,
+  "hint": "Same median recipe as before, applied to per-user counts rather than raw values.",
+  "outputExplanation": "With event counts of 2, 3 and 5, the median number of events per active user is 3.",
+  "schemaSql": "CREATE TABLE users (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  plan TEXT,\n  signup_date TEXT\n);\n\nCREATE TABLE events (\n  id INTEGER PRIMARY KEY,\n  user_id INTEGER,\n  event_type TEXT,\n  event_time TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO users VALUES (1,'Ada','pro','2022-01-01'),(2,'Bo','free','2022-01-03'),(3,'Cy','pro','2022-02-10'),(4,'Di','free','2022-03-01');\nINSERT INTO events VALUES\n (1,1,'login','2022-03-01 09:00:00'),\n (2,1,'view','2022-03-01 09:05:00'),\n (3,1,'purchase','2022-03-01 09:40:00'),\n (4,1,'login','2022-03-02 10:00:00'),\n (5,1,'login','2022-03-03 11:00:00'),\n (6,2,'login','2022-03-01 08:00:00'),\n (7,2,'view','2022-03-05 08:10:00'),\n (8,3,'login','2022-03-02 20:00:00'),\n (9,3,'purchase','2022-03-02 20:30:00'),\n (10,3,'login','2022-03-04 21:00:00');",
+      "expectedOutput": [
+        {
+          "median_events": 3
+        }
+      ]
+    },
+    {
+      "name": "A user with a long unbroken streak",
+      "seedSql": "INSERT INTO users VALUES (1,'Streak','pro','2022-01-01'),(2,'Sparse','free','2022-01-01');\nINSERT INTO events VALUES\n (1,1,'login','2022-05-01 10:00:00'),\n (2,1,'login','2022-05-02 10:00:00'),\n (3,1,'login','2022-05-03 10:00:00'),\n (4,1,'login','2022-05-04 10:00:00'),\n (5,1,'login','2022-05-05 10:00:00'),\n (6,2,'login','2022-05-01 10:00:00'),\n (7,2,'login','2022-05-03 10:00:00'),\n (8,2,'login','2022-05-05 10:00:00');",
+      "expectedOutput": [
+        {
+          "median_events": 4
+        }
+      ]
+    },
+    {
+      "name": "Users with no events at all",
+      "seedSql": "INSERT INTO users VALUES (1,'Active','pro','2022-01-01'),(2,'Silent','free','2022-01-02'),(3,'AlsoSilent','free','2022-01-03');\nINSERT INTO events VALUES (1,1,'login','2022-04-01 12:00:00'),(2,1,'view','2022-04-01 12:30:00');",
+      "expectedOutput": [
+        {
+          "median_events": 2
+        }
+      ]
+    },
+    {
+      "name": "Everything empty",
+      "seedSql": "",
+      "expectedOutput": [
+        {
+          "median_events": null
+        }
+      ]
+    },
+    {
+      "name": "Several events at the exact same timestamp",
+      "seedSql": "INSERT INTO users VALUES (1,'Ada','pro','2022-01-01'),(2,'Bo','free','2022-01-01');\nINSERT INTO events VALUES\n (1,1,'login','2022-06-01 09:00:00'),\n (2,1,'view','2022-06-01 09:00:00'),\n (3,1,'purchase','2022-06-01 09:00:00'),\n (4,2,'login','2022-06-01 09:00:00'),\n (5,2,'login','2022-06-01 09:00:00');",
+      "expectedOutput": [
+        {
+          "median_events": 2.5
+        }
+      ]
+    },
+    {
+      "name": "Single user, single event",
+      "seedSql": "INSERT INTO users VALUES (1,'Solo','free','2022-01-01');\nINSERT INTO events VALUES (1,1,'login','2022-07-04 15:00:00');",
+      "expectedOutput": [
+        {
+          "median_events": 1
+        }
+      ]
+    },
+    {
+      "name": "Events with NULL type and orphan user ids",
+      "seedSql": "INSERT INTO users VALUES (1,'Ada','pro','2022-01-01'),(2,'Bo',NULL,'2022-01-05');\nINSERT INTO events VALUES\n (1,1,'login','2022-08-01 09:00:00'),\n (2,1,NULL,'2022-08-01 10:00:00'),\n (3,99,'login','2022-08-01 11:00:00'),\n (4,2,'purchase','2022-08-02 09:00:00');",
+      "expectedOutput": [
+        {
+          "median_events": 1
+        }
+      ]
+    },
+    {
+      "name": "A streak spanning a month boundary",
+      "seedSql": "INSERT INTO users VALUES (1,'Ada','pro','2022-01-01');\nINSERT INTO events VALUES\n (1,1,'login','2022-01-30 09:00:00'),\n (2,1,'login','2022-01-31 09:00:00'),\n (3,1,'login','2022-02-01 09:00:00'),\n (4,1,'login','2022-02-02 09:00:00'),\n (5,1,'login','2022-02-05 09:00:00');",
+      "expectedOutput": [
+        {
+          "median_events": 5
+        }
+      ]
+    },
+    {
+      "name": "Purchases only, no logins",
+      "seedSql": "INSERT INTO users VALUES (1,'Ada','pro','2022-01-01'),(2,'Bo','pro','2022-01-01');\nINSERT INTO events VALUES\n (1,1,'purchase','2022-09-01 09:00:00'),\n (2,1,'purchase','2022-09-01 18:00:00'),\n (3,2,'purchase','2022-09-02 09:00:00');",
+      "expectedOutput": [
+        {
+          "median_events": 1.5
+        }
+      ]
+    },
+    {
+      "name": "Larger multi-user activity log",
+      "seedSql": "INSERT INTO users VALUES (1,'A','pro','2022-01-01'),(2,'B','free','2022-01-02'),(3,'C','pro','2022-01-03'),(4,'D','free','2022-02-01'),(5,'E','pro','2022-02-15');\nINSERT INTO events VALUES\n (1,1,'login','2022-03-01 08:00:00'),\n (2,1,'view','2022-03-01 08:20:00'),\n (3,1,'purchase','2022-03-01 09:15:00'),\n (4,1,'login','2022-03-02 08:00:00'),\n (5,1,'view','2022-03-02 08:05:00'),\n (6,2,'login','2022-03-01 12:00:00'),\n (7,2,'view','2022-03-01 12:45:00'),\n (8,2,'login','2022-03-03 12:00:00'),\n (9,3,'login','2022-03-01 22:00:00'),\n (10,3,'purchase','2022-03-01 22:30:00'),\n (11,3,'login','2022-03-02 22:00:00'),\n (12,3,'login','2022-03-03 22:00:00'),\n (13,3,'view','2022-03-03 22:10:00'),\n (14,4,'login','2022-03-05 06:00:00'),\n (15,4,'view','2022-03-05 06:30:00'),\n (16,5,'login','2022-03-01 18:00:00'),\n (17,5,'view','2022-03-01 18:02:00'),\n (18,5,'view','2022-03-01 18:50:00'),\n (19,5,'purchase','2022-03-06 19:00:00'),\n (20,5,'login','2022-03-07 19:00:00');",
+      "expectedOutput": [
+        {
+          "median_events": 5
+        }
+      ]
+    },
+    {
+      "name": "Single user",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:05:00"
+        },
+        {
+          "id": 3,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:10:00"
+        },
+        {
+          "id": 4,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:15:00"
+        },
+        {
+          "id": 5,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:20:00"
+        }
+      ],
+      "expected": [
+        {
+          "median_events": 5
+        }
+      ],
+      "expectedOutput": [
+        {
+          "median_events": null
+        }
+      ]
+    },
+    {
+      "name": "Two users (even)",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        },
+        {
+          "id": 2,
+          "name": "Bo",
+          "plan": "free",
+          "signup_date": "2022-01-02"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:05:00"
+        },
+        {
+          "id": 3,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:00:00"
+        },
+        {
+          "id": 4,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:05:00"
+        },
+        {
+          "id": 5,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:10:00"
+        },
+        {
+          "id": 6,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:15:00"
+        }
+      ],
+      "expected": [
+        {
+          "median_events": 3
+        }
+      ],
+      "expectedOutput": [
+        {
+          "median_events": null
+        }
+      ]
+    },
+    {
+      "name": "Three users (odd)",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        },
+        {
+          "id": 2,
+          "name": "Bo",
+          "plan": "free",
+          "signup_date": "2022-01-02"
+        },
+        {
+          "id": 3,
+          "name": "Cy",
+          "plan": "free",
+          "signup_date": "2022-01-03"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:05:00"
+        },
+        {
+          "id": 3,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:10:00"
+        },
+        {
+          "id": 4,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:00:00"
+        },
+        {
+          "id": 5,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:05:00"
+        },
+        {
+          "id": 6,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:10:00"
+        },
+        {
+          "id": 7,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:15:00"
+        },
+        {
+          "id": 8,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:20:00"
+        },
+        {
+          "id": 9,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:25:00"
+        },
+        {
+          "id": 10,
+          "user_id": 3,
+          "event_type": "login",
+          "event_time": "2022-03-01 11:00:00"
+        },
+        {
+          "id": 11,
+          "user_id": 3,
+          "event_type": "login",
+          "event_time": "2022-03-01 11:05:00"
+        },
+        {
+          "id": 12,
+          "user_id": 3,
+          "event_type": "login",
+          "event_time": "2022-03-01 11:10:00"
+        },
+        {
+          "id": 13,
+          "user_id": 3,
+          "event_type": "login",
+          "event_time": "2022-03-01 11:15:00"
+        },
+        {
+          "id": 14,
+          "user_id": 3,
+          "event_type": "login",
+          "event_time": "2022-03-01 11:20:00"
+        },
+        {
+          "id": 15,
+          "user_id": 3,
+          "event_type": "login",
+          "event_time": "2022-03-01 11:25:00"
+        }
+      ],
+      "expected": [
+        {
+          "median_events": 5
+        }
+      ],
+      "expectedOutput": [
+        {
+          "median_events": null
+        }
+      ]
+    },
+    {
+      "name": "All users same count",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        },
+        {
+          "id": 2,
+          "name": "Bo",
+          "plan": "free",
+          "signup_date": "2022-01-02"
+        },
+        {
+          "id": 3,
+          "name": "Cy",
+          "plan": "free",
+          "signup_date": "2022-01-03"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        },
+        {
+          "id": 2,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:05:00"
+        },
+        {
+          "id": 3,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:00:00"
+        },
+        {
+          "id": 4,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:05:00"
+        },
+        {
+          "id": 5,
+          "user_id": 3,
+          "event_type": "login",
+          "event_time": "2022-03-01 11:00:00"
+        },
+        {
+          "id": 6,
+          "user_id": 3,
+          "event_type": "login",
+          "event_time": "2022-03-01 11:05:00"
+        }
+      ],
+      "expected": [
+        {
+          "median_events": 2
+        }
+      ],
+      "expectedOutput": [
+        {
+          "median_events": null
+        }
+      ]
+    },
+    {
+      "name": "Users with 1 event each",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        },
+        {
+          "id": 2,
+          "name": "Bo",
+          "plan": "free",
+          "signup_date": "2022-01-02"
+        },
+        {
+          "id": 3,
+          "name": "Cy",
+          "plan": "free",
+          "signup_date": "2022-01-03"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        },
+        {
+          "id": 2,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:00:00"
+        },
+        {
+          "id": 3,
+          "user_id": 3,
+          "event_type": "login",
+          "event_time": "2022-03-01 11:00:00"
+        }
+      ],
+      "expected": [
+        {
+          "median_events": 1
+        }
+      ],
+      "expectedOutput": [
+        {
+          "median_events": null
+        }
+      ]
+    },
+    {
+      "name": "Wide range",
+      "users": [
+        {
+          "id": 1,
+          "name": "Ada",
+          "plan": "free",
+          "signup_date": "2022-01-01"
+        },
+        {
+          "id": 2,
+          "name": "Bo",
+          "plan": "free",
+          "signup_date": "2022-01-02"
+        },
+        {
+          "id": 3,
+          "name": "Cy",
+          "plan": "free",
+          "signup_date": "2022-01-03"
+        }
+      ],
+      "events": [
+        {
+          "id": 1,
+          "user_id": 1,
+          "event_type": "login",
+          "event_time": "2022-03-01 09:00:00"
+        },
+        {
+          "id": 2,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:00:00"
+        },
+        {
+          "id": 3,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:05:00"
+        },
+        {
+          "id": 4,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:10:00"
+        },
+        {
+          "id": 5,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:15:00"
+        },
+        {
+          "id": 6,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:20:00"
+        },
+        {
+          "id": 7,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:25:00"
+        },
+        {
+          "id": 8,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:30:00"
+        },
+        {
+          "id": 9,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:35:00"
+        },
+        {
+          "id": 10,
+          "user_id": 2,
+          "event_type": "login",
+          "event_time": "2022-03-01 10:40:00"
+        },
+        {
+          "id": 11,
+          "user_id": 3,
+          "event_type": "login",
+          "event_time": "2022-03-01 11:00:00"
+        },
+        {
+          "id": 12,
+          "user_id": 3,
+          "event_type": "login",
+          "event_time": "2022-03-01 11:05:00"
+        }
+      ],
+      "expected": [
+        {
+          "median_events": 10
+        }
+      ],
+      "expectedOutput": [
+        {
+          "median_events": null
+        }
+      ]
+    }
+  ]
+}

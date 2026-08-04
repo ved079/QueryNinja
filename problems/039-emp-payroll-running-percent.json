@@ -1,0 +1,427 @@
+{
+  "id": "emp-payroll-running-percent",
+  "number": 39,
+  "title": "Cumulative Share Of Payroll",
+  "difficulty": "Hard",
+  "tags": [
+    "Window Function"
+  ],
+  "description": "Order employees by salary from highest to lowest (ties broken by `id`) and report the running percentage of total company payroll accounted for by everyone down to and including that employee, rounded to 2 decimals.\n\nName the columns `name`, `salary` and `running_pct`. Return the result in any order.",
+  "solutionSql": "SELECT name, salary,\n       ROUND(100.0 * SUM(salary) OVER (ORDER BY salary DESC, id\n                                       ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)\n             / SUM(salary) OVER (), 2) AS running_pct\nFROM employees;",
+  "orderMatters": false,
+  "hint": "Two windows in one SELECT: a running SUM with a frame, divided by a grand-total SUM OVER () with no partition.",
+  "outputExplanation": "Ava alone accounts for 18.07% of total payroll. By the time we reach Hal, 100% of payroll is covered. Each row shows the cumulative share from the highest earner down.",
+  "schemaSql": "CREATE TABLE departments (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  location TEXT\n);\n\nCREATE TABLE employees (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  title TEXT,\n  salary INTEGER,\n  dept_id INTEGER,\n  manager_id INTEGER,\n  hire_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',150000,1,NULL,'2018-01-15'),\n (2,'Ben','Engineer',120000,1,1,'2019-03-01'),\n (3,'Cara','Engineer',120000,1,1,'2019-03-01'),\n (4,'Dan','Engineer',95000,1,1,'2021-07-19'),\n (5,'Eve','Manager',130000,2,NULL,'2017-11-02'),\n (6,'Finn','Rep',70000,2,5,'2020-05-30'),\n (7,'Gia','Rep',85000,2,5,'2022-02-14'),\n (8,'Hal','Analyst',60000,3,NULL,'2023-09-01');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "salary": 150000,
+          "running_pct": 18.07
+        },
+        {
+          "name": "Eve",
+          "salary": 130000,
+          "running_pct": 33.73
+        },
+        {
+          "name": "Ben",
+          "salary": 120000,
+          "running_pct": 48.19
+        },
+        {
+          "name": "Cara",
+          "salary": 120000,
+          "running_pct": 62.65
+        },
+        {
+          "name": "Dan",
+          "salary": 95000,
+          "running_pct": 74.1
+        },
+        {
+          "name": "Gia",
+          "salary": 85000,
+          "running_pct": 84.34
+        },
+        {
+          "name": "Finn",
+          "salary": 70000,
+          "running_pct": 92.77
+        },
+        {
+          "name": "Hal",
+          "salary": 60000,
+          "running_pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Ties on every salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'A','Engineer',100000,1,NULL,'2020-01-01'),\n (2,'B','Engineer',100000,1,1,'2020-01-01'),\n (3,'C','Engineer',100000,1,1,'2020-01-01'),\n (4,'D','Rep',100000,2,NULL,'2020-01-01'),\n (5,'E','Rep',100000,2,4,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "salary": 100000,
+          "running_pct": 20
+        },
+        {
+          "name": "B",
+          "salary": 100000,
+          "running_pct": 40
+        },
+        {
+          "name": "C",
+          "salary": 100000,
+          "running_pct": 60
+        },
+        {
+          "name": "D",
+          "salary": 100000,
+          "running_pct": 80
+        },
+        {
+          "name": "E",
+          "salary": 100000,
+          "running_pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Department with no employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "salary": 90000,
+          "running_pct": 52.94
+        },
+        {
+          "name": "Ben",
+          "salary": 80000,
+          "running_pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Employees with NULL department and NULL salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "salary": 90000,
+          "running_pct": 37.5
+        },
+        {
+          "name": "Cara",
+          "salary": 75000,
+          "running_pct": 68.75
+        },
+        {
+          "name": "Dan",
+          "salary": 75000,
+          "running_pct": 100
+        },
+        {
+          "name": "Ben",
+          "salary": null,
+          "running_pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Single employee, single department",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
+      "expectedOutput": [
+        {
+          "name": "Solo",
+          "salary": 100000,
+          "running_pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Everyone reports to someone (deep chain)",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
+      "expectedOutput": [
+        {
+          "name": "L1",
+          "salary": 300000,
+          "running_pct": 29.41
+        },
+        {
+          "name": "L5",
+          "salary": 250000,
+          "running_pct": 53.92
+        },
+        {
+          "name": "L2",
+          "salary": 200000,
+          "running_pct": 73.53
+        },
+        {
+          "name": "L3",
+          "salary": 150000,
+          "running_pct": 88.24
+        },
+        {
+          "name": "L4",
+          "salary": 120000,
+          "running_pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Duplicate names and same hire dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Austin');\nINSERT INTO employees VALUES\n (1,'Sam','Engineer',90000,1,NULL,'2021-01-01'),\n (2,'Sam','Engineer',95000,2,NULL,'2021-01-01'),\n (3,'Sam','Rep',60000,2,2,'2021-01-01'),\n (4,'Alex','Rep',60000,2,2,'2021-06-30');",
+      "expectedOutput": [
+        {
+          "name": "Sam",
+          "salary": 95000,
+          "running_pct": 31.15
+        },
+        {
+          "name": "Sam",
+          "salary": 90000,
+          "running_pct": 60.66
+        },
+        {
+          "name": "Sam",
+          "salary": 60000,
+          "running_pct": 80.33
+        },
+        {
+          "name": "Alex",
+          "salary": 60000,
+          "running_pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Zero and negative salaries, boundary dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Intern',0,1,NULL,'2019-12-31'),\n (2,'Ben','Engineer',-100,1,1,'2020-01-01'),\n (3,'Cara','Engineer',1,2,NULL,'2020-02-29'),\n (4,'Dan','Rep',2000000,2,3,'2020-12-31');",
+      "expectedOutput": [
+        {
+          "name": "Dan",
+          "salary": 2000000,
+          "running_pct": 100
+        },
+        {
+          "name": "Cara",
+          "salary": 1,
+          "running_pct": 100.01
+        },
+        {
+          "name": "Ava",
+          "salary": 0,
+          "running_pct": 100.01
+        },
+        {
+          "name": "Ben",
+          "salary": -100,
+          "running_pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Larger multi-department set",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin'),(4,'Finance','Boston');\nINSERT INTO employees VALUES\n (1,'A','Manager',140000,1,NULL,'2015-02-10'),\n (2,'B','Engineer',130000,1,1,'2016-04-11'),\n (3,'C','Engineer',130000,1,1,'2017-06-12'),\n (4,'D','Engineer',110000,1,1,'2018-08-13'),\n (5,'E','Engineer',90000,1,1,'2019-10-14'),\n (6,'F','Manager',125000,2,NULL,'2015-03-15'),\n (7,'G','Rep',88000,2,6,'2016-05-16'),\n (8,'H','Rep',88000,2,6,'2017-07-17'),\n (9,'I','Rep',64000,2,6,'2018-09-18'),\n (10,'J','Manager',99000,3,NULL,'2019-11-19'),\n (11,'K','Analyst',72000,3,10,'2020-01-20'),\n (12,'L','Analyst',150000,4,NULL,'2021-03-21'),\n (13,'M','Analyst',150000,4,12,'2022-05-22');",
+      "expectedOutput": [
+        {
+          "name": "L",
+          "salary": 150000,
+          "running_pct": 10.45
+        },
+        {
+          "name": "M",
+          "salary": 150000,
+          "running_pct": 20.89
+        },
+        {
+          "name": "A",
+          "salary": 140000,
+          "running_pct": 30.64
+        },
+        {
+          "name": "B",
+          "salary": 130000,
+          "running_pct": 39.69
+        },
+        {
+          "name": "C",
+          "salary": 130000,
+          "running_pct": 48.75
+        },
+        {
+          "name": "F",
+          "salary": 125000,
+          "running_pct": 57.45
+        },
+        {
+          "name": "D",
+          "salary": 110000,
+          "running_pct": 65.11
+        },
+        {
+          "name": "J",
+          "salary": 99000,
+          "running_pct": 72.01
+        },
+        {
+          "name": "E",
+          "salary": 90000,
+          "running_pct": 78.27
+        },
+        {
+          "name": "G",
+          "salary": 88000,
+          "running_pct": 84.4
+        },
+        {
+          "name": "H",
+          "salary": 88000,
+          "running_pct": 90.53
+        },
+        {
+          "name": "K",
+          "salary": 72000,
+          "running_pct": 95.54
+        },
+        {
+          "name": "I",
+          "salary": 64000,
+          "running_pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Single employee — running_pct is 100.00",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',100,1,NULL,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "Solo",
+          "salary": 100,
+          "running_pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Two employees with equal salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "salary": 100,
+          "running_pct": 50
+        },
+        {
+          "name": "B",
+          "salary": 100,
+          "running_pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Three decreasing salaries — cumulative builds up",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',300,1,NULL,'2020-01-01'),(2,'B','X',200,1,1,'2020-01-01'),(3,'C','X',100,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "salary": 300,
+          "running_pct": 50
+        },
+        {
+          "name": "B",
+          "salary": 200,
+          "running_pct": 83.33
+        },
+        {
+          "name": "C",
+          "salary": 100,
+          "running_pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Four identical salaries",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01'),(3,'C','X',100,1,1,'2020-01-01'),(4,'D','X',100,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "salary": 100,
+          "running_pct": 25
+        },
+        {
+          "name": "B",
+          "salary": 100,
+          "running_pct": 50
+        },
+        {
+          "name": "C",
+          "salary": 100,
+          "running_pct": 75
+        },
+        {
+          "name": "D",
+          "salary": 100,
+          "running_pct": 100
+        }
+      ]
+    },
+    {
+      "name": "NULL salary produces NULL running_pct",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',200,1,NULL,'2020-01-01'),(2,'B','X',NULL,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "salary": 200,
+          "running_pct": 100
+        },
+        {
+          "name": "B",
+          "salary": null,
+          "running_pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Five employees with varied salaries",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',500,1,NULL,'2020-01-01'),(2,'B','X',300,1,1,'2020-01-01'),(3,'C','X',200,1,1,'2020-01-01'),(4,'D','X',100,1,1,'2020-01-01'),(5,'E','X',100,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "salary": 500,
+          "running_pct": 41.67
+        },
+        {
+          "name": "B",
+          "salary": 300,
+          "running_pct": 66.67
+        },
+        {
+          "name": "C",
+          "salary": 200,
+          "running_pct": 83.33
+        },
+        {
+          "name": "D",
+          "salary": 100,
+          "running_pct": 91.67
+        },
+        {
+          "name": "E",
+          "salary": 100,
+          "running_pct": 100
+        }
+      ]
+    }
+  ]
+}

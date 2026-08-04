@@ -1,0 +1,162 @@
+{
+  "id": "emp-median-salary",
+  "number": 33,
+  "title": "Median Salary",
+  "difficulty": "Medium",
+  "tags": [
+    "Aggregation",
+    "Subquery"
+  ],
+  "description": "Report the median salary of the company: the middle value when salaries are sorted, or the average of the two middle values when the count is even. Ignore NULL salaries.\n\nName the column `median_salary`. The result is exactly one row.",
+  "solutionSql": "SELECT AVG(salary) AS median_salary FROM (\n  SELECT salary FROM employees WHERE salary IS NOT NULL\n  ORDER BY salary\n  LIMIT 2 - (SELECT COUNT(*) FROM employees WHERE salary IS NOT NULL) % 2\n  OFFSET (SELECT (COUNT(*) - 1) / 2 FROM employees WHERE salary IS NOT NULL)\n);",
+  "orderMatters": false,
+  "hint": "SQLite has no PERCENTILE function. Take 1 or 2 rows from the middle with LIMIT/OFFSET and average them.",
+  "outputExplanation": "With 8 non-NULL salaries, the median is the average of the 4th and 5th values: $107,500.",
+  "schemaSql": "CREATE TABLE departments (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  location TEXT\n);\n\nCREATE TABLE employees (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  title TEXT,\n  salary INTEGER,\n  dept_id INTEGER,\n  manager_id INTEGER,\n  hire_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',150000,1,NULL,'2018-01-15'),\n (2,'Ben','Engineer',120000,1,1,'2019-03-01'),\n (3,'Cara','Engineer',120000,1,1,'2019-03-01'),\n (4,'Dan','Engineer',95000,1,1,'2021-07-19'),\n (5,'Eve','Manager',130000,2,NULL,'2017-11-02'),\n (6,'Finn','Rep',70000,2,5,'2020-05-30'),\n (7,'Gia','Rep',85000,2,5,'2022-02-14'),\n (8,'Hal','Analyst',60000,3,NULL,'2023-09-01');",
+      "expectedOutput": [
+        {
+          "median_salary": 107500
+        }
+      ]
+    },
+    {
+      "name": "Ties on every salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'A','Engineer',100000,1,NULL,'2020-01-01'),\n (2,'B','Engineer',100000,1,1,'2020-01-01'),\n (3,'C','Engineer',100000,1,1,'2020-01-01'),\n (4,'D','Rep',100000,2,NULL,'2020-01-01'),\n (5,'E','Rep',100000,2,4,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "median_salary": 100000
+        }
+      ]
+    },
+    {
+      "name": "Department with no employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
+      "expectedOutput": [
+        {
+          "median_salary": 85000
+        }
+      ]
+    },
+    {
+      "name": "Employees with NULL department and NULL salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
+      "expectedOutput": [
+        {
+          "median_salary": 75000
+        }
+      ]
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": [
+        {
+          "median_salary": null
+        }
+      ]
+    },
+    {
+      "name": "Single employee, single department",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
+      "expectedOutput": [
+        {
+          "median_salary": 100000
+        }
+      ]
+    },
+    {
+      "name": "Everyone reports to someone (deep chain)",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
+      "expectedOutput": [
+        {
+          "median_salary": 200000
+        }
+      ]
+    },
+    {
+      "name": "Duplicate names and same hire dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Austin');\nINSERT INTO employees VALUES\n (1,'Sam','Engineer',90000,1,NULL,'2021-01-01'),\n (2,'Sam','Engineer',95000,2,NULL,'2021-01-01'),\n (3,'Sam','Rep',60000,2,2,'2021-01-01'),\n (4,'Alex','Rep',60000,2,2,'2021-06-30');",
+      "expectedOutput": [
+        {
+          "median_salary": 75000
+        }
+      ]
+    },
+    {
+      "name": "Zero and negative salaries, boundary dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Intern',0,1,NULL,'2019-12-31'),\n (2,'Ben','Engineer',-100,1,1,'2020-01-01'),\n (3,'Cara','Engineer',1,2,NULL,'2020-02-29'),\n (4,'Dan','Rep',2000000,2,3,'2020-12-31');",
+      "expectedOutput": [
+        {
+          "median_salary": 0.5
+        }
+      ]
+    },
+    {
+      "name": "Larger multi-department set",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin'),(4,'Finance','Boston');\nINSERT INTO employees VALUES\n (1,'A','Manager',140000,1,NULL,'2015-02-10'),\n (2,'B','Engineer',130000,1,1,'2016-04-11'),\n (3,'C','Engineer',130000,1,1,'2017-06-12'),\n (4,'D','Engineer',110000,1,1,'2018-08-13'),\n (5,'E','Engineer',90000,1,1,'2019-10-14'),\n (6,'F','Manager',125000,2,NULL,'2015-03-15'),\n (7,'G','Rep',88000,2,6,'2016-05-16'),\n (8,'H','Rep',88000,2,6,'2017-07-17'),\n (9,'I','Rep',64000,2,6,'2018-09-18'),\n (10,'J','Manager',99000,3,NULL,'2019-11-19'),\n (11,'K','Analyst',72000,3,10,'2020-01-20'),\n (12,'L','Analyst',150000,4,NULL,'2021-03-21'),\n (13,'M','Analyst',150000,4,12,'2022-05-22');",
+      "expectedOutput": [
+        {
+          "median_salary": 110000
+        }
+      ]
+    },
+    {
+      "name": "Single employee — median is that salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',100,1,NULL,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "median_salary": 100
+        }
+      ]
+    },
+    {
+      "name": "Even count (4) — average of two middle values",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',200,1,1,'2020-01-01'),(3,'C','X',300,1,1,'2020-01-01'),(4,'D','X',400,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "median_salary": 250
+        }
+      ]
+    },
+    {
+      "name": "Odd count (3) — middle value",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',200,1,1,'2020-01-01'),(3,'C','X',300,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "median_salary": 200
+        }
+      ]
+    },
+    {
+      "name": "All salaries are the same",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01'),(3,'C','X',100,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "median_salary": 100
+        }
+      ]
+    },
+    {
+      "name": "All NULLs excluded — empty set returns NULL median",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',NULL,1,NULL,'2020-01-01'),(2,'B','X',NULL,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "median_salary": null
+        }
+      ]
+    },
+    {
+      "name": "Mix of NULLs and values",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',200,1,1,'2020-01-01'),(3,'C','X',NULL,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "median_salary": 150
+        }
+      ]
+    }
+  ]
+}

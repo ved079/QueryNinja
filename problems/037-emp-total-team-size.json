@@ -1,0 +1,232 @@
+{
+  "id": "emp-total-team-size",
+  "number": 37,
+  "title": "Total Team Size Including Indirect Reports",
+  "difficulty": "Hard",
+  "tags": [
+    "Recursive CTE",
+    "Hierarchy"
+  ],
+  "description": "For every employee who manages at least one person, report how many people sit below them in the tree — direct reports plus everyone under those reports, all the way down.\n\nName the columns `manager` and `team_size`. Return the result in any order.",
+  "solutionSql": "WITH RECURSIVE tree(root, id) AS (\n  SELECT manager_id, id FROM employees WHERE manager_id IS NOT NULL\n  UNION ALL\n  SELECT t.root, e.id\n  FROM employees e\n  JOIN tree t ON e.manager_id = t.id\n)\nSELECT m.name AS manager, COUNT(*) AS team_size\nFROM tree t\nJOIN employees m ON m.id = t.root\nGROUP BY t.root, m.name;",
+  "orderMatters": false,
+  "hint": "Seed the recursion with every (manager, direct report) pair, then keep attaching each report's own reports to the same root.",
+  "outputExplanation": "Ava has 3 people below her in the management tree, and Eve has 2.",
+  "schemaSql": "CREATE TABLE departments (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  location TEXT\n);\n\nCREATE TABLE employees (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  title TEXT,\n  salary INTEGER,\n  dept_id INTEGER,\n  manager_id INTEGER,\n  hire_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',150000,1,NULL,'2018-01-15'),\n (2,'Ben','Engineer',120000,1,1,'2019-03-01'),\n (3,'Cara','Engineer',120000,1,1,'2019-03-01'),\n (4,'Dan','Engineer',95000,1,1,'2021-07-19'),\n (5,'Eve','Manager',130000,2,NULL,'2017-11-02'),\n (6,'Finn','Rep',70000,2,5,'2020-05-30'),\n (7,'Gia','Rep',85000,2,5,'2022-02-14'),\n (8,'Hal','Analyst',60000,3,NULL,'2023-09-01');",
+      "expectedOutput": [
+        {
+          "manager": "Ava",
+          "team_size": 3
+        },
+        {
+          "manager": "Eve",
+          "team_size": 2
+        }
+      ]
+    },
+    {
+      "name": "Ties on every salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'A','Engineer',100000,1,NULL,'2020-01-01'),\n (2,'B','Engineer',100000,1,1,'2020-01-01'),\n (3,'C','Engineer',100000,1,1,'2020-01-01'),\n (4,'D','Rep',100000,2,NULL,'2020-01-01'),\n (5,'E','Rep',100000,2,4,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "manager": "A",
+          "team_size": 2
+        },
+        {
+          "manager": "D",
+          "team_size": 1
+        }
+      ]
+    },
+    {
+      "name": "Department with no employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
+      "expectedOutput": [
+        {
+          "manager": "Ava",
+          "team_size": 1
+        }
+      ]
+    },
+    {
+      "name": "Employees with NULL department and NULL salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
+      "expectedOutput": [
+        {
+          "manager": "Ava",
+          "team_size": 1
+        }
+      ]
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Single employee, single department",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
+      "expectedOutput": []
+    },
+    {
+      "name": "Everyone reports to someone (deep chain)",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
+      "expectedOutput": [
+        {
+          "manager": "L1",
+          "team_size": 4
+        },
+        {
+          "manager": "L2",
+          "team_size": 3
+        },
+        {
+          "manager": "L3",
+          "team_size": 2
+        },
+        {
+          "manager": "L4",
+          "team_size": 1
+        }
+      ]
+    },
+    {
+      "name": "Duplicate names and same hire dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Austin');\nINSERT INTO employees VALUES\n (1,'Sam','Engineer',90000,1,NULL,'2021-01-01'),\n (2,'Sam','Engineer',95000,2,NULL,'2021-01-01'),\n (3,'Sam','Rep',60000,2,2,'2021-01-01'),\n (4,'Alex','Rep',60000,2,2,'2021-06-30');",
+      "expectedOutput": [
+        {
+          "manager": "Sam",
+          "team_size": 2
+        }
+      ]
+    },
+    {
+      "name": "Zero and negative salaries, boundary dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Intern',0,1,NULL,'2019-12-31'),\n (2,'Ben','Engineer',-100,1,1,'2020-01-01'),\n (3,'Cara','Engineer',1,2,NULL,'2020-02-29'),\n (4,'Dan','Rep',2000000,2,3,'2020-12-31');",
+      "expectedOutput": [
+        {
+          "manager": "Ava",
+          "team_size": 1
+        },
+        {
+          "manager": "Cara",
+          "team_size": 1
+        }
+      ]
+    },
+    {
+      "name": "Larger multi-department set",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin'),(4,'Finance','Boston');\nINSERT INTO employees VALUES\n (1,'A','Manager',140000,1,NULL,'2015-02-10'),\n (2,'B','Engineer',130000,1,1,'2016-04-11'),\n (3,'C','Engineer',130000,1,1,'2017-06-12'),\n (4,'D','Engineer',110000,1,1,'2018-08-13'),\n (5,'E','Engineer',90000,1,1,'2019-10-14'),\n (6,'F','Manager',125000,2,NULL,'2015-03-15'),\n (7,'G','Rep',88000,2,6,'2016-05-16'),\n (8,'H','Rep',88000,2,6,'2017-07-17'),\n (9,'I','Rep',64000,2,6,'2018-09-18'),\n (10,'J','Manager',99000,3,NULL,'2019-11-19'),\n (11,'K','Analyst',72000,3,10,'2020-01-20'),\n (12,'L','Analyst',150000,4,NULL,'2021-03-21'),\n (13,'M','Analyst',150000,4,12,'2022-05-22');",
+      "expectedOutput": [
+        {
+          "manager": "A",
+          "team_size": 4
+        },
+        {
+          "manager": "F",
+          "team_size": 3
+        },
+        {
+          "manager": "J",
+          "team_size": 1
+        },
+        {
+          "manager": "L",
+          "team_size": 1
+        }
+      ]
+    },
+    {
+      "name": "Manager with one direct report — team size 1",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Mgr','M',100,1,NULL,'2020-01-01'),(2,'Emp','X',100,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "manager": "Mgr",
+          "team_size": 1
+        }
+      ]
+    },
+    {
+      "name": "Manager with two direct reports",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Mgr','M',100,1,NULL,'2020-01-01'),(2,'A','X',100,1,1,'2020-01-01'),(3,'B','X',100,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "manager": "Mgr",
+          "team_size": 2
+        }
+      ]
+    },
+    {
+      "name": "Three-level chain — top manager has indirect reports",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'CEO','M',200,1,NULL,'2020-01-01'),(2,'Mgr','M',150,1,1,'2020-01-01'),(3,'Emp','X',100,1,2,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "manager": "CEO",
+          "team_size": 2
+        },
+        {
+          "manager": "Mgr",
+          "team_size": 1
+        }
+      ]
+    },
+    {
+      "name": "Two managers with different team sizes",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'M1','M',100,1,NULL,'2020-01-01'),(2,'M2','M',100,2,NULL,'2020-01-01'),(3,'A','X',100,1,1,'2020-01-01'),(4,'B','X',100,1,1,'2020-01-01'),(5,'C','X',100,2,2,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "manager": "M1",
+          "team_size": 2
+        },
+        {
+          "manager": "M2",
+          "team_size": 1
+        }
+      ]
+    },
+    {
+      "name": "Deep four-level chain — each level counts everyone below",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'L1','A',100,1,NULL,'2020-01-01'),(2,'L2','B',100,1,1,'2020-01-01'),(3,'L3','C',100,1,2,'2020-01-01'),(4,'L4','D',100,1,3,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "manager": "L1",
+          "team_size": 3
+        },
+        {
+          "manager": "L2",
+          "team_size": 2
+        },
+        {
+          "manager": "L3",
+          "team_size": 1
+        }
+      ]
+    },
+    {
+      "name": "Bushy tree from management chain depth test",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'CEO','M',200,1,NULL,'2020-01-01'),(2,'VP1','M',180,1,1,'2020-01-01'),(3,'VP2','M',180,2,1,'2020-01-01'),(4,'Mgr1','M',150,1,2,'2020-01-01'),(5,'Mgr2','M',150,1,2,'2020-01-01'),(6,'Emp1','E',100,1,4,'2020-01-01'),(7,'Emp2','E',100,2,3,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "manager": "CEO",
+          "team_size": 6
+        },
+        {
+          "manager": "VP1",
+          "team_size": 3
+        },
+        {
+          "manager": "VP2",
+          "team_size": 1
+        },
+        {
+          "manager": "Mgr1",
+          "team_size": 1
+        }
+      ]
+    }
+  ]
+}

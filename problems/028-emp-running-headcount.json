@@ -1,0 +1,433 @@
+{
+  "id": "emp-running-headcount",
+  "number": 28,
+  "title": "Running Headcount By Hire Date",
+  "difficulty": "Medium",
+  "tags": [
+    "Window Function",
+    "Date"
+  ],
+  "description": "Order employees by `hire_date` and report, for each hire, how many people had been hired up to and including that date.\n\nName the columns `hire_date`, `name` and `headcount`. Return the result in any order.",
+  "solutionSql": "SELECT hire_date, name,\n       COUNT(*) OVER (ORDER BY hire_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS headcount\nFROM employees;",
+  "orderMatters": false,
+  "hint": "A COUNT window with ORDER BY accumulates. Be explicit about the frame — ROWS and RANGE differ when dates tie.",
+  "outputExplanation": "Eve was the first hire, Ava the second, Ben and Cara the third and fourth (same day), followed by Finn, Dan, Gia and Hal in order.",
+  "schemaSql": "CREATE TABLE departments (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  location TEXT\n);\n\nCREATE TABLE employees (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  title TEXT,\n  salary INTEGER,\n  dept_id INTEGER,\n  manager_id INTEGER,\n  hire_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',150000,1,NULL,'2018-01-15'),\n (2,'Ben','Engineer',120000,1,1,'2019-03-01'),\n (3,'Cara','Engineer',120000,1,1,'2019-03-01'),\n (4,'Dan','Engineer',95000,1,1,'2021-07-19'),\n (5,'Eve','Manager',130000,2,NULL,'2017-11-02'),\n (6,'Finn','Rep',70000,2,5,'2020-05-30'),\n (7,'Gia','Rep',85000,2,5,'2022-02-14'),\n (8,'Hal','Analyst',60000,3,NULL,'2023-09-01');",
+      "expectedOutput": [
+        {
+          "hire_date": "2017-11-02",
+          "name": "Eve",
+          "headcount": 1
+        },
+        {
+          "hire_date": "2018-01-15",
+          "name": "Ava",
+          "headcount": 2
+        },
+        {
+          "hire_date": "2019-03-01",
+          "name": "Ben",
+          "headcount": 3
+        },
+        {
+          "hire_date": "2019-03-01",
+          "name": "Cara",
+          "headcount": 4
+        },
+        {
+          "hire_date": "2020-05-30",
+          "name": "Finn",
+          "headcount": 5
+        },
+        {
+          "hire_date": "2021-07-19",
+          "name": "Dan",
+          "headcount": 6
+        },
+        {
+          "hire_date": "2022-02-14",
+          "name": "Gia",
+          "headcount": 7
+        },
+        {
+          "hire_date": "2023-09-01",
+          "name": "Hal",
+          "headcount": 8
+        }
+      ]
+    },
+    {
+      "name": "Ties on every salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'A','Engineer',100000,1,NULL,'2020-01-01'),\n (2,'B','Engineer',100000,1,1,'2020-01-01'),\n (3,'C','Engineer',100000,1,1,'2020-01-01'),\n (4,'D','Rep',100000,2,NULL,'2020-01-01'),\n (5,'E','Rep',100000,2,4,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "hire_date": "2020-01-01",
+          "name": "A",
+          "headcount": 1
+        },
+        {
+          "hire_date": "2020-01-01",
+          "name": "B",
+          "headcount": 2
+        },
+        {
+          "hire_date": "2020-01-01",
+          "name": "C",
+          "headcount": 3
+        },
+        {
+          "hire_date": "2020-01-01",
+          "name": "D",
+          "headcount": 4
+        },
+        {
+          "hire_date": "2020-01-01",
+          "name": "E",
+          "headcount": 5
+        }
+      ]
+    },
+    {
+      "name": "Department with no employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
+      "expectedOutput": [
+        {
+          "hire_date": "2019-01-01",
+          "name": "Ava",
+          "headcount": 1
+        },
+        {
+          "hire_date": "2020-06-15",
+          "name": "Ben",
+          "headcount": 2
+        }
+      ]
+    },
+    {
+      "name": "Employees with NULL department and NULL salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
+      "expectedOutput": [
+        {
+          "hire_date": "2019-01-01",
+          "name": "Ava",
+          "headcount": 1
+        },
+        {
+          "hire_date": "2020-06-15",
+          "name": "Ben",
+          "headcount": 2
+        },
+        {
+          "hire_date": "2021-02-02",
+          "name": "Cara",
+          "headcount": 3
+        },
+        {
+          "hire_date": "2021-02-03",
+          "name": "Dan",
+          "headcount": 4
+        }
+      ]
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Single employee, single department",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
+      "expectedOutput": [
+        {
+          "hire_date": "2022-04-01",
+          "name": "Solo",
+          "headcount": 1
+        }
+      ]
+    },
+    {
+      "name": "Everyone reports to someone (deep chain)",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
+      "expectedOutput": [
+        {
+          "hire_date": "2010-01-01",
+          "name": "L1",
+          "headcount": 1
+        },
+        {
+          "hire_date": "2012-01-01",
+          "name": "L2",
+          "headcount": 2
+        },
+        {
+          "hire_date": "2014-01-01",
+          "name": "L3",
+          "headcount": 3
+        },
+        {
+          "hire_date": "2016-01-01",
+          "name": "L4",
+          "headcount": 4
+        },
+        {
+          "hire_date": "2018-01-01",
+          "name": "L5",
+          "headcount": 5
+        }
+      ]
+    },
+    {
+      "name": "Duplicate names and same hire dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Austin');\nINSERT INTO employees VALUES\n (1,'Sam','Engineer',90000,1,NULL,'2021-01-01'),\n (2,'Sam','Engineer',95000,2,NULL,'2021-01-01'),\n (3,'Sam','Rep',60000,2,2,'2021-01-01'),\n (4,'Alex','Rep',60000,2,2,'2021-06-30');",
+      "expectedOutput": [
+        {
+          "hire_date": "2021-01-01",
+          "name": "Sam",
+          "headcount": 1
+        },
+        {
+          "hire_date": "2021-01-01",
+          "name": "Sam",
+          "headcount": 2
+        },
+        {
+          "hire_date": "2021-01-01",
+          "name": "Sam",
+          "headcount": 3
+        },
+        {
+          "hire_date": "2021-06-30",
+          "name": "Alex",
+          "headcount": 4
+        }
+      ]
+    },
+    {
+      "name": "Zero and negative salaries, boundary dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Intern',0,1,NULL,'2019-12-31'),\n (2,'Ben','Engineer',-100,1,1,'2020-01-01'),\n (3,'Cara','Engineer',1,2,NULL,'2020-02-29'),\n (4,'Dan','Rep',2000000,2,3,'2020-12-31');",
+      "expectedOutput": [
+        {
+          "hire_date": "2019-12-31",
+          "name": "Ava",
+          "headcount": 1
+        },
+        {
+          "hire_date": "2020-01-01",
+          "name": "Ben",
+          "headcount": 2
+        },
+        {
+          "hire_date": "2020-02-29",
+          "name": "Cara",
+          "headcount": 3
+        },
+        {
+          "hire_date": "2020-12-31",
+          "name": "Dan",
+          "headcount": 4
+        }
+      ]
+    },
+    {
+      "name": "Larger multi-department set",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin'),(4,'Finance','Boston');\nINSERT INTO employees VALUES\n (1,'A','Manager',140000,1,NULL,'2015-02-10'),\n (2,'B','Engineer',130000,1,1,'2016-04-11'),\n (3,'C','Engineer',130000,1,1,'2017-06-12'),\n (4,'D','Engineer',110000,1,1,'2018-08-13'),\n (5,'E','Engineer',90000,1,1,'2019-10-14'),\n (6,'F','Manager',125000,2,NULL,'2015-03-15'),\n (7,'G','Rep',88000,2,6,'2016-05-16'),\n (8,'H','Rep',88000,2,6,'2017-07-17'),\n (9,'I','Rep',64000,2,6,'2018-09-18'),\n (10,'J','Manager',99000,3,NULL,'2019-11-19'),\n (11,'K','Analyst',72000,3,10,'2020-01-20'),\n (12,'L','Analyst',150000,4,NULL,'2021-03-21'),\n (13,'M','Analyst',150000,4,12,'2022-05-22');",
+      "expectedOutput": [
+        {
+          "hire_date": "2015-02-10",
+          "name": "A",
+          "headcount": 1
+        },
+        {
+          "hire_date": "2015-03-15",
+          "name": "F",
+          "headcount": 2
+        },
+        {
+          "hire_date": "2016-04-11",
+          "name": "B",
+          "headcount": 3
+        },
+        {
+          "hire_date": "2016-05-16",
+          "name": "G",
+          "headcount": 4
+        },
+        {
+          "hire_date": "2017-06-12",
+          "name": "C",
+          "headcount": 5
+        },
+        {
+          "hire_date": "2017-07-17",
+          "name": "H",
+          "headcount": 6
+        },
+        {
+          "hire_date": "2018-08-13",
+          "name": "D",
+          "headcount": 7
+        },
+        {
+          "hire_date": "2018-09-18",
+          "name": "I",
+          "headcount": 8
+        },
+        {
+          "hire_date": "2019-10-14",
+          "name": "E",
+          "headcount": 9
+        },
+        {
+          "hire_date": "2019-11-19",
+          "name": "J",
+          "headcount": 10
+        },
+        {
+          "hire_date": "2020-01-20",
+          "name": "K",
+          "headcount": 11
+        },
+        {
+          "hire_date": "2021-03-21",
+          "name": "L",
+          "headcount": 12
+        },
+        {
+          "hire_date": "2022-05-22",
+          "name": "M",
+          "headcount": 13
+        }
+      ]
+    },
+    {
+      "name": "Single employee — headcount is 1",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',100,1,NULL,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "hire_date": "2020-01-01",
+          "name": "Solo",
+          "headcount": 1
+        }
+      ]
+    },
+    {
+      "name": "Distinct dates in order",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-02'),(3,'C','X',100,1,1,'2020-01-03');",
+      "expectedOutput": [
+        {
+          "hire_date": "2020-01-01",
+          "name": "A",
+          "headcount": 1
+        },
+        {
+          "hire_date": "2020-01-02",
+          "name": "B",
+          "headcount": 2
+        },
+        {
+          "hire_date": "2020-01-03",
+          "name": "C",
+          "headcount": 3
+        }
+      ]
+    },
+    {
+      "name": "NULL hire_date sorts last",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,NULL);",
+      "expectedOutput": [
+        {
+          "hire_date": null,
+          "name": "B",
+          "headcount": 1
+        },
+        {
+          "hire_date": "2020-01-01",
+          "name": "A",
+          "headcount": 2
+        }
+      ]
+    },
+    {
+      "name": "Two employees hired on the same date",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01'),(3,'C','X',100,1,1,'2020-01-02');",
+      "expectedOutput": [
+        {
+          "hire_date": "2020-01-01",
+          "name": "A",
+          "headcount": 1
+        },
+        {
+          "hire_date": "2020-01-01",
+          "name": "B",
+          "headcount": 2
+        },
+        {
+          "hire_date": "2020-01-02",
+          "name": "C",
+          "headcount": 3
+        }
+      ]
+    },
+    {
+      "name": "Descending date order",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-03-01'),(2,'B','X',100,1,1,'2020-02-01'),(3,'C','X',100,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "hire_date": "2020-01-01",
+          "name": "C",
+          "headcount": 1
+        },
+        {
+          "hire_date": "2020-02-01",
+          "name": "B",
+          "headcount": 2
+        },
+        {
+          "hire_date": "2020-03-01",
+          "name": "A",
+          "headcount": 3
+        }
+      ]
+    },
+    {
+      "name": "Six employees with distinct monthly dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-02-01'),(3,'C','X',100,1,1,'2020-03-01'),(4,'D','X',100,1,1,'2020-04-01'),(5,'E','X',100,1,1,'2020-05-01'),(6,'F','X',100,1,1,'2020-06-01');",
+      "expectedOutput": [
+        {
+          "hire_date": "2020-01-01",
+          "name": "A",
+          "headcount": 1
+        },
+        {
+          "hire_date": "2020-02-01",
+          "name": "B",
+          "headcount": 2
+        },
+        {
+          "hire_date": "2020-03-01",
+          "name": "C",
+          "headcount": 3
+        },
+        {
+          "hire_date": "2020-04-01",
+          "name": "D",
+          "headcount": 4
+        },
+        {
+          "hire_date": "2020-05-01",
+          "name": "E",
+          "headcount": 5
+        },
+        {
+          "hire_date": "2020-06-01",
+          "name": "F",
+          "headcount": 6
+        }
+      ]
+    }
+  ]
+}

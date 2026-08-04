@@ -1,0 +1,268 @@
+{
+  "id": "recon-three-way-classification",
+  "number": 98,
+  "title": "Three-Way Reconciliation",
+  "difficulty": "Hard",
+  "tags": [
+    "Set Operations",
+    "Aggregation"
+  ],
+  "description": "There are now **three** systems: `source_orders`, `warehouse_orders` and `vendor_orders`. For every `order_id` that appears in at least one of them, report how many of the three systems contain it.\n\nName the columns `order_id` and `system_count`. Return the result in any order.",
+  "solutionSql": "SELECT order_id, COUNT(*) AS system_count\nFROM (\n  SELECT DISTINCT order_id FROM source_orders\n  UNION ALL\n  SELECT DISTINCT order_id FROM warehouse_orders\n  UNION ALL\n  SELECT DISTINCT order_id FROM vendor_orders\n)\nGROUP BY order_id;",
+  "orderMatters": false,
+  "hint": "DISTINCT the order_ids from each system *before* combining them with UNION ALL — otherwise a duplicate row inside one system's own table would inflate its count, when it should only ever count as \"present\" once per system.",
+  "outputExplanation": "Order 1 appears in all three systems (count=3). Orders 2 and 3 appear in two systems each. Orders 4, 5 and 6 appear in only one system each.",
+  "schemaSql": "CREATE TABLE source_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);\n\nCREATE TABLE warehouse_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);\n\nCREATE TABLE vendor_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5),(4,'Dee Fox',200.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(5,'Eli Park',60.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(3,'Cy Ortiz',45.5),(6,'Fay Nolan',15.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "system_count": 3
+        },
+        {
+          "order_id": 2,
+          "system_count": 2
+        },
+        {
+          "order_id": 3,
+          "system_count": 2
+        },
+        {
+          "order_id": 4,
+          "system_count": 1
+        },
+        {
+          "order_id": 5,
+          "system_count": 1
+        },
+        {
+          "order_id": 6,
+          "system_count": 1
+        }
+      ]
+    },
+    {
+      "name": "All three systems fully agree",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "system_count": 3
+        },
+        {
+          "order_id": 2,
+          "system_count": 3
+        }
+      ]
+    },
+    {
+      "name": "Completely disjoint across all three",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO warehouse_orders VALUES (2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (3,'Cy Ortiz',45.5);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "system_count": 1
+        },
+        {
+          "order_id": 2,
+          "system_count": 1
+        },
+        {
+          "order_id": 3,
+          "system_count": 1
+        }
+      ]
+    },
+    {
+      "name": "Source has an accidental duplicate row",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "system_count": 3
+        },
+        {
+          "order_id": 2,
+          "system_count": 1
+        }
+      ]
+    },
+    {
+      "name": "All three systems empty",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Only source has any data",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "system_count": 1
+        },
+        {
+          "order_id": 2,
+          "system_count": 1
+        },
+        {
+          "order_id": 3,
+          "system_count": 1
+        }
+      ]
+    },
+    {
+      "name": "Same order, inconsistent name formatting",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'  ben kim ',80.0);\nINSERT INTO warehouse_orders VALUES (1,'ANN LEE',120.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'ann lee',120.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "system_count": 3
+        },
+        {
+          "order_id": 2,
+          "system_count": 2
+        }
+      ]
+    },
+    {
+      "name": "Matching ids, mismatched amounts",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',125.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "system_count": 3
+        },
+        {
+          "order_id": 2,
+          "system_count": 3
+        }
+      ]
+    },
+    {
+      "name": "Single matching order everywhere",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "system_count": 3
+        }
+      ]
+    },
+    {
+      "name": "Larger mixed set: some in all three, some in two, some in one, duplicates and a mismatch",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5),(4,'Dee Fox',200.0),(7,'Gio Ruiz',33.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',99.0),(5,'Eli Park',60.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(4,'Dee Fox',200.0),(6,'Fay Nolan',15.0),(8,'Hana Cole',72.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "system_count": 3
+        },
+        {
+          "order_id": 2,
+          "system_count": 2
+        },
+        {
+          "order_id": 3,
+          "system_count": 2
+        },
+        {
+          "order_id": 4,
+          "system_count": 2
+        },
+        {
+          "order_id": 5,
+          "system_count": 1
+        },
+        {
+          "order_id": 6,
+          "system_count": 1
+        },
+        {
+          "order_id": 7,
+          "system_count": 1
+        },
+        {
+          "order_id": 8,
+          "system_count": 1
+        }
+      ]
+    },
+    {
+      "name": "Same order in all three systems",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0);\nINSERT INTO warehouse_orders VALUES (1,'A',100.0);\nINSERT INTO vendor_orders VALUES (1,'A',100.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "system_count": 3
+        }
+      ]
+    },
+    {
+      "name": "Completely disjoint across all three",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0);\nINSERT INTO warehouse_orders VALUES (2,'B',200.0);\nINSERT INTO vendor_orders VALUES (3,'C',300.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "system_count": 1
+        },
+        {
+          "order_id": 2,
+          "system_count": 1
+        },
+        {
+          "order_id": 3,
+          "system_count": 1
+        }
+      ]
+    },
+    {
+      "name": "Only source has data",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(2,'B',200.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "system_count": 1
+        },
+        {
+          "order_id": 2,
+          "system_count": 1
+        }
+      ]
+    },
+    {
+      "name": "Mixed — one order in all three, rest in one",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(2,'B',200.0);\nINSERT INTO warehouse_orders VALUES (1,'A',100.0),(3,'C',300.0);\nINSERT INTO vendor_orders VALUES (1,'A',100.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "system_count": 3
+        },
+        {
+          "order_id": 2,
+          "system_count": 1
+        },
+        {
+          "order_id": 3,
+          "system_count": 1
+        }
+      ]
+    },
+    {
+      "name": "All three tables empty",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Duplicates in one system do not inflate count",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(1,'A',100.0);\nINSERT INTO warehouse_orders VALUES (1,'A',100.0);\nINSERT INTO vendor_orders VALUES (1,'A',100.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "system_count": 3
+        }
+      ]
+    }
+  ]
+}
