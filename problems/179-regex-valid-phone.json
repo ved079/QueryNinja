@@ -1,0 +1,68 @@
+{
+  "id": "regex-valid-phone",
+  "number": 179,
+  "title": "Find Well-Formatted Phone Numbers",
+  "difficulty": "Easy",
+  "tags": [
+    "Regular Expression",
+    "String",
+    "Filtering"
+  ],
+  "description": "A directory imports phone numbers in free-text form. Report every contact whose `phone` matches the canonical US format **3 digits, dash, 3 digits, dash, 4 digits** (e.g. `555-123-4567`).\n\nUse `REGEXP_LIKE(phone, ...)`. Name the columns `id` and `phone`. Return rows in any order.",
+  "solutionSql": "SELECT id, phone\nFROM contacts\nWHERE REGEXP_LIKE(phone, '^[0-9]{3}-[0-9]{3}-[0-9]{4}$');",
+  "orderMatters": false,
+  "hint": "`{3}` means exactly three. The pattern must cover the whole string, so anchor it with `^` and `$` — otherwise '555-123-4567x' and 'x555-123-4567' would also match.",
+  "outputExplanation": "Only 555-123-4567 is exactly three digits, dash, three digits, dash, four digits. '555.123.4567' uses dots, '5551234567' has no dashes, and '555-123-456' has only 3 trailing digits.",
+  "schemaSql": "CREATE TABLE contacts (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  phone TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO contacts VALUES\n (1,'A','555-123-4567'),\n (2,'B','555.123.4567'),\n (3,'C','5551234567'),\n (4,'D','555-123-456'),\n (5,'E','555-123-45678');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "phone": "555-123-4567"
+        }
+      ]
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Partial-match must not pass",
+      "seedSql": "INSERT INTO contacts VALUES\n (1,'A','x555-123-4567'),\n (2,'B','555-123-4567x'),\n (3,'C','555-123-4567');",
+      "expectedOutput": [
+        {
+          "id": 3,
+          "phone": "555-123-4567"
+        }
+      ]
+    },
+    {
+      "name": "All valid",
+      "seedSql": "INSERT INTO contacts VALUES\n (1,'A','000-000-0000'),\n (2,'B','999-999-9999');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "phone": "000-000-0000"
+        },
+        {
+          "id": 2,
+          "phone": "999-999-9999"
+        }
+      ]
+    },
+    {
+      "name": "NULL and empty phone",
+      "seedSql": "INSERT INTO contacts VALUES\n (1,'A','555-123-4567'),\n (2,'B',NULL),\n (3,'C','');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "phone": "555-123-4567"
+        }
+      ]
+    }
+  ]
+}

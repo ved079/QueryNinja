@@ -1,0 +1,71 @@
+{
+  "id": "regex-valid-emails",
+  "number": 178,
+  "title": "Find Valid Email Addresses",
+  "difficulty": "Easy",
+  "tags": [
+    "Regular Expression",
+    "String",
+    "Filtering"
+  ],
+  "description": "A signup import has messy emails. Report every customer whose `email` is a **plausibly valid** address: one or more letters/digits/`._%+-` before an `@`, one or more letters/digits/`.-` after it, and a final dot followed by 2+ letters (the TLD).\n\nUse `REGEXP_LIKE(email, ...)`. Name the columns `id` and `email`. Return rows in any order.",
+  "solutionSql": "SELECT id, email\nFROM customers\nWHERE REGEXP_LIKE(email, '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$');",
+  "orderMatters": false,
+  "hint": "Anchors `^` and `$` pin the whole string. `+` means 'one or more', `{2,}` means 'at least two'. Escape the literal dot as `\\.`.",
+  "outputExplanation": "bob@example.com and alice@mail.co match the pattern; 'bob@' has no domain, 'nope.example' has no @, and '@x.com' has nothing before the @.",
+  "schemaSql": "CREATE TABLE customers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  email TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO customers VALUES\n (1,'Bob','bob@example.com'),\n (2,'Alice','alice@mail.co'),\n (3,'Dave','bob@'),\n (4,'Eve','nope.example'),\n (5,'Zed','@x.com');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "email": "bob@example.com"
+        },
+        {
+          "id": 2,
+          "email": "alice@mail.co"
+        }
+      ]
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Edge TLD lengths",
+      "seedSql": "INSERT INTO customers VALUES\n (1,'A','a@b.c'),\n (2,'B','a@b.cc'),\n (3,'C','a@b.c.zzz');",
+      "expectedOutput": [
+        {
+          "id": 2,
+          "email": "a@b.cc"
+        },
+        {
+          "id": 3,
+          "email": "a@b.c.zzz"
+        }
+      ]
+    },
+    {
+      "name": "All invalid",
+      "seedSql": "INSERT INTO customers VALUES (1,'A','no-at-sign.com'),(2,'B','a@'),(3,'C','@@x.com');",
+      "expectedOutput": []
+    },
+    {
+      "name": "Special chars in local part",
+      "seedSql": "INSERT INTO customers VALUES\n (1,'A','first.last+tag@example.co.uk'),\n (2,'B','first_last@example.com'),\n (3,'C','bad space@example.com');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "email": "first.last+tag@example.co.uk"
+        },
+        {
+          "id": 2,
+          "email": "first_last@example.com"
+        }
+      ]
+    }
+  ]
+}

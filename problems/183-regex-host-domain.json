@@ -1,0 +1,92 @@
+{
+  "id": "regex-host-domain",
+  "number": 183,
+  "title": "Find Corporate Domains",
+  "difficulty": "Medium",
+  "tags": [
+    "Regular Expression",
+    "String",
+    "Filtering"
+  ],
+  "description": "A customer list stores email addresses. Your SaaS integrates only with customers whose email ends in a **known corporate domain**: `acme.com`, `globex.com`, or `initech.com`.\n\nFind every customer whose email ends with exactly one of those domains. Use a single `REGEXP_LIKE(email, ...)`. Name the columns `id`, `name`, and `email`. Return rows in any order.",
+  "solutionSql": "SELECT id, name, email\nFROM customers\nWHERE REGEXP_LIKE(email, '@(acme|globex|initech)\\.com$');",
+  "orderMatters": false,
+  "hint": "The `$` must be anchored at the end, and `|` alternation provides the choices: `@(acme|globex|initech)\\.com$`. Escape the dot before 'com' as `\\.` so it is a literal dot.",
+  "outputExplanation": "bob@acme.com, carol@globex.com and eve@initech.com all match. alice@acme.org is a different TLD, dave@fakeacme.com only *contains* the text acme but doesn't end with @acme.com, and a@acme.com.mx has extra text after the domain.",
+  "schemaSql": "CREATE TABLE customers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  email TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO customers VALUES\n (1,'Bob','bob@acme.com'),\n (2,'Carol','carol@globex.com'),\n (3,'Dave','dave@fakeacme.com'),\n (4,'Alice','alice@acme.co'),\n (5,'Eve','eve@initech.com'),\n (6,'Fred','fred@acme.com.mx');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "name": "Bob",
+          "email": "bob@acme.com"
+        },
+        {
+          "id": 2,
+          "name": "Carol",
+          "email": "carol@globex.com"
+        },
+        {
+          "id": 5,
+          "name": "Eve",
+          "email": "eve@initech.com"
+        }
+      ]
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "None match",
+      "seedSql": "INSERT INTO customers VALUES (1,'A','a@gmail.com'),(2,'B','b@acme.org');",
+      "expectedOutput": []
+    },
+    {
+      "name": "Case-insensitive TLD",
+      "seedSql": "INSERT INTO customers VALUES (1,'A','a@ACME.COM'),(2,'B','b@Globex.com'),(3,'C','c@acme.com');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "name": "A",
+          "email": "a@ACME.COM"
+        },
+        {
+          "id": 2,
+          "name": "B",
+          "email": "b@Globex.com"
+        },
+        {
+          "id": 3,
+          "name": "C",
+          "email": "c@acme.com"
+        }
+      ]
+    },
+    {
+      "name": "All three corporate domains present",
+      "seedSql": "INSERT INTO customers VALUES (1,'A','x@acme.com'),(2,'B','x@globex.com'),(3,'C','x@initech.com'),(4,'D','x@initech.co');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "name": "A",
+          "email": "x@acme.com"
+        },
+        {
+          "id": 2,
+          "name": "B",
+          "email": "x@globex.com"
+        },
+        {
+          "id": 3,
+          "name": "C",
+          "email": "x@initech.com"
+        }
+      ]
+    }
+  ]
+}

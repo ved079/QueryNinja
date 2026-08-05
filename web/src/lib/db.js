@@ -15,6 +15,30 @@ export function testsOf(problem) {
     : [{ name: 'Example', seedSql: problem.seedSql ?? '' }];
 }
 
+const safeRegex = (pattern) => {
+  try {
+    return new RegExp(pattern, 'i');
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Register the regex helpers SQLite doesn't ship by default, so problems can
+ * use REGEXP_LIKE(text, pattern) and the x REGEXP pattern operator. SQLite
+ * calls a REGEXP function as (pattern, text) — the reverse of REGEXP_LIKE.
+ */
+export function registerRegex(db) {
+  db.create_function('REGEXP', (pattern, text) => {
+    const re = safeRegex(pattern);
+    return re && text != null ? (re.test(text) ? 1 : 0) : 0;
+  });
+  db.create_function('REGEXP_LIKE', (text, pattern) => {
+    const re = safeRegex(pattern);
+    return re && text != null ? (re.test(text) ? 1 : 0) : 0;
+  });
+}
+
 /**
  * Build a fresh in-memory database for one test case.
  * Defaults to the first (example) case.
@@ -22,6 +46,7 @@ export function testsOf(problem) {
 export async function createDb(problem, test = testsOf(problem)[0]) {
   const SQL = await loadSql();
   const db = new SQL.Database();
+  registerRegex(db);
   db.run(problem.schemaSql);
   if (test?.seedSql) db.run(test.seedSql);
   return db;

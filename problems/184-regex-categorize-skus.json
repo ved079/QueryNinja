@@ -1,0 +1,87 @@
+{
+  "id": "regex-categorize-skus",
+  "number": 184,
+  "title": "Categorize Products by SKU Pattern",
+  "difficulty": "Hard",
+  "tags": [
+    "Regular Expression",
+    "String",
+    "Group By",
+    "Case Expression"
+  ],
+  "description": "A warehouse stores SKUs in three canonical shapes. Classify every SKU and count products per category:\n- **Standard** — two letters, dash, four digits (`^[A-Z]{2}-[0-9]{4}$`)\n- **Bulk** — letters `B`, `K`, or `G` then a dash then three letters then a digit (`^[BKG]-[A-Z]{3}[0-9]$`)\n- **Other** — anything else\n\nReturn columns `sku_type` (the literal strings `'Standard'`, `'Bulk'`, `'Other'`) and `product_count`, with one row per category that actually has products. Order by `sku_type` ascending.",
+  "solutionSql": "SELECT\n  CASE\n    WHEN REGEXP_LIKE(sku, '^[A-Z]{2}-[0-9]{4}$') THEN 'Standard'\n    WHEN REGEXP_LIKE(sku, '^[BKG]-[A-Z]{3}[0-9]$') THEN 'Bulk'\n    ELSE 'Other'\n  END AS sku_type,\n  COUNT(*) AS product_count\nFROM products\nGROUP BY sku_type\nORDER BY sku_type;",
+  "orderMatters": false,
+  "hint": "Put REGEXP_LIKE inside a CASE expression in the SELECT, then GROUP BY the same CASE expression. Evaluate the Standard pattern before Bulk so unambiguous SKUs are caught first.",
+  "outputExplanation": "AB-1234 is Standard. K-ABC9 starts with K and has three letters then a digit, so it is Bulk. 'B-AB12' has only two letters after the dash, 'XYZ-1' has no dash pattern, and '$k-abc7' is Other. The three groups are counted and returned.",
+  "schemaSql": "CREATE TABLE products (\n  id INTEGER PRIMARY KEY,\n  sku TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO products VALUES\n (1,'AB-1234'),\n (2,'K-ABC9'),\n (3,'B-AB12'),\n (4,'XYZ-1'),\n (5,'$k-abc7'),\n (6,'G-AAA0');",
+      "expectedOutput": [
+        {
+          "sku_type": "Bulk",
+          "product_count": 2
+        },
+        {
+          "sku_type": "Other",
+          "product_count": 3
+        },
+        {
+          "sku_type": "Standard",
+          "product_count": 1
+        }
+      ]
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Only Standard",
+      "seedSql": "INSERT INTO products VALUES (1,'AB-1234'),(2,'CD-5678'),(3,'EF-9999');",
+      "expectedOutput": [
+        {
+          "sku_type": "Standard",
+          "product_count": 3
+        }
+      ]
+    },
+    {
+      "name": "All Other",
+      "seedSql": "INSERT INTO products VALUES (1,'A-COMP1'),(2,'B-CART2');",
+      "expectedOutput": [
+        {
+          "sku_type": "Other",
+          "product_count": 2
+        }
+      ]
+    },
+    {
+      "name": "Lowercase matches due to case-insensitivity",
+      "seedSql": "INSERT INTO products VALUES (1,'ab-1234'),(2,'k-abc9');",
+      "expectedOutput": [
+        {
+          "sku_type": "Bulk",
+          "product_count": 1
+        },
+        {
+          "sku_type": "Standard",
+          "product_count": 1
+        }
+      ]
+    },
+    {
+      "name": "Many Other",
+      "seedSql": "INSERT INTO products VALUES (1,'free-text'),(2,''),(3,'12-3456');",
+      "expectedOutput": [
+        {
+          "sku_type": "Other",
+          "product_count": 3
+        }
+      ]
+    }
+  ]
+}

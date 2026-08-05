@@ -9,6 +9,7 @@
  */
 import initSqlJs from 'sql.js';
 import { loadProblems } from '../server/load-problems.js';
+import { registerRegex } from '../web/src/lib/db.js';
 
 const quiet = process.argv.includes('--quiet');
 const SQL = await initSqlJs();
@@ -33,6 +34,7 @@ for (const p of problems) {
   for (const [i, test] of p.tests.entries()) {
     try {
       const db = new SQL.Database();
+      registerRegex(db);
       db.run(p.schemaSql);
       if (test.seedSql) db.run(test.seedSql);
 

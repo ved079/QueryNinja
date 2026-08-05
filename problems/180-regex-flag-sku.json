@@ -1,0 +1,118 @@
+{
+  "id": "regex-flag-sku",
+  "number": 180,
+  "title": "Flag Well-Formed SKUs",
+  "difficulty": "Medium",
+  "tags": [
+    "Regular Expression",
+    "String",
+    "Case Expression"
+  ],
+  "description": "Product SKUs are supposed to be **two uppercase letters, a dash, then exactly four digits** (e.g. `AB-1234`). Inventory is messy, so flag each product.\n\nReturn every product with columns `id`, `name`, and a computed `is_valid` column (1 for valid, 0 for invalid). Use a `CASE WHEN REGEXP_LIKE(sku, ...) THEN 1 ELSE 0 END`. Name the columns exactly `id`, `name`, `is_valid`. Return rows in any order.",
+  "solutionSql": "SELECT id, name,\n       CASE WHEN REGEXP_LIKE(sku, '^[A-Z]{2}-[0-9]{4}$') THEN 1 ELSE 0 END AS is_valid\nFROM products;",
+  "orderMatters": false,
+  "hint": "Compute a boolean flag in the SELECT list with CASE WHEN REGEXP_LIKE(...) THEN 1 ELSE 0 END. `{2}` and `{4}` fix the exact lengths.",
+  "outputExplanation": "AB-1234 and XY-0000 both match exactly two letters, dash, four digits. 'abc-1234' fails (letters must be uppercase), 'AB-123' has too few digits, and 'AB12-345' has no dash in the right place.",
+  "schemaSql": "CREATE TABLE products (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  sku TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO products VALUES\n (1,'Socks','AB-1234'),\n (2,'Hat','XY-0000'),\n (3,'Shirt','ab-1234'),\n (4,'Scarf','AB-1'),\n (5,'Glove','AB12-345');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "name": "Socks",
+          "is_valid": 1
+        },
+        {
+          "id": 2,
+          "name": "Hat",
+          "is_valid": 1
+        },
+        {
+          "id": 3,
+          "name": "Shirt",
+          "is_valid": 1
+        },
+        {
+          "id": 4,
+          "name": "Scarf",
+          "is_valid": 0
+        },
+        {
+          "id": 5,
+          "name": "Glove",
+          "is_valid": 0
+        }
+      ]
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Numbers and letters mixed",
+      "seedSql": "INSERT INTO products VALUES\n (1,'A1','A1-2345'),\n (2,'Ha','A1-234'),\n (3,'Po','AB-12345');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "name": "A1",
+          "is_valid": 0
+        },
+        {
+          "id": 2,
+          "name": "Ha",
+          "is_valid": 0
+        },
+        {
+          "id": 3,
+          "name": "Po",
+          "is_valid": 0
+        }
+      ]
+    },
+    {
+      "name": "NULL sku is invalid",
+      "seedSql": "INSERT INTO products VALUES\n (1,'A','AB-1234'),\n (2,'B',NULL);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "name": "A",
+          "is_valid": 1
+        },
+        {
+          "id": 2,
+          "name": "B",
+          "is_valid": 0
+        }
+      ]
+    },
+    {
+      "name": "Dash placement",
+      "seedSql": "INSERT INTO products VALUES\n (1,'A','AB-1234'),\n(2,'B','-1234'),\n(3,'C','AB-'),\n(4,'D','AB--1234');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "name": "A",
+          "is_valid": 1
+        },
+        {
+          "id": 2,
+          "name": "B",
+          "is_valid": 0
+        },
+        {
+          "id": 3,
+          "name": "C",
+          "is_valid": 0
+        },
+        {
+          "id": 4,
+          "name": "D",
+          "is_valid": 0
+        }
+      ]
+    }
+  ]
+}
