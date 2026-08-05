@@ -1,0 +1,78 @@
+{
+  "id": "da-average-order-value",
+  "number": 163,
+  "title": "Average Order Value By Month",
+  "difficulty": "Easy",
+  "tags": [
+    "Data Analyst",
+    "Ecommerce",
+    "Aggregation"
+  ],
+  "description": "For each calendar month, report the **average order value (AOV)** and the number of orders. Name the columns `month`, `orders` and `aov`. Round `aov` to 2 decimal places. Return months in chronological order.",
+  "solutionSql": "SELECT strftime('%Y-%m', order_date) AS month,\n       COUNT(*) AS orders,\n       ROUND(AVG(total), 2) AS aov\nFROM orders\nGROUP BY month\nORDER BY month;",
+  "orderMatters": true,
+  "hint": "AOV = AVG(total) per month. ROUND to 2 decimals. COUNT(*) counts order rows since each order is one row.",
+  "outputExplanation": "January averaged $123.45 per order over 4 orders; February averaged $150.00.",
+  "schemaSql": "CREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  order_date TEXT,\n  total REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO orders VALUES\n (1,'2024-01-05',100.00),\n (2,'2024-01-20',147.90),\n (3,'2024-02-01',150.00),\n (4,'2024-02-14',150.00);",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "orders": 2,
+          "aov": 123.95
+        },
+        {
+          "month": "2024-02",
+          "orders": 2,
+          "aov": 150
+        }
+      ]
+    },
+    {
+      "name": "Single order",
+      "seedSql": "INSERT INTO orders VALUES (1,'2024-03-01',42.5);",
+      "expectedOutput": [
+        {
+          "month": "2024-03",
+          "orders": 1,
+          "aov": 42.5
+        }
+      ]
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Null total ignored by AVG",
+      "seedSql": "INSERT INTO orders VALUES (1,'2024-01-01',NULL),(2,'2024-01-05',20),(3,'2024-01-10',40);",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "orders": 3,
+          "aov": 30
+        }
+      ]
+    },
+    {
+      "name": "Whole dollars across months",
+      "seedSql": "INSERT INTO orders VALUES (1,'2024-01-01',10),(2,'2024-01-05',20),(3,'2024-02-01',30);",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "orders": 2,
+          "aov": 15
+        },
+        {
+          "month": "2024-02",
+          "orders": 1,
+          "aov": 30
+        }
+      ]
+    }
+  ]
+}

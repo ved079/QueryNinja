@@ -7,6 +7,14 @@ const NAV_OPTIONS = [
   { label: 'Next in series', action: 'next' },
 ];
 
+// The three sections a user can browse. 'da' problems are the Data Analyst
+// (business-metric) set and are exclusive to that section.
+const SECTION_OPTIONS = [
+  { value: 'normal', label: 'Normal Problems' },
+  { value: 'complex', label: 'Complex Problems' },
+  { value: 'da', label: 'Data Analyst' },
+];
+
 /**
  * Full-width bar above both panes: problem navigation on the left,
  * Run/Submit centered. Intentionally has no account/social chrome
@@ -15,7 +23,7 @@ const NAV_OPTIONS = [
 export default function TopBar({
   onShowSidebar,
   problemMode,
-  onToggleMode,
+  onChangeMode,
   onShowProgress,
   userName,
   streak,
@@ -26,11 +34,14 @@ export default function TopBar({
   onSubmit,
 }) {
   const [navOpen, setNavOpen] = useState(false);
+  const [sectionsOpen, setSectionsOpen] = useState(false);
   const navRef = useRef(null);
+  const sectionsRef = useRef(null);
 
   useEffect(() => {
     const close = (e) => {
       if (navRef.current && !navRef.current.contains(e.target)) setNavOpen(false);
+      if (sectionsRef.current && !sectionsRef.current.contains(e.target)) setSectionsOpen(false);
     };
     document.addEventListener('mousedown', close);
     return () => document.removeEventListener('mousedown', close);
@@ -41,6 +52,8 @@ export default function TopBar({
     setNavOpen(false);
   };
 
+  const currentSection = SECTION_OPTIONS.find((s) => s.value === problemMode) ?? SECTION_OPTIONS[0];
+
   return (
     <header className="top-bar">
       <div className="top-bar-left">
@@ -48,13 +61,28 @@ export default function TopBar({
         <button className="sidebar-show" onClick={onShowSidebar} title="Show problem list">
           Problem List
         </button>
-        <button
-          className="sidebar-show"
-          onClick={onToggleMode}
-          title={problemMode === 'complex' ? 'Click to switch back to the original problems' : 'Click to switch to the newly added problems'}
-        >
-          {problemMode === 'complex' ? 'Complex Problems' : 'Normal Problems'} ▾
-        </button>
+        <div className="nav-dropdown" ref={sectionsRef}>
+          <button
+            className="sidebar-show"
+            onClick={() => setSectionsOpen((o) => !o)}
+            title="Switch problem section"
+          >
+            {currentSection.label} ▾
+          </button>
+          {sectionsOpen && (
+            <div className="nav-dropdown-menu">
+              {SECTION_OPTIONS.map((s) => (
+                <button
+                  key={s.value}
+                  className={problemMode === s.value ? 'section-active' : ''}
+                  onClick={() => { onChangeMode(s.value); setSectionsOpen(false); }}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <button onClick={nav.prev} title="Previous problem" disabled={!nav.hasPrev}>
           ‹
         </button>

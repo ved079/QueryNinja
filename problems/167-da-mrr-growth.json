@@ -1,0 +1,84 @@
+{
+  "id": "da-mrr-growth",
+  "number": 167,
+  "title": "Month-Over-Month MRR Growth",
+  "difficulty": "Medium",
+  "tags": [
+    "Data Analyst",
+    "SaaS",
+    "Window Function",
+    "Aggregation"
+  ],
+  "description": "A subscription has a start date and a fixed `monthly_price`. Each subscription contributes its `monthly_price` to MRR for every month it is active (from its `start_month` onward; ignore cancellations).\n\nFor each month, report `month`, `mrr` (the month's total) and `growth` — the percent change vs the previous month, `ROUND((mrr - prev_mrr) / prev_mrr * 100, 2)`, or `NULL` for the first month. Return months in chronological order.",
+  "solutionSql": "WITH months AS (\n  SELECT strftime('%Y-%m', start_date) AS month\n  FROM subscriptions\n  GROUP BY strftime('%Y-%m', start_date)\n),\nmrr AS (\n  SELECT m.month, COALESCE(SUM(s.monthly_price), 0) AS mrr\n  FROM months m\n  LEFT JOIN subscriptions s\n    ON strftime('%Y-%m', s.start_date) <= m.month\n  GROUP BY m.month\n)\nSELECT month, mrr,\n       ROUND((mrr - LAG(mrr) OVER (ORDER BY month)) * 1.0 / LAG(mrr) OVER (ORDER BY month) * 100, 2) AS growth\nFROM mrr\nORDER BY month;",
+  "orderMatters": true,
+  "hint": "MRR for month M = SUM(monthly_price) of every sub started on or before M. Add LAG() to diff against the prior month.",
+  "outputExplanation": "One $50 sub starts in January and one $50 in February: MRR 50 then 100, growth NULL then 100.0%.",
+  "schemaSql": "CREATE TABLE subscriptions (\n  id INTEGER PRIMARY KEY,\n  start_date TEXT,\n  monthly_price REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO subscriptions VALUES (1,'2024-01-15',50),(2,'2024-02-01',50);",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "mrr": 50,
+          "growth": null
+        },
+        {
+          "month": "2024-02",
+          "mrr": 100,
+          "growth": 100
+        }
+      ]
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "All same month",
+      "seedSql": "INSERT INTO subscriptions VALUES (1,'2024-01-01',10),(2,'2024-01-05',20);",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "mrr": 30,
+          "growth": null
+        }
+      ]
+    },
+    {
+      "name": "Three months growth",
+      "seedSql": "INSERT INTO subscriptions VALUES (1,'2024-01-01',100),(2,'2024-02-01',50),(3,'2024-02-10',50),(4,'2024-03-01',100);",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "mrr": 100,
+          "growth": null
+        },
+        {
+          "month": "2024-02",
+          "mrr": 200,
+          "growth": 100
+        },
+        {
+          "month": "2024-03",
+          "mrr": 300,
+          "growth": 50
+        }
+      ]
+    },
+    {
+      "name": "Single subscription",
+      "seedSql": "INSERT INTO subscriptions VALUES (1,'2024-06-01',80);",
+      "expectedOutput": [
+        {
+          "month": "2024-06",
+          "mrr": 80,
+          "growth": null
+        }
+      ]
+    }
+  ]
+}

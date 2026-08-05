@@ -1,0 +1,78 @@
+{
+  "id": "da-cohort-retention-matrix",
+  "number": 172,
+  "title": "Cohort Retention Matrix",
+  "difficulty": "Hard",
+  "tags": [
+    "Data Analyst",
+    "Cohort",
+    "CTE",
+    "Window Function"
+  ],
+  "description": "Group customers by the month of their **first** order (their cohort). For each cohort month and each later month, report how many of that cohort's customers purchased in that later month — i.e. a retention matrix.\n\nName the columns `cohort_month`, `month`, and `customers`. A customer is counted in row (cohort C, month M) if they are in cohort C AND made at least one order in month M. Skip rows where `month` equals the cohort month. Return rows ordered by `cohort_month` then `month`.",
+  "solutionSql": "WITH firsts AS (\n  SELECT customer_id, MIN(strftime('%Y-%m', order_date)) AS cohort_month\n  FROM orders\n  GROUP BY customer_id\n),\nmonths AS (\n  SELECT customer_id, strftime('%Y-%m', order_date) AS month\n  FROM orders\n  GROUP BY customer_id, strftime('%Y-%m', order_date)\n)\nSELECT f.cohort_month, m.month, COUNT(*) AS customers\nFROM firsts f\nJOIN months m ON m.customer_id = f.customer_id\nWHERE m.month > f.cohort_month\nGROUP BY f.cohort_month, m.month\nORDER BY f.cohort_month, m.month;",
+  "orderMatters": true,
+  "hint": "Cohort = first-order month. Then join each customer's later purchase months back to their cohort and COUNT per (cohort, month) pair.",
+  "outputExplanation": "Alice (cohort Jan) and Bob (cohort Jan) both buy in Feb and Mar → 2 for (Jan,Feb) and (Jan,Mar). Carol (cohort Feb) buys in Mar → 1 for (Feb,Mar).",
+  "schemaSql": "CREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER,\n  order_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO orders VALUES\n (1,1,'2024-01-05'),(2,1,'2024-02-10'),(3,1,'2024-03-01'),\n (4,2,'2024-01-20'),(5,2,'2024-02-15'),(6,2,'2024-03-20'),\n (7,3,'2024-02-01'),(8,3,'2024-03-05');",
+      "expectedOutput": [
+        {
+          "cohort_month": "2024-01",
+          "month": "2024-02",
+          "customers": 2
+        },
+        {
+          "cohort_month": "2024-01",
+          "month": "2024-03",
+          "customers": 2
+        },
+        {
+          "cohort_month": "2024-02",
+          "month": "2024-03",
+          "customers": 1
+        }
+      ]
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "No one returns after cohort month",
+      "seedSql": "INSERT INTO orders VALUES (1,1,'2024-01-01'),(2,2,'2024-02-01');",
+      "expectedOutput": []
+    },
+    {
+      "name": "Single cohort, all return",
+      "seedSql": "INSERT INTO orders VALUES\n (1,1,'2024-01-01'),(2,1,'2024-03-01'),(3,2,'2024-01-10'),(4,2,'2024-03-10');",
+      "expectedOutput": [
+        {
+          "cohort_month": "2024-01",
+          "month": "2024-03",
+          "customers": 2
+        }
+      ]
+    },
+    {
+      "name": "Cross-year cohorts",
+      "seedSql": "INSERT INTO orders VALUES\n (1,1,'2023-12-01'),(2,1,'2024-01-05'),(3,2,'2024-01-01'),(4,2,'2024-02-01');",
+      "expectedOutput": [
+        {
+          "cohort_month": "2023-12",
+          "month": "2024-01",
+          "customers": 1
+        },
+        {
+          "cohort_month": "2024-01",
+          "month": "2024-02",
+          "customers": 1
+        }
+      ]
+    }
+  ]
+}

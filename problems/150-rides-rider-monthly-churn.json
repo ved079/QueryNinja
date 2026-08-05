@@ -12,14 +12,23 @@
   "orderMatters": false,
   "schemaSql": "CREATE TABLE drivers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  city TEXT\n);\nCREATE TABLE riders (\n  id INTEGER PRIMARY KEY,\n  name TEXT\n);\nCREATE TABLE trips (\n  id INTEGER PRIMARY KEY,\n  driver_id INTEGER,\n  rider_id INTEGER,\n  requested_at TEXT,\n  started_at TEXT,\n  ended_at TEXT,\n  status TEXT,\n  fare REAL\n);",
   "description": "A rider is considered **churned** in month M if they completed at least one trip in month M-1 but **zero** trips in month M.\n\nFor each month M where at least one rider churned, return `month` (YYYY-MM) and `churned_riders`. Order by `month` ascending.",
-  "hint": "Find the set of (rider, month) pairs with completed trips. Then for each rider-month find the next month and check if the rider is absent there.",
-  "solutionSql": "WITH active AS (\n  SELECT DISTINCT rider_id,\n         strftime('%Y-%m', started_at) AS month\n  FROM trips\n  WHERE status = 'completed'\n    AND started_at IS NOT NULL\n),\nlagged AS (\n  SELECT rider_id,\n         month,\n         LAG(month) OVER (PARTITION BY rider_id ORDER BY month) AS prev_month\n  FROM active\n),\nchurned_months AS (\n  SELECT a.month AS churn_month, a.rider_id\n  FROM active a\n  WHERE NOT EXISTS (\n    SELECT 1 FROM active b\n    WHERE b.rider_id = a.rider_id\n      AND b.month = strftime('%Y-%m', date(a.month || '-01', '+1 month'))\n  )\n    AND a.month != (SELECT MAX(month) FROM active WHERE rider_id = a.rider_id\n                    UNION ALL SELECT MAX(month) FROM active LIMIT 1 OFFSET 0)\n),\nall_max AS (SELECT MAX(month) AS global_max FROM active)\nSELECT strftime('%Y-%m', date(c.churn_month || '-01', '+1 month')) AS month,\n       COUNT(*) AS churned_riders\nFROM churned_months c, all_max\nWHERE c.churn_month < all_max.global_max\nGROUP BY 1\nORDER BY 1;",
+  "hint": "Build the set of (rider, month) pairs with completed trips. A rider's **last** active month churns them in the following month — as long as that last month isn't the newest month in the whole dataset (after which we can't tell).",
+  "solutionSql": "WITH active AS (\n  SELECT DISTINCT rider_id,\n         strftime('%Y-%m', started_at) AS month\n  FROM trips\n  WHERE status = 'completed'\n    AND started_at IS NOT NULL\n),\nlast_active AS (\n  SELECT rider_id,\n         MAX(month) AS last_month\n  FROM active\n  GROUP BY rider_id\n),\nglobal_max AS (SELECT MAX(month) AS max_month FROM active)\nSELECT strftime('%Y-%m', date(l.last_month || '-01', '+1 month')) AS month,\n       COUNT(*) AS churned_riders\nFROM last_active l, global_max g\nWHERE l.last_month < g.max_month\nGROUP BY month\nORDER BY month;",
   "outputExplanation": "For each rider, we check each active month: if the following month has no completed trip for that rider, and it's not the last month in the dataset, the rider churned at the start of the next month.",
   "tests": [
     {
       "name": "Example — some riders drop off",
       "seedSql": "INSERT INTO drivers VALUES (1,'Ace','NYC');\nINSERT INTO riders VALUES (1,'Alice'),(2,'Bob'),(3,'Carol');\nINSERT INTO trips VALUES\n  (1,1,1,'2022-01-10','2022-01-10','2022-01-10','completed',10),\n  (2,1,2,'2022-01-15','2022-01-15','2022-01-15','completed',12),\n  (3,1,3,'2022-01-20','2022-01-20','2022-01-20','completed',8),\n  (4,1,1,'2022-02-10','2022-02-10','2022-02-10','completed',10),\n  (5,1,3,'2022-02-15','2022-02-15','2022-02-15','completed',9),\n  (6,1,1,'2022-03-10','2022-03-10','2022-03-10','completed',11);",
-      "expectedOutput": []
+      "expectedOutput": [
+        {
+          "month": "2022-02",
+          "churned_riders": 1
+        },
+        {
+          "month": "2022-03",
+          "churned_riders": 1
+        }
+      ]
     },
     {
       "name": "All riders active every month — no churn",

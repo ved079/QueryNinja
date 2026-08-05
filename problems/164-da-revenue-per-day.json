@@ -1,0 +1,71 @@
+{
+  "id": "da-revenue-per-day",
+  "number": 164,
+  "title": "Daily Revenue",
+  "difficulty": "Easy",
+  "tags": [
+    "Data Analyst",
+    "Ecommerce",
+    "Date",
+    "Aggregation"
+  ],
+  "description": "For each date an order was placed, report the **total revenue** from that day. Name the columns `day` and `revenue`. Return days in chronological order. A day with no orders is omitted.",
+  "solutionSql": "SELECT order_date AS day,\n       ROUND(SUM(total), 2) AS revenue\nFROM orders\nGROUP BY day\nORDER BY day;",
+  "orderMatters": true,
+  "hint": "GROUP BY date, SUM(total). ROUND for currency. Days with no orders simply won't appear — that's fine.",
+  "outputExplanation": "Revenue was $247.55 on Jan 5 and $300.00 on Jan 20.",
+  "schemaSql": "CREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  order_date TEXT,\n  total REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO orders VALUES (1,'2024-01-05',100),(2,'2024-01-05',147.55),(3,'2024-01-20',300),(4,'2024-02-01',42);",
+      "expectedOutput": [
+        {
+          "day": "2024-01-05",
+          "revenue": 247.55
+        },
+        {
+          "day": "2024-01-20",
+          "revenue": 300
+        },
+        {
+          "day": "2024-02-01",
+          "revenue": 42
+        }
+      ]
+    },
+    {
+      "name": "Single day many orders",
+      "seedSql": "INSERT INTO orders VALUES (1,'2024-01-05',10),(2,'2024-01-05',20),(3,'2024-01-05',70);",
+      "expectedOutput": [
+        {
+          "day": "2024-01-05",
+          "revenue": 100
+        }
+      ]
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "One order per distinct day",
+      "seedSql": "INSERT INTO orders VALUES (1,'2024-01-01',5),(2,'2024-01-02',7),(3,'2024-01-03',9);",
+      "expectedOutput": [
+        {
+          "day": "2024-01-01",
+          "revenue": 5
+        },
+        {
+          "day": "2024-01-02",
+          "revenue": 7
+        },
+        {
+          "day": "2024-01-03",
+          "revenue": 9
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "id": "da-mau-new-returning",
+  "number": 161,
+  "title": "New vs. Returning Monthly Active Users",
+  "difficulty": "Medium",
+  "tags": [
+    "Data Analyst",
+    "SaaS",
+    "Subquery",
+    "Aggregation"
+  ],
+  "description": "You're the analyst for a SaaS product. Every day the app records a login event per user. The growth team wants to separate **new** users (logging in for the very first time) from **returning** users (who have logged in before), for each calendar month.\n\nName the columns `month`, `total_active`, `new_users` and `returning_users`, where:\n- `total_active` = distinct users who logged in that month,\n- `new_users` = distinct users whose *first-ever* login fell in that month,\n- `returning_users` = `total_active` minus `new_users`.\n\nReturn months in chronological order.",
+  "solutionSql": "WITH first_login AS (\n  SELECT user_id, strftime('%Y-%m', MIN(login_date)) AS first_month\n  FROM logins\n  GROUP BY user_id\n)\nSELECT\n  strftime('%Y-%m', l.login_date) AS month,\n  COUNT(DISTINCT l.user_id) AS total_active,\n  COUNT(DISTINCT CASE\n    WHEN f.first_month = strftime('%Y-%m', l.login_date) THEN l.user_id\n  END) AS new_users,\n  COUNT(DISTINCT CASE\n    WHEN f.first_month < strftime('%Y-%m', l.login_date) THEN l.user_id\n  END) AS returning_users\nFROM logins l\nJOIN first_login f ON f.user_id = l.user_id\nGROUP BY month\nORDER BY month;",
+  "orderMatters": true,
+  "hint": "Find each user's first login *month* in a CTE, then join it back to every login. A user is 'new' in a month only where that month equals their first month; otherwise they're 'returning'.",
+  "outputExplanation": "January: users 1 and 2 log in for the first time (2 new, 0 returning). February: user 1 returns and user 3 joins (1 new, 1 returning). March: only user 4 logs in, first time (1 new, 0 returning).",
+  "schemaSql": "CREATE TABLE logins (\n  user_id INTEGER,\n  login_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO logins VALUES\n (1,'2024-01-05'),\n (1,'2024-02-03'),\n (2,'2024-01-10'),\n (3,'2024-02-01'),\n (4,'2024-03-01');",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "total_active": 2,
+          "new_users": 2,
+          "returning_users": 0
+        },
+        {
+          "month": "2024-02",
+          "total_active": 2,
+          "new_users": 1,
+          "returning_users": 1
+        },
+        {
+          "month": "2024-03",
+          "total_active": 1,
+          "new_users": 1,
+          "returning_users": 0
+        }
+      ]
+    },
+    {
+      "name": "One user, multiple logins in one month",
+      "seedSql": "INSERT INTO logins VALUES\n (1,'2024-01-05'),\n (1,'2024-01-20'),\n (1,'2024-02-01');",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "total_active": 1,
+          "new_users": 1,
+          "returning_users": 0
+        },
+        {
+          "month": "2024-02",
+          "total_active": 1,
+          "new_users": 0,
+          "returning_users": 1
+        }
+      ]
+    },
+    {
+      "name": "No returning users yet",
+      "seedSql": "INSERT INTO logins VALUES\n (1,'2024-01-02'),\n (2,'2024-02-13'),\n (3,'2024-03-27');",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "total_active": 1,
+          "new_users": 1,
+          "returning_users": 0
+        },
+        {
+          "month": "2024-02",
+          "total_active": 1,
+          "new_users": 1,
+          "returning_users": 0
+        },
+        {
+          "month": "2024-03",
+          "total_active": 1,
+          "new_users": 1,
+          "returning_users": 0
+        }
+      ]
+    },
+    {
+      "name": "Everyone is returning",
+      "seedSql": "INSERT INTO logins VALUES\n (1,'2024-01-02'),\n (1,'2024-02-02'),\n (2,'2024-01-10'),\n (2,'2024-02-15'),\n (2,'2024-03-01');",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "total_active": 2,
+          "new_users": 2,
+          "returning_users": 0
+        },
+        {
+          "month": "2024-02",
+          "total_active": 2,
+          "new_users": 0,
+          "returning_users": 2
+        },
+        {
+          "month": "2024-03",
+          "total_active": 1,
+          "new_users": 0,
+          "returning_users": 1
+        }
+      ]
+    },
+    {
+      "name": "Table empty",
+      "seedSql": "",
+      "expectedOutput": []
+    }
+  ]
+}

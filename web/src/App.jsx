@@ -16,10 +16,21 @@ const STARTER = '-- Write your query here\nSELECT ';
 const NAME_KEY = 'sql-practice-name';
 const NAME_SKIP_KEY = 'sql-practice-name-skip';
 
-// Route format: /normal_problems/<id> or /complex_problems/<id>
+// Sections: normal (original), complex (technique-heavy), and the Data
+// Analyst (KPI/business-metric) set. Each lives in its own URL namespace.
+// Route format: /<mode>_problems/<id>
 const parseRoute = () => {
-  const m = window.location.pathname.match(/^\/(normal|complex)_problems\/([^/]+)/);
+  const m = window.location.pathname.match(/^\/(normal|complex|da)_problems\/([^/]+)/);
   return m ? { mode: m[1], id: decodeURIComponent(m[2]) } : null;
+};
+
+// Exclusive membership: normal = numbers 1-90, complex = numbers >90 that are
+// not Data Analyst problems, da = anything tagged "Data Analyst".
+const isDataAnalyst = (p) => (p.tags ?? []).includes('Data Analyst');
+const MODES = ['normal', 'complex', 'da'];
+const inMode = (mode) => (p) => {
+  if (mode === 'da') return isDataAnalyst(p);
+  return mode === 'complex' ? p.number > 90 && !isDataAnalyst(p) : p.number <= 90;
 };
 
 export default function App() {
@@ -38,8 +49,8 @@ export default function App() {
   const [loadError, setLoadError] = useState(null);
   const [editorNonce, setEditorNonce] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  // 'normal' = the original 90; 'complex' = whatever's been added since —
-  // toggling this scopes prev/next/Go-to/Problem-List to just that set.
+  // 'normal' = the original numbering; 'complex' = technique-heavy additions;
+  // 'da' = the Data Analyst (business-metric) set. Filtering is in inMode().
   const [problemMode, setProblemMode] = useState(() => parseRoute()?.mode ?? 'normal');
   const [progressOpen, setProgressOpen] = useState(false);
   const [selectedCase, setSelectedCase] = useState(null);
@@ -84,10 +95,8 @@ export default function App() {
       .catch(() => {});
   }, [selectedId]);
 
-  // The original 90 are numbers 1-90; anything added since is "complex."
-  const visibleProblems = problems.filter((p) =>
-    problemMode === 'complex' ? p.number > 90 : p.number <= 90
-  );
+  // Scope prev/next/Go-to/Problem-List to the active section (normal/complex/da).
+  const visibleProblems = problems.filter(inMode(problemMode));
   const index = visibleProblems.findIndex((p) => p.id === selectedId);
 
   const prevId = useRef(null);
@@ -119,8 +128,8 @@ export default function App() {
     },
   };
 
-  const toggleMode = useCallback(() => {
-    setProblemMode((m) => (m === 'complex' ? 'normal' : 'complex'));
+  const setMode = useCallback((mode) => {
+    if (MODES.includes(mode)) setProblemMode(mode);
   }, []);
 
   // Jump to the first problem in the newly active set if the current
@@ -434,7 +443,7 @@ export default function App() {
       <TopBar
         onShowSidebar={() => setSidebarOpen(true)}
         problemMode={problemMode}
-        onToggleMode={toggleMode}
+        onChangeMode={setMode}
         onShowProgress={() => setProgressOpen(true)}
         userName={userName}
         streak={streak}

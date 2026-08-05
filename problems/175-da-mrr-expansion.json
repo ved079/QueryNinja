@@ -1,0 +1,74 @@
+{
+  "id": "da-mrr-expansion",
+  "number": 175,
+  "title": "MRR Expansion vs Contraction",
+  "difficulty": "Hard",
+  "tags": [
+    "Data Analyst",
+    "SaaS",
+    "MRR",
+    "CTE",
+    "Pivot"
+  ],
+  "description": "Subscriptions have a `start_date` and `monthly_price`. A subscription is **new** in its start month and **retained** (still active) in every later month, each contributing `monthly_price` to MRR.\n\nFor each month report `new_mrr` (MRR from subscriptions that started that month) and `carried_mrr` (MRR from subscriptions that started in an earlier month). Name the columns `month`, `new_mrr`, `carried_mrr`. Return months in chronological order.",
+  "solutionSql": "WITH months AS (\n  SELECT DISTINCT strftime('%Y-%m', start_date) AS month FROM subscriptions\n),\nnew_mrr AS (\n  SELECT strftime('%Y-%m', start_date) AS month, SUM(monthly_price) AS mrr\n  FROM subscriptions GROUP BY strftime('%Y-%m', start_date)\n),\ncarried AS (\n  SELECT m.month, COALESCE(SUM(s.monthly_price), 0) AS mrr\n  FROM months m\n  JOIN subscriptions s ON strftime('%Y-%m', s.start_date) < m.month\n  GROUP BY m.month\n)\nSELECT m.month,\n       COALESCE(n.mrr, 0) AS new_mrr,\n       COALESCE(c.mrr, 0) AS carried_mrr\nFROM months m\nLEFT JOIN new_mrr n ON n.month = m.month\nLEFT JOIN carried c ON c.month = m.month\nORDER BY m.month;",
+  "orderMatters": true,
+  "hint": "Split MRR by whether the subscription *started* that month (new) or an earlier one (carried). strftime down to month keeps it deterministic.",
+  "outputExplanation": "January: two new subs → new_mrr 300, nothing carried. February: one new sub ($50) plus both January subs still active → carried_mrr 300.",
+  "schemaSql": "CREATE TABLE subscriptions (\n  id INTEGER PRIMARY KEY,\n  start_date TEXT,\n  monthly_price REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO subscriptions VALUES\n (1,'2024-01-05',100),\n (2,'2024-01-20',200),\n (3,'2024-02-01',50);",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "new_mrr": 300,
+          "carried_mrr": 0
+        },
+        {
+          "month": "2024-02",
+          "new_mrr": 50,
+          "carried_mrr": 300
+        }
+      ]
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "All start same month",
+      "seedSql": "INSERT INTO subscriptions VALUES (1,'2024-01-01',10),(2,'2024-01-15',20);",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "new_mrr": 30,
+          "carried_mrr": 0
+        }
+      ]
+    },
+    {
+      "name": "Long tail carried",
+      "seedSql": "INSERT INTO subscriptions VALUES (1,'2024-01-01',10),(2,'2024-02-01',10),(3,'2024-03-01',10);",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "new_mrr": 10,
+          "carried_mrr": 0
+        },
+        {
+          "month": "2024-02",
+          "new_mrr": 10,
+          "carried_mrr": 10
+        },
+        {
+          "month": "2024-03",
+          "new_mrr": 10,
+          "carried_mrr": 20
+        }
+      ]
+    }
+  ]
+}

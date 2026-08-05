@@ -1143,6 +1143,7 @@ button.link {
   padding: 4px;
   display: flex;
   flex-direction: column;
+  gap: 3px;
   min-width: 150px;
   z-index: 50;
   box-shadow: 0 4px 16px rgba(0,0,0,0.4);
@@ -1157,6 +1158,10 @@ button.link {
   color: var(--text);
 }
 .nav-dropdown-menu button:hover {
+  background: var(--accent);
+  color: #fff;
+}
+.nav-dropdown-menu button.section-active {
   background: var(--accent);
   color: #fff;
 }

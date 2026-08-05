@@ -1,0 +1,105 @@
+{
+  "id": "da-conversion-funnel",
+  "number": 169,
+  "title": "Visit-To-Purchase Conversion Funnel",
+  "difficulty": "Medium",
+  "tags": [
+    "Data Analyst",
+    "Ecommerce",
+    "Funnel",
+    "Aggregation",
+    "CTE"
+  ],
+  "description": "Analysts track a 3-step funnel: **visit** → **cart** → **purchase**. The `events` table logs one row per user action. Name the columns `step`, `count` and `pct`, where `pct` is that step's share of the *previous* step's count (as a percentage, rounded to 2 decimals), and `NULL` for the first step.\n\nSteps in order: `visit`, `cart`, `purchase`. Users can take an action multiple times — count distinct users per step.",
+  "solutionSql": "WITH step_counts AS (\n  SELECT step, COUNT(DISTINCT user_id) AS cnt\n  FROM events\n  WHERE step IN ('visit','cart','purchase')\n  GROUP BY step\n),\nordered AS (\n  SELECT step, cnt,\n         LAG(cnt) OVER (ORDER BY CASE step WHEN 'visit' THEN 1 WHEN 'cart' THEN 2 WHEN 'purchase' THEN 3 END) AS prev_cnt\n  FROM step_counts\n)\nSELECT step,\n       cnt AS count,\n       CASE WHEN prev_cnt IS NULL THEN NULL\n            ELSE ROUND(cnt * 100.0 / prev_cnt, 2)\n       END AS pct\nFROM ordered\nORDER BY CASE step WHEN 'visit' THEN 1 WHEN 'cart' THEN 2 WHEN 'purchase' THEN 3 END;",
+  "orderMatters": true,
+  "hint": "Count distinct users per step, then compute the ratio of one step to the one before it. A CASE expression gives the steps a fixed order for LAG().",
+  "outputExplanation": "500 visitors, 100 of whom added to cart (20%), and 25 of those purchased (25%).",
+  "schemaSql": "CREATE TABLE events (\n  id INTEGER PRIMARY KEY,\n  user_id INTEGER,\n  step TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO events VALUES (1,1,'visit'),(2,2,'visit'),(3,3,'visit'),(4,4,'visit'),(5,5,'visit'),(6,1,'cart'),(7,2,'cart'),(8,3,'cart'),(9,4,'cart'),(10,1,'purchase'),(11,2,'purchase');",
+      "expectedOutput": [
+        {
+          "step": "visit",
+          "count": 5,
+          "pct": null
+        },
+        {
+          "step": "cart",
+          "count": 4,
+          "pct": 80
+        },
+        {
+          "step": "purchase",
+          "count": 2,
+          "pct": 50
+        }
+      ]
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": []
+    },
+    {
+      "name": "Perfect funnel",
+      "seedSql": "INSERT INTO events VALUES (1,1,'visit'),(2,1,'cart'),(3,1,'purchase');",
+      "expectedOutput": [
+        {
+          "step": "visit",
+          "count": 1,
+          "pct": null
+        },
+        {
+          "step": "cart",
+          "count": 1,
+          "pct": 100
+        },
+        {
+          "step": "purchase",
+          "count": 1,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "name": "No purchases at all",
+      "seedSql": "INSERT INTO events VALUES (1,1,'visit'),(2,2,'visit'),(3,1,'cart'),(4,2,'cart');",
+      "expectedOutput": [
+        {
+          "step": "visit",
+          "count": 2,
+          "pct": null
+        },
+        {
+          "step": "cart",
+          "count": 2,
+          "pct": 100
+        }
+      ]
+    },
+    {
+      "name": "Repeated steps count user once",
+      "seedSql": "INSERT INTO events VALUES (1,1,'visit'),(2,1,'visit'),(3,1,'visit'),(4,1,'cart'),(5,1,'purchase'),(6,2,'visit'),(7,2,'cart');",
+      "expectedOutput": [
+        {
+          "step": "visit",
+          "count": 2,
+          "pct": null
+        },
+        {
+          "step": "cart",
+          "count": 2,
+          "pct": 100
+        },
+        {
+          "step": "purchase",
+          "count": 1,
+          "pct": 50
+        }
+      ]
+    }
+  ]
+}
