@@ -9,11 +9,11 @@
     "Group By",
     "Case Expression"
   ],
-  "description": "A warehouse stores SKUs in three canonical shapes. Classify every SKU and count products per category:\n- **Standard** — two letters, dash, four digits (`^[A-Z]{2}-[0-9]{4}$`)\n- **Bulk** — letters `B`, `K`, or `G` then a dash then three letters then a digit (`^[BKG]-[A-Z]{3}[0-9]$`)\n- **Other** — anything else\n\nReturn columns `sku_type` (the literal strings `'Standard'`, `'Bulk'`, `'Other'`) and `product_count`, with one row per category that actually has products. Order by `sku_type` ascending.",
+  "description": "Write a query to classify every product by its SKU format and return the count per category.\n\nSKUs fall into three categories:\n\n| Category   | Format |\n|------------|--------|\n| `Standard` | Exactly two uppercase letters, a hyphen, then exactly four digits — e.g. `AB-1234` |\n| `Bulk`     | One of `B`, `K`, or `G`, a hyphen, exactly three uppercase letters, then one digit — e.g. `K-ABC9` |\n| `Other`    | Anything that does not match Standard or Bulk |\n\nReturn columns `sku_type` and `product_count`. Exclude categories with zero products. Order by `sku_type` ascending.",
   "solutionSql": "SELECT\n  CASE\n    WHEN REGEXP_LIKE(sku, '^[A-Z]{2}-[0-9]{4}$') THEN 'Standard'\n    WHEN REGEXP_LIKE(sku, '^[BKG]-[A-Z]{3}[0-9]$') THEN 'Bulk'\n    ELSE 'Other'\n  END AS sku_type,\n  COUNT(*) AS product_count\nFROM products\nGROUP BY sku_type\nORDER BY sku_type;",
   "orderMatters": false,
   "hint": "Put REGEXP_LIKE inside a CASE expression in the SELECT, then GROUP BY the same CASE expression. Evaluate the Standard pattern before Bulk so unambiguous SKUs are caught first.",
-  "outputExplanation": "AB-1234 is Standard. K-ABC9 starts with K and has three letters then a digit, so it is Bulk. 'B-AB12' has only two letters after the dash, 'XYZ-1' has no dash pattern, and '$k-abc7' is Other. The three groups are counted and returned.",
+  "outputExplanation": "- `AB-1234` — 2 uppercase letters, hyphen, 4 digits. `Standard`. ✓\n- `K-ABC9` — `K` prefix, hyphen, 3 uppercase letters `ABC`, digit `9`. `Bulk`. ✓\n- `B-AB12` — only 2 letters and 2 digits after the hyphen; fails both patterns. `Other`. ✗\n- `XYZ-1` — 3 letters before the hyphen; Standard requires exactly 2. `Other`. ✗\n- `$k-abc7` — starts with `$`; invalid for both patterns. `Other`. ✗\n- `G-AAA0` — `G` prefix, hyphen, 3 uppercase letters `AAA`, digit `0`. `Bulk`. ✓\n\nFinal counts: Bulk = 2, Other = 3, Standard = 1.",
   "schemaSql": "CREATE TABLE products (\n  id INTEGER PRIMARY KEY,\n  sku TEXT\n);",
   "tests": [
     {

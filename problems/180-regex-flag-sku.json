@@ -8,11 +8,11 @@
     "String",
     "Case Expression"
   ],
-  "description": "Product SKUs are supposed to be **two uppercase letters, a dash, then exactly four digits** (e.g. `AB-1234`). Inventory is messy, so flag each product.\n\nReturn every product with columns `id`, `name`, and a computed `is_valid` column (1 for valid, 0 for invalid). Use a `CASE WHEN REGEXP_LIKE(sku, ...) THEN 1 ELSE 0 END`. Name the columns exactly `id`, `name`, `is_valid`. Return rows in any order.",
+  "description": "Every SKU must follow the format: **exactly two uppercase letters, a hyphen, then exactly four digits** — for example `AB-1234` or `XY-0099`.\n\nWrite a query that returns all products with columns `id`, `name`, and `is_valid`, where `is_valid` is `1` if the SKU matches the format and `0` otherwise.\n\nReturn the result in any order.",
   "solutionSql": "SELECT id, name,\n       CASE WHEN REGEXP_LIKE(sku, '^[A-Z]{2}-[0-9]{4}$') THEN 1 ELSE 0 END AS is_valid\nFROM products;",
   "orderMatters": false,
   "hint": "Compute a boolean flag in the SELECT list with CASE WHEN REGEXP_LIKE(...) THEN 1 ELSE 0 END. `{2}` and `{4}` fix the exact lengths.",
-  "outputExplanation": "AB-1234 and XY-0000 both match exactly two letters, dash, four digits. 'abc-1234' fails (letters must be uppercase), 'AB-123' has too few digits, and 'AB12-345' has no dash in the right place.",
+  "outputExplanation": "- `AB-1234` (Socks) — 2 uppercase letters, hyphen, 4 digits. `is_valid = 1`. ✓\n- `XY-0000` (Hat) — leading zeros are still valid digits. `is_valid = 1`. ✓\n- `ab-1234` (Shirt) — lowercase letters; the pattern requires uppercase only. `is_valid = 0`. ✗\n- `AB-1` (Scarf) — only 1 digit after the hyphen; exactly 4 are required. `is_valid = 0`. ✗\n- `AB12-345` (Glove) — digits before the hyphen break the two-letter prefix rule. `is_valid = 0`. ✗\n\nAll five rows are returned with their flag.",
   "schemaSql": "CREATE TABLE products (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  sku TEXT\n);",
   "tests": [
     {

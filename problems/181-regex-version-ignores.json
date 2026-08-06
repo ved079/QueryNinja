@@ -8,11 +8,11 @@
     "String",
     "Filtering"
   ],
-  "description": "A build pipeline writes version strings to a log table. The team only cares about releases tagged either `vX.Y.Z` (SemVer-style, three dot-separated numbers) or `gold` (no trailing number).\n\nReport every build whose `version` is **not** one of those two canonical forms. Use `REGEXP_LIKE(version, ...)` with alternation `|`. Name the columns `id` and `version`. Return rows in any order.",
+  "description": "A build pipeline logs every release to the `builds` table. Only builds in one of two approved formats are promoted:\n\n- **Numeric** — three dot-separated integers, no leading `v`, no extra characters (e.g. `1.0.0`, `12.3.456`)\n- **Gold** — the exact string `gold`, nothing else\n\nWrite a query to return the `id` and `version` of every build that does **not** match either approved format. Return the result in any order.",
   "solutionSql": "SELECT id, version\nFROM builds\nWHERE NOT REGEXP_LIKE(version, '(^[0-9]+\\.[0-9]+\\.[0-9]+$)|(^gold$)');",
   "orderMatters": false,
   "hint": "Anchored alternatives `(^...$)|(^...$)` match either whole pattern. Wrap the test in NOT to keep only rows that match neither.",
-  "outputExplanation": "1.2.3 and gold match one of the two patterns and are dropped. 'gold.1' is not exactly 'gold', 'v1.2.3' has a leading v, and '1.2' has only two numbers, so all three fail both patterns and are kept.",
+  "outputExplanation": "- `1.2.3` — three dot-separated integers, no prefix. Approved — not returned. ✓\n- `gold` — exact match for the gold format. Approved — not returned. ✓\n- `golden` — starts with `gold` but has extra characters; `^gold$` requires nothing after it. Returned. ✗\n- `v1.2.3` — has a leading `v`; the numeric pattern allows no prefix. Returned. ✗\n- `1.2` — only two segments; the pattern requires exactly three. Returned. ✗\n\nRows 3, 4, and 5 are returned.",
   "schemaSql": "CREATE TABLE builds (\n  id INTEGER PRIMARY KEY,\n  version TEXT\n);",
   "tests": [
     {

@@ -8,11 +8,11 @@
     "String",
     "Filtering"
   ],
-  "description": "A directory imports phone numbers in free-text form. Report every contact whose `phone` matches the canonical US format **3 digits, dash, 3 digits, dash, 4 digits** (e.g. `555-123-4567`).\n\nUse `REGEXP_LIKE(phone, ...)`. Name the columns `id` and `phone`. Return rows in any order.",
+  "description": "Write a query to return the `id` and `phone` of every contact whose phone number matches the canonical US format **exactly**.\n\nThe canonical format is: **3 digits, a hyphen, 3 digits, a hyphen, 4 digits** — for example `555-123-4567`. No leading or trailing characters are permitted.\n\nReturn the result in any order.",
   "solutionSql": "SELECT id, phone\nFROM contacts\nWHERE REGEXP_LIKE(phone, '^[0-9]{3}-[0-9]{3}-[0-9]{4}$');",
   "orderMatters": false,
   "hint": "`{3}` means exactly three. The pattern must cover the whole string, so anchor it with `^` and `$` — otherwise '555-123-4567x' and 'x555-123-4567' would also match.",
-  "outputExplanation": "Only 555-123-4567 is exactly three digits, dash, three digits, dash, four digits. '555.123.4567' uses dots, '5551234567' has no dashes, and '555-123-456' has only 3 trailing digits.",
+  "outputExplanation": "- `555-123-4567` — 3 digits, hyphen, 3 digits, hyphen, 4 digits. Valid. ✓\n- `555.123.4567` — uses dots instead of hyphens. Invalid. ✗\n- `5551234567` — no hyphens at all. Invalid. ✗\n- `555-123-456` — last group has only 3 digits; exactly 4 are required. Invalid. ✗\n- `555-123-45678` — last group has 5 digits; the end anchor rejects it. Invalid. ✗\n\nOnly row 1 is returned.",
   "schemaSql": "CREATE TABLE contacts (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  phone TEXT\n);",
   "tests": [
     {

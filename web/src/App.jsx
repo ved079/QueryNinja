@@ -472,6 +472,7 @@ export default function App() {
               savedCode={progress[problem.id]?.code}
               savedSolution={progress[problem.id]?.solutionSql}
               savedOutputExplanation={progress[problem.id]?.outputExplanation}
+              outputExplanation={solutionsCache.current[problem.id]?.outputExplanation}
               submissions={submissions}
               onLoadSubmission={loadSubmission}
               onToggleStar={handleToggleStar}

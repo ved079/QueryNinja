@@ -20,6 +20,7 @@ export default function ProblemPane({
   savedCode,
   savedSolution,
   savedOutputExplanation,
+  outputExplanation,
   submissions,
   onLoadSubmission,
   onToggleStar,
@@ -252,11 +253,11 @@ export default function ProblemPane({
                 <p className="muted">Computing…</p>
               )}
 
-              {status === 'solved' && savedOutputExplanation ? (
+              {outputExplanation ? (
                 <>
                   <h3>Why the output looks like this</h3>
                   <div className="prose">
-                    <Markdownish text={savedOutputExplanation} />
+                    <Markdownish text={outputExplanation} />
                   </div>
                 </>
               ) : (

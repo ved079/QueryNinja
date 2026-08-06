@@ -8,11 +8,11 @@
     "String",
     "Filtering"
   ],
-  "description": "Some dictionary entries have been corrupted with digits. Find every word that **starts with a vowel** (a, e, i, o, u — case-insensitive) **and** contains **at least one digit anywhere** in it.\n\nUse `REGEXP_LIKE(word, ...)` — note the pattern does NOT need anchors here because you are matching a *property* of the string, not the whole string. Name the columns `id` and `word`. Return rows in any order.",
+  "description": "Write a query to return the `id` and `word` of every entry that satisfies **both** conditions:\n\n1. **Starts with a vowel** — the first character is `a`, `e`, `i`, `o`, or `u` (case-insensitive)\n2. **Contains at least one digit** — anywhere in the string\n\nReturn the result in any order.",
   "solutionSql": "SELECT id, word\nFROM words\nWHERE REGEXP_LIKE(word, '^[aeiou]') AND REGEXP_LIKE(word, '[0-9]');",
   "orderMatters": false,
   "hint": "This needs two separate patterns joined with AND: `^[aeiou]` checks the first character (unanchored at the end, so the rest can be anything), and `[0-9]` finds any digit. REGEXP_LIKE is case-insensitive by default here, so 'Apple2' matches.",
-  "outputExplanation": "'elephant5' starts with e and contains a 5. 'zebra2' has a digit but starts with z. 'apple' starts with a vowel but has no digit. 'X1' starts with a consonant.",
+  "outputExplanation": "- `elephant5` — starts with `e` (vowel), contains digit `5`. Returned. ✓\n- `zebra2` — starts with `z`, not a vowel. Not returned. ✗\n- `apple` — starts with `a` (vowel), but contains no digits. Not returned. ✗\n- `orange3` — starts with `o` (vowel), contains digit `3`. Returned. ✓\n- `X1` — starts with `X`, not a vowel. Not returned. ✗\n\nRows 1 and 4 are returned.",
   "schemaSql": "CREATE TABLE words (\n  id INTEGER PRIMARY KEY,\n  word TEXT\n);",
   "tests": [
     {
