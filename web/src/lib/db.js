@@ -18,7 +18,7 @@ const RECURSIVE_CTE = /\bWITH\s+RECURSIVE\b/i;
 /**
  * Strip SQL single-line (--) and block (/* *\/) comments from a query string
  * without touching content inside string literals. Needed so bypass attempts
- * like DR/**/OP TABLE or --\nDELETE are caught by the keyword blocklist.
+ * like DR\/**\/OP TABLE or --\nDELETE are caught by the keyword blocklist.
  */
 function stripComments(sql) {
   let out = '';
