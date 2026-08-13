@@ -38,7 +38,8 @@
           "revenue": 140,
           "change": -15
         }
-      ]
+      ],
+      "expectedHash": "4f91efd4ec320efcadcf727dae1568ce68d30a400f7da6388059f61ab540fe24"
     },
     {
       "name": "Customer who never ordered",
@@ -49,7 +50,8 @@
           "revenue": 130,
           "change": null
         }
-      ]
+      ],
+      "expectedHash": "4cc6b88fc2fff7253598dd0135e94ce9a6a053a961cf25e51685da2f7abcbf6f"
     },
     {
       "name": "All orders cancelled",
@@ -60,12 +62,14 @@
           "revenue": 240,
           "change": null
         }
-      ]
+      ],
+      "expectedHash": "a950ba6d46f1ce55ddfc17c8b2598648a25a148620ba669aaad544256d938410"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -76,7 +80,8 @@
           "revenue": 80,
           "change": null
         }
-      ]
+      ],
+      "expectedHash": "79662142ab7e38ae98c8cc9f70e778a88fa7f5843420511cca697f113aeda455"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -87,7 +92,8 @@
           "revenue": 240,
           "change": null
         }
-      ]
+      ],
+      "expectedHash": "a950ba6d46f1ce55ddfc17c8b2598648a25a148620ba669aaad544256d938410"
     },
     {
       "name": "Single customer, single order",
@@ -98,7 +104,8 @@
           "revenue": 80,
           "change": null
         }
-      ]
+      ],
+      "expectedHash": "d5d2d8dc4ce93d03166b0be1bec658c5e29d6bb33cf12642814044f12dadc4c6"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -109,7 +116,8 @@
           "revenue": 200,
           "change": null
         }
-      ]
+      ],
+      "expectedHash": "165ecf87fad7fc3e94b4744dd21b4f9251f5f8f4ee0e41fec14c966f627afafc"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -130,7 +138,8 @@
           "revenue": 80,
           "change": -1060
         }
-      ]
+      ],
+      "expectedHash": "e66a8471d48f8198e4e40c14bd8aa28e22bebfe616bca6b4ccfd53b653371463"
     },
     {
       "name": "Larger multi-country set",
@@ -181,7 +190,8 @@
           "revenue": 612.5,
           "change": 532.5
         }
-      ]
+      ],
+      "expectedHash": "1f12280c5983a3fc600574b734a7c6aaf4a016868a00b41cae01a028e789671b"
     },
     {
       "name": "Single month — change is NULL",
@@ -232,7 +242,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two consecutive months with increase",
@@ -296,7 +307,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Three months with up then down",
@@ -373,7 +385,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Non-consecutive months in data",
@@ -437,7 +450,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Same month across years",
@@ -501,7 +515,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Flat revenue across months",
@@ -578,7 +593,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

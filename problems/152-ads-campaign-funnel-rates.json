@@ -38,7 +38,8 @@
           "ctr": 0.2,
           "cvr": 0
         }
-      ]
+      ],
+      "expectedHash": "080097d93c55f954cb43d17199b11ac91a022b44ed6d69eeda0e70ed0aaff55b"
     },
     {
       "name": "Campaign with impressions only — CVR is NULL",
@@ -53,12 +54,14 @@
           "ctr": 0,
           "cvr": null
         }
-      ]
+      ],
+      "expectedHash": "e957a6a1b0e4c3effb1e1ca4f0f526b4692fd3924ad4ee816fe3f1c06f70ce4e"
     },
     {
       "name": "No impressions — empty result",
       "seedSql": "INSERT INTO campaigns VALUES (1,'Ghost','email',100);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Perfect CVR — every click converts",
@@ -73,12 +76,14 @@
           "ctr": 1,
           "cvr": 1
         }
-      ]
+      ],
+      "expectedHash": "98e82de548c7c2fe5ab05991ce948cc9333856fcfdc73df02869a11c18ae1762"
     },
     {
       "name": "Empty tables",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

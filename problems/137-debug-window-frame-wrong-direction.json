@@ -49,7 +49,8 @@
           "name": "Hal",
           "trailing_avg": 80000
         }
-      ]
+      ],
+      "expectedHash": "d05e730d2b304f70ca94ee8284ca62e9b29cb7a52a1ad268e276aa9279579e54"
     },
     {
       "name": "Ties on every salary",
@@ -75,7 +76,8 @@
           "name": "E",
           "trailing_avg": 100000
         }
-      ]
+      ],
+      "expectedHash": "44ab0f19d6698a2a44fd24709af836feae4b99a498d7480de40f893ab0c96c1e"
     },
     {
       "name": "Department with no employees",
@@ -89,7 +91,8 @@
           "name": "Ben",
           "trailing_avg": 85000
         }
-      ]
+      ],
+      "expectedHash": "f8ddd37ebd672d6c6be6a8f03e40e4b871f5127e2540999ed7cef25a91ee299d"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -111,12 +114,14 @@
           "name": "Dan",
           "trailing_avg": 75000
         }
-      ]
+      ],
+      "expectedHash": "7cd3b8ed2132383eba82d60cd425c73bdca8e1f6f4e845c64a997779081ad4ee"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -126,7 +131,8 @@
           "name": "Solo",
           "trailing_avg": 100000
         }
-      ]
+      ],
+      "expectedHash": "d8637531879da6a34dd0a292910d4ffcc014e79c1d1e10c6b0b678bf0e26b742"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -152,7 +158,8 @@
           "name": "L5",
           "trailing_avg": 173333.33
         }
-      ]
+      ],
+      "expectedHash": "539c86ca3726dc68f35649b28235eb09bca1a7910650c731dfe498083a314284"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -174,7 +181,8 @@
           "name": "Alex",
           "trailing_avg": 71666.67
         }
-      ]
+      ],
+      "expectedHash": "09edf569d9a4527289022eb92baf5999dd29e627674346d399a0bbd42bd7b03e"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -196,7 +204,8 @@
           "name": "Dan",
           "trailing_avg": 666633.67
         }
-      ]
+      ],
+      "expectedHash": "5d3a578c69dd71a90c210a07879eccf4209ae0e9ff9d0a3b4a177ba24936e9b2"
     },
     {
       "name": "Larger multi-department set",
@@ -254,7 +263,8 @@
           "name": "M",
           "trailing_avg": 124000
         }
-      ]
+      ],
+      "expectedHash": "0963fa80a0d215569f25fd1900a20a221f9714394e85e2f1f586740cd49a98b8"
     },
     {
       "name": "Forward-looking frame includes future hires — backward does not",
@@ -272,7 +282,8 @@
           "name": "C",
           "trailing_avg": 100000
         }
-      ]
+      ],
+      "expectedHash": "449d125fbaad64eb09dd8899b1e38209f8d64d0f7a3d54a8e404a35273a66cb0"
     },
     {
       "name": "Single employee — both frames give the same result",
@@ -282,7 +293,8 @@
           "name": "Solo",
           "trailing_avg": 100000
         }
-      ]
+      ],
+      "expectedHash": "d8637531879da6a34dd0a292910d4ffcc014e79c1d1e10c6b0b678bf0e26b742"
     },
     {
       "name": "Two employees — first row differs between forward and backward",
@@ -296,12 +308,14 @@
           "name": "Second",
           "trailing_avg": 75000
         }
-      ]
+      ],
+      "expectedHash": "c9807f93101d4e5858c4635ef1c6d5dda0a7eb45a617c3f71fbbbae7e29ddced"
     },
     {
       "name": "Empty employees table",
       "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Many employees — trailing avg should only look back",
@@ -327,7 +341,8 @@
           "name": "E",
           "trailing_avg": 110000
         }
-      ]
+      ],
+      "expectedHash": "f820f5db5469c04d6562a567b4001f40c5cd29c9efaa731fa5f14aec410e2150"
     },
     {
       "name": "Same hire dates — tie-breaker determines order",
@@ -345,7 +360,8 @@
           "name": "C",
           "trailing_avg": 100000
         }
-      ]
+      ],
+      "expectedHash": "449d125fbaad64eb09dd8899b1e38209f8d64d0f7a3d54a8e404a35273a66cb0"
     }
   ]
 }

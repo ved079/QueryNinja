@@ -43,7 +43,8 @@
           "ctr": 0.3333,
           "cvr": 0
         }
-      ]
+      ],
+      "expectedHash": "e47541b477887be55d9dbfedd2117acdb5fc25ea40ef9c1a2b47400ff737ca1d"
     },
     {
       "name": "Channel with only impressions excluded",
@@ -57,12 +58,14 @@
           "ctr": 1,
           "cvr": 1
         }
-      ]
+      ],
+      "expectedHash": "9484870c26d02ed0b3d59a16ce365f839bd51cbaff25f81240330664acbd1f6a"
     },
     {
       "name": "Empty tables",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

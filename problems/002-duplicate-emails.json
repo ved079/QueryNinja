@@ -3,7 +3,11 @@
   "number": 2,
   "title": "Duplicate Emails",
   "difficulty": "Easy",
-  "tags": ["Group By", "Having", "String Comparison"],
+  "tags": [
+    "Group By",
+    "Having",
+    "String Comparison"
+  ],
   "description": "Table `Person` stores one row per signup, and `email` is not guaranteed unique.\n\nWrite a query to report all emails that appear **more than once**. Name the output column `Email`.\n\nReturn the result in any order.",
   "schemaSql": "CREATE TABLE Person (\n  id INTEGER PRIMARY KEY,\n  email TEXT NOT NULL\n);",
   "solutionSql": "SELECT email AS Email\nFROM Person\nGROUP BY email\nHAVING COUNT(*) > 1;",
@@ -15,189 +19,311 @@
       "name": "Example",
       "seedSql": "INSERT INTO Person VALUES (1,'a@b.com'),(2,'c@d.com'),(3,'a@b.com'),(4,'e@f.com'),(5,'c@d.com'),(6,'a@b.com');",
       "expectedOutput": [
-        {"Email": "a@b.com"},
-        {"Email": "c@d.com"}
-      ]
+        {
+          "Email": "a@b.com"
+        },
+        {
+          "Email": "c@d.com"
+        }
+      ],
+      "expectedHash": "08d081b0850fcb9136ef4223d833c3d5342d4dc3b19293b697334f5e9285ea5c"
     },
     {
       "name": "All emails are unique",
       "seedSql": "INSERT INTO Person VALUES (1,'a@x.com'),(2,'b@x.com'),(3,'c@x.com');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Every row is the same email",
       "seedSql": "INSERT INTO Person VALUES (1,'dup@x.com'),(2,'dup@x.com'),(3,'dup@x.com'),(4,'dup@x.com'),(5,'dup@x.com');",
       "expectedOutput": [
-        {"Email": "dup@x.com"}
-      ]
+        {
+          "Email": "dup@x.com"
+        }
+      ],
+      "expectedHash": "42af58f985a986aee7cedb26c33e771fe6c17af40ea4d53820561e61300ac89d"
     },
     {
       "name": "Empty table",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single row only",
       "seedSql": "INSERT INTO Person VALUES (1,'only@x.com');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Minimum duplicate — exactly two rows same email",
       "seedSql": "INSERT INTO Person VALUES (1,'pair@x.com'),(2,'pair@x.com');",
       "expectedOutput": [
-        {"Email": "pair@x.com"}
-      ]
+        {
+          "Email": "pair@x.com"
+        }
+      ],
+      "expectedHash": "dffc3f030848cf219745c3266dd963d5669e70479126c445269743957908be48"
     },
     {
       "name": "Two separate duplicate groups",
       "seedSql": "INSERT INTO Person VALUES (1,'a@x.com'),(2,'b@x.com'),(3,'a@x.com'),(4,'c@x.com'),(5,'b@x.com');",
       "expectedOutput": [
-        {"Email": "a@x.com"},
-        {"Email": "b@x.com"}
-      ]
+        {
+          "Email": "a@x.com"
+        },
+        {
+          "Email": "b@x.com"
+        }
+      ],
+      "expectedHash": "b434037946559227dcd100ff20129182429d11d7edf3e7222184929eaf87c408"
     },
     {
       "name": "Scattered duplicate — same email at start, middle and end of insert order",
       "seedSql": "INSERT INTO Person VALUES (1,'scattered@x.com'),(2,'u1@x.com'),(3,'u2@x.com'),(4,'u3@x.com'),(5,'scattered@x.com'),(6,'u4@x.com'),(7,'scattered@x.com');",
       "expectedOutput": [
-        {"Email": "scattered@x.com"}
-      ]
+        {
+          "Email": "scattered@x.com"
+        }
+      ],
+      "expectedHash": "4f5cc5666267552cfc808dee1b4312316b2cc9e2eb3239b862f214ef39d497d0"
     },
     {
       "name": "One email appearing six times, rest unique",
       "seedSql": "INSERT INTO Person VALUES (1,'freq@x.com'),(2,'freq@x.com'),(3,'freq@x.com'),(4,'freq@x.com'),(5,'freq@x.com'),(6,'freq@x.com'),(7,'unique@x.com');",
       "expectedOutput": [
-        {"Email": "freq@x.com"}
-      ]
+        {
+          "Email": "freq@x.com"
+        }
+      ],
+      "expectedHash": "0c56d97ec3228eac620b5fbbbc7101bed398c955272ad368840826df3461c79e"
     },
     {
       "name": "Leading whitespace makes an email distinct",
       "seedSql": "INSERT INTO Person VALUES (1,'trim@x.com'),(2,'trim@x.com'),(3,' trim@x.com');",
       "expectedOutput": [
-        {"Email": "trim@x.com"}
-      ]
+        {
+          "Email": "trim@x.com"
+        }
+      ],
+      "expectedHash": "5e6870482c325b3ec4133beed409135fa049f869ca59a2b8cc3870eb83df4155"
     },
     {
       "name": "Special characters in local-part — plus, dot, hyphen",
       "seedSql": "INSERT INTO Person VALUES (1,'user+tag@x.com'),(2,'user.name@x.com'),(3,'user+tag@x.com'),(4,'user-name@x.com'),(5,'user.name@x.com');",
       "expectedOutput": [
-        {"Email": "user+tag@x.com"},
-        {"Email": "user.name@x.com"}
-      ]
+        {
+          "Email": "user+tag@x.com"
+        },
+        {
+          "Email": "user.name@x.com"
+        }
+      ],
+      "expectedHash": "645116db838b77020f7e5148a2b5ed0b293023113000171cca7f3a29cf666d71"
     },
     {
       "name": "Case differences are distinct emails",
       "seedSql": "INSERT INTO Person VALUES (1,'Alice@x.com'),(2,'alice@x.com'),(3,'ALICE@x.com');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Very long email address with long local-part and domain",
       "seedSql": "INSERT INTO Person VALUES (1,'abcdefghij.klmnopqrst.uvwxyzabcdef@very-long-domain-name.example.com'),(2,'short@x.com'),(3,'abcdefghij.klmnopqrst.uvwxyzabcdef@very-long-domain-name.example.com'),(4,'short@x.com');",
       "expectedOutput": [
-        {"Email": "abcdefghij.klmnopqrst.uvwxyzabcdef@very-long-domain-name.example.com"},
-        {"Email": "short@x.com"}
-      ]
+        {
+          "Email": "abcdefghij.klmnopqrst.uvwxyzabcdef@very-long-domain-name.example.com"
+        },
+        {
+          "Email": "short@x.com"
+        }
+      ],
+      "expectedHash": "3b48b7cfe8c896144140d3ef0b30f5bd56fc2de722498bc2d4cb693918875767"
     },
     {
       "name": "Stress test with 30 rows and 10 qualifying emails",
       "seedSql": "INSERT INTO Person VALUES (1,'a@x.com'),(2,'b@x.com'),(3,'c@x.com'),(4,'a@x.com'),(5,'d@x.com'),(6,'b@x.com'),(7,'e@x.com'),(8,'a@x.com'),(9,'f@x.com'),(10,'g@x.com'),(11,'h@x.com'),(12,'c@x.com'),(13,'i@x.com'),(14,'j@x.com'),(15,'d@x.com'),(16,'k@x.com'),(17,'l@x.com'),(18,'e@x.com'),(19,'m@x.com'),(20,'n@x.com'),(21,'o@x.com'),(22,'f@x.com'),(23,'p@x.com'),(24,'q@x.com'),(25,'r@x.com'),(26,'s@x.com'),(27,'g@x.com'),(28,'h@x.com'),(29,'i@x.com'),(30,'j@x.com');",
       "expectedOutput": [
-        {"Email": "a@x.com"},
-        {"Email": "b@x.com"},
-        {"Email": "c@x.com"},
-        {"Email": "d@x.com"},
-        {"Email": "e@x.com"},
-        {"Email": "f@x.com"},
-        {"Email": "g@x.com"},
-        {"Email": "h@x.com"},
-        {"Email": "i@x.com"},
-        {"Email": "j@x.com"}
-      ]
+        {
+          "Email": "a@x.com"
+        },
+        {
+          "Email": "b@x.com"
+        },
+        {
+          "Email": "c@x.com"
+        },
+        {
+          "Email": "d@x.com"
+        },
+        {
+          "Email": "e@x.com"
+        },
+        {
+          "Email": "f@x.com"
+        },
+        {
+          "Email": "g@x.com"
+        },
+        {
+          "Email": "h@x.com"
+        },
+        {
+          "Email": "i@x.com"
+        },
+        {
+          "Email": "j@x.com"
+        }
+      ],
+      "expectedHash": "4295f4391f859051685c7b35b482db654c4db209f3abb3cc1167dcbe124c8ee2"
     },
     {
       "name": "All unique emails except one pair at the very end",
       "seedSql": "INSERT INTO Person VALUES (1,'a@x.com'),(2,'b@x.com'),(3,'c@x.com'),(4,'d@x.com'),(5,'e@x.com'),(6,'f@x.com'),(7,'g@x.com'),(8,'h@x.com'),(9,'i@x.com'),(10,'last@x.com'),(11,'last@x.com');",
       "expectedOutput": [
-        {"Email": "last@x.com"}
-      ]
+        {
+          "Email": "last@x.com"
+        }
+      ],
+      "expectedHash": "11a88ff564a3eb90db0af50cf465c26e1ae7ef3fd71c77bb75f3497bbd48fb60"
     },
     {
       "name": "Every qualifying email appears exactly twice",
       "seedSql": "INSERT INTO Person VALUES (1,'pair1@x.com'),(2,'pair2@x.com'),(3,'pair1@x.com'),(4,'pair3@x.com'),(5,'pair2@x.com'),(6,'pair3@x.com');",
       "expectedOutput": [
-        {"Email": "pair1@x.com"},
-        {"Email": "pair2@x.com"},
-        {"Email": "pair3@x.com"}
-      ]
+        {
+          "Email": "pair1@x.com"
+        },
+        {
+          "Email": "pair2@x.com"
+        },
+        {
+          "Email": "pair3@x.com"
+        }
+      ],
+      "expectedHash": "d510c8b5e518420a35947e4b0241f13135920f548138584f822367e24e1d1c79"
     },
     {
       "name": "Empty string emails are duplicates",
       "seedSql": "INSERT INTO Person VALUES (1,''),(2,''),(3,'x@y.com');",
       "expectedOutput": [
-        {"Email": ""}
-      ]
+        {
+          "Email": ""
+        }
+      ],
+      "expectedHash": "0f7d935ea8e5b3d7e865a4da2c202c83dcb80c90de0ca6b485dd86cd5053833e"
     },
     {
       "name": "Empty string and single space are distinct",
       "seedSql": "INSERT INTO Person VALUES (1,''),(2,' '),(3,''),(4,' ');",
       "expectedOutput": [
-        {"Email": ""},
-        {"Email": " "}
-      ]
+        {
+          "Email": ""
+        },
+        {
+          "Email": " "
+        }
+      ],
+      "expectedHash": "c74f13d045db924e1faf2c8735c1ac42640c349998576af2b4e0b5d6c309ebff"
     },
     {
       "name": "Trailing whitespace makes emails distinct",
       "seedSql": "INSERT INTO Person VALUES (1,'a@b.com'),(2,'a@b.com'),(3,'a@b.com ');",
       "expectedOutput": [
-        {"Email": "a@b.com"}
-      ]
+        {
+          "Email": "a@b.com"
+        }
+      ],
+      "expectedHash": "0bea3fd1d291ba113a2cad66aa641199134f92ab801a2aebc5b1c77c0678f283"
     },
     {
       "name": "Negative and non-sequential ids",
       "seedSql": "INSERT INTO Person VALUES (-5,'neg@x.com'),(100,'neg@x.com'),(50,'unique@x.com');",
       "expectedOutput": [
-        {"Email": "neg@x.com"}
-      ]
+        {
+          "Email": "neg@x.com"
+        }
+      ],
+      "expectedHash": "e895b5858a790462a9d923e1073465eb53e3d945a8692c6b5127a3ed85d2e02c"
     },
     {
       "name": "Email appearing exactly three times",
       "seedSql": "INSERT INTO Person VALUES (1,'tri@x.com'),(2,'tri@x.com'),(3,'tri@x.com'),(4,'unique@x.com');",
       "expectedOutput": [
-        {"Email": "tri@x.com"}
-      ]
+        {
+          "Email": "tri@x.com"
+        }
+      ],
+      "expectedHash": "ee1de75390d60533cc15985c67a84bd43948ac22ee0c4bee4a84880cc123f12b"
     },
     {
       "name": "Local-part and domain swapped are distinct",
       "seedSql": "INSERT INTO Person VALUES (1,'a@b.com'),(2,'b@a.com'),(3,'a@b.com');",
       "expectedOutput": [
-        {"Email": "a@b.com"}
-      ]
+        {
+          "Email": "a@b.com"
+        }
+      ],
+      "expectedHash": "0bea3fd1d291ba113a2cad66aa641199134f92ab801a2aebc5b1c77c0678f283"
     },
     {
       "name": "Mixed counts: quadruples, triples, and pairs",
       "seedSql": "INSERT INTO Person VALUES (1,'q1@x.com'),(2,'q1@x.com'),(3,'q1@x.com'),(4,'q1@x.com'),(5,'t1@x.com'),(6,'t1@x.com'),(7,'t1@x.com'),(8,'p1@x.com'),(9,'p1@x.com'),(10,'unique@x.com');",
       "expectedOutput": [
-        {"Email": "q1@x.com"},
-        {"Email": "t1@x.com"},
-        {"Email": "p1@x.com"}
-      ]
+        {
+          "Email": "q1@x.com"
+        },
+        {
+          "Email": "t1@x.com"
+        },
+        {
+          "Email": "p1@x.com"
+        }
+      ],
+      "expectedHash": "627bec60f5f3bb581d0c1939334333fdb6c16025dd8b3d003c46f7a7bb667124"
     },
     {
       "name": "40-row stress with quadruples, triples, pairs, and uniques",
       "seedSql": "INSERT INTO Person VALUES (1,'q1@x.com'),(2,'q1@x.com'),(3,'q1@x.com'),(4,'q1@x.com'),(5,'q2@x.com'),(6,'q2@x.com'),(7,'q2@x.com'),(8,'q2@x.com'),(9,'q3@x.com'),(10,'q3@x.com'),(11,'q3@x.com'),(12,'q3@x.com'),(13,'t1@x.com'),(14,'t1@x.com'),(15,'t1@x.com'),(16,'t2@x.com'),(17,'t2@x.com'),(18,'t2@x.com'),(19,'t3@x.com'),(20,'t3@x.com'),(21,'t3@x.com'),(22,'t4@x.com'),(23,'t4@x.com'),(24,'t4@x.com'),(25,'p1@x.com'),(26,'p1@x.com'),(27,'p2@x.com'),(28,'p2@x.com'),(29,'p3@x.com'),(30,'p3@x.com'),(31,'p4@x.com'),(32,'p4@x.com'),(33,'p5@x.com'),(34,'p5@x.com'),(35,'u1@x.com'),(36,'u2@x.com'),(37,'u3@x.com'),(38,'u4@x.com'),(39,'u5@x.com'),(40,'u6@x.com');",
       "expectedOutput": [
-        {"Email": "q1@x.com"},
-        {"Email": "q2@x.com"},
-        {"Email": "q3@x.com"},
-        {"Email": "t1@x.com"},
-        {"Email": "t2@x.com"},
-        {"Email": "t3@x.com"},
-        {"Email": "t4@x.com"},
-        {"Email": "p1@x.com"},
-        {"Email": "p2@x.com"},
-        {"Email": "p3@x.com"},
-        {"Email": "p4@x.com"},
-        {"Email": "p5@x.com"}
-      ]
+        {
+          "Email": "q1@x.com"
+        },
+        {
+          "Email": "q2@x.com"
+        },
+        {
+          "Email": "q3@x.com"
+        },
+        {
+          "Email": "t1@x.com"
+        },
+        {
+          "Email": "t2@x.com"
+        },
+        {
+          "Email": "t3@x.com"
+        },
+        {
+          "Email": "t4@x.com"
+        },
+        {
+          "Email": "p1@x.com"
+        },
+        {
+          "Email": "p2@x.com"
+        },
+        {
+          "Email": "p3@x.com"
+        },
+        {
+          "Email": "p4@x.com"
+        },
+        {
+          "Email": "p5@x.com"
+        }
+      ],
+      "expectedHash": "2887223aac44fee1a04864f24deac1ec81a01d7e61230d5a2d6546338012565e"
     }
   ]
 }

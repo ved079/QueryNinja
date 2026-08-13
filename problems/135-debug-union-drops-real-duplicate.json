@@ -52,7 +52,8 @@
           "customer_name": "Eli Park",
           "amount": 60
         }
-      ]
+      ],
+      "expectedHash": "7623fa5043d21c91a69e59aa7b3c31b2564b66109eac335a40649e52e40e9b17"
     },
     {
       "name": "All three systems fully agree",
@@ -78,7 +79,8 @@
           "customer_name": "Ben Kim",
           "amount": 80
         }
-      ]
+      ],
+      "expectedHash": "2076543f967142d5d36d0af11ac1fbac35dbfacb4a1ea1ef3cff0a92be3b47d3"
     },
     {
       "name": "Completely disjoint across all three",
@@ -94,7 +96,8 @@
           "customer_name": "Ben Kim",
           "amount": 80
         }
-      ]
+      ],
+      "expectedHash": "cb77de95eb837f1e6b48282db7c7d49e792568e1b71b604d1f4cc8c36852a017"
     },
     {
       "name": "Source has an accidental duplicate row",
@@ -120,12 +123,14 @@
           "customer_name": "Ann Lee",
           "amount": 120
         }
-      ]
+      ],
+      "expectedHash": "dcd663f9c757a5623dc87401568f4618975e8171841f7ec1f007c30047a7d95e"
     },
     {
       "name": "All three systems empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Only source has any data",
@@ -146,7 +151,8 @@
           "customer_name": "Cy Ortiz",
           "amount": 45.5
         }
-      ]
+      ],
+      "expectedHash": "6107519695106cb17b2434600c30610f23f328e3d72b52a536444778237f5a9b"
     },
     {
       "name": "Same order, inconsistent name formatting",
@@ -172,7 +178,8 @@
           "customer_name": "Ben Kim",
           "amount": 80
         }
-      ]
+      ],
+      "expectedHash": "4774b73b764924751fe7ed107804ca6b032bb0d82fa56e0579d7cbb3bd2ea794"
     },
     {
       "name": "Matching ids, mismatched amounts",
@@ -198,7 +205,8 @@
           "customer_name": "Ben Kim",
           "amount": 80
         }
-      ]
+      ],
+      "expectedHash": "fd1331febf86df399546c6b844f50827641c5dfb6387dc345426e2297181eae7"
     },
     {
       "name": "Single matching order everywhere",
@@ -214,7 +222,8 @@
           "customer_name": "Ann Lee",
           "amount": 120
         }
-      ]
+      ],
+      "expectedHash": "c5d3c9ba7eb4e5b3e3fcda6166565a96e1b3c7ea6b79cf122828faf5c2058dc9"
     },
     {
       "name": "Larger mixed set: some in all three, some in two, some in one, duplicates and a mismatch",
@@ -270,7 +279,8 @@
           "customer_name": "Eli Park",
           "amount": 60
         }
-      ]
+      ],
+      "expectedHash": "6f58f5abcc8891e0afc0382f86cf3501d59efcb6ab08f13fc6106fdcf40fc4a2"
     },
     {
       "name": "Duplicate rows in source only",
@@ -291,7 +301,8 @@
           "customer_name": "B",
           "amount": 200
         }
-      ]
+      ],
+      "expectedHash": "1f9a70bf4b92242d67b23ab7465218132a45f8444917488f3a6b707e478e9f0f"
     },
     {
       "name": "Identical rows exist in both tables",
@@ -307,7 +318,8 @@
           "customer_name": "A",
           "amount": 100
         }
-      ]
+      ],
+      "expectedHash": "9941de6198a4ed326faa75303339b75a4ba76bff44978c5c64a898342f6f21e3"
     },
     {
       "name": "No duplicate rows — UNION and UNION ALL agree",
@@ -328,7 +340,8 @@
           "customer_name": "C",
           "amount": 300
         }
-      ]
+      ],
+      "expectedHash": "5e15b922a056286523f9f0b1977aac0e9397e41b599bc1987326c36732653b34"
     },
     {
       "name": "Only source has data — all rows kept",
@@ -344,7 +357,8 @@
           "customer_name": "B",
           "amount": 200
         }
-      ]
+      ],
+      "expectedHash": "315dce6426ccb20e0896aa57e6e8b6c34a0ec7035c5e99c1dceec1761a464827"
     },
     {
       "name": "Only warehouse has data",
@@ -355,12 +369,14 @@
           "customer_name": "C",
           "amount": 300
         }
-      ]
+      ],
+      "expectedHash": "c757578a6a5e72e0e96a9448ddf2deda1845d68b34810d61c5d53dbc681c0e91"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

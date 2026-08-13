@@ -30,7 +30,8 @@
           "name": "Cy",
           "sessions": 2
         }
-      ]
+      ],
+      "expectedHash": "2419060c19214a4524a63015b44c9be58360d3e7889557824cd22529a8425931"
     },
     {
       "name": "A user with a long unbroken streak",
@@ -44,7 +45,8 @@
           "name": "Sparse",
           "sessions": 3
         }
-      ]
+      ],
+      "expectedHash": "2fc4ab8d2fdd93f425a1c99e2546ffdbe0831610be443b67e22fce4bcb50da83"
     },
     {
       "name": "Users with no events at all",
@@ -54,12 +56,14 @@
           "name": "Active",
           "sessions": 2
         }
-      ]
+      ],
+      "expectedHash": "5d8e8802c388eaf24b6e12b78264b120112d3a46b071f9cfeda1e3167213848c"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Several events at the exact same timestamp",
@@ -73,7 +77,8 @@
           "name": "Bo",
           "sessions": 1
         }
-      ]
+      ],
+      "expectedHash": "1583669178efd8538b86b066277e6077d0572088350fd401bee724246928a105"
     },
     {
       "name": "Single user, single event",
@@ -83,7 +88,8 @@
           "name": "Solo",
           "sessions": 1
         }
-      ]
+      ],
+      "expectedHash": "31ddd89526600bb975acb9e9aad2e229050f3717df5d09fbaa140c80f2fc8849"
     },
     {
       "name": "Events with NULL type and orphan user ids",
@@ -97,7 +103,8 @@
           "name": "Bo",
           "sessions": 1
         }
-      ]
+      ],
+      "expectedHash": "5ff803c08dfca7a43b9e4bf9b712a2d6dc1afcd0023e7a1b81bad18344686e04"
     },
     {
       "name": "A streak spanning a month boundary",
@@ -107,7 +114,8 @@
           "name": "Ada",
           "sessions": 5
         }
-      ]
+      ],
+      "expectedHash": "244b7b5a1c8c35b6728b48baa851865c85285da4b341ba6f3aa0dae9bade8903"
     },
     {
       "name": "Purchases only, no logins",
@@ -121,7 +129,8 @@
           "name": "Bo",
           "sessions": 1
         }
-      ]
+      ],
+      "expectedHash": "5ff803c08dfca7a43b9e4bf9b712a2d6dc1afcd0023e7a1b81bad18344686e04"
     },
     {
       "name": "Larger multi-user activity log",
@@ -147,7 +156,8 @@
           "name": "E",
           "sessions": 4
         }
-      ]
+      ],
+      "expectedHash": "1f9183b9324c672f1a2cbc6c455a3d4d2ecaf71d2e550724c53daebbe3c4a812"
     },
     {
       "name": "Single event — 1 session",
@@ -173,7 +183,8 @@
           "sessions": 1
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two events within 30 min — 1 session",
@@ -205,7 +216,8 @@
           "sessions": 1
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two events more than 30 min apart — 2 sessions",
@@ -237,7 +249,8 @@
           "sessions": 2
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Multiple users sessions",
@@ -291,7 +304,8 @@
           "sessions": 1
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Events exactly 30 min apart — same session",
@@ -323,7 +337,8 @@
           "sessions": 1
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Many rapid events in one session",
@@ -379,7 +394,8 @@
           "sessions": 1
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

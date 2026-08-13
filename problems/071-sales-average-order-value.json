@@ -21,7 +21,8 @@
         {
           "aov": 160
         }
-      ]
+      ],
+      "expectedHash": "559f285785a8275bda7b70d1ef0566a05894ab732c8c5784c68f154e015569ee"
     },
     {
       "name": "Customer who never ordered",
@@ -30,7 +31,8 @@
         {
           "aov": 65
         }
-      ]
+      ],
+      "expectedHash": "34fb00ebccd20ae2f107c02471aa70f6f11735e6aaab81565b48a20296001682"
     },
     {
       "name": "All orders cancelled",
@@ -39,7 +41,8 @@
         {
           "aov": 120
         }
-      ]
+      ],
+      "expectedHash": "8797ba29881693a4ebdbc6b9f0e3194a84c47ab45287c40241e3c90646bc02a4"
     },
     {
       "name": "Everything empty",
@@ -48,7 +51,8 @@
         {
           "aov": null
         }
-      ]
+      ],
+      "expectedHash": "b39416174ca70338d87d710ad216cfaef2d6ba33f871187e03c7ab1521297bd2"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -57,7 +61,8 @@
         {
           "aov": 80
         }
-      ]
+      ],
+      "expectedHash": "56dd93e9b2d8be61a2eac9f132cc8123739d35e4011b0f798189d4e5d058f710"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -66,7 +71,8 @@
         {
           "aov": 120
         }
-      ]
+      ],
+      "expectedHash": "8797ba29881693a4ebdbc6b9f0e3194a84c47ab45287c40241e3c90646bc02a4"
     },
     {
       "name": "Single customer, single order",
@@ -75,7 +81,8 @@
         {
           "aov": 80
         }
-      ]
+      ],
+      "expectedHash": "56dd93e9b2d8be61a2eac9f132cc8123739d35e4011b0f798189d4e5d058f710"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -84,7 +91,8 @@
         {
           "aov": 100
         }
-      ]
+      ],
+      "expectedHash": "a0816f8435a0f2f5be6d04638fc8b5256674a0bab204d43c54c07766fc1b8771"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -93,7 +101,8 @@
         {
           "aov": 260
         }
-      ]
+      ],
+      "expectedHash": "480ebe891bb528f3a196b1ef4fa3aee7971d03483580c80cb3ccbc297bf869a2"
     },
     {
       "name": "Larger multi-country set",
@@ -102,7 +111,8 @@
         {
           "aov": 201.75
         }
-      ]
+      ],
+      "expectedHash": "2907467209a442dc3e9496c4e414b5ff132290397aa4b8ca411b2e1922d48400"
     },
     {
       "name": "Single order",
@@ -157,7 +167,8 @@
         {
           "aov": null
         }
-      ]
+      ],
+      "expectedHash": "b39416174ca70338d87d710ad216cfaef2d6ba33f871187e03c7ab1521297bd2"
     },
     {
       "name": "Two orders different values",
@@ -225,7 +236,8 @@
         {
           "aov": null
         }
-      ]
+      ],
+      "expectedHash": "b39416174ca70338d87d710ad216cfaef2d6ba33f871187e03c7ab1521297bd2"
     },
     {
       "name": "Three orders",
@@ -306,7 +318,8 @@
         {
           "aov": null
         }
-      ]
+      ],
+      "expectedHash": "b39416174ca70338d87d710ad216cfaef2d6ba33f871187e03c7ab1521297bd2"
     },
     {
       "name": "Order with multiple items",
@@ -374,7 +387,8 @@
         {
           "aov": null
         }
-      ]
+      ],
+      "expectedHash": "b39416174ca70338d87d710ad216cfaef2d6ba33f871187e03c7ab1521297bd2"
     },
     {
       "name": "Orders with zero total",
@@ -442,7 +456,8 @@
         {
           "aov": null
         }
-      ]
+      ],
+      "expectedHash": "b39416174ca70338d87d710ad216cfaef2d6ba33f871187e03c7ab1521297bd2"
     },
     {
       "name": "No orders at all — AVG of empty = NULL",
@@ -489,7 +504,8 @@
         {
           "aov": null
         }
-      ]
+      ],
+      "expectedHash": "b39416174ca70338d87d710ad216cfaef2d6ba33f871187e03c7ab1521297bd2"
     }
   ]
 }

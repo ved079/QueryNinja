@@ -21,7 +21,8 @@
         {
           "median_salary": 107500
         }
-      ]
+      ],
+      "expectedHash": "93665f584883a91ff10c0d0eb72ee2db2024ee89055baeac60e838f8ee0e4e79"
     },
     {
       "name": "Ties on every salary",
@@ -30,7 +31,8 @@
         {
           "median_salary": 100000
         }
-      ]
+      ],
+      "expectedHash": "57de0d86c7f6dc3a4dd01a2b1e9be81a77a1c2d098569ecc81a347cd8bf81aab"
     },
     {
       "name": "Department with no employees",
@@ -39,7 +41,8 @@
         {
           "median_salary": 85000
         }
-      ]
+      ],
+      "expectedHash": "5677b55a23dc74b9a729b33c4470c5420b04f4576f1cbd43b173d88924bc33d1"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -48,7 +51,8 @@
         {
           "median_salary": 75000
         }
-      ]
+      ],
+      "expectedHash": "55adcddc38334f96bbc78a1ad890727dcf650a68cdd8881a5413ea29703b1b90"
     },
     {
       "name": "Both tables empty",
@@ -57,7 +61,8 @@
         {
           "median_salary": null
         }
-      ]
+      ],
+      "expectedHash": "11b3768b7a748bde2cb84d774f394dbf915625ad7560fe14cd26543354a4e45e"
     },
     {
       "name": "Single employee, single department",
@@ -66,7 +71,8 @@
         {
           "median_salary": 100000
         }
-      ]
+      ],
+      "expectedHash": "57de0d86c7f6dc3a4dd01a2b1e9be81a77a1c2d098569ecc81a347cd8bf81aab"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -75,7 +81,8 @@
         {
           "median_salary": 200000
         }
-      ]
+      ],
+      "expectedHash": "6ad8b012f0682875e3271556daf7004eedb2036aa32053ab91dd7737bf42e31c"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -84,7 +91,8 @@
         {
           "median_salary": 75000
         }
-      ]
+      ],
+      "expectedHash": "55adcddc38334f96bbc78a1ad890727dcf650a68cdd8881a5413ea29703b1b90"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -93,7 +101,8 @@
         {
           "median_salary": 0.5
         }
-      ]
+      ],
+      "expectedHash": "3be7caf7ecf0e72b5be7d2b3e75d9e829ac114d5f4b3392175e436f76b6d3d3c"
     },
     {
       "name": "Larger multi-department set",
@@ -102,7 +111,8 @@
         {
           "median_salary": 110000
         }
-      ]
+      ],
+      "expectedHash": "68b3ab5e6b623e325f55228008044d8bc8bfaa2b711814d6925987ab282bce38"
     },
     {
       "name": "Single employee — median is that salary",
@@ -111,7 +121,8 @@
         {
           "median_salary": 100
         }
-      ]
+      ],
+      "expectedHash": "c034b8dd2183814419b106e77434a7e8bca712f105093bf49e6d2ccac03f9124"
     },
     {
       "name": "Even count (4) — average of two middle values",
@@ -120,7 +131,8 @@
         {
           "median_salary": 250
         }
-      ]
+      ],
+      "expectedHash": "5b49140fd7a3e7c5eb84b392c784c056fe7d8ee4d352e0fe6dde2424faf21725"
     },
     {
       "name": "Odd count (3) — middle value",
@@ -129,7 +141,8 @@
         {
           "median_salary": 200
         }
-      ]
+      ],
+      "expectedHash": "262a2056211e1cd55037bb193d8922ff17e4dda1cd33af082336eff72e650310"
     },
     {
       "name": "All salaries are the same",
@@ -138,7 +151,8 @@
         {
           "median_salary": 100
         }
-      ]
+      ],
+      "expectedHash": "c034b8dd2183814419b106e77434a7e8bca712f105093bf49e6d2ccac03f9124"
     },
     {
       "name": "All NULLs excluded — empty set returns NULL median",
@@ -147,7 +161,8 @@
         {
           "median_salary": null
         }
-      ]
+      ],
+      "expectedHash": "11b3768b7a748bde2cb84d774f394dbf915625ad7560fe14cd26543354a4e45e"
     },
     {
       "name": "Mix of NULLs and values",
@@ -156,7 +171,8 @@
         {
           "median_salary": 150
         }
-      ]
+      ],
+      "expectedHash": "20b88cd1a06e03bdea612a394757e9f8b61b86bb34cd9d60923f4d93c0ad9b55"
     }
   ]
 }

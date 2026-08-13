@@ -57,7 +57,8 @@
           "salary": 60000,
           "gap": 10000
         }
-      ]
+      ],
+      "expectedHash": "33980c43d19796e16d0b8773b36b0ac4b3debc3414a9f47504f8675ff863d52e"
     },
     {
       "name": "Ties on every salary",
@@ -88,7 +89,8 @@
           "salary": 100000,
           "gap": 0
         }
-      ]
+      ],
+      "expectedHash": "7d52666a0028b9690294c14698c198cb54d8d368bfd49add2f217c73bd7e84d2"
     },
     {
       "name": "Department with no employees",
@@ -104,7 +106,8 @@
           "salary": 80000,
           "gap": 10000
         }
-      ]
+      ],
+      "expectedHash": "4ee5771964df5e9017d3ac8313d697a96b5e76aef06ed21cdd446c0a315ad506"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -130,12 +133,14 @@
           "salary": null,
           "gap": null
         }
-      ]
+      ],
+      "expectedHash": "0ae3c74f816a20385319aebd191d874e3c4d9434a7d684523bc1a93f6cef873b"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -146,7 +151,8 @@
           "salary": 100000,
           "gap": null
         }
-      ]
+      ],
+      "expectedHash": "f98081340abab1943ae3e02a262c824504dd86815cba695b44997d7e0a5c514f"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -177,7 +183,8 @@
           "salary": 120000,
           "gap": 30000
         }
-      ]
+      ],
+      "expectedHash": "1335d9ff9d0aaf01ecba06cd9c8840ea9191b216b5d87bcb5b651beea205c0b0"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -203,7 +210,8 @@
           "salary": 60000,
           "gap": 0
         }
-      ]
+      ],
+      "expectedHash": "798125ee4d6eebe40b3075c422c7d85afdb7b877833f0e9710fabd21aa05b662"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -229,7 +237,8 @@
           "salary": -100,
           "gap": 100
         }
-      ]
+      ],
+      "expectedHash": "fb56900ab39f5f4136b4f18389153bca571f1f3ede81a049584fe5be269e99f1"
     },
     {
       "name": "Larger multi-department set",
@@ -300,7 +309,8 @@
           "salary": 64000,
           "gap": 8000
         }
-      ]
+      ],
+      "expectedHash": "424162ec4078f683cf725639bc993f6fa6d96feb06d555c4562b1f491116bf13"
     },
     {
       "name": "All employees share the same salary — gap is 0 for non-top",
@@ -321,7 +331,8 @@
           "salary": 100,
           "gap": 0
         }
-      ]
+      ],
+      "expectedHash": "39a0adde19e372dadcc69998c91b2971b32638e29720093415c1af989beb32c5"
     },
     {
       "name": "Two employees with a gap",
@@ -337,7 +348,8 @@
           "salary": 100,
           "gap": 100
         }
-      ]
+      ],
+      "expectedHash": "4bf0ecf998e2bbd87259dbe34d370341eb8b3fe39a4080cf52fa112e4a7ac024"
     },
     {
       "name": "Evenly decreasing sequence",
@@ -358,7 +370,8 @@
           "salary": 100,
           "gap": 100
         }
-      ]
+      ],
+      "expectedHash": "885df79baba4fc76155fa434e75a4c4fded23af8a5291e5c0ca6e63719b4c963"
     },
     {
       "name": "Tie followed by a gap",
@@ -379,7 +392,8 @@
           "salary": 100,
           "gap": 100
         }
-      ]
+      ],
+      "expectedHash": "49feb8ef9a92a89805434c3600ee857b4647bc8bc2937de469fa2355f8d572a3"
     },
     {
       "name": "NULL salary produces NULL gap",
@@ -395,7 +409,8 @@
           "salary": null,
           "gap": null
         }
-      ]
+      ],
+      "expectedHash": "f015da66da77f81de66b18b9ffa27d8bfd6a37622ea3708fb72719662077fbe2"
     },
     {
       "name": "Single employee — always NULL gap",
@@ -406,7 +421,8 @@
           "salary": 100,
           "gap": null
         }
-      ]
+      ],
+      "expectedHash": "a043cc379728f4729bdcc8e5fc1765e437786a7e006042aed87376f529523a53"
     }
   ]
 }

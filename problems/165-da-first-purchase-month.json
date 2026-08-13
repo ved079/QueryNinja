@@ -31,7 +31,8 @@
           "customer_id": 30,
           "first_month": "2024-01"
         }
-      ]
+      ],
+      "expectedHash": "014621f833d80346ab92cced21b32593df36ce12cda5ccf841b2cc4ccbcd7da2"
     },
     {
       "name": "Many purchases for one customer",
@@ -41,12 +42,14 @@
           "customer_id": 1,
           "first_month": "2024-01"
         }
-      ]
+      ],
+      "expectedHash": "1e8910f2b77852e5064f2a92b29a734e6d4d6f3b17452204bfc8f866bdb7e75e"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Each customer once",
@@ -60,7 +63,8 @@
           "customer_id": 2,
           "first_month": "2024-07"
         }
-      ]
+      ],
+      "expectedHash": "ba1e4627bec7ba852d4178a2074beb20b775d4a7096a9beb107d144e354a3354"
     }
   ]
 }

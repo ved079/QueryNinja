@@ -26,7 +26,8 @@
           "direction": "warehouse_only",
           "n": 1
         }
-      ]
+      ],
+      "expectedHash": "5df161d97f8c5d6c54f48ef52a5a1974ea2eb787ee9a45c5f4b136b5411f63e8"
     },
     {
       "name": "All three systems fully agree",
@@ -40,7 +41,8 @@
           "direction": "warehouse_only",
           "n": 0
         }
-      ]
+      ],
+      "expectedHash": "ecd8cff639523705fc411561816f28988bad7a4319526bfbca3ad70da80ae67a"
     },
     {
       "name": "Completely disjoint across all three",
@@ -54,7 +56,8 @@
           "direction": "warehouse_only",
           "n": 1
         }
-      ]
+      ],
+      "expectedHash": "f1865e22b51ae782c9344f8d96c79592066055b4db80d68640baaf8695b0a0af"
     },
     {
       "name": "Source has an accidental duplicate row",
@@ -68,7 +71,8 @@
           "direction": "warehouse_only",
           "n": 0
         }
-      ]
+      ],
+      "expectedHash": "b4f1935f22a7ebeaa958014198c7d2be7196a19508aaf4fd6edd33a13c3eb029"
     },
     {
       "name": "All three systems empty",
@@ -82,7 +86,8 @@
           "direction": "warehouse_only",
           "n": 0
         }
-      ]
+      ],
+      "expectedHash": "ecd8cff639523705fc411561816f28988bad7a4319526bfbca3ad70da80ae67a"
     },
     {
       "name": "Only source has any data",
@@ -96,7 +101,8 @@
           "direction": "warehouse_only",
           "n": 0
         }
-      ]
+      ],
+      "expectedHash": "528655b5ba9678ab39a79174f07b752ae294ff4df3418118806d702c4bb6d6c8"
     },
     {
       "name": "Same order, inconsistent name formatting",
@@ -110,7 +116,8 @@
           "direction": "warehouse_only",
           "n": 0
         }
-      ]
+      ],
+      "expectedHash": "ecd8cff639523705fc411561816f28988bad7a4319526bfbca3ad70da80ae67a"
     },
     {
       "name": "Matching ids, mismatched amounts",
@@ -124,7 +131,8 @@
           "direction": "warehouse_only",
           "n": 0
         }
-      ]
+      ],
+      "expectedHash": "ecd8cff639523705fc411561816f28988bad7a4319526bfbca3ad70da80ae67a"
     },
     {
       "name": "Single matching order everywhere",
@@ -138,7 +146,8 @@
           "direction": "warehouse_only",
           "n": 0
         }
-      ]
+      ],
+      "expectedHash": "ecd8cff639523705fc411561816f28988bad7a4319526bfbca3ad70da80ae67a"
     },
     {
       "name": "Larger mixed set: some in all three, some in two, some in one, duplicates and a mismatch",
@@ -152,7 +161,8 @@
           "direction": "warehouse_only",
           "n": 1
         }
-      ]
+      ],
+      "expectedHash": "5df161d97f8c5d6c54f48ef52a5a1974ea2eb787ee9a45c5f4b136b5411f63e8"
     },
     {
       "name": "All synced — both counts are zero",
@@ -166,7 +176,8 @@
           "direction": "warehouse_only",
           "n": 0
         }
-      ]
+      ],
+      "expectedHash": "ecd8cff639523705fc411561816f28988bad7a4319526bfbca3ad70da80ae67a"
     },
     {
       "name": "Only source has orders",
@@ -180,7 +191,8 @@
           "direction": "warehouse_only",
           "n": 0
         }
-      ]
+      ],
+      "expectedHash": "528655b5ba9678ab39a79174f07b752ae294ff4df3418118806d702c4bb6d6c8"
     },
     {
       "name": "Only warehouse has orders",
@@ -194,7 +206,8 @@
           "direction": "warehouse_only",
           "n": 1
         }
-      ]
+      ],
+      "expectedHash": "a23873506a5f942e8d25746bc48085ed80c012c75ade89843c3a8b636a856eca"
     },
     {
       "name": "Completely disjoint — both directions non-zero",
@@ -208,7 +221,8 @@
           "direction": "warehouse_only",
           "n": 2
         }
-      ]
+      ],
+      "expectedHash": "8156c2b11e0aa3e879e277a73be96eb46966dbe9fe52fa3b1b8d859674dabd9d"
     },
     {
       "name": "Both tables empty",
@@ -222,7 +236,8 @@
           "direction": "warehouse_only",
           "n": 0
         }
-      ]
+      ],
+      "expectedHash": "ecd8cff639523705fc411561816f28988bad7a4319526bfbca3ad70da80ae67a"
     },
     {
       "name": "Partial overlap",
@@ -236,7 +251,8 @@
           "direction": "warehouse_only",
           "n": 1
         }
-      ]
+      ],
+      "expectedHash": "5df161d97f8c5d6c54f48ef52a5a1974ea2eb787ee9a45c5f4b136b5411f63e8"
     }
   ]
 }

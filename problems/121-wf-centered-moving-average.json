@@ -48,7 +48,8 @@
           "name": "Hal",
           "centered_avg": 72500
         }
-      ]
+      ],
+      "expectedHash": "5ae3201410866f4ecb60bd014209abd66f69299b8107dc05c1ed2c80824ae740"
     },
     {
       "name": "Ties on every salary",
@@ -74,7 +75,8 @@
           "name": "E",
           "centered_avg": 100000
         }
-      ]
+      ],
+      "expectedHash": "e09cb749e37f7c69bd69cc43372ae74d1cc3c2a8ebdbf5972aca8ae090ce8b67"
     },
     {
       "name": "Department with no employees",
@@ -88,7 +90,8 @@
           "name": "Ben",
           "centered_avg": 85000
         }
-      ]
+      ],
+      "expectedHash": "3dd3a976d6f6fdb834412c38ab002dc613364d73563ced12fa2c40d908315a3c"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -110,12 +113,14 @@
           "name": "Dan",
           "centered_avg": 75000
         }
-      ]
+      ],
+      "expectedHash": "322e1c0f78bb5188b5ceb00e8e1e165dd1b49a388b34f2d0a4880ea98e8653e9"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -125,7 +130,8 @@
           "name": "Solo",
           "centered_avg": 100000
         }
-      ]
+      ],
+      "expectedHash": "769e5be768d4c933e0369a9d465e73e73a6a103fc2e83fde4dda12161cba9b7d"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -151,7 +157,8 @@
           "name": "L5",
           "centered_avg": 185000
         }
-      ]
+      ],
+      "expectedHash": "83e30679caa1d0f884f6d3a6b354f328ca45e1cf9c9c14bf1b76d2c84e938d07"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -173,7 +180,8 @@
           "name": "Alex",
           "centered_avg": 60000
         }
-      ]
+      ],
+      "expectedHash": "b767d89578ece1a6bf64def755279423dc2354f22b2b1baa05a26171f14d9a6d"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -195,7 +203,8 @@
           "name": "Dan",
           "centered_avg": 1000000.5
         }
-      ]
+      ],
+      "expectedHash": "fee5cf54695c7b95364e078a2bd65d5177e82bf56f0271a3378a04e539a91468"
     },
     {
       "name": "Larger multi-department set",
@@ -253,7 +262,8 @@
           "name": "M",
           "centered_avg": 150000
         }
-      ]
+      ],
+      "expectedHash": "8837cd19addb7e4c77b548c1ce5ca3ed2ba4feda7e2bc73753f5cb88529f64cb"
     },
     {
       "name": "Only one employee — avg is just their own salary",
@@ -263,7 +273,8 @@
           "name": "Solo",
           "centered_avg": 100000
         }
-      ]
+      ],
+      "expectedHash": "769e5be768d4c933e0369a9d465e73e73a6a103fc2e83fde4dda12161cba9b7d"
     },
     {
       "name": "Only two employees — each avg uses what's available",
@@ -277,12 +288,14 @@
           "name": "B",
           "centered_avg": 90000
         }
-      ]
+      ],
+      "expectedHash": "16f49157562ae577e6c2b30e6ba842f48b13efc03782421e387d80b10af24399"
     },
     {
       "name": "Empty employees table",
       "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Employees hired on same date — tie-breaker by id matters",
@@ -300,7 +313,8 @@
           "name": "C",
           "centered_avg": 85000
         }
-      ]
+      ],
+      "expectedHash": "9bebee9325677252b0f2cc101ece2eede51d081e418025f12ef3e038d1ae2421"
     },
     {
       "name": "Salary values with decimals requiring rounding",
@@ -318,7 +332,8 @@
           "name": "C",
           "centered_avg": 97500
         }
-      ]
+      ],
+      "expectedHash": "cc3ab9b5f19877cf7b2e154b90b1c21d7dee876cc0d1545bb36b3f415d5c3d45"
     },
     {
       "name": "Large set of employees — edges still handle correctly",
@@ -348,7 +363,8 @@
           "name": "F",
           "centered_avg": 72500
         }
-      ]
+      ],
+      "expectedHash": "08a24eb02b992a460d5966cbde992099b86b4d7ec1411c3c17d1839e710e4594"
     }
   ]
 }

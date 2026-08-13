@@ -34,7 +34,8 @@
           "product": "Lamp",
           "units": 6
         }
-      ]
+      ],
+      "expectedHash": "c88e6948e0e60f8f22d0b1908f7670184c999030c61e553839256b516139fc3c"
     },
     {
       "name": "Customer who never ordered",
@@ -48,7 +49,8 @@
           "product": "Mouse",
           "units": 2
         }
-      ]
+      ],
+      "expectedHash": "ecb630d1a310eb5ecfcf8e63eda35081077cd3a8d01018e56a61474f77717729"
     },
     {
       "name": "All orders cancelled",
@@ -58,12 +60,14 @@
           "product": "Keyboard",
           "units": 3
         }
-      ]
+      ],
+      "expectedHash": "92b5e3bd4167f5299cad679ca21710beb01a1b951a73c7e761da68a65264478f"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -77,7 +81,8 @@
           "product": "NeverSold",
           "units": 0
         }
-      ]
+      ],
+      "expectedHash": "3a694254e94d33d6bb60119476d5aab8beecd3e34ec802c31aa2728ec084ddc1"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -91,7 +96,8 @@
           "product": "Mystery",
           "units": 0
         }
-      ]
+      ],
+      "expectedHash": "a4fc57dbc34faba3efec3e1e183885c54bb976bf3da2851d3950511b22ce0638"
     },
     {
       "name": "Single customer, single order",
@@ -101,7 +107,8 @@
           "product": "Keyboard",
           "units": 1
         }
-      ]
+      ],
+      "expectedHash": "516c0b1d899504b5cccc308f71b8d53a35ef258d06e02c21fdad743c94505f6b"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -115,7 +122,8 @@
           "product": "P2",
           "units": 2
         }
-      ]
+      ],
+      "expectedHash": "9c57b04810cd0a677908775cee10774d7dd26dc8798541e16901d80555cf4586"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -129,7 +137,8 @@
           "product": "Desk",
           "units": 3
         }
-      ]
+      ],
+      "expectedHash": "e071cc9c55a5d0fd959a5ecba77b81c8cabe5169ea91c184ca23f34ba2f6f97a"
     },
     {
       "name": "Larger multi-country set",
@@ -155,7 +164,8 @@
           "product": "Mug",
           "units": 15
         }
-      ]
+      ],
+      "expectedHash": "42b88a3520374b3ab00c436ce8d935be6304dc858dc6d5a41c02135d164dfaa0"
     },
     {
       "name": "All products have been sold",
@@ -169,7 +179,8 @@
           "product": "Mouse",
           "units": 5
         }
-      ]
+      ],
+      "expectedHash": "80875daa2725802a6113737f87dabf994074ef4cd4c77f0edbd77f4827dd7567"
     },
     {
       "name": "No products sold — all show 0",
@@ -183,7 +194,8 @@
           "product": "Mouse",
           "units": 0
         }
-      ]
+      ],
+      "expectedHash": "df74f99b67c77e67c50bba759fc8c0e2d0365174ade511e01bbce4f4a1e1bf58"
     },
     {
       "name": "NULL quantity treated as 0 by SUM",
@@ -193,7 +205,8 @@
           "product": "Keyboard",
           "units": 0
         }
-      ]
+      ],
+      "expectedHash": "e05507a35a4c9817dce93284e1f6837bb40358078c98fba1c7e42eac0b7c857e"
     },
     {
       "name": "Single product sold",
@@ -207,7 +220,8 @@
           "product": "Mouse",
           "units": 0
         }
-      ]
+      ],
+      "expectedHash": "f52cbaa1374783ba47acffa09fc09ef0d0c5acbd7679dde49f9d8a1da1423a0b"
     },
     {
       "name": "Uneven sales across products",
@@ -225,7 +239,8 @@
           "product": "C",
           "units": 0
         }
-      ]
+      ],
+      "expectedHash": "202bcf62c555f6c636177947b9bd52538f3f1a6d25b5e926be88a3ac706319c5"
     },
     {
       "name": "Only one product has sales",
@@ -243,7 +258,8 @@
           "product": "C",
           "units": 0
         }
-      ]
+      ],
+      "expectedHash": "625d4c7e46eb8beb05188ba4d427320ab9d00bd4f70dcc3b1358779047a69de7"
     }
   ]
 }

@@ -29,7 +29,8 @@
           "country": "US",
           "customers": 2
         }
-      ]
+      ],
+      "expectedHash": "e12616f390122ff7720a45d4c8347fcca4b2ffd716837a924408d9d3478dfd4a"
     },
     {
       "name": "Customer who never ordered",
@@ -47,7 +48,8 @@
           "country": "US",
           "customers": 1
         }
-      ]
+      ],
+      "expectedHash": "9c5feb4eb610da2700927cb324f94c750b0799d5bb2cd4e146d4d3defe47e1a8"
     },
     {
       "name": "All orders cancelled",
@@ -61,12 +63,14 @@
           "country": "US",
           "customers": 1
         }
-      ]
+      ],
+      "expectedHash": "6fb4646e6bdb569a48bae75033e20a07f2b9bdbb602b05e93466fe1a832780cb"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -76,7 +80,8 @@
           "country": "US",
           "customers": 1
         }
-      ]
+      ],
+      "expectedHash": "0370558a198ed802ba87510ce92a229f72b9c1194c78f0c28861e7c1a81a0108"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -90,7 +95,8 @@
           "country": "US",
           "customers": 1
         }
-      ]
+      ],
+      "expectedHash": "1f36967efb256665bbe8d72a128932212c66b077cbbcc71713b8dccb1ad10198"
     },
     {
       "name": "Single customer, single order",
@@ -100,7 +106,8 @@
           "country": "US",
           "customers": 1
         }
-      ]
+      ],
+      "expectedHash": "0370558a198ed802ba87510ce92a229f72b9c1194c78f0c28861e7c1a81a0108"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -110,7 +117,8 @@
           "country": "US",
           "customers": 2
         }
-      ]
+      ],
+      "expectedHash": "cb0acf96e94ffba5b3d8f845936f5b7e8f93653c60923d1c76ceec7bb5244589"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -124,7 +132,8 @@
           "country": "US",
           "customers": 1
         }
-      ]
+      ],
+      "expectedHash": "6fb4646e6bdb569a48bae75033e20a07f2b9bdbb602b05e93466fe1a832780cb"
     },
     {
       "name": "Larger multi-country set",
@@ -146,7 +155,8 @@
           "country": "US",
           "customers": 2
         }
-      ]
+      ],
+      "expectedHash": "f6a7a3fb6abe5d9fd4f670f4ea801e92cbd0475d2df38f0d64ae42cd68ba44f9"
     },
     {
       "name": "All customers from the same country",
@@ -156,7 +166,8 @@
           "country": "US",
           "customers": 2
         }
-      ]
+      ],
+      "expectedHash": "cb0acf96e94ffba5b3d8f845936f5b7e8f93653c60923d1c76ceec7bb5244589"
     },
     {
       "name": "NULL country grouped together",
@@ -170,7 +181,8 @@
           "country": "US",
           "customers": 1
         }
-      ]
+      ],
+      "expectedHash": "1f36967efb256665bbe8d72a128932212c66b077cbbcc71713b8dccb1ad10198"
     },
     {
       "name": "All distinct countries",
@@ -188,7 +200,8 @@
           "country": "US",
           "customers": 1
         }
-      ]
+      ],
+      "expectedHash": "a1103932484ffb917aaad3f5bc4d56afd42d3803b91ec8c00c5ce35410746308"
     },
     {
       "name": "Single customer",
@@ -198,7 +211,8 @@
           "country": "US",
           "customers": 1
         }
-      ]
+      ],
+      "expectedHash": "0370558a198ed802ba87510ce92a229f72b9c1194c78f0c28861e7c1a81a0108"
     },
     {
       "name": "Multiple from one country, one from another",
@@ -212,7 +226,8 @@
           "country": "US",
           "customers": 2
         }
-      ]
+      ],
+      "expectedHash": "9893eee1c5409cac755849f68eabb889efd4af3161b61d1859e1104c1c1e2369"
     },
     {
       "name": "Different casing — 'us' vs 'US'",
@@ -226,7 +241,8 @@
           "country": "us",
           "customers": 1
         }
-      ]
+      ],
+      "expectedHash": "27432d4003e5940e195bf812f455963987ee083d6981ea12782f199cabd1d8f2"
     }
   ]
 }

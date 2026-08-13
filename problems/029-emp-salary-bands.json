@@ -30,7 +30,8 @@
           "band": "Mid",
           "headcount": 4
         }
-      ]
+      ],
+      "expectedHash": "663ebb1b08fb90a5a5113082a33512515c9736c3bd6fd10c0549306171e39ba5"
     },
     {
       "name": "Ties on every salary",
@@ -40,7 +41,8 @@
           "band": "Mid",
           "headcount": 5
         }
-      ]
+      ],
+      "expectedHash": "7b80de6fb6327d3780bb07c9b294b2f14b4c2a98dc7fee3af2227a1561813ca5"
     },
     {
       "name": "Department with no employees",
@@ -50,7 +52,8 @@
           "band": "Mid",
           "headcount": 2
         }
-      ]
+      ],
+      "expectedHash": "e5ae8b47cddf0e1bf28ff5a682ae7b885612e1c3cb6a3a90806b3c0b8f53b9bd"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -68,12 +71,14 @@
           "band": "Unknown",
           "headcount": 1
         }
-      ]
+      ],
+      "expectedHash": "a32142bcc1d337ba140e6af1486d6c477ee31710f8c7a6e6d39c67600cd6cee0"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -83,7 +88,8 @@
           "band": "Mid",
           "headcount": 1
         }
-      ]
+      ],
+      "expectedHash": "efee3edd2a3c75e8b1e80938aedfb873b2f0ccf569b86d605eabb3ae6e14b1e1"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -97,7 +103,8 @@
           "band": "Mid",
           "headcount": 1
         }
-      ]
+      ],
+      "expectedHash": "69a49a8d42c37207f68ea8e99cfabb9b8b5a0ab826d685f263260815d5f02b9d"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -111,7 +118,8 @@
           "band": "Mid",
           "headcount": 2
         }
-      ]
+      ],
+      "expectedHash": "1524126805447bbb98f28c49d15ba0ea9b2a5be66bb0d84f5fcba986250297eb"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -125,7 +133,8 @@
           "band": "Low",
           "headcount": 3
         }
-      ]
+      ],
+      "expectedHash": "113bea3390fe6fa66dcb15034c4bf264ebdcf26b20952cf12d590df46de470b1"
     },
     {
       "name": "Larger multi-department set",
@@ -143,7 +152,8 @@
           "band": "Mid",
           "headcount": 6
         }
-      ]
+      ],
+      "expectedHash": "b1b1acb8a72fcd5b2ed5e55f187e269f4798cc6cf31077b2e0333716daeaaaac"
     },
     {
       "name": "Only Low band populated",
@@ -153,7 +163,8 @@
           "band": "Low",
           "headcount": 2
         }
-      ]
+      ],
+      "expectedHash": "2b304674f72d8b29a4328c449ecddb0cc9f51d8c3770ef0e486113d848e9649c"
     },
     {
       "name": "All four bands present",
@@ -175,7 +186,8 @@
           "band": "Unknown",
           "headcount": 1
         }
-      ]
+      ],
+      "expectedHash": "26b5692ce452950ad51562a8d2f0bc9436d77ef0f6bc638950e156070e0780e5"
     },
     {
       "name": "Boundary 80000 belongs to Mid band",
@@ -185,7 +197,8 @@
           "band": "Mid",
           "headcount": 1
         }
-      ]
+      ],
+      "expectedHash": "efee3edd2a3c75e8b1e80938aedfb873b2f0ccf569b86d605eabb3ae6e14b1e1"
     },
     {
       "name": "Boundary 130000 belongs to High band",
@@ -195,7 +208,8 @@
           "band": "High",
           "headcount": 1
         }
-      ]
+      ],
+      "expectedHash": "53955eee6df8c8112dab50bb8a3b4f1058b5209cf2c310396a9d6b62ec1e8dbc"
     },
     {
       "name": "Multiple NULL salaries — all go to Unknown",
@@ -205,7 +219,8 @@
           "band": "Unknown",
           "headcount": 2
         }
-      ]
+      ],
+      "expectedHash": "99ad8092e72c3a2fe70eeae516c3fa4317c1df19b9590ae575dc9d85715d14ac"
     },
     {
       "name": "All employees in Mid band",
@@ -215,7 +230,8 @@
           "band": "Mid",
           "headcount": 3
         }
-      ]
+      ],
+      "expectedHash": "50b3aa5004931d47786c54510f1995842c7ef86c44757cd3450d47c8abc17219"
     }
   ]
 }

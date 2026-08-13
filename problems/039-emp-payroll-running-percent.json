@@ -57,7 +57,8 @@
           "salary": 60000,
           "running_pct": 100
         }
-      ]
+      ],
+      "expectedHash": "60cf5046cb5bc023eab2873cbd18e7f62a4f701d41ed2fedb3cc8125e41dddff"
     },
     {
       "name": "Ties on every salary",
@@ -88,7 +89,8 @@
           "salary": 100000,
           "running_pct": 100
         }
-      ]
+      ],
+      "expectedHash": "e69280ef1b222cb5bd3ff1241953998300d76c835dcf97a8caf5a112f95811be"
     },
     {
       "name": "Department with no employees",
@@ -104,7 +106,8 @@
           "salary": 80000,
           "running_pct": 100
         }
-      ]
+      ],
+      "expectedHash": "21b4aba524db008dec50019a718a61c4d5eab97dc584366df90a4ae4ee81537a"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -130,12 +133,14 @@
           "salary": null,
           "running_pct": 100
         }
-      ]
+      ],
+      "expectedHash": "33f7c3cafbf15ea55f7f960f824eec0b1db32d4349c106de018efb3bfcb0d620"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -146,7 +151,8 @@
           "salary": 100000,
           "running_pct": 100
         }
-      ]
+      ],
+      "expectedHash": "f12dd4fe4549c61dbc3d5fa918dcd6e4ff43058364cddcb5a388afdbf89b5c65"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -177,7 +183,8 @@
           "salary": 120000,
           "running_pct": 100
         }
-      ]
+      ],
+      "expectedHash": "3be7e896850db83f2160b51f52b0e371041dbfe05669a0affdb713b1f1ce0d50"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -203,7 +210,8 @@
           "salary": 60000,
           "running_pct": 100
         }
-      ]
+      ],
+      "expectedHash": "a30736993e48c38b21efde6b6d58e0a68a6b262e68751dcbe6497823c0eb1fde"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -229,7 +237,8 @@
           "salary": -100,
           "running_pct": 100
         }
-      ]
+      ],
+      "expectedHash": "6bf95fa629497daffb7539cee323e7dd2a9724f48e272365efd233436dd14bd1"
     },
     {
       "name": "Larger multi-department set",
@@ -300,7 +309,8 @@
           "salary": 64000,
           "running_pct": 100
         }
-      ]
+      ],
+      "expectedHash": "9ef9a2ec73e435f79cdd557b8e4fec575f179e577e72323dd791e62df6787555"
     },
     {
       "name": "Single employee — running_pct is 100.00",
@@ -311,7 +321,8 @@
           "salary": 100,
           "running_pct": 100
         }
-      ]
+      ],
+      "expectedHash": "961d2b9ea3650b3186cdd7ba9bb186f6f47476a2f52b0246cbc63bff59fc08cf"
     },
     {
       "name": "Two employees with equal salary",
@@ -327,7 +338,8 @@
           "salary": 100,
           "running_pct": 100
         }
-      ]
+      ],
+      "expectedHash": "d778e30b135ece3643a9cd756bbff0c9c1b7f48334c3024e8eacb4e5107436df"
     },
     {
       "name": "Three decreasing salaries — cumulative builds up",
@@ -348,7 +360,8 @@
           "salary": 100,
           "running_pct": 100
         }
-      ]
+      ],
+      "expectedHash": "57f695bbbe0adfc836ab88782c6bc93dcba8dde8f3a9ee145f79e877711519f0"
     },
     {
       "name": "Four identical salaries",
@@ -374,7 +387,8 @@
           "salary": 100,
           "running_pct": 100
         }
-      ]
+      ],
+      "expectedHash": "52be26238570bfd749577e000516def9380d8898eac199a138f25a758f93cfe1"
     },
     {
       "name": "NULL salary produces NULL running_pct",
@@ -390,7 +404,8 @@
           "salary": null,
           "running_pct": 100
         }
-      ]
+      ],
+      "expectedHash": "552850da1fec5cf6079c89aa9a1b20fdd29210a5e7ded98385f3f7488fbb7f28"
     },
     {
       "name": "Five employees with varied salaries",
@@ -421,7 +436,8 @@
           "salary": 100,
           "running_pct": 100
         }
-      ]
+      ],
+      "expectedHash": "4e1ccff3f57b640c7732e6891d8ddf4a5c647b32e36f70f16eee004e3a985d75"
     }
   ]
 }

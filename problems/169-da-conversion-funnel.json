@@ -36,12 +36,14 @@
           "count": 2,
           "pct": 50
         }
-      ]
+      ],
+      "expectedHash": "ab91f8d8c55d69d5f598387a1641c8b41b2fbc376adc9f689b39c49c9a441801"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Perfect funnel",
@@ -62,7 +64,8 @@
           "count": 1,
           "pct": 100
         }
-      ]
+      ],
+      "expectedHash": "9cc5edf96cf5c12ef86850f582c8b0a531d110dd1bf0a0538ca37f488703cdc5"
     },
     {
       "name": "No purchases at all",
@@ -78,7 +81,8 @@
           "count": 2,
           "pct": 100
         }
-      ]
+      ],
+      "expectedHash": "271e3791384c713b3c30cf30950dcdd577758042c2b0e83a4f3ec19730f49924"
     },
     {
       "name": "Repeated steps count user once",
@@ -99,7 +103,8 @@
           "count": 1,
           "pct": 50
         }
-      ]
+      ],
+      "expectedHash": "84c55188d5b719a4e02a564b5ee7256ec908c1ed94a76335c1c545ccf29d78d4"
     }
   ]
 }

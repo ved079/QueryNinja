@@ -34,12 +34,14 @@
           "late_deliveries": 2,
           "late_rate": 0.6667
         }
-      ]
+      ],
+      "expectedHash": "c1b0c282db560938777dfb3ab46c41d7758c4c01ac43d73797cf57db2137cb1f"
     },
     {
       "name": "Restaurant with fewer than 3 deliveries excluded",
       "seedSql": "INSERT INTO restaurants VALUES (1,'Tiny','Cafe','NYC');\nINSERT INTO orders VALUES\n  (1,1,1,'2022-01-01 12:00','2022-01-01 13:00',30,10.0,'delivered'),\n  (2,1,2,'2022-01-02 12:00','2022-01-02 13:00',30,10.0,'delivered');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "All deliveries on time — late_rate 0",
@@ -52,7 +54,8 @@
           "late_deliveries": 0,
           "late_rate": 0
         }
-      ]
+      ],
+      "expectedHash": "c45768b1465ecc34666b3af67cba47950381ffa609415d92facc473cacf0857d"
     },
     {
       "name": "All deliveries late — late_rate 1",
@@ -65,12 +68,14 @@
           "late_deliveries": 3,
           "late_rate": 1
         }
-      ]
+      ],
+      "expectedHash": "2bbb2ea34714811dbdd0bc43b068f8b196588d001402a8fde90263b7375840a4"
     },
     {
       "name": "Empty tables",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

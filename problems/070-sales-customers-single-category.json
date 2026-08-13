@@ -26,7 +26,8 @@
           "customer": "Cy",
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "60b3262ca05ceee8aca66a46839033d56905a6a27226dcf2be001326b1940347"
     },
     {
       "name": "Customer who never ordered",
@@ -40,7 +41,8 @@
           "customer": "Bo",
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "21469a776043be53e8802faed2ce47f672d837e9bba763c7fde5cad98d682c94"
     },
     {
       "name": "All orders cancelled",
@@ -54,12 +56,14 @@
           "customer": "Bo",
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "21469a776043be53e8802faed2ce47f672d837e9bba763c7fde5cad98d682c94"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -69,7 +73,8 @@
           "customer": "Ada",
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "5b17407322d1c7e8bf6ae3252d2370959712c1e8d6f34f5ca945b3bdeadd72dd"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -83,7 +88,8 @@
           "customer": "Bo",
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "21469a776043be53e8802faed2ce47f672d837e9bba763c7fde5cad98d682c94"
     },
     {
       "name": "Single customer, single order",
@@ -93,7 +99,8 @@
           "customer": "Solo",
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "50aae5e3b438ebd28b82b6e7a058bf79826e9f8b2b75b6b3a6a56039842da1df"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -107,12 +114,14 @@
           "customer": "Bo",
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "21469a776043be53e8802faed2ce47f672d837e9bba763c7fde5cad98d682c94"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
       "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2020-12-31'),(2,'Bo','UK','2021-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Desk','Furniture',300.0);\nINSERT INTO orders VALUES (1,1,'2021-12-31','completed'),(2,1,'2022-01-01','completed'),(3,1,'2022-01-01','completed'),(4,2,'2022-01-31','completed'),(5,2,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,1,300.0),(3,3,1,3,80.0),(4,4,2,2,300.0),(5,5,1,1,80.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Larger multi-country set",
@@ -138,7 +147,8 @@
           "customer": "G",
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "5fad36bbb0d749f24d0b481a875fe300bfd548eee49afd8094cb42e94bf72e77"
     },
     {
       "name": "Customer bought from one category",
@@ -189,7 +199,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Customer bought from two categories — excluded",
@@ -259,7 +270,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two customers, one loyal, one not",
@@ -348,7 +360,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "NULL category ignored by WHERE",
@@ -412,7 +425,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "All customers loyal",
@@ -513,7 +527,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Customer with multiple orders in same category",
@@ -596,7 +611,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

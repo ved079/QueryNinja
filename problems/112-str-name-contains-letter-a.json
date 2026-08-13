@@ -32,7 +32,8 @@
         {
           "name": "Hal"
         }
-      ]
+      ],
+      "expectedHash": "66fc8c74be1c2c5c7fff44e99ce5eb6c49b3e513be25f73c08f56c24745ea77d"
     },
     {
       "name": "Ties on every salary",
@@ -41,7 +42,8 @@
         {
           "name": "A"
         }
-      ]
+      ],
+      "expectedHash": "e8dbac12844f340121affb0065742c91a3098bb589f97f7df306a6425aed49d0"
     },
     {
       "name": "Department with no employees",
@@ -50,7 +52,8 @@
         {
           "name": "Ava"
         }
-      ]
+      ],
+      "expectedHash": "12e782dfef27de2d6197627dddfb25477f7688faebc12fe75b14d87093a48ca3"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -65,22 +68,26 @@
         {
           "name": "Dan"
         }
-      ]
+      ],
+      "expectedHash": "931aaccd13a2f76d3d6c630f54fe729181b9caaea72c19e57c77b6b6d02e5617"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -98,7 +105,8 @@
         {
           "name": "Alex"
         }
-      ]
+      ],
+      "expectedHash": "0cb2967530d54a91adf81703591022770ea2541a808ec93bbb81f71970e93a6d"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -113,7 +121,8 @@
         {
           "name": "Dan"
         }
-      ]
+      ],
+      "expectedHash": "931aaccd13a2f76d3d6c630f54fe729181b9caaea72c19e57c77b6b6d02e5617"
     },
     {
       "name": "Larger multi-department set",
@@ -122,7 +131,8 @@
         {
           "name": "A"
         }
-      ]
+      ],
+      "expectedHash": "e8dbac12844f340121affb0065742c91a3098bb589f97f7df306a6425aed49d0"
     },
     {
       "name": "All employees contain the letter 'a'",
@@ -137,17 +147,20 @@
         {
           "name": "Ana"
         }
-      ]
+      ],
+      "expectedHash": "713429adeaba24917f863a8e28e2f393175a6b6d2cacf76a2589b7489bd173e4"
     },
     {
       "name": "No employees contain the letter 'a'",
       "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'Ben','E',100000,1,NULL,'2020-01-01'),(2,'Cy','E',90000,1,1,'2020-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Empty employees table",
       "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Mixed — some have 'a', some don't",
@@ -162,7 +175,8 @@
         {
           "name": "Dan"
         }
-      ]
+      ],
+      "expectedHash": "931aaccd13a2f76d3d6c630f54fe729181b9caaea72c19e57c77b6b6d02e5617"
     },
     {
       "name": "Case insensitive — uppercase 'A' should also match",
@@ -171,7 +185,8 @@
         {
           "name": "ALICE"
         }
-      ]
+      ],
+      "expectedHash": "65d045cc3aed5c11cdb7edaf1020e6a126d3137bb4413e48c8044a975d5b9c74"
     },
     {
       "name": "'a' at various positions — start, middle, end",
@@ -186,7 +201,8 @@
         {
           "name": "Linda"
         }
-      ]
+      ],
+      "expectedHash": "290344f098a28ee7e4748a1f2fb2cf1bc35356be23f737524aa4f5aabd31280d"
     }
   ]
 }

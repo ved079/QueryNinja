@@ -30,7 +30,8 @@
           "customer": "Cy",
           "days_to_first_order": -117
         }
-      ]
+      ],
+      "expectedHash": "1bef8e37b1054888f9301de4a14978540ef1b4f834a5f155f875b8ac8dd67a99"
     },
     {
       "name": "Customer who never ordered",
@@ -44,7 +45,8 @@
           "customer": "Bo",
           "days_to_first_order": 305
         }
-      ]
+      ],
+      "expectedHash": "b321f017e0d5dc54dcbec9db6903ddf3c8371eb0c365d624364d0ef99af18a73"
     },
     {
       "name": "All orders cancelled",
@@ -58,12 +60,14 @@
           "customer": "Bo",
           "days_to_first_order": 305
         }
-      ]
+      ],
+      "expectedHash": "b321f017e0d5dc54dcbec9db6903ddf3c8371eb0c365d624364d0ef99af18a73"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -73,7 +77,8 @@
           "customer": "Ada",
           "days_to_first_order": 370
         }
-      ]
+      ],
+      "expectedHash": "f3e9d84f5f8bb5f9b696dd2454edd7db4b20a4c46dc79ca270bd97583ef67bee"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -87,7 +92,8 @@
           "customer": "Bo",
           "days_to_first_order": 305
         }
-      ]
+      ],
+      "expectedHash": "b321f017e0d5dc54dcbec9db6903ddf3c8371eb0c365d624364d0ef99af18a73"
     },
     {
       "name": "Single customer, single order",
@@ -97,7 +103,8 @@
           "customer": "Solo",
           "days_to_first_order": 124
         }
-      ]
+      ],
+      "expectedHash": "e44fca712dd2c6031fb713de2deabed3bd0031dbbce70c0a53754142ae3d95b4"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -111,7 +118,8 @@
           "customer": "Bo",
           "days_to_first_order": 365
         }
-      ]
+      ],
+      "expectedHash": "79a628d7954314af29267e77def05b9319212285a4fd9cd8ab25bba41c0d9c5b"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -125,7 +133,8 @@
           "customer": "Bo",
           "days_to_first_order": 395
         }
-      ]
+      ],
+      "expectedHash": "8968e280802bfdd02d3c2557550d7b943d997a22c0834245c1e4fd08d8562562"
     },
     {
       "name": "Larger multi-country set",
@@ -159,7 +168,8 @@
           "customer": "G",
           "days_to_first_order": 242
         }
-      ]
+      ],
+      "expectedHash": "9429db99bf4eda0dad57db73d336f6420750b76934edda2a27913451cc38ba5b"
     },
     {
       "name": "Zero days — signup and first order same day",
@@ -187,7 +197,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Positive days",
@@ -215,7 +226,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Multiple orders — uses MIN(order_date)",
@@ -249,7 +261,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Cross-year dates",
@@ -277,7 +290,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two customers different signup-to-order",
@@ -317,7 +331,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Customer who never ordered is excluded",
@@ -351,7 +366,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

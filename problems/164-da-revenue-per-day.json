@@ -32,7 +32,8 @@
           "day": "2024-02-01",
           "revenue": 42
         }
-      ]
+      ],
+      "expectedHash": "7181db1a8af7ce8f1b3a0f4caf778b0bf47115ebdbd63cf36d9c4e30f381235a"
     },
     {
       "name": "Single day many orders",
@@ -42,12 +43,14 @@
           "day": "2024-01-05",
           "revenue": 100
         }
-      ]
+      ],
+      "expectedHash": "72329252f0e1d5b87efad5ee32464016d28235112a10ff09cdffaae1164eae6f"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "One order per distinct day",
@@ -65,7 +68,8 @@
           "day": "2024-01-03",
           "revenue": 9
         }
-      ]
+      ],
+      "expectedHash": "3c6940b4e6692d1b95529770b7b75947c43eb534f47308bbf3b4a8ab4fc6f95e"
     }
   ]
 }

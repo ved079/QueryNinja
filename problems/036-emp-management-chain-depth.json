@@ -50,7 +50,8 @@
           "name": "Gia",
           "depth": 2
         }
-      ]
+      ],
+      "expectedHash": "e9fd41565243ff65d3e5452294d290605a66ed3927b4e48044da43d430b02042"
     },
     {
       "name": "Ties on every salary",
@@ -76,7 +77,8 @@
           "name": "E",
           "depth": 2
         }
-      ]
+      ],
+      "expectedHash": "41dfa6f7dbafe1ddf4795a4b69598bf189b5827063fe6a272eeaf806a673c3cf"
     },
     {
       "name": "Department with no employees",
@@ -90,7 +92,8 @@
           "name": "Ben",
           "depth": 2
         }
-      ]
+      ],
+      "expectedHash": "a0e0826347dc2e3b727e209c482fd2b0bbbcc36ad02507cdacbee430d330d9d7"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -112,12 +115,14 @@
           "name": "Ben",
           "depth": 2
         }
-      ]
+      ],
+      "expectedHash": "2d44eab3f6ab07f2f7a85fedfed5c9c49f009c46a9ad01254a96b8b4209fdab9"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -127,7 +132,8 @@
           "name": "Solo",
           "depth": 1
         }
-      ]
+      ],
+      "expectedHash": "a9269fdcc414959aecf9adfb9e1b824e453bc3a7b08cacc20dbadd72124d53f0"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -153,7 +159,8 @@
           "name": "L5",
           "depth": 5
         }
-      ]
+      ],
+      "expectedHash": "725d20ba840f033264f951532346e4c4b05b8186e486a72efeddb486ae114e23"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -175,7 +182,8 @@
           "name": "Sam",
           "depth": 2
         }
-      ]
+      ],
+      "expectedHash": "93d0f1cadad3f0bcb8c8004dfe36d99c5207cb781445fd7af12f3927f31a173c"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -197,7 +205,8 @@
           "name": "Dan",
           "depth": 2
         }
-      ]
+      ],
+      "expectedHash": "79b5a1cefd1e7159ddb804950c4c860be71b8f2c085813b933384ea3f6603072"
     },
     {
       "name": "Larger multi-department set",
@@ -255,7 +264,8 @@
           "name": "M",
           "depth": 2
         }
-      ]
+      ],
+      "expectedHash": "490967d2e441deb1c757e44cec61bd491cb5009567ef86ea9d24a5cff369d696"
     },
     {
       "name": "Single employee — depth 1",
@@ -265,7 +275,8 @@
           "name": "Solo",
           "depth": 1
         }
-      ]
+      ],
+      "expectedHash": "a9269fdcc414959aecf9adfb9e1b824e453bc3a7b08cacc20dbadd72124d53f0"
     },
     {
       "name": "Two-level chain",
@@ -279,7 +290,8 @@
           "name": "Emp",
           "depth": 2
         }
-      ]
+      ],
+      "expectedHash": "762a71292a067d375d414e75a65eb26122c7516a5222d5efbe1a0f5b570f3055"
     },
     {
       "name": "Three-level chain",
@@ -297,7 +309,8 @@
           "name": "Emp",
           "depth": 3
         }
-      ]
+      ],
+      "expectedHash": "5347adf273fcc345c2f1c9ca15cf07a7e5e4159f5eaefb1af31a75a8ea7a4eed"
     },
     {
       "name": "Two roots with their own subtrees",
@@ -323,7 +336,8 @@
           "name": "C",
           "depth": 2
         }
-      ]
+      ],
+      "expectedHash": "80a2c7b2ba02b373cff13349a630c8446e54a66abff3b5a7caea3e633db52a56"
     },
     {
       "name": "Deep four-level chain",
@@ -345,7 +359,8 @@
           "name": "L4",
           "depth": 4
         }
-      ]
+      ],
+      "expectedHash": "61f27eba5e3a611f7ac4dc624bcba78019b2f385a0bae2abbfbdad13934179c2"
     },
     {
       "name": "Bushy tree with one root and multiple branches",
@@ -379,7 +394,8 @@
           "name": "Emp1",
           "depth": 4
         }
-      ]
+      ],
+      "expectedHash": "36780c665fc542e6f90b677efddd099c98efa48f5aa27d6cd2a6cdf34db4b5c0"
     }
   ]
 }

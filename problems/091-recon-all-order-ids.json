@@ -31,7 +31,8 @@
         {
           "order_id": 5
         }
-      ]
+      ],
+      "expectedHash": "a5ca978968c2907e1a919a18daf1c76ca9476438e183323f55b8824a884c9307"
     },
     {
       "name": "All three systems fully agree",
@@ -43,7 +44,8 @@
         {
           "order_id": 2
         }
-      ]
+      ],
+      "expectedHash": "ef53e3b6bd3d4a9578f1b9100df5781a4d569e97474192c331a2cbd0cab1cedb"
     },
     {
       "name": "Completely disjoint across all three",
@@ -55,7 +57,8 @@
         {
           "order_id": 2
         }
-      ]
+      ],
+      "expectedHash": "ef53e3b6bd3d4a9578f1b9100df5781a4d569e97474192c331a2cbd0cab1cedb"
     },
     {
       "name": "Source has an accidental duplicate row",
@@ -67,12 +70,14 @@
         {
           "order_id": 2
         }
-      ]
+      ],
+      "expectedHash": "ef53e3b6bd3d4a9578f1b9100df5781a4d569e97474192c331a2cbd0cab1cedb"
     },
     {
       "name": "All three systems empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Only source has any data",
@@ -87,7 +92,8 @@
         {
           "order_id": 3
         }
-      ]
+      ],
+      "expectedHash": "3a53496754ce4841d0faa74d61a46ca7d7450567667d8b168b02a0214a7a630b"
     },
     {
       "name": "Same order, inconsistent name formatting",
@@ -99,7 +105,8 @@
         {
           "order_id": 2
         }
-      ]
+      ],
+      "expectedHash": "ef53e3b6bd3d4a9578f1b9100df5781a4d569e97474192c331a2cbd0cab1cedb"
     },
     {
       "name": "Matching ids, mismatched amounts",
@@ -111,7 +118,8 @@
         {
           "order_id": 2
         }
-      ]
+      ],
+      "expectedHash": "ef53e3b6bd3d4a9578f1b9100df5781a4d569e97474192c331a2cbd0cab1cedb"
     },
     {
       "name": "Single matching order everywhere",
@@ -120,7 +128,8 @@
         {
           "order_id": 1
         }
-      ]
+      ],
+      "expectedHash": "24f39724ddc538488b34973670c8ff34173ac912fe15f9df323bb6718beb02b3"
     },
     {
       "name": "Larger mixed set: some in all three, some in two, some in one, duplicates and a mismatch",
@@ -144,12 +153,14 @@
         {
           "order_id": 7
         }
-      ]
+      ],
+      "expectedHash": "35bf4f19133b6870462a84828933f5b85159c702e978789a961a33541d757568"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Only warehouse has orders",
@@ -161,7 +172,8 @@
         {
           "order_id": 2
         }
-      ]
+      ],
+      "expectedHash": "ef53e3b6bd3d4a9578f1b9100df5781a4d569e97474192c331a2cbd0cab1cedb"
     },
     {
       "name": "Only source has orders",
@@ -173,7 +185,8 @@
         {
           "order_id": 20
         }
-      ]
+      ],
+      "expectedHash": "03dd0c99a801d1b9d976cba21441da06a909ddb1b4c077009eac544cf2df34a1"
     },
     {
       "name": "Identical data in both",
@@ -185,7 +198,8 @@
         {
           "order_id": 2
         }
-      ]
+      ],
+      "expectedHash": "ef53e3b6bd3d4a9578f1b9100df5781a4d569e97474192c331a2cbd0cab1cedb"
     },
     {
       "name": "Completely disjoint sets",
@@ -203,7 +217,8 @@
         {
           "order_id": 4
         }
-      ]
+      ],
+      "expectedHash": "1ef43b39aeaef39785934e6f6cd0aa65d0f6dbc825ebb514bb604e7dd575c060"
     },
     {
       "name": "Duplicates within source",
@@ -215,7 +230,8 @@
         {
           "order_id": 2
         }
-      ]
+      ],
+      "expectedHash": "ef53e3b6bd3d4a9578f1b9100df5781a4d569e97474192c331a2cbd0cab1cedb"
     }
   ]
 }

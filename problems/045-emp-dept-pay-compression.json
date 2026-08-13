@@ -26,7 +26,8 @@
           "department": "Sales",
           "ratio": 1.86
         }
-      ]
+      ],
+      "expectedHash": "63f450912b3514974d676a55ba033f351c4cb9fd12c1374f4664baf75b538781"
     },
     {
       "name": "Ties on every salary",
@@ -40,7 +41,8 @@
           "department": "Sales",
           "ratio": 1
         }
-      ]
+      ],
+      "expectedHash": "d5cca96e728e695c2575ba4819fe76f93d0225333b92a60dae4dc5a5289c26bc"
     },
     {
       "name": "Department with no employees",
@@ -50,22 +52,26 @@
           "department": "Engineering",
           "ratio": 1.13
         }
-      ]
+      ],
+      "expectedHash": "3f34947b9882e248ddb980ce9f9077ab2a02e504a23d1a5df121ad45fb70bf41"
     },
     {
       "name": "Employees with NULL department and NULL salary",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -75,7 +81,8 @@
           "department": "Engineering",
           "ratio": 2.5
         }
-      ]
+      ],
+      "expectedHash": "34ea58053c51c5b529487318eac4ca916bd149b4ed50c1e930a2f329d987aa22"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -85,7 +92,8 @@
           "department": "Sales",
           "ratio": 1.58
         }
-      ]
+      ],
+      "expectedHash": "f7a7f9d8c80aaf158434c78943f5674634f3768492c2655296d416106704923d"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -95,7 +103,8 @@
           "department": "Sales",
           "ratio": 2000000
         }
-      ]
+      ],
+      "expectedHash": "ce47ae4f051c1c1f39d5a079d134d35f436b1b4f0468b4c702b6079e3fbb05be"
     },
     {
       "name": "Larger multi-department set",
@@ -117,7 +126,8 @@
           "department": "Finance",
           "ratio": 1
         }
-      ]
+      ],
+      "expectedHash": "c1ac3709d4dbba557fae8421b324d1286b509bc8e083633fef4e37479e0c9b95"
     },
     {
       "name": "Single department with equal salaries — ratio is 1.00",
@@ -127,22 +137,26 @@
           "department": "IT",
           "ratio": 1
         }
-      ]
+      ],
+      "expectedHash": "d08de42e430df00f142bd4b2025a74c456d17e81609bf5683b3fce38a957459c"
     },
     {
       "name": "Department with only one salaried employee — excluded",
       "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',100,1,NULL,'2020-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Department with a zero salary — skipped",
       "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',0,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Department with a negative salary — skipped",
       "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',-100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two departments with different ratios",
@@ -156,7 +170,8 @@
           "department": "Sales",
           "ratio": 3
         }
-      ]
+      ],
+      "expectedHash": "9ea8f866277b4f7bb6d0c641748d61eae519b41ae5285c5017b06060f460a406"
     },
     {
       "name": "NULL salaries excluded — still qualifies with >= 2 non-NULL",
@@ -166,7 +181,8 @@
           "department": "IT",
           "ratio": 2
         }
-      ]
+      ],
+      "expectedHash": "2094223e1887669a34097ee3e58d9965fe23e6901d1cc17b5d6c43652b76c5f7"
     }
   ]
 }

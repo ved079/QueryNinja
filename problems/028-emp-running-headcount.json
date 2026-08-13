@@ -58,7 +58,8 @@
           "name": "Hal",
           "headcount": 8
         }
-      ]
+      ],
+      "expectedHash": "715a64302b86dfbab2b5e723efa8e401cc54aba17035fe18e7d1842a2f99d0c6"
     },
     {
       "name": "Ties on every salary",
@@ -89,7 +90,8 @@
           "name": "E",
           "headcount": 5
         }
-      ]
+      ],
+      "expectedHash": "c430edf89cc4afcd9a704e409a33090dc95f4b2769115721a596c5f56da68646"
     },
     {
       "name": "Department with no employees",
@@ -105,7 +107,8 @@
           "name": "Ben",
           "headcount": 2
         }
-      ]
+      ],
+      "expectedHash": "2937b75ab4b6828d3d35b8282a86c13efa2d398772265745331f205560add1d8"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -131,12 +134,14 @@
           "name": "Dan",
           "headcount": 4
         }
-      ]
+      ],
+      "expectedHash": "cbaae0551015f01b2418a981bd784e7aa783a14fb1425fa1a643300ab8ff2c3e"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -147,7 +152,8 @@
           "name": "Solo",
           "headcount": 1
         }
-      ]
+      ],
+      "expectedHash": "22dfabf2cab65e6cac66e885b0c98366144d456472d85c399bffe7f9dc966d05"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -178,7 +184,8 @@
           "name": "L5",
           "headcount": 5
         }
-      ]
+      ],
+      "expectedHash": "6982ec7f526dd95f4d4c9a064cbd9542b72a137a5ba94fff906690f34f888d87"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -204,7 +211,8 @@
           "name": "Alex",
           "headcount": 4
         }
-      ]
+      ],
+      "expectedHash": "355f5fd585204a43dbfb769dfc8e110830bb60ea0cce2d43bb16234626a3fcca"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -230,7 +238,8 @@
           "name": "Dan",
           "headcount": 4
         }
-      ]
+      ],
+      "expectedHash": "89b3bc45c250c62537a04f24db0af99ea8cdcbefdd84c98a3b53d29e64dda171"
     },
     {
       "name": "Larger multi-department set",
@@ -301,7 +310,8 @@
           "name": "M",
           "headcount": 13
         }
-      ]
+      ],
+      "expectedHash": "a606c5b7c3c79bba8320c624b97766cb3d9d1cd78575da8ae9e4b5ec669e6e6b"
     },
     {
       "name": "Single employee — headcount is 1",
@@ -312,7 +322,8 @@
           "name": "Solo",
           "headcount": 1
         }
-      ]
+      ],
+      "expectedHash": "a4e056d587e03d3bb1e18a739974b1cf1df98fd8a4a4a799c6afa773c8af2b26"
     },
     {
       "name": "Distinct dates in order",
@@ -333,7 +344,8 @@
           "name": "C",
           "headcount": 3
         }
-      ]
+      ],
+      "expectedHash": "8a160098896b3b43aca7824e02aa2df5021f34740035342bf3060636386eb163"
     },
     {
       "name": "NULL hire_date sorts last",
@@ -349,7 +361,8 @@
           "name": "A",
           "headcount": 2
         }
-      ]
+      ],
+      "expectedHash": "eff3784fe1a4bf419b039c7772144571f57f710ffc7636813b92d17c0dd8d330"
     },
     {
       "name": "Two employees hired on the same date",
@@ -370,7 +383,8 @@
           "name": "C",
           "headcount": 3
         }
-      ]
+      ],
+      "expectedHash": "0fc087709a563c44c77863193031b3715628e3a43cf0c611e4df8355cfd2314e"
     },
     {
       "name": "Descending date order",
@@ -391,7 +405,8 @@
           "name": "A",
           "headcount": 3
         }
-      ]
+      ],
+      "expectedHash": "e7c3a24673b8cb61d36d15d0e6b13cde79cd1f10dcc01cbe3cac03ce6e1f7293"
     },
     {
       "name": "Six employees with distinct monthly dates",
@@ -427,7 +442,8 @@
           "name": "F",
           "headcount": 6
         }
-      ]
+      ],
+      "expectedHash": "4d721c8ff72e6f3f4df36f40ceabbd0656c6ceaa9a4170694c6d357177b16f4f"
     }
   ]
 }

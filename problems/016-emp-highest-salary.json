@@ -20,7 +20,8 @@
         {
           "top_salary": 150000
         }
-      ]
+      ],
+      "expectedHash": "dc6ff56dcc601c2df997728e6dbf8f21a9e687d86ad3b008c1baff2fa9727d55"
     },
     {
       "name": "Ties on every salary",
@@ -29,7 +30,8 @@
         {
           "top_salary": 100000
         }
-      ]
+      ],
+      "expectedHash": "e4c582173e540f5465b122166bc6120add7df2035721390b30c7e44e7491e9c9"
     },
     {
       "name": "Department with no employees",
@@ -38,7 +40,8 @@
         {
           "top_salary": 90000
         }
-      ]
+      ],
+      "expectedHash": "206d5f384a80e9ca279d849a49ba8440ce2bc97b98e5d8d8d5becac93e080157"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -47,7 +50,8 @@
         {
           "top_salary": 90000
         }
-      ]
+      ],
+      "expectedHash": "206d5f384a80e9ca279d849a49ba8440ce2bc97b98e5d8d8d5becac93e080157"
     },
     {
       "name": "Both tables empty",
@@ -56,7 +60,8 @@
         {
           "top_salary": null
         }
-      ]
+      ],
+      "expectedHash": "59cd087c64a2d828aef0348d5c8202d37ed44177f3d64bb48c532454ffd1a362"
     },
     {
       "name": "Single employee, single department",
@@ -65,7 +70,8 @@
         {
           "top_salary": 100000
         }
-      ]
+      ],
+      "expectedHash": "e4c582173e540f5465b122166bc6120add7df2035721390b30c7e44e7491e9c9"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -74,7 +80,8 @@
         {
           "top_salary": 300000
         }
-      ]
+      ],
+      "expectedHash": "af128bd9360054873aa94b53bacd9fc0d1b0697f7b00084325932cdb4d0cef62"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -83,7 +90,8 @@
         {
           "top_salary": 95000
         }
-      ]
+      ],
+      "expectedHash": "1cc69984916057fd93864d74e25f9540b9fbb89320924019f844fde890d965f9"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -92,7 +100,8 @@
         {
           "top_salary": 2000000
         }
-      ]
+      ],
+      "expectedHash": "7d81baa3dbe6987d374cb8b5c27ec84222f0151b197124afc5dfbc85506a4c26"
     },
     {
       "name": "Larger multi-department set",
@@ -101,7 +110,8 @@
         {
           "top_salary": 150000
         }
-      ]
+      ],
+      "expectedHash": "dc6ff56dcc601c2df997728e6dbf8f21a9e687d86ad3b008c1baff2fa9727d55"
     },
     {
       "name": "All NULL salaries — MAX returns NULL",
@@ -110,7 +120,8 @@
         {
           "top_salary": null
         }
-      ]
+      ],
+      "expectedHash": "59cd087c64a2d828aef0348d5c8202d37ed44177f3d64bb48c532454ffd1a362"
     },
     {
       "name": "Single employee",
@@ -119,7 +130,8 @@
         {
           "top_salary": 50000
         }
-      ]
+      ],
+      "expectedHash": "c7f1f23b3c6f7eb8680fe13667ce55f6070cc414031bd1788b4f81b3a8c35d43"
     },
     {
       "name": "Tie at the top — multiple employees share the max",
@@ -128,7 +140,8 @@
         {
           "top_salary": 100
         }
-      ]
+      ],
+      "expectedHash": "237b0c4db081c0312ca6f6a2d31e7ef1fc572ac78a39ff4d544b204adebc9a41"
     },
     {
       "name": "Mix of negative and positive salaries",
@@ -137,7 +150,8 @@
         {
           "top_salary": 200
         }
-      ]
+      ],
+      "expectedHash": "30a95c7927817a212b1ad30724906b2c0d6dc596c85c639c698275f6bc732ef9"
     },
     {
       "name": "Multiple departments — max is global",
@@ -146,7 +160,8 @@
         {
           "top_salary": 100
         }
-      ]
+      ],
+      "expectedHash": "237b0c4db081c0312ca6f6a2d31e7ef1fc572ac78a39ff4d544b204adebc9a41"
     },
     {
       "name": "Mix of NULLs and values — NULLs are excluded",
@@ -155,7 +170,8 @@
         {
           "top_salary": 300
         }
-      ]
+      ],
+      "expectedHash": "359deec463cefc96de8ae222039a15327bd18fdd2c7424183ff95f0869c2b55b"
     }
   ]
 }

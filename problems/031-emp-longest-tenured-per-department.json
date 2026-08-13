@@ -32,7 +32,8 @@
           "name": "Hal",
           "hire_date": "2023-09-01"
         }
-      ]
+      ],
+      "expectedHash": "3c3a20235be1c4e2932cc39cead0dcbd8a82d30378377093524a2dc5f10e1191"
     },
     {
       "name": "Ties on every salary",
@@ -63,7 +64,8 @@
           "name": "E",
           "hire_date": "2020-01-01"
         }
-      ]
+      ],
+      "expectedHash": "112f2e29a960c9bcf485979233a0d4ddecd5eea59c246923dee892b0be626277"
     },
     {
       "name": "Department with no employees",
@@ -74,7 +76,8 @@
           "name": "Ava",
           "hire_date": "2019-01-01"
         }
-      ]
+      ],
+      "expectedHash": "fd12fdfcf416eb2be75df3099abf9e1801dd4da6e704413af9677b08daa6eb98"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -95,12 +98,14 @@
           "name": "Dan",
           "hire_date": "2021-02-03"
         }
-      ]
+      ],
+      "expectedHash": "8dc1b1c3aa807fdb83f75b96f869fef301a3199a9db589c01deafb73276ba3a8"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -111,7 +116,8 @@
           "name": "Solo",
           "hire_date": "2022-04-01"
         }
-      ]
+      ],
+      "expectedHash": "bf78abac0be4303ca335b467913b664110a931c54134ef4c0e1ed32a03b91d3d"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -122,7 +128,8 @@
           "name": "L1",
           "hire_date": "2010-01-01"
         }
-      ]
+      ],
+      "expectedHash": "a177dd7eb4adaaf0337a8c85f8dd487ab98a63d5e5af31d9840292e8cd3808f9"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -143,7 +150,8 @@
           "name": "Sam",
           "hire_date": "2021-01-01"
         }
-      ]
+      ],
+      "expectedHash": "8ff4e46200a02a0e67f12e9c61cace6cde2ab248c306835e62ddba8cbf8b91ae"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -159,7 +167,8 @@
           "name": "Cara",
           "hire_date": "2020-02-29"
         }
-      ]
+      ],
+      "expectedHash": "978c0159787595e426f6010568978db3b0c60f4e9416b9996582d73d23bb5e71"
     },
     {
       "name": "Larger multi-department set",
@@ -185,7 +194,8 @@
           "name": "L",
           "hire_date": "2021-03-21"
         }
-      ]
+      ],
+      "expectedHash": "cffae738286230f8b4e7e9b0d853547133fd2b577e6591f0d95d99b6e1689bb5"
     },
     {
       "name": "Single employee per department is the longest-serving",
@@ -201,7 +211,8 @@
           "name": "B",
           "hire_date": "2020-01-02"
         }
-      ]
+      ],
+      "expectedHash": "64b8bae5b5882f69a46b01ba1f72b2290bbc177110b04a8658d1455e1cded63c"
     },
     {
       "name": "Tie for the earliest hire date",
@@ -217,7 +228,8 @@
           "name": "B",
           "hire_date": "2020-01-01"
         }
-      ]
+      ],
+      "expectedHash": "c18d92725f77319d2c31ec1cf37396e7dbbdf0e83939f7f514f1d54c5cd6fe82"
     },
     {
       "name": "NULL hire_date is not earliest",
@@ -228,7 +240,8 @@
           "name": "B",
           "hire_date": null
         }
-      ]
+      ],
+      "expectedHash": "4ac5edd06f53359d633fdca354e62046542b6722c2d3c09b2d55011a8f0dc721"
     },
     {
       "name": "All employees hired on the same date",
@@ -249,7 +262,8 @@
           "name": "C",
           "hire_date": "2020-01-01"
         }
-      ]
+      ],
+      "expectedHash": "e4ccfa2e5b0ea0e90599cef110dca9dc3108e4036ee56a5619c641765c6f74c5"
     },
     {
       "name": "Descending dates — earliest is last inserted",
@@ -260,7 +274,8 @@
           "name": "C",
           "hire_date": "2020-01-01"
         }
-      ]
+      ],
+      "expectedHash": "d09db7a5c29f5c4e239754242e8b8daab3f0524dd896ce1e32752e2c7ea74a67"
     },
     {
       "name": "Three departments with distinct earliest dates",
@@ -281,7 +296,8 @@
           "name": "E",
           "hire_date": "2020-05-01"
         }
-      ]
+      ],
+      "expectedHash": "896f9abad598d07c78838a15ab810352cba169158df4732b57dfc5100e2d06c4"
     }
   ]
 }

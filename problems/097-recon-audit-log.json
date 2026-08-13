@@ -59,7 +59,8 @@
           "amount": 60,
           "system": "warehouse"
         }
-      ]
+      ],
+      "expectedHash": "aab9f747cfa825b1a9ffa9ec62e1b7bddb494d24fa1cef6e54a48cf3528a30e7"
     },
     {
       "name": "All three systems fully agree",
@@ -89,7 +90,8 @@
           "amount": 80,
           "system": "warehouse"
         }
-      ]
+      ],
+      "expectedHash": "8d46f562ff0693763c4df8625a47378dcaedc301b9952984e2e19596a2f385da"
     },
     {
       "name": "Completely disjoint across all three",
@@ -107,7 +109,8 @@
           "amount": 80,
           "system": "warehouse"
         }
-      ]
+      ],
+      "expectedHash": "9d1e352cb3cb0d181bba428c3d823b27751dc948803301fd3480fd8bc0be50a4"
     },
     {
       "name": "Source has an accidental duplicate row",
@@ -137,12 +140,14 @@
           "amount": 120,
           "system": "warehouse"
         }
-      ]
+      ],
+      "expectedHash": "3ef4454ec0290c74e7eb183fccb9c0b456af81d7b40ec614bb9f76959c7b94a7"
     },
     {
       "name": "All three systems empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Only source has any data",
@@ -166,7 +171,8 @@
           "amount": 45.5,
           "system": "source"
         }
-      ]
+      ],
+      "expectedHash": "273adebc188bd0edb25330de7113001a4afaa3fa0be77a8fc914d6b4e80215a0"
     },
     {
       "name": "Same order, inconsistent name formatting",
@@ -196,7 +202,8 @@
           "amount": 80,
           "system": "warehouse"
         }
-      ]
+      ],
+      "expectedHash": "9488bc1261770a5475e3a6667252948abe0a127acf40ebc5d821f26bf8b872e9"
     },
     {
       "name": "Matching ids, mismatched amounts",
@@ -226,7 +233,8 @@
           "amount": 80,
           "system": "warehouse"
         }
-      ]
+      ],
+      "expectedHash": "445f03198db31a43e78173d9baa1d710beb1d41596a607581403dec56ebb6cc0"
     },
     {
       "name": "Single matching order everywhere",
@@ -244,7 +252,8 @@
           "amount": 120,
           "system": "warehouse"
         }
-      ]
+      ],
+      "expectedHash": "943d9f807b4ca37deb16d04f70b9edc04c8a0b60f2ede630ad90b25cc8c67d8f"
     },
     {
       "name": "Larger mixed set: some in all three, some in two, some in one, duplicates and a mismatch",
@@ -310,7 +319,8 @@
           "amount": 60,
           "system": "warehouse"
         }
-      ]
+      ],
+      "expectedHash": "829291cd438cf1a09890111e95c54d9b78eb9e5a1f52b20cfeec1c2da2839c7e"
     },
     {
       "name": "Only source has data",
@@ -328,7 +338,8 @@
           "amount": 200,
           "system": "source"
         }
-      ]
+      ],
+      "expectedHash": "6ac63b48e1c64c7177a70506ce42e09974dd50bda64f061d34298a92f7f41409"
     },
     {
       "name": "Only warehouse has data",
@@ -340,12 +351,14 @@
           "amount": 300,
           "system": "warehouse"
         }
-      ]
+      ],
+      "expectedHash": "3e937a0e3f12af7ddb7b2910cb576d6e316df7b61038743b7510e277aa24c31d"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Identical row exists in both systems — both appear",
@@ -363,7 +376,8 @@
           "amount": 100,
           "system": "warehouse"
         }
-      ]
+      ],
+      "expectedHash": "680056dfb895b39b34b906b237e80cc8dc3345012c071c2a99f57307605a02ed"
     },
     {
       "name": "Duplicate rows in source are preserved",
@@ -387,7 +401,8 @@
           "amount": 200,
           "system": "warehouse"
         }
-      ]
+      ],
+      "expectedHash": "109500efb19af18f8852b5d614a1fd2515dcc164e8019fa27dab63e30ec8137d"
     },
     {
       "name": "Disjoint data sets combined",
@@ -423,7 +438,8 @@
           "amount": 50,
           "system": "warehouse"
         }
-      ]
+      ],
+      "expectedHash": "62791a6ed3e958f3539535a09bb1625889fa45f0ccfcbd0f2f593556be1e88fe"
     }
   ]
 }

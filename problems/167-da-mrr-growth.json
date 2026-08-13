@@ -30,12 +30,14 @@
           "mrr": 100,
           "growth": 100
         }
-      ]
+      ],
+      "expectedHash": "0901f04ff336a791c923ed2afe4b450e41828cedf3d1285592b18363997b4ee6"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "All same month",
@@ -46,7 +48,8 @@
           "mrr": 30,
           "growth": null
         }
-      ]
+      ],
+      "expectedHash": "0e335981f2d3992bfb095408a5d733c2b3ba9d57af859edc73b56c032c6e77d8"
     },
     {
       "name": "Three months growth",
@@ -67,7 +70,8 @@
           "mrr": 300,
           "growth": 50
         }
-      ]
+      ],
+      "expectedHash": "d0a88c101d25d3af94ec1ac76f9130d131fdeb1dd537a5dbd4d703eeed676b21"
     },
     {
       "name": "Single subscription",
@@ -78,7 +82,8 @@
           "mrr": 80,
           "growth": null
         }
-      ]
+      ],
+      "expectedHash": "1b6ca0d20be46a7e2b84f748ca4b7928336c1cf06864b94a11290ac4a4a0900d"
     }
   ]
 }

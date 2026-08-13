@@ -292,11 +292,11 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, problems]);
 
-  const saveProgress = useCallback(async (id, status, sqlText) => {
+  const saveProgress = useCallback(async (id, sqlText, caseResults = []) => {
     const res = await apiFetch('/api/progress', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user: userName, id, status, code: sqlText }),
+      body: JSON.stringify({ user: userName, id, code: sqlText, caseResults }),
     }, userName);
     const saved = await res.json();
     setProgress((prev) => ({ ...prev, [id]: saved }));
@@ -322,9 +322,20 @@ export default function App() {
     }
   }, [userName, progress]);
 
+  // Client-side cooldown: prevents rapid-fire execution that would saturate
+  // the WASM sql.js thread and freeze the browser. This is a UX guard only —
+  // if server-side execution is ever added, pair this with a real server-side
+  // rate limit (e.g. per-user token bucket), as client-side debouncing is not
+  // a security control.
+  const lastRunRef = useRef(0);
+  const RUN_COOLDOWN_MS = 1000;
+
   /** Run the query for its output only — no grading. */
   const run = useCallback(() => {
     if (!problem || !dbRef.current) return;
+    const now = Date.now();
+    if (now - lastRunRef.current < RUN_COOLDOWN_MS) return;
+    lastRunRef.current = now;
     setVerdict(null);
     setSelectedCase(null);
     setCaseRun({});
@@ -335,7 +346,7 @@ export default function App() {
         dbRef.current?.close();
         dbRef.current = db;
         try {
-          const result = exec(db, codeRef.current);
+          const result = exec(db, codeRef.current, { isUserQuery: true });
           setOutput({ result });
           setRunMatch(expected ? compare(result, expected, problem.orderMatters).pass : null);
         } catch (err) {
@@ -383,13 +394,19 @@ export default function App() {
       setSelectedCase(report.firstFailure ? report.firstFailure.index : 0);
       setOutput(null);
 
-      await saveProgress(problem.id, pass ? 'solved' : 'attempted', sqlText);
+      // Build caseResults: the actual rows from each test case, sent to the
+      // server so it can verify the answer via HMAC without running SQL itself.
+      const caseResults = report.cases.map((c) => ({
+        actual: c.actual ? { columns: c.actual.columns, rows: c.actual.rows } : null,
+      }));
+      await saveProgress(problem.id, sqlText, caseResults);
+
       const entry = {
         problemId: problem.id,
         code: sqlText,
-        status: pass ? 'solved' : 'attempted',
         submittedAt: new Date().toISOString(),
       };
+      // status is derived server-side from the verified progress bucket.
       const res = await apiFetch('/api/submissions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -398,6 +415,11 @@ export default function App() {
       if (res.ok) {
         const saved = await res.json();
         entry.id = saved.id;
+        // Use the status the server determined (from HMAC verification), not
+        // the client's local pass/fail signal, so the streak is always accurate.
+        entry.status = saved.status ?? (pass ? 'solved' : 'attempted');
+      } else {
+        entry.status = pass ? 'solved' : 'attempted';
       }
       setSubmissions((prev) => [...prev, entry]);
     } catch (err) {
@@ -413,7 +435,7 @@ export default function App() {
     const test = testsOf(problem)[index];
     const db = await createDb(problem, test);
     try {
-      const actual = exec(db, sqlText);
+      const actual = exec(db, sqlText, { isUserQuery: true });
       const refDb = await createDb(problem, test);
       let expected;
       try {

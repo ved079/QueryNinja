@@ -38,12 +38,14 @@
           "share": 0.2,
           "cumulative_share": 1
         }
-      ]
+      ],
+      "expectedHash": "02c3607fcc7a2d6e6082079e9997e8e3e6512a75a066f3605c8ca31b5fa2c2c9"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Equal revenue customers",
@@ -61,7 +63,8 @@
           "share": 0.5,
           "cumulative_share": 1
         }
-      ]
+      ],
+      "expectedHash": "fa0897d8a9b38dc2aa0cb14cc06dbaccec73ca03d61c83b96d657f303fb60577"
     },
     {
       "name": "Single customer",
@@ -73,7 +76,8 @@
           "share": 1,
           "cumulative_share": 1
         }
-      ]
+      ],
+      "expectedHash": "6311d8648c8f55adc300b512e715f6180c1b9f49acd8c87a21919a34111d6bb2"
     },
     {
       "name": "Long tail with top heavy",
@@ -103,7 +107,8 @@
           "share": 0.02,
           "cumulative_share": 1
         }
-      ]
+      ],
+      "expectedHash": "200cfa90ed2e973829845696daee6d55ba2782da79e475e61cd94d4849deb0f7"
     }
   ]
 }

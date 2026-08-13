@@ -30,12 +30,14 @@
           "revenue": 150,
           "growth": 50
         }
-      ]
+      ],
+      "expectedHash": "8d805940bbf9bf7c31fc9639d94c48ec624b0c3ddc59954a88851e967d0fb35a"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders across week boundary",
@@ -51,7 +53,8 @@
           "revenue": 30,
           "growth": 0
         }
-      ]
+      ],
+      "expectedHash": "7292867e0e167a213de5b08ba2ac11b2b7b72d0254bb88bc66d8937827a3f842"
     },
     {
       "name": "Gap week missing",
@@ -67,7 +70,8 @@
           "revenue": 200,
           "growth": 100
         }
-      ]
+      ],
+      "expectedHash": "5a408acb36156fad8b1bd940cf895238c1b695a2319f9dc731aa4ab09915063d"
     },
     {
       "name": "Same week many orders",
@@ -78,7 +82,8 @@
           "revenue": 100,
           "growth": null
         }
-      ]
+      ],
+      "expectedHash": "612022f5d8cd613ee571a3bd81caab951c68d5d4f3b304fa5bd2652504a3413f"
     }
   ]
 }

@@ -44,12 +44,14 @@
           "name": "Glove",
           "is_valid": 0
         }
-      ]
+      ],
+      "expectedHash": "25486b8dc5edb08115036a3ce34c9baa49a6fd43953f7d261c0151416a8f4093"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Numbers and letters mixed",
@@ -70,7 +72,8 @@
           "name": "Po",
           "is_valid": 0
         }
-      ]
+      ],
+      "expectedHash": "112ef51ed66914d93b38f0864569e742c32c5e6ad8608d380747482fad3e3369"
     },
     {
       "name": "NULL sku is invalid",
@@ -86,7 +89,8 @@
           "name": "B",
           "is_valid": 0
         }
-      ]
+      ],
+      "expectedHash": "68bdfbe61b3730570767c277871b5f835ce8cc52ef863318601cdbc06664c9bb"
     },
     {
       "name": "Dash placement",
@@ -112,7 +116,8 @@
           "name": "D",
           "is_valid": 0
         }
-      ]
+      ],
+      "expectedHash": "5f0f1c63ad9030019ba582fa1ecb012e3681f0821194c1614953915d0e546794"
     }
   ]
 }

@@ -23,7 +23,8 @@
         {
           "category": "Furniture"
         }
-      ]
+      ],
+      "expectedHash": "e55eb8aa6bbfd487f644f1a227a0efb0b55e09f10e78be1b87aca19d27331992"
     },
     {
       "name": "Customer who never ordered",
@@ -32,7 +33,8 @@
         {
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "e1cb3f6c732541093ea33d56811ec3a0671abd61c6a6919ce6f69e6603f0a266"
     },
     {
       "name": "All orders cancelled",
@@ -41,12 +43,14 @@
         {
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "e1cb3f6c732541093ea33d56811ec3a0671abd61c6a6919ce6f69e6603f0a266"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -55,7 +59,8 @@
         {
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "e1cb3f6c732541093ea33d56811ec3a0671abd61c6a6919ce6f69e6603f0a266"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -64,7 +69,8 @@
         {
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "e1cb3f6c732541093ea33d56811ec3a0671abd61c6a6919ce6f69e6603f0a266"
     },
     {
       "name": "Single customer, single order",
@@ -73,7 +79,8 @@
         {
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "e1cb3f6c732541093ea33d56811ec3a0671abd61c6a6919ce6f69e6603f0a266"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -82,7 +89,8 @@
         {
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "e1cb3f6c732541093ea33d56811ec3a0671abd61c6a6919ce6f69e6603f0a266"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -94,7 +102,8 @@
         {
           "category": "Furniture"
         }
-      ]
+      ],
+      "expectedHash": "e55eb8aa6bbfd487f644f1a227a0efb0b55e09f10e78be1b87aca19d27331992"
     },
     {
       "name": "Larger multi-country set",
@@ -109,7 +118,8 @@
         {
           "category": "Kitchen"
         }
-      ]
+      ],
+      "expectedHash": "e72950879aed14c13f73ff497ee2456a1bcd95acdabb5dcbfe2418fa894d7f93"
     },
     {
       "name": "NULL category present",
@@ -118,12 +128,14 @@
         {
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "e1cb3f6c732541093ea33d56811ec3a0671abd61c6a6919ce6f69e6603f0a266"
     },
     {
       "name": "Only NULL categories",
       "seedSql": "INSERT INTO products VALUES (1,'A',NULL,10.0),(2,'B',NULL,20.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "All products in the same category",
@@ -132,7 +144,8 @@
         {
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "e1cb3f6c732541093ea33d56811ec3a0671abd61c6a6919ce6f69e6603f0a266"
     },
     {
       "name": "Multiple categories with duplicates",
@@ -144,7 +157,8 @@
         {
           "category": "Furniture"
         }
-      ]
+      ],
+      "expectedHash": "e55eb8aa6bbfd487f644f1a227a0efb0b55e09f10e78be1b87aca19d27331992"
     },
     {
       "name": "Single category",
@@ -153,7 +167,8 @@
         {
           "category": "Tech"
         }
-      ]
+      ],
+      "expectedHash": "e1cb3f6c732541093ea33d56811ec3a0671abd61c6a6919ce6f69e6603f0a266"
     },
     {
       "name": "Three distinct categories",
@@ -168,7 +183,8 @@
         {
           "category": "Kitchen"
         }
-      ]
+      ],
+      "expectedHash": "e72950879aed14c13f73ff497ee2456a1bcd95acdabb5dcbfe2418fa894d7f93"
     }
   ]
 }

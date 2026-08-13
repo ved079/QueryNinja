@@ -30,7 +30,8 @@
           "customer": "Cy",
           "cancel_pct": 0
         }
-      ]
+      ],
+      "expectedHash": "813881aa10e19571a33c05476a9fc3dd7eb9b88a3dffc708d5cd9472dd460ed7"
     },
     {
       "name": "Customer who never ordered",
@@ -44,7 +45,8 @@
           "customer": "Bo",
           "cancel_pct": 0
         }
-      ]
+      ],
+      "expectedHash": "81307cd1215ea787faccfea59bdf2581ae355aa5bd941f64c48265eed385e5b0"
     },
     {
       "name": "All orders cancelled",
@@ -58,12 +60,14 @@
           "customer": "Bo",
           "cancel_pct": 100
         }
-      ]
+      ],
+      "expectedHash": "f362b1472521b84c7fbeb392feae3f75981907cc4110e999c82bacdc4bc9b7aa"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -73,7 +77,8 @@
           "customer": "Ada",
           "cancel_pct": 0
         }
-      ]
+      ],
+      "expectedHash": "b243eea5166300b3f024489c81c559fd0c1fef3f82333d58e540c2e0e02e6349"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -87,7 +92,8 @@
           "customer": "Bo",
           "cancel_pct": 0
         }
-      ]
+      ],
+      "expectedHash": "81307cd1215ea787faccfea59bdf2581ae355aa5bd941f64c48265eed385e5b0"
     },
     {
       "name": "Single customer, single order",
@@ -97,7 +103,8 @@
           "customer": "Solo",
           "cancel_pct": 0
         }
-      ]
+      ],
+      "expectedHash": "da91da223127e199ef1b5e57977e39afef77e88372be4efd9f5e642f3a0c1581"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -111,7 +118,8 @@
           "customer": "Bo",
           "cancel_pct": 0
         }
-      ]
+      ],
+      "expectedHash": "81307cd1215ea787faccfea59bdf2581ae355aa5bd941f64c48265eed385e5b0"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -125,7 +133,8 @@
           "customer": "Bo",
           "cancel_pct": 0
         }
-      ]
+      ],
+      "expectedHash": "81307cd1215ea787faccfea59bdf2581ae355aa5bd941f64c48265eed385e5b0"
     },
     {
       "name": "Larger multi-country set",
@@ -159,7 +168,8 @@
           "customer": "G",
           "cancel_pct": 0
         }
-      ]
+      ],
+      "expectedHash": "5850e6a5af1125d80327b5a02a4ceb1dab89de013bfd450fab31e388a22a66ae"
     },
     {
       "name": "Customer with 0% cancelled",
@@ -193,7 +203,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Customer with 100% cancelled",
@@ -227,7 +238,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Customer with 50% cancelled",
@@ -261,7 +273,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "No customer has orders — empty result",
@@ -278,7 +291,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two customers: 0% and 100%",
@@ -330,7 +344,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Customer with 33.33%",
@@ -370,7 +385,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

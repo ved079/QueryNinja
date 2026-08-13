@@ -33,7 +33,8 @@
           "first_seen": "2022-03-02 20:00:00",
           "last_seen": "2022-03-04 21:00:00"
         }
-      ]
+      ],
+      "expectedHash": "4636b3a6e891c04509467602c46fe02e73266feaa11e8361d9a457328ae8d2e7"
     },
     {
       "name": "A user with a long unbroken streak",
@@ -49,7 +50,8 @@
           "first_seen": "2022-05-01 10:00:00",
           "last_seen": "2022-05-05 10:00:00"
         }
-      ]
+      ],
+      "expectedHash": "e0c6b87f6554fe7f48017b0d7f1fa71ba6a4a9dbd79bff05afbbda539e2917cc"
     },
     {
       "name": "Users with no events at all",
@@ -60,12 +62,14 @@
           "first_seen": "2022-04-01 12:00:00",
           "last_seen": "2022-04-01 12:30:00"
         }
-      ]
+      ],
+      "expectedHash": "1272d9506b2c7e47d0f02f81eb83821c674e7f21b729ac992a4b7f150447c652"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Several events at the exact same timestamp",
@@ -81,7 +85,8 @@
           "first_seen": "2022-06-01 09:00:00",
           "last_seen": "2022-06-01 09:00:00"
         }
-      ]
+      ],
+      "expectedHash": "6c31f9a126c1c736b0800503c44e4b8ddedec16a587fb6cfaf6bc071953e0c36"
     },
     {
       "name": "Single user, single event",
@@ -92,7 +97,8 @@
           "first_seen": "2022-07-04 15:00:00",
           "last_seen": "2022-07-04 15:00:00"
         }
-      ]
+      ],
+      "expectedHash": "dfd2d7f46d4aa81c9ac05825d45741bbb93114944722597318f78c8e7f13f71f"
     },
     {
       "name": "Events with NULL type and orphan user ids",
@@ -108,7 +114,8 @@
           "first_seen": "2022-08-02 09:00:00",
           "last_seen": "2022-08-02 09:00:00"
         }
-      ]
+      ],
+      "expectedHash": "710a0321382ff0fdceb0b702724d7d884a28dc91f747fbc0662829ce3162d5d7"
     },
     {
       "name": "A streak spanning a month boundary",
@@ -119,7 +126,8 @@
           "first_seen": "2022-01-30 09:00:00",
           "last_seen": "2022-02-05 09:00:00"
         }
-      ]
+      ],
+      "expectedHash": "f952f8db1eecf16bc90a4e00f3aa25766a7f8d5c954347e5799f8b3d11270856"
     },
     {
       "name": "Purchases only, no logins",
@@ -135,7 +143,8 @@
           "first_seen": "2022-09-02 09:00:00",
           "last_seen": "2022-09-02 09:00:00"
         }
-      ]
+      ],
+      "expectedHash": "6aa87f39ccb3c69cf27c4296da3e4ecc81f83f18b46691879e3b05535bc7bdb6"
     },
     {
       "name": "Larger multi-user activity log",
@@ -166,7 +175,8 @@
           "first_seen": "2022-03-01 18:00:00",
           "last_seen": "2022-03-07 19:00:00"
         }
-      ]
+      ],
+      "expectedHash": "e65fd278d96e113da9fb532cb593a8943f1b1e0572a47ea36950384c073e7ead"
     },
     {
       "name": "Single user single event",
@@ -193,7 +203,8 @@
           "last_seen": "2022-03-01 09:00:00"
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "User with multiple events",
@@ -226,7 +237,8 @@
           "last_seen": "2022-03-01 17:00:00"
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two users different spans",
@@ -276,7 +288,8 @@
           "last_seen": "2022-03-05 09:00:00"
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "User with events across months",
@@ -315,7 +328,8 @@
           "last_seen": "2022-03-05 09:00:00"
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "NULL event_time — MIN/MAX still work",
@@ -348,7 +362,8 @@
           "last_seen": "2022-03-01 09:00:00"
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "User with no events excluded",
@@ -381,7 +396,8 @@
           "last_seen": "2022-03-01 09:00:00"
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

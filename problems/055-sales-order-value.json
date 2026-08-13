@@ -42,7 +42,8 @@
           "order_id": 6,
           "total": 140
         }
-      ]
+      ],
+      "expectedHash": "0452f0cccb26bef0511cccd4247069c0799c9f88b235868fefdbd48785650ff3"
     },
     {
       "name": "Customer who never ordered",
@@ -56,7 +57,8 @@
           "order_id": 2,
           "total": 50
         }
-      ]
+      ],
+      "expectedHash": "4472faf81cfb21cabc27d61e909ee601c071837beac3c3f0f5ecc99ec2d95a75"
     },
     {
       "name": "All orders cancelled",
@@ -70,12 +72,14 @@
           "order_id": 2,
           "total": 160
         }
-      ]
+      ],
+      "expectedHash": "ddce46e7c98de75429b9909a1a3792e11716dfbae97eb83d1e2bd23c422ce5d8"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -85,7 +89,8 @@
           "order_id": 1,
           "total": 80
         }
-      ]
+      ],
+      "expectedHash": "c89ab36303b0f0d50de4339b056ca603ea5844510c942917a30931a0d75ae33a"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -99,7 +104,8 @@
           "order_id": 2,
           "total": 80
         }
-      ]
+      ],
+      "expectedHash": "227436fefa7d6db69d668284c541c4fac60cd57f44649981777aa95593e96427"
     },
     {
       "name": "Single customer, single order",
@@ -109,7 +115,8 @@
           "order_id": 1,
           "total": 80
         }
-      ]
+      ],
+      "expectedHash": "c89ab36303b0f0d50de4339b056ca603ea5844510c942917a30931a0d75ae33a"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -123,7 +130,8 @@
           "order_id": 2,
           "total": 100
         }
-      ]
+      ],
+      "expectedHash": "f57d836dcb02ddf9704171c8a2133a481afc12ec6944254417207603101c6153"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -149,7 +157,8 @@
           "order_id": 5,
           "total": 80
         }
-      ]
+      ],
+      "expectedHash": "cb287e1a28520c994d2a9e91e5c9add94519ea00fcdbd1b584148afa719e2fcb"
     },
     {
       "name": "Larger multi-country set",
@@ -195,7 +204,8 @@
           "order_id": 10,
           "total": 612.5
         }
-      ]
+      ],
+      "expectedHash": "b29ffb9f63c29369e79db38409d08a2961a866dbef259bc59f3adec29c35bc2a"
     },
     {
       "name": "Single item order",
@@ -205,7 +215,8 @@
           "order_id": 1,
           "total": 20
         }
-      ]
+      ],
+      "expectedHash": "ff0bf88f990f55b6525e6f052c7ee0c74ccd8928b90646bc5ef4ab9a226e4525"
     },
     {
       "name": "Multiple items in one order",
@@ -215,7 +226,8 @@
           "order_id": 1,
           "total": 130
         }
-      ]
+      ],
+      "expectedHash": "8be5c2a19dafc686397ae5b20f174a3208531c2eedfbcad9ba1245de717b8dd4"
     },
     {
       "name": "NULL quantity or unit_price — product is NULL",
@@ -225,7 +237,8 @@
           "order_id": 1,
           "total": null
         }
-      ]
+      ],
+      "expectedHash": "811ca6b3971ebf74762f7df49d0ee4767eae0786f374278fca1751b59ea3b72f"
     },
     {
       "name": "Zero quantity",
@@ -235,7 +248,8 @@
           "order_id": 1,
           "total": 0
         }
-      ]
+      ],
+      "expectedHash": "ff07bd339f99f83f46953c3274f23ed30ceaf013f10453373ed684ed5f1ae34d"
     },
     {
       "name": "Large quantities",
@@ -245,7 +259,8 @@
           "order_id": 1,
           "total": 999
         }
-      ]
+      ],
+      "expectedHash": "5738c79296cf383db16f31226175a805bcda5601f084f80b2fc671a7e8faa1b5"
     },
     {
       "name": "Two orders with different totals",
@@ -259,7 +274,8 @@
           "order_id": 2,
           "total": 300
         }
-      ]
+      ],
+      "expectedHash": "73ba6b7660dd9b4ff27752b9f32a5494233e4ffc7df7c849698cc0c4277b0f20"
     }
   ]
 }

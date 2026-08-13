@@ -23,12 +23,14 @@
         {
           "order_id": 4
         }
-      ]
+      ],
+      "expectedHash": "a407fdfa54cfc0dab5f4fdfddd460f12a32b5f987e35c6c89b3048c24caed984"
     },
     {
       "name": "All three systems fully agree",
       "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Completely disjoint across all three",
@@ -37,7 +39,8 @@
         {
           "order_id": 1
         }
-      ]
+      ],
+      "expectedHash": "24f39724ddc538488b34973670c8ff34173ac912fe15f9df323bb6718beb02b3"
     },
     {
       "name": "Source has an accidental duplicate row",
@@ -46,12 +49,14 @@
         {
           "order_id": 2
         }
-      ]
+      ],
+      "expectedHash": "5a6ebb5146a75b7b26df6b9bedfca0ad6506d1737b11551a97955afa6181f76c"
     },
     {
       "name": "All three systems empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Only source has any data",
@@ -66,22 +71,26 @@
         {
           "order_id": 3
         }
-      ]
+      ],
+      "expectedHash": "3a53496754ce4841d0faa74d61a46ca7d7450567667d8b168b02a0214a7a630b"
     },
     {
       "name": "Same order, inconsistent name formatting",
       "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'  ben kim ',80.0);\nINSERT INTO warehouse_orders VALUES (1,'ANN LEE',120.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'ann lee',120.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Matching ids, mismatched amounts",
       "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',125.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single matching order everywhere",
       "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Larger mixed set: some in all three, some in two, some in one, duplicates and a mismatch",
@@ -93,12 +102,14 @@
         {
           "order_id": 7
         }
-      ]
+      ],
+      "expectedHash": "7775107eb885d8806df5e7cc02d493d7c36a8ae9870c1e3d100f503edc492ae8"
     },
     {
       "name": "All orders synced — no missing rows",
       "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(2,'B',200.0);\nINSERT INTO warehouse_orders VALUES (1,'A',100.0),(2,'B',200.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "No warehouse data at all",
@@ -113,17 +124,20 @@
         {
           "order_id": 3
         }
-      ]
+      ],
+      "expectedHash": "3a53496754ce4841d0faa74d61a46ca7d7450567667d8b168b02a0214a7a630b"
     },
     {
       "name": "Empty source table",
       "seedSql": "INSERT INTO warehouse_orders VALUES (1,'A',100.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Partial overlap — some synced, some not",
@@ -135,7 +149,8 @@
         {
           "order_id": 3
         }
-      ]
+      ],
+      "expectedHash": "14c16170d32a6dd9780e70a88b29ad9c015053fcff1bdce8d5dee436be99a873"
     },
     {
       "name": "Duplicates in source do not change EXCEPT result",
@@ -144,7 +159,8 @@
         {
           "order_id": 1
         }
-      ]
+      ],
+      "expectedHash": "24f39724ddc538488b34973670c8ff34173ac912fe15f9df323bb6718beb02b3"
     }
   ]
 }

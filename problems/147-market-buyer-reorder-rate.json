@@ -25,7 +25,8 @@
           "reordered_within_30d": 2,
           "reorder_rate": 0.5
         }
-      ]
+      ],
+      "expectedHash": "93a88028c58938ffc0e10a7591c06fec378ac4bc01547cc6da9e4168b1803b7f"
     },
     {
       "name": "No buyer reorders — rate is 0",
@@ -36,7 +37,8 @@
           "reordered_within_30d": 0,
           "reorder_rate": 0
         }
-      ]
+      ],
+      "expectedHash": "99475319c797dd41bec12dee3bed2b25e99a04e714d38cbc9bf5b58e68c7fb3d"
     },
     {
       "name": "All buyers reorder within 30 days — rate is 1",
@@ -47,7 +49,8 @@
           "reordered_within_30d": 2,
           "reorder_rate": 1
         }
-      ]
+      ],
+      "expectedHash": "05887ac05f7fb6a6797bd68425a3e45e6d401302b3aad474be4137008462d1fc"
     },
     {
       "name": "Cancelled transactions do not count",
@@ -58,7 +61,8 @@
           "reordered_within_30d": 0,
           "reorder_rate": 0
         }
-      ]
+      ],
+      "expectedHash": "33eff9267555ac59787bca84e7d92e4d4e440d96c9c78e66a09d31d79a3e4174"
     },
     {
       "name": "Reorder exactly on day 30",
@@ -69,7 +73,8 @@
           "reordered_within_30d": 1,
           "reorder_rate": 1
         }
-      ]
+      ],
+      "expectedHash": "d6aa3b1966faa4f5a696ef2e2713c623af40ea67cb05d652de3b2b767cecd3f2"
     },
     {
       "name": "Empty tables",
@@ -80,7 +85,8 @@
           "reordered_within_30d": 0,
           "reorder_rate": null
         }
-      ]
+      ],
+      "expectedHash": "4c3c79d2d657b04fcd765f5edc783e72b58faa2afc74b6a9460a83090c43e223"
     }
   ]
 }

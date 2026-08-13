@@ -35,17 +35,20 @@
           "month": "2024-03",
           "customers": 1
         }
-      ]
+      ],
+      "expectedHash": "7676d39f48c4cd1762ded1cf8e25efbdf091f07c09d9f25a972968941ce3090c"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "No one returns after cohort month",
       "seedSql": "INSERT INTO orders VALUES (1,1,'2024-01-01'),(2,2,'2024-02-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single cohort, all return",
@@ -56,7 +59,8 @@
           "month": "2024-03",
           "customers": 2
         }
-      ]
+      ],
+      "expectedHash": "2a445266a2cbc5dab55e36e87300c97bfbd675b71bb17bb04fca3c7b60e5ca7b"
     },
     {
       "name": "Cross-year cohorts",
@@ -72,7 +76,8 @@
           "month": "2024-02",
           "customers": 1
         }
-      ]
+      ],
+      "expectedHash": "4be4619bfb5ddf8f3ce4e603f8ba919b8f3c1d500cdc30a30603fa7e5c1293fe"
     }
   ]
 }

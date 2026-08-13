@@ -26,7 +26,8 @@
           "manager": "Eve",
           "team_size": 2
         }
-      ]
+      ],
+      "expectedHash": "2b44da8141dfd4564acf3f108df8163d233e0321196c3d1ad6d868c443978792"
     },
     {
       "name": "Ties on every salary",
@@ -40,7 +41,8 @@
           "manager": "D",
           "team_size": 1
         }
-      ]
+      ],
+      "expectedHash": "7a226c82bc2324b5854c38180a61584e41f5085fa6ebec6268e9d80f9364fc0e"
     },
     {
       "name": "Department with no employees",
@@ -50,7 +52,8 @@
           "manager": "Ava",
           "team_size": 1
         }
-      ]
+      ],
+      "expectedHash": "5e955f971c6be96733ae31358fe27f2483f6ac73a52ea0e5fc6fea7e37980e08"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -60,17 +63,20 @@
           "manager": "Ava",
           "team_size": 1
         }
-      ]
+      ],
+      "expectedHash": "5e955f971c6be96733ae31358fe27f2483f6ac73a52ea0e5fc6fea7e37980e08"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -92,7 +98,8 @@
           "manager": "L4",
           "team_size": 1
         }
-      ]
+      ],
+      "expectedHash": "7e33b7656c71009f9562d027e4d383f1151fb8bdcf5a99d742f292889ab5ddf2"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -102,7 +109,8 @@
           "manager": "Sam",
           "team_size": 2
         }
-      ]
+      ],
+      "expectedHash": "8f636054b3841c22f0b580f7797d9910d96177b999b7dbf555bae36c8712f65a"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -116,7 +124,8 @@
           "manager": "Cara",
           "team_size": 1
         }
-      ]
+      ],
+      "expectedHash": "7da4f29360bbc6c880cf8a949c39fa9caa15b0fba694b9f750fbf13c67ebd20c"
     },
     {
       "name": "Larger multi-department set",
@@ -138,7 +147,8 @@
           "manager": "L",
           "team_size": 1
         }
-      ]
+      ],
+      "expectedHash": "57720262829f391e8795826916d73104d6e7d8d1424a25fb675e4e4424ffaee2"
     },
     {
       "name": "Manager with one direct report — team size 1",
@@ -148,7 +158,8 @@
           "manager": "Mgr",
           "team_size": 1
         }
-      ]
+      ],
+      "expectedHash": "dd1a2897fa414fa826b68eecb24a8c877fff289cb1f9377f7ed9a9c0e7dc76c8"
     },
     {
       "name": "Manager with two direct reports",
@@ -158,7 +169,8 @@
           "manager": "Mgr",
           "team_size": 2
         }
-      ]
+      ],
+      "expectedHash": "89554c97291c0a5803e30a350303b67d3f6fa912a7bf82cbe64bc1d5d440232c"
     },
     {
       "name": "Three-level chain — top manager has indirect reports",
@@ -172,7 +184,8 @@
           "manager": "Mgr",
           "team_size": 1
         }
-      ]
+      ],
+      "expectedHash": "2c0fe0c91e7087897d76b46cc1a673bad7e053a79ef66dfef71ac7fb4f9fe895"
     },
     {
       "name": "Two managers with different team sizes",
@@ -186,7 +199,8 @@
           "manager": "M2",
           "team_size": 1
         }
-      ]
+      ],
+      "expectedHash": "756dcf3b4a9b1204394857016424c59b088baa4420797f3413bed9fa9f38a3d0"
     },
     {
       "name": "Deep four-level chain — each level counts everyone below",
@@ -204,7 +218,8 @@
           "manager": "L3",
           "team_size": 1
         }
-      ]
+      ],
+      "expectedHash": "abd506076e70703557b3291737672039b3197679b23659b262a3589e83791167"
     },
     {
       "name": "Bushy tree from management chain depth test",
@@ -226,7 +241,8 @@
           "manager": "Mgr1",
           "team_size": 1
         }
-      ]
+      ],
+      "expectedHash": "50d722a7aada2f789324233b5e460951cfc92a31fee6e6d99e088694ff8ca77b"
     }
   ]
 }

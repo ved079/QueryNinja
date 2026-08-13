@@ -48,7 +48,8 @@
           "name": "Hal",
           "pct_rank": 0
         }
-      ]
+      ],
+      "expectedHash": "2d2e3debaecddeb2e12e9b766335d328ceeddc70b991379d253f774bb9dfe090"
     },
     {
       "name": "Ties on every salary",
@@ -74,7 +75,8 @@
           "name": "E",
           "pct_rank": 0
         }
-      ]
+      ],
+      "expectedHash": "b4329b1127f2d9353d42c2245a5095c59fbe0d0c75352b8010a22a86cf8d3d0d"
     },
     {
       "name": "Department with no employees",
@@ -88,7 +90,8 @@
           "name": "Ava",
           "pct_rank": 1
         }
-      ]
+      ],
+      "expectedHash": "3eab55ee914088c4550c9134f71aca50a9bd2ee2f7d9e87bf1d86f5e97bd2b3e"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -110,12 +113,14 @@
           "name": "Dan",
           "pct_rank": 0
         }
-      ]
+      ],
+      "expectedHash": "a0ca307caeb15fd97cff0e479d5feaf13263db53f7cff0775bbbd8125d330e24"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -125,7 +130,8 @@
           "name": "Solo",
           "pct_rank": 0
         }
-      ]
+      ],
+      "expectedHash": "b82c15189d58d6269f5b55f3dd5f4d20753112d713e9ddff6d88f10335e1f023"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -151,7 +157,8 @@
           "name": "L1",
           "pct_rank": 1
         }
-      ]
+      ],
+      "expectedHash": "ae204931021cd70f73f89073ff7d6ad65924647778301bf8ff750e98e1a66c1d"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -173,7 +180,8 @@
           "name": "Sam",
           "pct_rank": 1
         }
-      ]
+      ],
+      "expectedHash": "e3f2058bafaf1995bccb82a39255fb62a178a7db054d1283b813d497cd44e29a"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -195,7 +203,8 @@
           "name": "Dan",
           "pct_rank": 1
         }
-      ]
+      ],
+      "expectedHash": "855f885be57ef50766a828d31449e759f1ab5d92885388992d6c9f23188f0408"
     },
     {
       "name": "Larger multi-department set",
@@ -253,7 +262,8 @@
           "name": "M",
           "pct_rank": 0
         }
-      ]
+      ],
+      "expectedHash": "8736ab39af236a3ad5a12d46c3988eea3d3265909f654fd9cfc12b61b5524066"
     },
     {
       "name": "Single employee department — always percentile 0",
@@ -267,7 +277,8 @@
           "name": "Eve",
           "pct_rank": 0
         }
-      ]
+      ],
+      "expectedHash": "1283157bf05d36229351ddb7fa59ad9d8c6f9c684ba570bade546b9d625d2eac"
     },
     {
       "name": "Two employees per department — 0 and 1",
@@ -289,7 +300,8 @@
           "name": "C",
           "pct_rank": 1
         }
-      ]
+      ],
+      "expectedHash": "44fff0fe87197dd7396836338c5debceb436dc6d8d7764a0b0c515c24d9e8f1b"
     },
     {
       "name": "All same salary in department — all get 0",
@@ -307,12 +319,14 @@
           "name": "C",
           "pct_rank": 0
         }
-      ]
+      ],
+      "expectedHash": "ce9283a72c28fc6ce80e7c94f626142295a1c04f1749d932d4912ae904a5af97"
     },
     {
       "name": "Empty employees table",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Multiple employees with distinct salaries per department",
@@ -342,7 +356,8 @@
           "name": "E",
           "pct_rank": 1
         }
-      ]
+      ],
+      "expectedHash": "7bf9d5dac663a80f34effdfe2f466fb52e47b870b160a3bccdeb19dc207b87d5"
     },
     {
       "name": "Department with no employees — contributes no rows",
@@ -352,7 +367,8 @@
           "name": "Ava",
           "pct_rank": 0
         }
-      ]
+      ],
+      "expectedHash": "4216763f4b97bda27a30454b2b491f5d97711e864898b42610fd303d71e99255"
     }
   ]
 }

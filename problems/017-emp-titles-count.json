@@ -29,7 +29,8 @@
           "title": "Rep",
           "headcount": 2
         }
-      ]
+      ],
+      "expectedHash": "fef25f8d7b0f04f5e18c39b667ceeebf1afe3cb7c5a465df4e735d0d5fd13f82"
     },
     {
       "name": "Ties on every salary",
@@ -43,12 +44,14 @@
           "title": "Rep",
           "headcount": 2
         }
-      ]
+      ],
+      "expectedHash": "c408e3270599670c2f635db5d886c263f8b9aa9a1ba14c92f7ae1dda1e8b4b92"
     },
     {
       "name": "Department with no employees",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -58,22 +61,26 @@
           "title": "Rep",
           "headcount": 2
         }
-      ]
+      ],
+      "expectedHash": "0c90f906dde0c8e1fcb9e5e10b235c20be31c510c9eac22ee512e2256138fdd2"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -87,7 +94,8 @@
           "title": "Rep",
           "headcount": 2
         }
-      ]
+      ],
+      "expectedHash": "e317f43a619c17e715a1d184420da485ceb769a794553e78238e3e2809eb8e01"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -97,7 +105,8 @@
           "title": "Engineer",
           "headcount": 2
         }
-      ]
+      ],
+      "expectedHash": "9e5f4e5548167dccfb03579afe753124c1d98fab467f137ce8b4b589dc1816df"
     },
     {
       "name": "Larger multi-department set",
@@ -119,12 +128,14 @@
           "title": "Rep",
           "headcount": 3
         }
-      ]
+      ],
+      "expectedHash": "87372699a84f7b39176e0d2983f60422f1df900623458571025995b66c570226"
     },
     {
       "name": "No title has two or more employees",
       "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Mgr',100,1,1,'2020-01-01'),(3,'C','Rep',100,1,1,'2020-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Every title has two or more employees",
@@ -138,7 +149,8 @@
           "title": "Mgr",
           "headcount": 2
         }
-      ]
+      ],
+      "expectedHash": "6b0a8c2cf4eea0099f29f3ad5a4f52bdb78e9d756f09dd99fe8d53d107a41aac"
     },
     {
       "name": "NULL title appears twice — qualifies",
@@ -148,7 +160,8 @@
           "title": null,
           "headcount": 2
         }
-      ]
+      ],
+      "expectedHash": "506d61363dc49afec734c87b901425844337e53e1b880b0a9556dcf6bf427af2"
     },
     {
       "name": "One title with five employees",
@@ -158,7 +171,8 @@
           "title": "Eng",
           "headcount": 5
         }
-      ]
+      ],
+      "expectedHash": "f96fead8be6bed3a919397b79291d2b6338ba6f35f3ba6d3b6b04c3a3b4eee0c"
     },
     {
       "name": "Mix — some titles qualify, some do not",
@@ -172,7 +186,8 @@
           "title": "Rep",
           "headcount": 2
         }
-      ]
+      ],
+      "expectedHash": "afa377dce250bc6dd8f254cd961b7a616476f482991f50a918d70916b494cbd8"
     },
     {
       "name": "All employees share the same title",
@@ -182,7 +197,8 @@
           "title": "Eng",
           "headcount": 3
         }
-      ]
+      ],
+      "expectedHash": "0327f243ea853cbb518861e293cee006891f4cc1e97c1d66c7ff120f9937efb3"
     }
   ]
 }

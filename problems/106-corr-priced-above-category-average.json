@@ -27,7 +27,8 @@
           "category": "Furniture",
           "price": 300
         }
-      ]
+      ],
+      "expectedHash": "63116174072b12dc41f4452f978a041cb2c741ce81bac5b073b353689a39d291"
     },
     {
       "name": "Customer who never ordered",
@@ -38,17 +39,20 @@
           "category": "Tech",
           "price": 80
         }
-      ]
+      ],
+      "expectedHash": "858d7997a4afff3046a719c3190e60ee0013c0ec90af6f0f207a01397251af6d"
     },
     {
       "name": "All orders cancelled",
       "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','cancelled'),(2,2,'2022-01-11','cancelled');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,1,2,80.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -59,27 +63,32 @@
           "category": "Tech",
           "price": 999
         }
-      ]
+      ],
+      "expectedHash": "c37a2d37c6e74dcadb2dd94289a114026d725ee27b38e1b4b1058d345c0651ca"
     },
     {
       "name": "NULL prices, quantities and statuses",
       "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo',NULL,'2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mystery',NULL,NULL);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,2,'2022-01-11',NULL);\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,1,2,NULL,NULL),(3,2,1,1,80.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single customer, single order",
       "seedSql": "INSERT INTO customers VALUES (1,'Solo','US','2022-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-05-05','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Ties in revenue between products and customers",
       "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','US','2021-01-01');\nINSERT INTO products VALUES (1,'P1','Tech',50.0),(2,'P2','Tech',50.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,2,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,2,50.0),(2,2,2,2,50.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
       "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2020-12-31'),(2,'Bo','UK','2021-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Desk','Furniture',300.0);\nINSERT INTO orders VALUES (1,1,'2021-12-31','completed'),(2,1,'2022-01-01','completed'),(3,1,'2022-01-01','completed'),(4,2,'2022-01-31','completed'),(5,2,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,1,300.0),(3,3,1,3,80.0),(4,4,2,2,300.0),(5,5,1,1,80.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Larger multi-country set",
@@ -95,12 +104,14 @@
           "category": "Furniture",
           "price": 300
         }
-      ]
+      ],
+      "expectedHash": "63116174072b12dc41f4452f978a041cb2c741ce81bac5b073b353689a39d291"
     },
     {
       "name": "Single product per category — cannot be above its own average",
       "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Desk','Furniture',300.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "All products above their category average",
@@ -116,7 +127,8 @@
           "category": "Furniture",
           "price": 500
         }
-      ]
+      ],
+      "expectedHash": "0524e9f4eab5fb9a22c5f96fb86d74ab287c3278680aad33af530f3fc0e6a773"
     },
     {
       "name": "All products at or below average — no rows",
@@ -132,12 +144,14 @@
           "category": "Furniture",
           "price": 60
         }
-      ]
+      ],
+      "expectedHash": "467cb4e0b75ddb34fd0851706a13af616d30a845dde7655916eb19aedc307d48"
     },
     {
       "name": "No products",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Mixed — some above, some below per category",
@@ -153,12 +167,14 @@
           "category": "Furniture",
           "price": 300
         }
-      ]
+      ],
+      "expectedHash": "bcd408b238f3151f704d51224e56fe7b4bae45d2234082bfbbc38e052984beb1"
     },
     {
       "name": "NULL prices are ignored by AVG — still need > to work",
       "seedSql": "INSERT INTO products VALUES (1,'K','Tech',80.0),(2,'M','Tech',NULL),(3,'D','Furniture',300.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

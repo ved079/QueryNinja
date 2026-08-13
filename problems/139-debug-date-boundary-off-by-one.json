@@ -20,7 +20,8 @@
         {
           "total_revenue": null
         }
-      ]
+      ],
+      "expectedHash": "1c60b58a07a77553dd1bc075b0f0cc9b8bd9a8d1379e6a915613d9c286859dda"
     },
     {
       "name": "Customer who never ordered",
@@ -29,7 +30,8 @@
         {
           "total_revenue": null
         }
-      ]
+      ],
+      "expectedHash": "1c60b58a07a77553dd1bc075b0f0cc9b8bd9a8d1379e6a915613d9c286859dda"
     },
     {
       "name": "All orders cancelled",
@@ -38,7 +40,8 @@
         {
           "total_revenue": null
         }
-      ]
+      ],
+      "expectedHash": "1c60b58a07a77553dd1bc075b0f0cc9b8bd9a8d1379e6a915613d9c286859dda"
     },
     {
       "name": "Everything empty",
@@ -47,7 +50,8 @@
         {
           "total_revenue": null
         }
-      ]
+      ],
+      "expectedHash": "1c60b58a07a77553dd1bc075b0f0cc9b8bd9a8d1379e6a915613d9c286859dda"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -56,7 +60,8 @@
         {
           "total_revenue": null
         }
-      ]
+      ],
+      "expectedHash": "1c60b58a07a77553dd1bc075b0f0cc9b8bd9a8d1379e6a915613d9c286859dda"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -65,7 +70,8 @@
         {
           "total_revenue": null
         }
-      ]
+      ],
+      "expectedHash": "1c60b58a07a77553dd1bc075b0f0cc9b8bd9a8d1379e6a915613d9c286859dda"
     },
     {
       "name": "Single customer, single order",
@@ -74,7 +80,8 @@
         {
           "total_revenue": null
         }
-      ]
+      ],
+      "expectedHash": "1c60b58a07a77553dd1bc075b0f0cc9b8bd9a8d1379e6a915613d9c286859dda"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -83,7 +90,8 @@
         {
           "total_revenue": null
         }
-      ]
+      ],
+      "expectedHash": "1c60b58a07a77553dd1bc075b0f0cc9b8bd9a8d1379e6a915613d9c286859dda"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -92,7 +100,8 @@
         {
           "total_revenue": 80
         }
-      ]
+      ],
+      "expectedHash": "31f670dab015088f899b02bcacf8b550739e5ccea584f7c350caf455f3fff6be"
     },
     {
       "name": "Larger multi-country set",
@@ -101,7 +110,8 @@
         {
           "total_revenue": null
         }
-      ]
+      ],
+      "expectedHash": "1c60b58a07a77553dd1bc075b0f0cc9b8bd9a8d1379e6a915613d9c286859dda"
     },
     {
       "name": "Order exactly on the cutoff date — buggy query excludes it",
@@ -110,7 +120,8 @@
         {
           "total_revenue": 80
         }
-      ]
+      ],
+      "expectedHash": "31f670dab015088f899b02bcacf8b550739e5ccea584f7c350caf455f3fff6be"
     },
     {
       "name": "Orders before cutoff — both queries include them",
@@ -119,7 +130,8 @@
         {
           "total_revenue": 80
         }
-      ]
+      ],
+      "expectedHash": "31f670dab015088f899b02bcacf8b550739e5ccea584f7c350caf455f3fff6be"
     },
     {
       "name": "Orders after cutoff — both queries exclude them",
@@ -128,7 +140,8 @@
         {
           "total_revenue": null
         }
-      ]
+      ],
+      "expectedHash": "1c60b58a07a77553dd1bc075b0f0cc9b8bd9a8d1379e6a915613d9c286859dda"
     },
     {
       "name": "No orders on or before cutoff — both return NULL",
@@ -137,7 +150,8 @@
         {
           "total_revenue": null
         }
-      ]
+      ],
+      "expectedHash": "1c60b58a07a77553dd1bc075b0f0cc9b8bd9a8d1379e6a915613d9c286859dda"
     },
     {
       "name": "Empty orders table",
@@ -146,7 +160,8 @@
         {
           "total_revenue": null
         }
-      ]
+      ],
+      "expectedHash": "1c60b58a07a77553dd1bc075b0f0cc9b8bd9a8d1379e6a915613d9c286859dda"
     },
     {
       "name": "Multiple orders, one exactly on cutoff — bug under-reports total",
@@ -155,7 +170,8 @@
         {
           "total_revenue": 180
         }
-      ]
+      ],
+      "expectedHash": "262336894a87993f1fdf1a5e85ab590c4f79e6712cd138ada5bc837e725ac5ce"
     }
   ]
 }

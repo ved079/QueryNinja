@@ -38,7 +38,8 @@
           "new_users": 1,
           "returning_users": 0
         }
-      ]
+      ],
+      "expectedHash": "e78b666278d2349a6095228bb2e7db6bc98998fe7cf4a851db3d85306e7cb2fa"
     },
     {
       "name": "One user, multiple logins in one month",
@@ -56,7 +57,8 @@
           "new_users": 0,
           "returning_users": 1
         }
-      ]
+      ],
+      "expectedHash": "e81c552e2af7e2c5c5a982805f1570c3f48261adcea86b1197a3a2459edeba96"
     },
     {
       "name": "No returning users yet",
@@ -80,7 +82,8 @@
           "new_users": 1,
           "returning_users": 0
         }
-      ]
+      ],
+      "expectedHash": "e4b028059dac22b51d199864f2568c62172fd4cc4016143d243c3de31c849d35"
     },
     {
       "name": "Everyone is returning",
@@ -104,12 +107,14 @@
           "new_users": 0,
           "returning_users": 1
         }
-      ]
+      ],
+      "expectedHash": "43b757e056d91aca7060507b72d6b60bd6306966f9cf991be2d82abe3b62ec69"
     },
     {
       "name": "Table empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

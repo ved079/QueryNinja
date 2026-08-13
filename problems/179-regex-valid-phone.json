@@ -23,12 +23,14 @@
           "id": 1,
           "phone": "555-123-4567"
         }
-      ]
+      ],
+      "expectedHash": "b44afe4860666384e557401a868e7aceb55a67ad18cde5330be2109819c5cd79"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Partial-match must not pass",
@@ -38,7 +40,8 @@
           "id": 3,
           "phone": "555-123-4567"
         }
-      ]
+      ],
+      "expectedHash": "09fb7f92d12be52b48e2478a8450fa7d151e1a851954ca6222fb12de5edd97a1"
     },
     {
       "name": "All valid",
@@ -52,7 +55,8 @@
           "id": 2,
           "phone": "999-999-9999"
         }
-      ]
+      ],
+      "expectedHash": "c006b2e1a7556c047112a749356c6bdaa9b845c1d1f15b7d74b6cc800e290313"
     },
     {
       "name": "NULL and empty phone",
@@ -62,7 +66,8 @@
           "id": 1,
           "phone": "555-123-4567"
         }
-      ]
+      ],
+      "expectedHash": "b44afe4860666384e557401a868e7aceb55a67ad18cde5330be2109819c5cd79"
     }
   ]
 }

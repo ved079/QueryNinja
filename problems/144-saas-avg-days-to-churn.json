@@ -32,12 +32,14 @@
           "plan": "starter",
           "avg_days_to_churn": 60.5
         }
-      ]
+      ],
+      "expectedHash": "3076db89591ded3360dcea8cdb34f720f9df8f39a50e2499ed25206b8be726c6"
     },
     {
       "name": "All still active — empty result",
       "seedSql": "INSERT INTO plans VALUES (1,'pro',99);\nINSERT INTO users VALUES (1,'A','2022-01-01'),(2,'B','2022-01-01');\nINSERT INTO subscriptions VALUES (1,1,1,'2022-01-01',NULL),(2,2,1,'2022-02-01',NULL);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single day subscription",
@@ -47,7 +49,8 @@
           "plan": "starter",
           "avg_days_to_churn": 0
         }
-      ]
+      ],
+      "expectedHash": "e47b9ea5a571398d69cf9752989619ad042ac68cfe153c9e4596fda706a0e450"
     },
     {
       "name": "Multiple churns per plan",
@@ -61,12 +64,14 @@
           "plan": "starter",
           "avg_days_to_churn": 135.5
         }
-      ]
+      ],
+      "expectedHash": "e27dce6bf6a152b5f6d72a82c04f58ab1a1eac1652477c0bf6c68406951e03a0"
     },
     {
       "name": "Empty tables",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

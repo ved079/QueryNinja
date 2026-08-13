@@ -48,7 +48,8 @@
           "daily": 140,
           "running": 960
         }
-      ]
+      ],
+      "expectedHash": "d09239ff2b81b11c65bded13cd1b0acb06565ba2a5f69e5705f2f3243d57bc9f"
     },
     {
       "name": "Customer who never ordered",
@@ -64,7 +65,8 @@
           "daily": 50,
           "running": 130
         }
-      ]
+      ],
+      "expectedHash": "e72844712618be40ddc7a1bc1940d6f3ef558acae774ded7767372e96479dcd6"
     },
     {
       "name": "All orders cancelled",
@@ -80,12 +82,14 @@
           "daily": 160,
           "running": 240
         }
-      ]
+      ],
+      "expectedHash": "82e4ed7f179c7598283ad63babac634d216ab8e668f9f569bf412b0d042e5219"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -96,7 +100,8 @@
           "daily": 80,
           "running": 80
         }
-      ]
+      ],
+      "expectedHash": "497c4f07240471efd689b20981f58ae62dffc2f593761afa57a2d769731e1d44"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -112,7 +117,8 @@
           "daily": 80,
           "running": 240
         }
-      ]
+      ],
+      "expectedHash": "70755a66830fc4529ca392d20b814d1721a06281eefb6e4993134492a250947d"
     },
     {
       "name": "Single customer, single order",
@@ -123,7 +129,8 @@
           "daily": 80,
           "running": 80
         }
-      ]
+      ],
+      "expectedHash": "f231d5d8b6c2e3245b5332dfd0c9d6b1998c60dde7f17c0a94f2ca51bd5419a6"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -134,7 +141,8 @@
           "daily": 200,
           "running": 200
         }
-      ]
+      ],
+      "expectedHash": "9b93fe89e870be2dcf52dffa3908ecfe9e04c2e54da15634bd33c2ba9d84a9e6"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -160,7 +168,8 @@
           "daily": 80,
           "running": 1300
         }
-      ]
+      ],
+      "expectedHash": "e0f84c01b55efb5cf2d04391f5f6ffa8e03fea14eefd6533ff179bec8dbb00e2"
     },
     {
       "name": "Larger multi-country set",
@@ -216,7 +225,8 @@
           "daily": 612.5,
           "running": 2017.5
         }
-      ]
+      ],
+      "expectedHash": "2e69db3c19425842abf87d6a0e2c50aa3bd931a4c2871e2c000d26e8cc714b17"
     },
     {
       "name": "Single date",
@@ -267,7 +277,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two dates increasing",
@@ -331,7 +342,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Three dates with accumulation",
@@ -408,7 +420,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Multiple orders on same date",
@@ -472,7 +485,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Dates out of order in insert — ORDER BY fixes",
@@ -536,7 +550,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Larger set across 5 dates",
@@ -639,7 +654,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

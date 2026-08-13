@@ -42,7 +42,8 @@
           "order_id": 6,
           "system_count": 1
         }
-      ]
+      ],
+      "expectedHash": "f1ba125401bd120e5de9a97d6389f25387d5a5a23c859316090cace265e168b1"
     },
     {
       "name": "All three systems fully agree",
@@ -56,7 +57,8 @@
           "order_id": 2,
           "system_count": 3
         }
-      ]
+      ],
+      "expectedHash": "c4c6d68be9626fad6edbb54c7aaa4ae7e6f16b0a70070894b74a0e2351cebe4a"
     },
     {
       "name": "Completely disjoint across all three",
@@ -74,7 +76,8 @@
           "order_id": 3,
           "system_count": 1
         }
-      ]
+      ],
+      "expectedHash": "e5821bea055d16fad13f31ac71718cb7620f761a9ad79f606d9b1031c62adc29"
     },
     {
       "name": "Source has an accidental duplicate row",
@@ -88,12 +91,14 @@
           "order_id": 2,
           "system_count": 1
         }
-      ]
+      ],
+      "expectedHash": "6c3d7d6007da50cbc838fb5a223a1270ddbddf483d0305778081d9f0a8ff5e75"
     },
     {
       "name": "All three systems empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Only source has any data",
@@ -111,7 +116,8 @@
           "order_id": 3,
           "system_count": 1
         }
-      ]
+      ],
+      "expectedHash": "e5821bea055d16fad13f31ac71718cb7620f761a9ad79f606d9b1031c62adc29"
     },
     {
       "name": "Same order, inconsistent name formatting",
@@ -125,7 +131,8 @@
           "order_id": 2,
           "system_count": 2
         }
-      ]
+      ],
+      "expectedHash": "f296a205050f47c1687b2ff5960dcc33ea8c745c5e667869a1c09d5c1c378378"
     },
     {
       "name": "Matching ids, mismatched amounts",
@@ -139,7 +146,8 @@
           "order_id": 2,
           "system_count": 3
         }
-      ]
+      ],
+      "expectedHash": "c4c6d68be9626fad6edbb54c7aaa4ae7e6f16b0a70070894b74a0e2351cebe4a"
     },
     {
       "name": "Single matching order everywhere",
@@ -149,7 +157,8 @@
           "order_id": 1,
           "system_count": 3
         }
-      ]
+      ],
+      "expectedHash": "92cbf136cd9749dc26f9de37918bb7b539d33b54f8814a8c067a116f275a0f7a"
     },
     {
       "name": "Larger mixed set: some in all three, some in two, some in one, duplicates and a mismatch",
@@ -187,7 +196,8 @@
           "order_id": 8,
           "system_count": 1
         }
-      ]
+      ],
+      "expectedHash": "9b0246ec22c9e758102bae3cd2ee686419629074f8c83a4f52e3eb8315862528"
     },
     {
       "name": "Same order in all three systems",
@@ -197,7 +207,8 @@
           "order_id": 1,
           "system_count": 3
         }
-      ]
+      ],
+      "expectedHash": "92cbf136cd9749dc26f9de37918bb7b539d33b54f8814a8c067a116f275a0f7a"
     },
     {
       "name": "Completely disjoint across all three",
@@ -215,7 +226,8 @@
           "order_id": 3,
           "system_count": 1
         }
-      ]
+      ],
+      "expectedHash": "e5821bea055d16fad13f31ac71718cb7620f761a9ad79f606d9b1031c62adc29"
     },
     {
       "name": "Only source has data",
@@ -229,7 +241,8 @@
           "order_id": 2,
           "system_count": 1
         }
-      ]
+      ],
+      "expectedHash": "396f4ba49dc92b983eccf4866d6116efc8150fee7fd0b561ad1228d49cb0e354"
     },
     {
       "name": "Mixed — one order in all three, rest in one",
@@ -247,12 +260,14 @@
           "order_id": 3,
           "system_count": 1
         }
-      ]
+      ],
+      "expectedHash": "40f5438e7c61bc55ea5b4f47dc1d28fff4aef9c9712d0f2a22cd41114f84d406"
     },
     {
       "name": "All three tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Duplicates in one system do not inflate count",
@@ -262,7 +277,8 @@
           "order_id": 1,
           "system_count": 3
         }
-      ]
+      ],
+      "expectedHash": "92cbf136cd9749dc26f9de37918bb7b539d33b54f8814a8c067a116f275a0f7a"
     }
   ]
 }

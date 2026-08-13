@@ -32,12 +32,14 @@
           "sku_type": "Standard",
           "product_count": 1
         }
-      ]
+      ],
+      "expectedHash": "ad4442fd7090d1c146289b373ca7b433f2a852770dd8d763075a86db32a84ffd"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Only Standard",
@@ -47,7 +49,8 @@
           "sku_type": "Standard",
           "product_count": 3
         }
-      ]
+      ],
+      "expectedHash": "98631a2594c60bba97ce23ecfae38f784ac8c04e30487d129117b0d73933eac6"
     },
     {
       "name": "All Other",
@@ -57,7 +60,8 @@
           "sku_type": "Other",
           "product_count": 2
         }
-      ]
+      ],
+      "expectedHash": "b8e63a19387447946d016ed46c370d84e35627e2c7a3d95428033dce4139ff86"
     },
     {
       "name": "Lowercase matches due to case-insensitivity",
@@ -71,7 +75,8 @@
           "sku_type": "Standard",
           "product_count": 1
         }
-      ]
+      ],
+      "expectedHash": "e059e4cad9e529b7cdabfcc1c7ce24c180537981bc526aabe10b24fc7bcb38ca"
     },
     {
       "name": "Many Other",
@@ -81,7 +86,8 @@
           "sku_type": "Other",
           "product_count": 3
         }
-      ]
+      ],
+      "expectedHash": "955a65615f4b7b4bcc8af0abd1e7e89f6dd5bc46975d80289acd3a697ba27579"
     }
   ]
 }

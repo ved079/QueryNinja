@@ -38,7 +38,8 @@
           "id": 5,
           "order_date": "2022-03-06"
         }
-      ]
+      ],
+      "expectedHash": "073c65fa032554a3ce644869fb673eb78be989b853acbac59bea6a7f3ac64149"
     },
     {
       "name": "Customer who never ordered",
@@ -52,7 +53,8 @@
           "id": 2,
           "order_date": "2022-01-11"
         }
-      ]
+      ],
+      "expectedHash": "267dab8a639b4f53fe20d93963a20fd1f05faa1f04174c95f639973e5a8ffccb"
     },
     {
       "name": "All orders cancelled",
@@ -66,12 +68,14 @@
           "id": 2,
           "order_date": "2022-01-11"
         }
-      ]
+      ],
+      "expectedHash": "267dab8a639b4f53fe20d93963a20fd1f05faa1f04174c95f639973e5a8ffccb"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -85,7 +89,8 @@
           "id": 2,
           "order_date": "2022-01-11"
         }
-      ]
+      ],
+      "expectedHash": "267dab8a639b4f53fe20d93963a20fd1f05faa1f04174c95f639973e5a8ffccb"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -99,7 +104,8 @@
           "id": 2,
           "order_date": "2022-01-11"
         }
-      ]
+      ],
+      "expectedHash": "267dab8a639b4f53fe20d93963a20fd1f05faa1f04174c95f639973e5a8ffccb"
     },
     {
       "name": "Single customer, single order",
@@ -109,7 +115,8 @@
           "id": 1,
           "order_date": "2022-05-05"
         }
-      ]
+      ],
+      "expectedHash": "18655fb1bf898478ef622e7f0a27b0f2eb84e44d6991a39c966534a8e69cf3c4"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -123,7 +130,8 @@
           "id": 2,
           "order_date": "2022-01-01"
         }
-      ]
+      ],
+      "expectedHash": "22e4f716d66ff0befbde9a89c5ce9f82e4fb18c6627a3caabc9025f313ad9701"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -145,7 +153,8 @@
           "id": 5,
           "order_date": "2022-02-01"
         }
-      ]
+      ],
+      "expectedHash": "f40a3e26b4a0c660cc92a1d30a3d7ddc8cd046cb381b67bb50707aefde711a46"
     },
     {
       "name": "Larger multi-country set",
@@ -179,12 +188,14 @@
           "id": 7,
           "order_date": "2022-06-19"
         }
-      ]
+      ],
+      "expectedHash": "915448a181d3771b342a166d9a704b324868de926ec32ba594c5b2552c3493aa"
     },
     {
       "name": "No orders in 2022",
       "seedSql": "INSERT INTO orders VALUES (1,1,'2023-06-15','completed');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Boundary dates — 2022-01-01 and 2022-12-31",
@@ -198,7 +209,8 @@
           "id": 2,
           "order_date": "2022-12-31"
         }
-      ]
+      ],
+      "expectedHash": "eb91c3df67e921de4bd315709298180b90a6dc80dd6fa5577940b5abc2e2d321"
     },
     {
       "name": "NULL order_date",
@@ -208,7 +220,8 @@
           "id": 1,
           "order_date": "2022-06-15"
         }
-      ]
+      ],
+      "expectedHash": "ceb866551aa34228c833ea6871b4d47c695bbcdaeecc3df3d6f108545fb179a9"
     },
     {
       "name": "Single order in 2022",
@@ -218,7 +231,8 @@
           "id": 1,
           "order_date": "2022-06-15"
         }
-      ]
+      ],
+      "expectedHash": "ceb866551aa34228c833ea6871b4d47c695bbcdaeecc3df3d6f108545fb179a9"
     },
     {
       "name": "Orders spanning 2021–2023",
@@ -232,7 +246,8 @@
           "id": 3,
           "order_date": "2022-12-15"
         }
-      ]
+      ],
+      "expectedHash": "d12e2e612b1b21479c163e6baedf382488113a660cd76551ed55e85f802bf2b6"
     },
     {
       "name": "Leap day in 2020",
@@ -242,7 +257,8 @@
           "id": 2,
           "order_date": "2022-02-28"
         }
-      ]
+      ],
+      "expectedHash": "16d400bd37bf88eaac0ec270c03f130d9f8731f3c5ada55e5cee964ba8245d9b"
     }
   ]
 }

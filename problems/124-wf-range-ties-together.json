@@ -56,7 +56,8 @@
           "hire_date": "2023-09-01",
           "hires_so_far": 8
         }
-      ]
+      ],
+      "expectedHash": "693a7a576a4ff20f1ad8e44dfccdfabd8fe01ab8558f3ab58d54a37879c58781"
     },
     {
       "name": "Ties on every salary",
@@ -87,7 +88,8 @@
           "hire_date": "2020-01-01",
           "hires_so_far": 5
         }
-      ]
+      ],
+      "expectedHash": "8f43a7cc209126588fd2b051106095eff25efb05380d0ac1061d126f3a44ab60"
     },
     {
       "name": "Department with no employees",
@@ -103,7 +105,8 @@
           "hire_date": "2020-06-15",
           "hires_so_far": 2
         }
-      ]
+      ],
+      "expectedHash": "d4e72fc826f98d82081ba76fc6039179f892b59615a159197599e35a1811621e"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -129,12 +132,14 @@
           "hire_date": "2021-02-03",
           "hires_so_far": 4
         }
-      ]
+      ],
+      "expectedHash": "0e40fdba261fb524a95cab9c0f0371f0089d336ab226853e7b4ea42993ae25c3"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -145,7 +150,8 @@
           "hire_date": "2022-04-01",
           "hires_so_far": 1
         }
-      ]
+      ],
+      "expectedHash": "e808a5f9d944ffc51b3175dbe64acddce35b9cb8f21181077af727b3d91155d9"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -176,7 +182,8 @@
           "hire_date": "2018-01-01",
           "hires_so_far": 5
         }
-      ]
+      ],
+      "expectedHash": "1f09b09f12790d3f01da04a7a96b36b1260b48c19a6cd2fdbbdf0dd2c220f39e"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -202,7 +209,8 @@
           "hire_date": "2021-06-30",
           "hires_so_far": 4
         }
-      ]
+      ],
+      "expectedHash": "14f73aedfcf187d07c0be746877264fee400412d1a7b7894deabd9032e1ba3be"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -228,7 +236,8 @@
           "hire_date": "2020-12-31",
           "hires_so_far": 4
         }
-      ]
+      ],
+      "expectedHash": "50cabe816521ab28142337726ec62e2a498bcfe151399069dd7b86b65e6ad45f"
     },
     {
       "name": "Larger multi-department set",
@@ -299,7 +308,8 @@
           "hire_date": "2022-05-22",
           "hires_so_far": 13
         }
-      ]
+      ],
+      "expectedHash": "c56078275dc2cad40ad62a5ef08e8edd13f31815b720b3f45c1b87e63acf4f51"
     },
     {
       "name": "All employees hired on the same date — same cumulative count for all",
@@ -320,7 +330,8 @@
           "hire_date": "2022-01-01",
           "hires_so_far": 3
         }
-      ]
+      ],
+      "expectedHash": "ce8db019daf3426c0f0abc2daa000c206bcfd90f05a397df4c29810783b8006a"
     },
     {
       "name": "All distinct hire dates — RANGE behaves like ROWS",
@@ -341,12 +352,14 @@
           "hire_date": "2022-03-01",
           "hires_so_far": 3
         }
-      ]
+      ],
+      "expectedHash": "4326db67fd39f538c81fb5547b89f0e69de0d1918703a81ce211e42837706905"
     },
     {
       "name": "Empty employees table",
       "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two employees on same date, others on distinct dates",
@@ -372,7 +385,8 @@
           "hire_date": "2022-03-01",
           "hires_so_far": 4
         }
-      ]
+      ],
+      "expectedHash": "51495d3e02634385e307c3686261874e384184a200031101d5da0978b19db254"
     },
     {
       "name": "Multiple ties on multiple dates",
@@ -403,7 +417,8 @@
           "hire_date": "2022-03-01",
           "hires_so_far": 5
         }
-      ]
+      ],
+      "expectedHash": "9cc921c51cb843a7ee283cd003143600ced31db75f14ad7c3472004348867175"
     },
     {
       "name": "Single employee — count is 1",
@@ -414,7 +429,8 @@
           "hire_date": "2022-06-15",
           "hires_so_far": 1
         }
-      ]
+      ],
+      "expectedHash": "75ad5617f2cfcee50472e383bcadc426a22c4f0590f8bc45f2a3c30a1d95bc1c"
     }
   ]
 }

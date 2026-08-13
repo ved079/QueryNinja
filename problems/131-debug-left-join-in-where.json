@@ -33,7 +33,8 @@
           "name": "Lamp",
           "total_qty": 6
         }
-      ]
+      ],
+      "expectedHash": "6f4227a0d13cf311afd16baa84726067c25856f7d80fe6111a28f75f03ece27b"
     },
     {
       "name": "Customer who never ordered",
@@ -47,7 +48,8 @@
           "name": "Mouse",
           "total_qty": 2
         }
-      ]
+      ],
+      "expectedHash": "0d492fc0c48fac5ab23344d86cebcf5cfd132a2f670f4461b534ed1d1a34c072"
     },
     {
       "name": "All orders cancelled",
@@ -57,12 +59,14 @@
           "name": "Keyboard",
           "total_qty": 3
         }
-      ]
+      ],
+      "expectedHash": "b257ade38a9680c82dbdfa98757468cc1adb69fe576a4dc755893595c03e913f"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -76,7 +80,8 @@
           "name": "NeverSold",
           "total_qty": 0
         }
-      ]
+      ],
+      "expectedHash": "3e1355a8f9d479b3976a37ce87cef3ba4aeb7c6f234b3784a12f9716da536781"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -90,7 +95,8 @@
           "name": "Mystery",
           "total_qty": 0
         }
-      ]
+      ],
+      "expectedHash": "32a4aaae9a99387705d90ba212e16ed46576999a3ca4068a7985fd68adbab68f"
     },
     {
       "name": "Single customer, single order",
@@ -100,7 +106,8 @@
           "name": "Keyboard",
           "total_qty": 1
         }
-      ]
+      ],
+      "expectedHash": "97a3695f66fddd3dcbe1b6074c1fb961122f20b91442d20eed17a05368d113d6"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -114,7 +121,8 @@
           "name": "P2",
           "total_qty": 2
         }
-      ]
+      ],
+      "expectedHash": "27190bcaeb08f845f1d49259bf4d2cd82e92e06eada1712c5974121289430555"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -128,7 +136,8 @@
           "name": "Desk",
           "total_qty": 3
         }
-      ]
+      ],
+      "expectedHash": "a673a2833537092ed4d54795d23a1471e3a0fca1af57ad2e941ce0e7b3c73c85"
     },
     {
       "name": "Larger multi-country set",
@@ -154,7 +163,8 @@
           "name": "Mug",
           "total_qty": 15
         }
-      ]
+      ],
+      "expectedHash": "1f65e7093fa4c143faf2dc069e94c460bd1f938993678371b20c5916fd31e5b7"
     },
     {
       "name": "Products with no completed orders — buggy query drops them",
@@ -168,7 +178,8 @@
           "name": "Mouse",
           "total_qty": 0
         }
-      ]
+      ],
+      "expectedHash": "00d1abd08bd2a3a47d71f2da36e4df218c5cd6afe809804023f2824a9210ca27"
     },
     {
       "name": "Products with no orders at all",
@@ -182,7 +193,8 @@
           "name": "Mouse",
           "total_qty": 0
         }
-      ]
+      ],
+      "expectedHash": "72203028bd327ed2ff9559d4f5e1f4339b759372e423e6b3e49791b7adbcc719"
     },
     {
       "name": "Only some products have completed orders",
@@ -200,7 +212,8 @@
           "name": "Desk",
           "total_qty": 1
         }
-      ]
+      ],
+      "expectedHash": "846854a1e371f8b8c03d6091d5960fd5d0bdaedd5b7d3abb16c1acab11928c1d"
     },
     {
       "name": "Products with only non-completed orders",
@@ -214,12 +227,14 @@
           "name": "Mouse",
           "total_qty": 2
         }
-      ]
+      ],
+      "expectedHash": "0d492fc0c48fac5ab23344d86cebcf5cfd132a2f670f4461b534ed1d1a34c072"
     },
     {
       "name": "Both products and orders empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Mixed — some products have completed, some have cancelled, some have none",
@@ -241,7 +256,8 @@
           "name": "L",
           "total_qty": 2
         }
-      ]
+      ],
+      "expectedHash": "4c81ca64714a5e4c993141e95584a80bad219b95cb3892387e8471006b6d6303"
     }
   ]
 }

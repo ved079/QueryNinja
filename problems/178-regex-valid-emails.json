@@ -27,12 +27,14 @@
           "id": 2,
           "email": "alice@mail.co"
         }
-      ]
+      ],
+      "expectedHash": "8800473919b5f6952731b7ba6fa000367ed2c95631585f7c34133a8c9d85f69f"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Edge TLD lengths",
@@ -46,12 +48,14 @@
           "id": 3,
           "email": "a@b.c.zzz"
         }
-      ]
+      ],
+      "expectedHash": "6a2cf15d992badbccc7d6f51caf800640e7346a89f6036374c9242f2b654e47a"
     },
     {
       "name": "All invalid",
       "seedSql": "INSERT INTO customers VALUES (1,'A','no-at-sign.com'),(2,'B','a@'),(3,'C','@@x.com');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Special chars in local part",
@@ -65,7 +69,8 @@
           "id": 2,
           "email": "first_last@example.com"
         }
-      ]
+      ],
+      "expectedHash": "72fc86d0facc3e600a9f2da53b9614d88f100349e1cd239393d6f304db08d7ef"
     }
   ]
 }

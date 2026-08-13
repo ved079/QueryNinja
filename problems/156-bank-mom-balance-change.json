@@ -50,7 +50,8 @@
           "end_balance": 4000,
           "mom_change": -1000
         }
-      ]
+      ],
+      "expectedHash": "dc13d221f4a454ac7e6a53e7f92901a390dbeafeae3fbd9fdddb6ef2b09aeca9"
     },
     {
       "name": "Single month — mom_change is NULL",
@@ -62,7 +63,8 @@
           "end_balance": 500,
           "mom_change": null
         }
-      ]
+      ],
+      "expectedHash": "00aa67d0cbd88fcf60369213dedb110f498f63a6996da66adfa8e3400d8fd26a"
     },
     {
       "name": "Balance decreasing every month",
@@ -92,12 +94,14 @@
           "end_balance": 100,
           "mom_change": -200
         }
-      ]
+      ],
+      "expectedHash": "df4752fac1dd38ee1941eaa6b00ed1b1abea990e610ba2f32b5cb5fc57969b01"
     },
     {
       "name": "Empty tables",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

@@ -70,7 +70,8 @@
           "total_ltv": 50,
           "segment": "low"
         }
-      ]
+      ],
+      "expectedHash": "6e39c115fc529331599fe4e1fcd16d3a42fb36e00e3cc4d3f849aeef123dab21"
     },
     {
       "name": "Pending orders excluded",
@@ -101,7 +102,8 @@
           "total_ltv": 600,
           "segment": "low"
         }
-      ]
+      ],
+      "expectedHash": "695b39b714af75d7fda60ac01568f280df63d7af32ac76a88f0bddce024508c1"
     },
     {
       "name": "Single customer — goes to high",
@@ -112,12 +114,14 @@
           "total_ltv": 100,
           "segment": "high"
         }
-      ]
+      ],
+      "expectedHash": "5f26a16bc2d03fb149cea768274591bbc4b71a45bbfd078a1a6c56eb68d8c8c8"
     },
     {
       "name": "Empty tables",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Five customers equal LTV — secondary sort by customer_id",
@@ -148,7 +152,8 @@
           "total_ltv": 100,
           "segment": "low"
         }
-      ]
+      ],
+      "expectedHash": "9af08c520b5463217cb26e47ed824f48495fba0172927af63d67383933b7b9cd"
     }
   ]
 }

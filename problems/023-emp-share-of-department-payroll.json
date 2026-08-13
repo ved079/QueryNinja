@@ -49,7 +49,8 @@
           "name": "Hal",
           "pct_of_payroll": 100
         }
-      ]
+      ],
+      "expectedHash": "4d0d2bff4c292f0b38dbb72aff7fbc171bb18eebfb6bc8556c7a1c83dfca0c7e"
     },
     {
       "name": "Ties on every salary",
@@ -75,7 +76,8 @@
           "name": "E",
           "pct_of_payroll": 50
         }
-      ]
+      ],
+      "expectedHash": "05c8895f1c1c932ffce152b5624f7cb5e69f6314ba4a7efc85a0b0c1a4282d6c"
     },
     {
       "name": "Department with no employees",
@@ -89,7 +91,8 @@
           "name": "Ben",
           "pct_of_payroll": 47.06
         }
-      ]
+      ],
+      "expectedHash": "b539096f68bb5966c7e49f25f054a4792507eda94610f285e1ab983fb05a898c"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -111,12 +114,14 @@
           "name": "Dan",
           "pct_of_payroll": 100
         }
-      ]
+      ],
+      "expectedHash": "2de0e6b2847c60bd04830b03c2c472cda16c1df5436c59bc5219f5813a4c73e5"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -126,7 +131,8 @@
           "name": "Solo",
           "pct_of_payroll": 100
         }
-      ]
+      ],
+      "expectedHash": "d7d84121dde7b8fcf699f21ef5f56fdbd5f35409466cd9218ee2df13efde51b6"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -152,7 +158,8 @@
           "name": "L5",
           "pct_of_payroll": 24.51
         }
-      ]
+      ],
+      "expectedHash": "bf4744f0f1d1618d90adc5220272565d8692d255956d4e263d01dd44bda49cb6"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -174,7 +181,8 @@
           "name": "Alex",
           "pct_of_payroll": 27.91
         }
-      ]
+      ],
+      "expectedHash": "9f662429f6fbe8a374c4b853600a20726f6f2473747a6d6ee66e86319e93dd80"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -196,7 +204,8 @@
           "name": "Dan",
           "pct_of_payroll": 100
         }
-      ]
+      ],
+      "expectedHash": "1ade097f5e5e773d3dc1f5219453dcec518193bc0c0d2e94eee0c9b26d7d5604"
     },
     {
       "name": "Larger multi-department set",
@@ -254,7 +263,8 @@
           "name": "M",
           "pct_of_payroll": 50
         }
-      ]
+      ],
+      "expectedHash": "17381339fd3b1490ea8682b6f7042349c1194d44bb33506bc73d3ffa0b47b33f"
     },
     {
       "name": "Single employee owns 100% of department payroll",
@@ -264,7 +274,8 @@
           "name": "Solo",
           "pct_of_payroll": 100
         }
-      ]
+      ],
+      "expectedHash": "d7d84121dde7b8fcf699f21ef5f56fdbd5f35409466cd9218ee2df13efde51b6"
     },
     {
       "name": "Two employees split payroll evenly",
@@ -278,7 +289,8 @@
           "name": "B",
           "pct_of_payroll": 50
         }
-      ]
+      ],
+      "expectedHash": "292a023dff9ef5709db1b201cef31a80dfcf802a436b1e57aef58156e7231725"
     },
     {
       "name": "Multiple departments with uneven splits",
@@ -300,7 +312,8 @@
           "name": "D",
           "pct_of_payroll": 50
         }
-      ]
+      ],
+      "expectedHash": "ad06e5300dfcc8d6de5f482e2073b0a2dbebd51dd477d32bd5d864a3f0e819dc"
     },
     {
       "name": "Three employees with uneven split",
@@ -318,7 +331,8 @@
           "name": "C",
           "pct_of_payroll": 20
         }
-      ]
+      ],
+      "expectedHash": "9c3578c18f554cb2f781a89563a28e6b0466821af7148d4a5cdf7cc2d71b9876"
     },
     {
       "name": "Five identical salaries in one department",
@@ -344,7 +358,8 @@
           "name": "E",
           "pct_of_payroll": 20
         }
-      ]
+      ],
+      "expectedHash": "e8a21b3fdb5efb0cbe6a65e567d8e54a03314cd8e9ed657d6386a617e66b567d"
     },
     {
       "name": "Two departments with varied percentages",
@@ -382,7 +397,8 @@
           "name": "S3",
           "pct_of_payroll": 20
         }
-      ]
+      ],
+      "expectedHash": "a4dfdffc9e230fa0902a6b03a62da4558ce189a150122e32729d333dfc6bcbc0"
     }
   ]
 }

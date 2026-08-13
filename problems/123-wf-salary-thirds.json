@@ -48,7 +48,8 @@
           "name": "Ava",
           "salary_third": 3
         }
-      ]
+      ],
+      "expectedHash": "7e9f9963a676b5f461abba4b08ee35e174aa67f55acfbd8aeae21aa3855ffbc6"
     },
     {
       "name": "Ties on every salary",
@@ -74,7 +75,8 @@
           "name": "E",
           "salary_third": 3
         }
-      ]
+      ],
+      "expectedHash": "442b6a03f3c00c6ad4116446a33950e29c7dd1d6d2bd3f2feb421c707c1586d9"
     },
     {
       "name": "Department with no employees",
@@ -88,7 +90,8 @@
           "name": "Ava",
           "salary_third": 2
         }
-      ]
+      ],
+      "expectedHash": "3a895f72ee00d2d5c9f402dfd56273eee27a74f846c3abe196745c1ae83530e2"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -110,12 +113,14 @@
           "name": "Ava",
           "salary_third": 3
         }
-      ]
+      ],
+      "expectedHash": "573888a616ac3672011c0c11f89191ae2fc1f8888bb4892cdcdbd0140b1fcba3"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -125,7 +130,8 @@
           "name": "Solo",
           "salary_third": 1
         }
-      ]
+      ],
+      "expectedHash": "7dcfa404a4aed3a0e86ed06c38565fa524531e028b7a4c480c65fc676eaf0f2f"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -151,7 +157,8 @@
           "name": "L1",
           "salary_third": 3
         }
-      ]
+      ],
+      "expectedHash": "4dd71e91d748a89410ae94c6183fcb51f1d5e218f2ae93f848a4e61f5146fa2e"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -173,7 +180,8 @@
           "name": "Sam",
           "salary_third": 3
         }
-      ]
+      ],
+      "expectedHash": "04b4a98524a24ce51d9805914b13ad7b8f7b1b2f322f99d8f2500c844d6c5a6c"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -195,7 +203,8 @@
           "name": "Dan",
           "salary_third": 3
         }
-      ]
+      ],
+      "expectedHash": "462c78eafa50b7de642d715c9887f4f3950602eb20f7a8bef417a214c527b58c"
     },
     {
       "name": "Larger multi-department set",
@@ -253,7 +262,8 @@
           "name": "M",
           "salary_third": 3
         }
-      ]
+      ],
+      "expectedHash": "064fd2af02cdd79be85c0d3628e8a77411d0efe0282907ca37e6865d24008ccd"
     },
     {
       "name": "Exactly 3 employees — one per tile",
@@ -271,7 +281,8 @@
           "name": "A",
           "salary_third": 3
         }
-      ]
+      ],
+      "expectedHash": "c2101d2fbedd728cdd594863ab592a20343e5787b31f1b1ec2aa9b29f2b0f2d2"
     },
     {
       "name": "Two employees — NTILE(3) distributes unevenly",
@@ -285,12 +296,14 @@
           "name": "A",
           "salary_third": 2
         }
-      ]
+      ],
+      "expectedHash": "f7fa210dda43da976ecc3290075b3e900c62adf5d5b8574480d07452935fcf15"
     },
     {
       "name": "Empty employees table",
       "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee — all in tile 1",
@@ -300,7 +313,8 @@
           "name": "Solo",
           "salary_third": 1
         }
-      ]
+      ],
+      "expectedHash": "7dcfa404a4aed3a0e86ed06c38565fa524531e028b7a4c480c65fc676eaf0f2f"
     },
     {
       "name": "Four employees — distribution is 2-1-1",
@@ -322,7 +336,8 @@
           "name": "A",
           "salary_third": 3
         }
-      ]
+      ],
+      "expectedHash": "efb8d869a4e530c572b94af997e09b8ee2fde9b4f01ae4de778f592f18c5b31e"
     },
     {
       "name": "Many employees with ties — NTILE splits by position, not salary value",
@@ -352,7 +367,8 @@
           "name": "C",
           "salary_third": 3
         }
-      ]
+      ],
+      "expectedHash": "d49ce29c8c71a27a1c67513c0ebf6100f96668271d55a27698f05198e93cd8dd"
     }
   ]
 }

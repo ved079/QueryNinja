@@ -48,7 +48,8 @@
           "name": "Ava",
           "quartile": 4
         }
-      ]
+      ],
+      "expectedHash": "13510d18a82d2ea4d46e84e959bb8be3ec11576696c5fbc0717fa719a2104ff2"
     },
     {
       "name": "Ties on every salary",
@@ -74,7 +75,8 @@
           "name": "E",
           "quartile": 4
         }
-      ]
+      ],
+      "expectedHash": "9f46a8306fcbd1c3678b7713b3e3f3000c933aacd658616d0c4c29def1680663"
     },
     {
       "name": "Department with no employees",
@@ -88,7 +90,8 @@
           "name": "Ava",
           "quartile": 2
         }
-      ]
+      ],
+      "expectedHash": "872734fa5bf6b82992d08911c42de6b44a688acb4e8b755d29996fdae96b357f"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -110,12 +113,14 @@
           "name": "Ava",
           "quartile": 4
         }
-      ]
+      ],
+      "expectedHash": "bd83428a0caa12bdd1d87188c6c88eceb6117599c438ddd40080f4180fc0159f"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -125,7 +130,8 @@
           "name": "Solo",
           "quartile": 1
         }
-      ]
+      ],
+      "expectedHash": "5bb09f63af4369a6446a17422a7be3a5af083ff5683c3fc5a9bb3e8f8b92cf36"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -151,7 +157,8 @@
           "name": "L1",
           "quartile": 4
         }
-      ]
+      ],
+      "expectedHash": "71ae6e61df10ae8936b3e04345c032c0f13d615b4e44bba32b24accfc5bc1c67"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -173,7 +180,8 @@
           "name": "Sam",
           "quartile": 4
         }
-      ]
+      ],
+      "expectedHash": "22fc789886effee30bacf0e9e8ce9bd3ade15ef0a1d3e0f9dea07b73ee16daf3"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -195,7 +203,8 @@
           "name": "Dan",
           "quartile": 4
         }
-      ]
+      ],
+      "expectedHash": "8ae382b71035d3ee7be84b094866cfb71a1f22f46ef3038650ad413861830b68"
     },
     {
       "name": "Larger multi-department set",
@@ -253,7 +262,8 @@
           "name": "M",
           "quartile": 4
         }
-      ]
+      ],
+      "expectedHash": "be78b3b48ff857c8410bb82e5372e75c719375d9450f5c438877f3480685de87"
     },
     {
       "name": "Fewer than 4 employees — some quartiles have fewer rows",
@@ -271,7 +281,8 @@
           "name": "A",
           "quartile": 3
         }
-      ]
+      ],
+      "expectedHash": "cd3741e855cea6494f314b1f41aa6400f074aa94e83a055dbc0b4c316a56880b"
     },
     {
       "name": "Exactly 4 employees — one per quartile",
@@ -293,7 +304,8 @@
           "name": "A",
           "quartile": 4
         }
-      ]
+      ],
+      "expectedHash": "34260c01cdbfa4e9c15f9752544ad2b94587e3daf52ce0ab12c055ffa08618ea"
     },
     {
       "name": "All salaries identical — NTILE splits by position, not salary",
@@ -323,12 +335,14 @@
           "name": "F",
           "quartile": 4
         }
-      ]
+      ],
+      "expectedHash": "5eadbee3a5e2d13cbedaee02a630488caf9f5f93f06c286f2a0b10036fb1930d"
     },
     {
       "name": "Empty employees table",
       "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "8 employees — perfect 2 per quartile",
@@ -366,7 +380,8 @@
           "name": "A",
           "quartile": 4
         }
-      ]
+      ],
+      "expectedHash": "b08630e6fe53ef1cfd8e9322878603ba4eefb2f8761015e4f2ad6f214e7aaee9"
     },
     {
       "name": "Ties spanning quartile boundaries — tie-breaker matters",
@@ -396,7 +411,8 @@
           "name": "F",
           "quartile": 4
         }
-      ]
+      ],
+      "expectedHash": "5eadbee3a5e2d13cbedaee02a630488caf9f5f93f06c286f2a0b10036fb1930d"
     }
   ]
 }

@@ -49,7 +49,8 @@
           "name": "Hal",
           "diff": 0
         }
-      ]
+      ],
+      "expectedHash": "ed014ea7e0ef89395dc05451228e33f410a4e2ec95221e614454ff128cd41f80"
     },
     {
       "name": "Ties on every salary",
@@ -75,7 +76,8 @@
           "name": "E",
           "diff": 0
         }
-      ]
+      ],
+      "expectedHash": "e364c432091bde6ac167c34a67f6cddd27fb65064925be315a53c15fd7f41d4c"
     },
     {
       "name": "Department with no employees",
@@ -89,7 +91,8 @@
           "name": "Ben",
           "diff": -5000
         }
-      ]
+      ],
+      "expectedHash": "3905b426a499d12021219a6b4d6e236c0cdfdc2980d0d28a2a34e87006b2da62"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -111,12 +114,14 @@
           "name": "Dan",
           "diff": 0
         }
-      ]
+      ],
+      "expectedHash": "c5c9e411e8dd35ad78af1826bf89db4e578712e64b06ad1bb8cc04475d2bca23"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -126,7 +131,8 @@
           "name": "Solo",
           "diff": 0
         }
-      ]
+      ],
+      "expectedHash": "e634fe25b763aad5c9376d9f5e843efcf234568ef135feb0ed33a156e686a0b8"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -152,7 +158,8 @@
           "name": "L5",
           "diff": 46000
         }
-      ]
+      ],
+      "expectedHash": "8d0458dd501f6a301931da041f3d723139ea37107fb530d98e6864e2e69b67ab"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -174,7 +181,8 @@
           "name": "Alex",
           "diff": -11666.67
         }
-      ]
+      ],
+      "expectedHash": "0bec0cac893e790a904e96fd8bd533dc04d8632ad396fe3bad8ef8d3ee570ad6"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -196,7 +204,8 @@
           "name": "Dan",
           "diff": 999999.5
         }
-      ]
+      ],
+      "expectedHash": "ba5d6e51d9cdc10193f35e3361741070935a9258c6c6884517257d06c97b2553"
     },
     {
       "name": "Larger multi-department set",
@@ -254,7 +263,8 @@
           "name": "M",
           "diff": 0
         }
-      ]
+      ],
+      "expectedHash": "0a72b1d56ef531ed034b9cd6ac199042ffb196de30087924e513e3100a625187"
     },
     {
       "name": "Single employee — distance is 0",
@@ -264,7 +274,8 @@
           "name": "Solo",
           "diff": 0
         }
-      ]
+      ],
+      "expectedHash": "e634fe25b763aad5c9376d9f5e843efcf234568ef135feb0ed33a156e686a0b8"
     },
     {
       "name": "Two employees — symmetric above and below",
@@ -278,7 +289,8 @@
           "name": "B",
           "diff": -50
         }
-      ]
+      ],
+      "expectedHash": "bbb801b6b34c6f67e96066e9d30decd991a18312da79b2e5d89aa2c1e97b9501"
     },
     {
       "name": "All employees earn the same — distances are 0",
@@ -296,7 +308,8 @@
           "name": "C",
           "diff": 0
         }
-      ]
+      ],
+      "expectedHash": "06ba0afeab1869e9da93e5aace7005362caea460f65c8e54b713211d577ae072"
     },
     {
       "name": "NULL salary excluded — average based on non-NULL only",
@@ -310,7 +323,8 @@
           "name": "B",
           "diff": null
         }
-      ]
+      ],
+      "expectedHash": "7642294024ea425df3af980a6e6d333c9b57611ebc7bb157b7680cc70b88d6b2"
     },
     {
       "name": "Two departments with different spreads",
@@ -332,7 +346,8 @@
           "name": "D",
           "diff": -200
         }
-      ]
+      ],
+      "expectedHash": "185753c1bc7f3ea5a53cd8ce6068db2443a73b3fac420759d3803e69b66ed95d"
     },
     {
       "name": "Larger department with wide spread",
@@ -358,7 +373,8 @@
           "name": "E",
           "diff": -200
         }
-      ]
+      ],
+      "expectedHash": "e9dea745207f79292d2a21702955f2fc59a5df8d04d099801f0cefd48d9df639"
     }
   ]
 }

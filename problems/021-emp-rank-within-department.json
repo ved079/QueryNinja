@@ -58,7 +58,8 @@
           "dept_id": 3,
           "rnk": 1
         }
-      ]
+      ],
+      "expectedHash": "f2f5cb30fce6bedeb2e92cc111aeeec79d7e8549ae1538dabe9a6c3723280f89"
     },
     {
       "name": "Ties on every salary",
@@ -89,7 +90,8 @@
           "dept_id": 2,
           "rnk": 1
         }
-      ]
+      ],
+      "expectedHash": "f439c863dd6859c014cd979a158f29ca3e8da069c367da2944140cac0d15791f"
     },
     {
       "name": "Department with no employees",
@@ -105,7 +107,8 @@
           "dept_id": 1,
           "rnk": 2
         }
-      ]
+      ],
+      "expectedHash": "93c5ae52f31b7aead1271457c967a8ad7a455fa02c1c44d97f5931a652bf724a"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -131,12 +134,14 @@
           "dept_id": 2,
           "rnk": 1
         }
-      ]
+      ],
+      "expectedHash": "d70ca0e322a68bfcd067b212f377379efd32ec301f488f724985adbdbad0227a"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -147,7 +152,8 @@
           "dept_id": 1,
           "rnk": 1
         }
-      ]
+      ],
+      "expectedHash": "7e1e346a25f4e3a18b4b211ac4006dbba1625ecfc76c4a880da2837713becb9b"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -178,7 +184,8 @@
           "dept_id": 1,
           "rnk": 5
         }
-      ]
+      ],
+      "expectedHash": "885ed56d77b07af684dd5faab2e08ae39e2dcbb248d85e2f886b466638be921d"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -204,7 +211,8 @@
           "dept_id": 2,
           "rnk": 2
         }
-      ]
+      ],
+      "expectedHash": "899985be61c2aa8cbb7c48dbc5709c171b6ffd5cd7585f23f22af55d7d8c21d3"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -230,7 +238,8 @@
           "dept_id": 2,
           "rnk": 2
         }
-      ]
+      ],
+      "expectedHash": "d203fc69f02a4e548d06a10804ec91ff6ea3619173d1352ee630445bfb569143"
     },
     {
       "name": "Larger multi-department set",
@@ -301,7 +310,8 @@
           "dept_id": 4,
           "rnk": 1
         }
-      ]
+      ],
+      "expectedHash": "bf0bbe67c04bdca148f121894d3de1010b1fdf12c772fa3b56d6bdfacf6c0792"
     },
     {
       "name": "Single employee per department",
@@ -317,7 +327,8 @@
           "dept_id": 2,
           "rnk": 1
         }
-      ]
+      ],
+      "expectedHash": "bd11840a585a85575407f1f690e57e1506516093967e3a515d9774b4c3879fbc"
     },
     {
       "name": "Tie within one department",
@@ -338,7 +349,8 @@
           "dept_id": 2,
           "rnk": 1
         }
-      ]
+      ],
+      "expectedHash": "7bfc6af0af2e81c893db3a1ae4fb4a739f4c08638b652bef7ed865e8d8568cb4"
     },
     {
       "name": "All employees have the same salary",
@@ -359,7 +371,8 @@
           "dept_id": 2,
           "rnk": 1
         }
-      ]
+      ],
+      "expectedHash": "7bfc6af0af2e81c893db3a1ae4fb4a739f4c08638b652bef7ed865e8d8568cb4"
     },
     {
       "name": "NULL salary sorts last in descending order",
@@ -375,7 +388,8 @@
           "dept_id": 1,
           "rnk": 2
         }
-      ]
+      ],
+      "expectedHash": "5b7f760a30354e54243fcb1c5da2044a4fdc852f155c8599222538f13f88084c"
     },
     {
       "name": "Three distinct salary tiers in one department",
@@ -396,7 +410,8 @@
           "dept_id": 1,
           "rnk": 3
         }
-      ]
+      ],
+      "expectedHash": "a9845dcdc230e5666d5cbca900b0190bdfadb355e4929d229cdfa5ca22b895a4"
     },
     {
       "name": "Stress with 10 employees across two departments",
@@ -452,7 +467,8 @@
           "dept_id": 2,
           "rnk": 3
         }
-      ]
+      ],
+      "expectedHash": "8ecd611ba23284b44ada5511bf22a4dc4a5c61b62595f45f7b6b4d7631e6df1c"
     }
   ]
 }

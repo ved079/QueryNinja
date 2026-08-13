@@ -28,27 +28,32 @@
           "month": "2022-03",
           "churned_riders": 1
         }
-      ]
+      ],
+      "expectedHash": "3ca7ef4250600c82d0a3d3304154272760ce2ccf233163a47f6b0c62f3e42979"
     },
     {
       "name": "All riders active every month — no churn",
       "seedSql": "INSERT INTO drivers VALUES (1,'D','NYC');\nINSERT INTO riders VALUES (1,'A'),(2,'B');\nINSERT INTO trips VALUES\n  (1,1,1,'2022-01-05','2022-01-05','2022-01-05','completed',5),\n  (2,1,2,'2022-01-10','2022-01-10','2022-01-10','completed',5),\n  (3,1,1,'2022-02-05','2022-02-05','2022-02-05','completed',5),\n  (4,1,2,'2022-02-10','2022-02-10','2022-02-10','completed',5);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single rider, single month — no churn",
       "seedSql": "INSERT INTO drivers VALUES (1,'D','NYC');\nINSERT INTO riders VALUES (1,'Only');\nINSERT INTO trips VALUES (1,1,1,'2022-06-15','2022-06-15','2022-06-15','completed',10);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Cancelled trips do not count as active",
       "seedSql": "INSERT INTO drivers VALUES (1,'D','NYC');\nINSERT INTO riders VALUES (1,'A'),(2,'B');\nINSERT INTO trips VALUES\n  (1,1,1,'2022-01-05','2022-01-05','2022-01-05','completed',10),\n  (2,1,2,'2022-01-10',NULL,NULL,'cancelled',0),\n  (3,1,1,'2022-02-05','2022-02-05','2022-02-05','completed',10),\n  (4,1,2,'2022-02-10','2022-02-10','2022-02-10','completed',10);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Empty tables",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

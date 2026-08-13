@@ -23,7 +23,8 @@
         {
           "name": "HR"
         }
-      ]
+      ],
+      "expectedHash": "f1687fb166c9a104215826222c720014e42a97e8979cbb009b293497a4dcc0c0"
     },
     {
       "name": "Ties on every salary",
@@ -32,7 +33,8 @@
         {
           "name": "Engineering"
         }
-      ]
+      ],
+      "expectedHash": "90d9286b54305d7e53e0bed0976a1ec55e1ac776a47399d00524d41b806c647b"
     },
     {
       "name": "Department with no employees",
@@ -41,7 +43,8 @@
         {
           "name": "Engineering"
         }
-      ]
+      ],
+      "expectedHash": "90d9286b54305d7e53e0bed0976a1ec55e1ac776a47399d00524d41b806c647b"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -50,12 +53,14 @@
         {
           "name": "Engineering"
         }
-      ]
+      ],
+      "expectedHash": "90d9286b54305d7e53e0bed0976a1ec55e1ac776a47399d00524d41b806c647b"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -64,7 +69,8 @@
         {
           "name": "Engineering"
         }
-      ]
+      ],
+      "expectedHash": "90d9286b54305d7e53e0bed0976a1ec55e1ac776a47399d00524d41b806c647b"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -73,7 +79,8 @@
         {
           "name": "Engineering"
         }
-      ]
+      ],
+      "expectedHash": "90d9286b54305d7e53e0bed0976a1ec55e1ac776a47399d00524d41b806c647b"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -85,7 +92,8 @@
         {
           "name": "Sales"
         }
-      ]
+      ],
+      "expectedHash": "5e479fb2591ef661650c715fd3d2438e9fff46a67da8d28dc063980da90f1c3d"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -94,7 +102,8 @@
         {
           "name": "Engineering"
         }
-      ]
+      ],
+      "expectedHash": "90d9286b54305d7e53e0bed0976a1ec55e1ac776a47399d00524d41b806c647b"
     },
     {
       "name": "Larger multi-department set",
@@ -106,12 +115,14 @@
         {
           "name": "HR"
         }
-      ]
+      ],
+      "expectedHash": "f1687fb166c9a104215826222c720014e42a97e8979cbb009b293497a4dcc0c0"
     },
     {
       "name": "No departments in Austin",
       "seedSql": "INSERT INTO departments VALUES (1,'IT','Denver'),(2,'Sales','Boston');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "All departments in Austin",
@@ -123,7 +134,8 @@
         {
           "name": "HR"
         }
-      ]
+      ],
+      "expectedHash": "830f67937a570820489e39db851db6c22097e4f01f1d386d969ba5b18010e275"
     },
     {
       "name": "NULL location is not 'Austin'",
@@ -132,7 +144,8 @@
         {
           "name": "IT"
         }
-      ]
+      ],
+      "expectedHash": "aec3b171d5a4aa906a056981f41de1c0105ec4420bc68e94ed36f35337b2b761"
     },
     {
       "name": "Single department in Austin",
@@ -141,7 +154,8 @@
         {
           "name": "IT"
         }
-      ]
+      ],
+      "expectedHash": "aec3b171d5a4aa906a056981f41de1c0105ec4420bc68e94ed36f35337b2b761"
     },
     {
       "name": "Trailing whitespace — 'Austin ' does not match 'Austin'",
@@ -150,7 +164,8 @@
         {
           "name": "IT"
         }
-      ]
+      ],
+      "expectedHash": "aec3b171d5a4aa906a056981f41de1c0105ec4420bc68e94ed36f35337b2b761"
     },
     {
       "name": "Mixed locations across four departments",
@@ -162,7 +177,8 @@
         {
           "name": "HR"
         }
-      ]
+      ],
+      "expectedHash": "830f67937a570820489e39db851db6c22097e4f01f1d386d969ba5b18010e275"
     }
   ]
 }

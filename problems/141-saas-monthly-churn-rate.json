@@ -32,12 +32,14 @@
           "active_at_start": 3,
           "churn_rate": 0.3333
         }
-      ]
+      ],
+      "expectedHash": "a283ac946c5fc43eddd70fa6c683afa2f3025f3d1db8f0bd82c13aa5b7f163c2"
     },
     {
       "name": "No cancellations — empty result",
       "seedSql": "INSERT INTO plans VALUES (1,'starter',29);\nINSERT INTO users VALUES (1,'Alice','2022-01-01'),(2,'Bob','2022-02-01');\nINSERT INTO subscriptions VALUES (1,1,1,'2022-01-01',NULL),(2,2,1,'2022-02-01',NULL);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Everyone churns in the same month",
@@ -49,7 +51,8 @@
           "active_at_start": 3,
           "churn_rate": 1
         }
-      ]
+      ],
+      "expectedHash": "9f7a0c11b899c926679fbd2eb19d8798766eb9de47fa9aeaab570cbad531917d"
     },
     {
       "name": "Churn spread across three months",
@@ -73,17 +76,20 @@
           "active_at_start": 3,
           "churn_rate": 0.3333
         }
-      ]
+      ],
+      "expectedHash": "90d95c5417d663b49763accedf2d7a2e84e84573e83ccebd4c3c1c0b3f4b53a0"
     },
     {
       "name": "Subscription started and ended in same month",
       "seedSql": "INSERT INTO plans VALUES (1,'starter',29);\nINSERT INTO users VALUES (1,'Flash','2022-06-01'),(2,'Steady','2022-06-01');\nINSERT INTO subscriptions VALUES\n  (1,1,1,'2022-06-01','2022-06-10'),\n  (2,2,1,'2022-06-15',NULL);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Empty tables",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single churn event",
@@ -95,7 +101,8 @@
           "active_at_start": 1,
           "churn_rate": 1
         }
-      ]
+      ],
+      "expectedHash": "92983b3b8c0aa0a89169c1d5f1a1c54494d561ccddebf5a28fca00d979c7eb8c"
     },
     {
       "name": "Large set — multiple plans",
@@ -119,7 +126,8 @@
           "active_at_start": 5,
           "churn_rate": 0.4
         }
-      ]
+      ],
+      "expectedHash": "7c0ffca09ba0330dd89f892e7bd2c5eb41aa261d41c2fe9f5632a30d0e7eb5b7"
     }
   ]
 }

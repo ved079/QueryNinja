@@ -32,12 +32,14 @@
           "total": 2,
           "rate": 0.5
         }
-      ]
+      ],
+      "expectedHash": "83247dc062f37b39a8086e09aa1bfa0e4476852dda61986d58b6311f0480dcf7"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Perfect carryover",
@@ -55,7 +57,8 @@
           "total": 2,
           "rate": 1
         }
-      ]
+      ],
+      "expectedHash": "e97367d6002eb4d7eb46b38585428fd2ff2283ab45ebbcf43205eb6dd75b6c87"
     },
     {
       "name": "No returning customers",
@@ -73,7 +76,8 @@
           "total": 2,
           "rate": 0
         }
-      ]
+      ],
+      "expectedHash": "b048b43432b1c9cf85eca8d4e63feef2f6c600f802695f5b1aa870f5a3429a85"
     },
     {
       "name": "Skip a month keeps prior alive (gap)",
@@ -91,7 +95,8 @@
           "total": 1,
           "rate": 0
         }
-      ]
+      ],
+      "expectedHash": "e69430a27d49865b8db9201f178b8b57efdf011208ee2e1a5211c9bce2c80e4f"
     }
   ]
 }

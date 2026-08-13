@@ -26,12 +26,14 @@
           "name": "Eve",
           "salary": 130000
         }
-      ]
+      ],
+      "expectedHash": "9aee17928de8632dd61741f42adcbc806f1f133bcef97790fc8769b56ca39b37"
     },
     {
       "name": "Ties on every salary",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'A','Engineer',100000,1,NULL,'2020-01-01'),\n (2,'B','Engineer',100000,1,1,'2020-01-01'),\n (3,'C','Engineer',100000,1,1,'2020-01-01'),\n (4,'D','Rep',100000,2,NULL,'2020-01-01'),\n (5,'E','Rep',100000,2,4,'2020-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Department with no employees",
@@ -41,22 +43,26 @@
           "name": "Ava",
           "salary": 90000
         }
-      ]
+      ],
+      "expectedHash": "5861afa7ca1c63434365c6352eeaf282a20f2e4ed8d38d800518d00bd12c7a33"
     },
     {
       "name": "Employees with NULL department and NULL salary",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -70,7 +76,8 @@
           "name": "L5",
           "salary": 250000
         }
-      ]
+      ],
+      "expectedHash": "41155c33441635be3627dbf65784036ab5e6fd2fa165e2d1f2b7a5690b0f3fc5"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -80,7 +87,8 @@
           "name": "Sam",
           "salary": 95000
         }
-      ]
+      ],
+      "expectedHash": "4ea84169bc3be974b30233e03ba342d2f2b7d4378dd8cc47c1928312cf093463"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -94,7 +102,8 @@
           "name": "Dan",
           "salary": 2000000
         }
-      ]
+      ],
+      "expectedHash": "e1cd24b05253f64331a5dfc147afa0b2d94f57eb632aeaa38d4d0c091ba8a686"
     },
     {
       "name": "Larger multi-department set",
@@ -120,17 +129,20 @@
           "name": "J",
           "salary": 99000
         }
-      ]
+      ],
+      "expectedHash": "9fbc541d922d61978bc357e5515cdfc58d75215d82f379de9ecee2c9ad3ced36"
     },
     {
       "name": "Single employee — equals average, not strictly above",
       "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',100,1,NULL,'2020-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "No one strictly above — all salaries are equal",
       "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "NULL salary is excluded from average",
@@ -140,7 +152,8 @@
           "name": "A",
           "salary": 200
         }
-      ]
+      ],
+      "expectedHash": "c0d0fa2a9b1f048216405dcf86391c9607cb559979dcebc06d5e8040e7086f5a"
     },
     {
       "name": "Two departments each with clear above-average earners",
@@ -154,7 +167,8 @@
           "name": "C",
           "salary": 200
         }
-      ]
+      ],
+      "expectedHash": "a5bf1093be412347757ead811c26b262578ba6a30156c5c37d683d1c60a0605d"
     },
     {
       "name": "Stress with larger departments",
@@ -176,7 +190,8 @@
           "name": "G",
           "salary": 180
         }
-      ]
+      ],
+      "expectedHash": "bae7d848bd8debc34375dd18183b8481cee4d93b5ac2e28bc073c21cc0cd189b"
     }
   ]
 }

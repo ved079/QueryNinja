@@ -48,7 +48,8 @@
           "name": "Hal",
           "dept_top_earner": "Hal"
         }
-      ]
+      ],
+      "expectedHash": "fa5e6eb3b8f16fa6b9430cb9d929b37d0c3f04e86bae59a309b164bc9a9974c9"
     },
     {
       "name": "Ties on every salary",
@@ -74,7 +75,8 @@
           "name": "E",
           "dept_top_earner": "D"
         }
-      ]
+      ],
+      "expectedHash": "622c5a88dfe5b095f29031341ec093d9a2ce800b5cc0f38a385c35b5a4f5eb65"
     },
     {
       "name": "Department with no employees",
@@ -88,7 +90,8 @@
           "name": "Ben",
           "dept_top_earner": "Ava"
         }
-      ]
+      ],
+      "expectedHash": "de1969f0f3a1bf13f1f86fbe7aa64023b2cd9f3dbe349500159a7649017b6728"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -110,12 +113,14 @@
           "name": "Dan",
           "dept_top_earner": "Dan"
         }
-      ]
+      ],
+      "expectedHash": "d4ee163ff6c5a704a6f5f72f57c6428cefbf602f0a52f72740b50e9d93e9bc40"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -125,7 +130,8 @@
           "name": "Solo",
           "dept_top_earner": "Solo"
         }
-      ]
+      ],
+      "expectedHash": "825caccb8ca3cc0fc6b078938922dce35919f9015ace9576d9160120f424a3ba"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -151,7 +157,8 @@
           "name": "L4",
           "dept_top_earner": "L1"
         }
-      ]
+      ],
+      "expectedHash": "d0a7f62dc1c3287500636c000282f27bf3c75df6d7dec263d892e6e92a081360"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -173,7 +180,8 @@
           "name": "Alex",
           "dept_top_earner": "Sam"
         }
-      ]
+      ],
+      "expectedHash": "556fbf210d4e947315b1ba94c9c8bfc71713088e6a44f9dceb1c61ad8e9b5b9a"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -195,7 +203,8 @@
           "name": "Cara",
           "dept_top_earner": "Dan"
         }
-      ]
+      ],
+      "expectedHash": "0923448f3c6835e2d41923c41acc3ecc4a0f1c40fbe151477c8c2b4ca2306362"
     },
     {
       "name": "Larger multi-department set",
@@ -253,7 +262,8 @@
           "name": "M",
           "dept_top_earner": "L"
         }
-      ]
+      ],
+      "expectedHash": "dac48e463d40e870463babf9e4bcb07a57ad0b7d6cb2fbcf23507373d09afa1e"
     },
     {
       "name": "One employee per department — each is their own top earner",
@@ -267,7 +277,8 @@
           "name": "Eve",
           "dept_top_earner": "Eve"
         }
-      ]
+      ],
+      "expectedHash": "3f2d84ad2f4167a3d940b0e27126d80f2a7d01064c0f26d95541dad8aba19fb9"
     },
     {
       "name": "Department with no employees",
@@ -277,7 +288,8 @@
           "name": "Ava",
           "dept_top_earner": "Ava"
         }
-      ]
+      ],
+      "expectedHash": "6fecf6fdeb6e3464e6548091e4cf8c8ab696f9faaeb748579c77849b0051aa6d"
     },
     {
       "name": "All employees earn the same salary — everyone is top earner",
@@ -295,12 +307,14 @@
           "name": "C",
           "dept_top_earner": "C"
         }
-      ]
+      ],
+      "expectedHash": "3824a7ab45d74a993d90b19f55f9e9f314f476ad673c3c5362a04ff03051b5b9"
     },
     {
       "name": "Empty employees table",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single department with multiple employees — clear top earner",
@@ -318,7 +332,8 @@
           "name": "Low",
           "dept_top_earner": "Top"
         }
-      ]
+      ],
+      "expectedHash": "bff5b9a48304b1b820049d9db5f964413169d0f9d5ca50ffb8a807501168f24b"
     },
     {
       "name": "Tie for top earner in a department — FIRST_VALUE picks first by id",
@@ -336,7 +351,8 @@
           "name": "Cara",
           "dept_top_earner": "Ava"
         }
-      ]
+      ],
+      "expectedHash": "33ef36b3ffcc562c49ea09f3e50f08859ae496aeef7fcc3d2dfcdcfbdecb7312"
     }
   ]
 }

@@ -1074,42 +1074,50 @@
         {
           "missing_date": "2023-01-01"
         }
-      ]
+      ],
+      "expectedHash": "877777e02afae7e34ffd08c1b7452cac5c7bfdcd425b8958247c41e26907db57"
     },
     {
       "name": "Customer who never ordered",
       "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12'),(3,'NoOrders','FR','2023-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,2,'2022-01-11','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,2,25.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "All orders cancelled",
       "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','cancelled'),(2,2,'2022-01-11','cancelled');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,1,2,80.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
       "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'NeverSold','Tech',999.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2022-01-11','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "NULL prices, quantities and statuses",
       "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo',NULL,'2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mystery',NULL,NULL);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,2,'2022-01-11',NULL);\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,1,2,NULL,NULL),(3,2,1,1,80.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single customer, single order",
       "seedSql": "INSERT INTO customers VALUES (1,'Solo','US','2022-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-05-05','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Ties in revenue between products and customers",
       "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','US','2021-01-01');\nINSERT INTO products VALUES (1,'P1','Tech',50.0),(2,'P2','Tech',50.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,2,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,2,50.0),(2,2,2,2,50.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -1202,7 +1210,8 @@
         {
           "missing_date": "2022-01-30"
         }
-      ]
+      ],
+      "expectedHash": "16195e95938f57339ba6050bf931e0f1d2b26a775c79ea8e616545fe4065b009"
     },
     {
       "name": "Larger multi-country set",
@@ -2489,22 +2498,26 @@
         {
           "missing_date": "2023-03-14"
         }
-      ]
+      ],
+      "expectedHash": "14a7fffe77d311a787b9b700b989c556473134d55117418be6f28c04626e0d4d"
     },
     {
       "name": "Every day in range has an order — no gaps",
       "seedSql": "INSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,1,'2022-01-02','completed'),(3,1,'2022-01-03','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0),(2,2,1,1,10.0),(3,3,1,1,10.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single day range — one order on that single day",
       "seedSql": "INSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Empty orders table — no range, no rows",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Gaps between orders spread across a month",
@@ -2561,7 +2574,8 @@
         {
           "missing_date": "2022-01-19"
         }
-      ]
+      ],
+      "expectedHash": "2d5d4dfeddcf752f8bbd13ddac44d33b7333f7ef83f86191843fd5343cadd6b8"
     },
     {
       "name": "Range spanning February in leap year",
@@ -2744,12 +2758,14 @@
         {
           "missing_date": "2020-02-29"
         }
-      ]
+      ],
+      "expectedHash": "a765710033c81d5ef66db9950c230a066073deac2622073e36daa95ffb99a937"
     },
     {
       "name": "All consecutive dates from single to single — no gap",
       "seedSql": "INSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2022-06-15','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

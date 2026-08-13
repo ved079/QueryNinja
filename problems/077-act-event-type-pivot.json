@@ -36,7 +36,8 @@
           "views": 0,
           "purchases": 1
         }
-      ]
+      ],
+      "expectedHash": "2167bf4453f5fb9beb5035bfa536b47a513ff2c957c7ee31cab19308b0e6fdbe"
     },
     {
       "name": "A user with a long unbroken streak",
@@ -54,7 +55,8 @@
           "views": 0,
           "purchases": 0
         }
-      ]
+      ],
+      "expectedHash": "695b7744233302c70a41f1bb70a3c3b2a9f3b51a6d083340431165253a052260"
     },
     {
       "name": "Users with no events at all",
@@ -66,12 +68,14 @@
           "views": 1,
           "purchases": 0
         }
-      ]
+      ],
+      "expectedHash": "f89aeab96fe6dacac0ddbf8fc04a31740df6a0a655a54ac1fcc68b794e1fb12c"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Several events at the exact same timestamp",
@@ -89,7 +93,8 @@
           "views": 0,
           "purchases": 0
         }
-      ]
+      ],
+      "expectedHash": "ec11c828b38c3ca74a2f8e8725ee5a28378b297d1fa53bb1a0275059491b9ea2"
     },
     {
       "name": "Single user, single event",
@@ -101,7 +106,8 @@
           "views": 0,
           "purchases": 0
         }
-      ]
+      ],
+      "expectedHash": "db17a299ec072143793e49bd6f8b42476dfaffb3df79914163a7ecc43c2454d7"
     },
     {
       "name": "Events with NULL type and orphan user ids",
@@ -119,7 +125,8 @@
           "views": 0,
           "purchases": 1
         }
-      ]
+      ],
+      "expectedHash": "979e9c3eef00f72df38157d0b61557175e407ed720529020a3c718e712023808"
     },
     {
       "name": "A streak spanning a month boundary",
@@ -131,7 +138,8 @@
           "views": 0,
           "purchases": 0
         }
-      ]
+      ],
+      "expectedHash": "12a62614fe4b6919f1c39b8c9fabfaf7b8adb8d40129065f4b0604da3c1b3bda"
     },
     {
       "name": "Purchases only, no logins",
@@ -149,7 +157,8 @@
           "views": 0,
           "purchases": 1
         }
-      ]
+      ],
+      "expectedHash": "654e6119a5efd101700cbe4c89c4e8cc324fbb9e55a9f58d74762216051aec65"
     },
     {
       "name": "Larger multi-user activity log",
@@ -185,7 +194,8 @@
           "views": 2,
           "purchases": 1
         }
-      ]
+      ],
+      "expectedHash": "d501aa78c2cb1ed34ff224fa981756e4170e3a506c07bd8a8da497bc092556f0"
     },
     {
       "name": "User with one of each type",
@@ -225,7 +235,8 @@
           "purchases": 1
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "User with only logins",
@@ -265,7 +276,8 @@
           "purchases": 0
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "NULL event_type — excluded from all counts",
@@ -299,7 +311,8 @@
           "purchases": 0
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two users different patterns",
@@ -357,7 +370,8 @@
           "purchases": 0
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "User with many events",
@@ -439,7 +453,8 @@
           "purchases": 2
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "User with no events excluded",
@@ -473,7 +488,8 @@
           "purchases": 0
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

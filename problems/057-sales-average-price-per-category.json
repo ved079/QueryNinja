@@ -26,7 +26,8 @@
           "category": "Tech",
           "avg_price": 52.5
         }
-      ]
+      ],
+      "expectedHash": "f86cc76368c53af149fa603e1da5eee54f18da6abc2a40bab0fbd585018a099c"
     },
     {
       "name": "Customer who never ordered",
@@ -36,7 +37,8 @@
           "category": "Tech",
           "avg_price": 52.5
         }
-      ]
+      ],
+      "expectedHash": "5f43d055923ebe1b4611bb6fcb4cb8c8fb5ccf12fc42e6df8a7660e259e12fb5"
     },
     {
       "name": "All orders cancelled",
@@ -46,12 +48,14 @@
           "category": "Tech",
           "avg_price": 80
         }
-      ]
+      ],
+      "expectedHash": "3f4ca2bfca08e5a8ceec87ecfa8bb1c450a04b067da812dbc1d3c0b38c5c6618"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -61,7 +65,8 @@
           "category": "Tech",
           "avg_price": 539.5
         }
-      ]
+      ],
+      "expectedHash": "f9407657a12dc62206d608dd7a4bf9007c3258b678b0dc68d4e7d6ba502f5dae"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -71,7 +76,8 @@
           "category": "Tech",
           "avg_price": 80
         }
-      ]
+      ],
+      "expectedHash": "3f4ca2bfca08e5a8ceec87ecfa8bb1c450a04b067da812dbc1d3c0b38c5c6618"
     },
     {
       "name": "Single customer, single order",
@@ -81,7 +87,8 @@
           "category": "Tech",
           "avg_price": 80
         }
-      ]
+      ],
+      "expectedHash": "3f4ca2bfca08e5a8ceec87ecfa8bb1c450a04b067da812dbc1d3c0b38c5c6618"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -91,7 +98,8 @@
           "category": "Tech",
           "avg_price": 50
         }
-      ]
+      ],
+      "expectedHash": "a08455fb173248c345a22d0a5bcc73e97ed3c738b24aa4528b15f3dcf5e7954f"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -105,7 +113,8 @@
           "category": "Tech",
           "avg_price": 80
         }
-      ]
+      ],
+      "expectedHash": "3e9b39ed5ffd22bdb02c7e7533371e90f49125887b457c0ce85b5f7845f37339"
     },
     {
       "name": "Larger multi-country set",
@@ -123,7 +132,8 @@
           "category": "Tech",
           "avg_price": 52.5
         }
-      ]
+      ],
+      "expectedHash": "5b7a3228fa081d578a46c4582c1451e2324e5f54a42f6b4fc9b38da6f0aa1320"
     },
     {
       "name": "Single product per category",
@@ -137,7 +147,8 @@
           "category": "Tech",
           "avg_price": 80
         }
-      ]
+      ],
+      "expectedHash": "3e9b39ed5ffd22bdb02c7e7533371e90f49125887b457c0ce85b5f7845f37339"
     },
     {
       "name": "Products with NULL category are excluded",
@@ -147,12 +158,14 @@
           "category": "Tech",
           "avg_price": 80
         }
-      ]
+      ],
+      "expectedHash": "3f4ca2bfca08e5a8ceec87ecfa8bb1c450a04b067da812dbc1d3c0b38c5c6618"
     },
     {
       "name": "All products have NULL category — empty result",
       "seedSql": "INSERT INTO products VALUES (1,'A',NULL,10.0),(2,'B',NULL,20.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Fractional average",
@@ -162,7 +175,8 @@
           "category": "Tech",
           "avg_price": 20
         }
-      ]
+      ],
+      "expectedHash": "52d2e87c7fe4582b53ad950a16bb64fe53c4bc0a47058fe9156726fb8b2b697b"
     },
     {
       "name": "All products in same category",
@@ -172,7 +186,8 @@
           "category": "Tech",
           "avg_price": 150
         }
-      ]
+      ],
+      "expectedHash": "ac46eb4e582125c9f5d872e041941a569a7c519d32827983656d34bea80df9a3"
     },
     {
       "name": "Three categories with varied prices",
@@ -190,7 +205,8 @@
           "category": "Tech",
           "avg_price": 52.5
         }
-      ]
+      ],
+      "expectedHash": "5b7a3228fa081d578a46c4582c1451e2324e5f54a42f6b4fc9b38da6f0aa1320"
     }
   ]
 }

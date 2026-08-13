@@ -34,17 +34,20 @@
           "name": "Eve",
           "email": "eve@initech.com"
         }
-      ]
+      ],
+      "expectedHash": "9ede509cfcb61ff3222b0084006fbd469e2829b9ac9f48b50e7f39d2af7e925a"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "None match",
       "seedSql": "INSERT INTO customers VALUES (1,'A','a@gmail.com'),(2,'B','b@acme.org');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Case-insensitive TLD",
@@ -65,7 +68,8 @@
           "name": "C",
           "email": "c@acme.com"
         }
-      ]
+      ],
+      "expectedHash": "54a0c02d42d0a7f4ab1b9365180b3c0365be54fd23a3fb211a8f85c5c4b38d8f"
     },
     {
       "name": "All three corporate domains present",
@@ -86,7 +90,8 @@
           "name": "C",
           "email": "x@initech.com"
         }
-      ]
+      ],
+      "expectedHash": "c5bbedeaef5b54942a7068df2cdca52a34aeebacabf7fc26a133e6484f07aed9"
     }
   ]
 }

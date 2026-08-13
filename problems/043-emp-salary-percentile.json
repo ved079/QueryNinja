@@ -50,7 +50,8 @@
           "name": "Ava",
           "percentile": 87.5
         }
-      ]
+      ],
+      "expectedHash": "7600c69564ff4c453dfbecf4082fa278a7cedb7f2ea5a6ec47b7915cecce7171"
     },
     {
       "name": "Ties on every salary",
@@ -76,7 +77,8 @@
           "name": "E",
           "percentile": 0
         }
-      ]
+      ],
+      "expectedHash": "d59109ab7f81487c6f32fd863e76350725529091743e13df862d366943ec9692"
     },
     {
       "name": "Department with no employees",
@@ -90,7 +92,8 @@
           "name": "Ava",
           "percentile": 50
         }
-      ]
+      ],
+      "expectedHash": "61f01c9ebbacd1c6e6872ca26645c8d2059fceccdc79273de86d22d5e2c151a0"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -108,12 +111,14 @@
           "name": "Ava",
           "percentile": 66.67
         }
-      ]
+      ],
+      "expectedHash": "362cc7d38c8d6799b9678736f9136e4d8b40f82065824dd50dd04e14a6f8f22f"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -123,7 +128,8 @@
           "name": "Solo",
           "percentile": 0
         }
-      ]
+      ],
+      "expectedHash": "5c00666184f85051967f8627735cd9abed9634909f6f7a4ad233e472cc58fade"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -149,7 +155,8 @@
           "name": "L1",
           "percentile": 80
         }
-      ]
+      ],
+      "expectedHash": "29b30069bd3759477a58706c5a865db87749d62ac50dbc0f7c86dd712762672c"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -171,7 +178,8 @@
           "name": "Sam",
           "percentile": 75
         }
-      ]
+      ],
+      "expectedHash": "fb87e0fd0bc3279dcd5b19e6e26f5fc071f20a8b42fcb41994b0a1300d05e9d0"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -193,7 +201,8 @@
           "name": "Dan",
           "percentile": 75
         }
-      ]
+      ],
+      "expectedHash": "a6ddf033ae140141dbf4cdfbc1ff8686d40bd2b1a4b4b00666a094bb34a29ea6"
     },
     {
       "name": "Larger multi-department set",
@@ -251,7 +260,8 @@
           "name": "M",
           "percentile": 84.62
         }
-      ]
+      ],
+      "expectedHash": "fb431c8087c2a5a82cd0ac6de47b26fdddc9a5a6b80e9a0770acd56a5e8cd735"
     },
     {
       "name": "Single employee — percentile is 0",
@@ -261,7 +271,8 @@
           "name": "Solo",
           "percentile": 0
         }
-      ]
+      ],
+      "expectedHash": "5c00666184f85051967f8627735cd9abed9634909f6f7a4ad233e472cc58fade"
     },
     {
       "name": "Two employees — lower is 0%, higher is 50%",
@@ -275,7 +286,8 @@
           "name": "A",
           "percentile": 50
         }
-      ]
+      ],
+      "expectedHash": "bef46f32e3aeb4958786c5b9585824a4d04919dc880d319ef68fe0e26fd3ba29"
     },
     {
       "name": "Three distinct salaries",
@@ -293,7 +305,8 @@
           "name": "A",
           "percentile": 66.67
         }
-      ]
+      ],
+      "expectedHash": "1ca51ae8bf60a295db4906e79e733ebffa447bbd40698c3d4a9b71515873f73c"
     },
     {
       "name": "All same salary — everyone is at 0%",
@@ -311,7 +324,8 @@
           "name": "C",
           "percentile": 0
         }
-      ]
+      ],
+      "expectedHash": "a04ecc5416f84fc1058a66b16b46213f73909bea8a95ca6ac042a8cb3f29c445"
     },
     {
       "name": "Ties in the middle",
@@ -333,7 +347,8 @@
           "name": "A",
           "percentile": 75
         }
-      ]
+      ],
+      "expectedHash": "3ab54c8a5e0891c2f9d53f285ac1144087116acb4ffd24ecc99f5445acb92c3b"
     },
     {
       "name": "Five distinct salaries",
@@ -359,7 +374,8 @@
           "name": "A",
           "percentile": 80
         }
-      ]
+      ],
+      "expectedHash": "37780c7498162059fd6f2c17e2d338a376d748c948f0e5ac5885d4fdc7df583f"
     }
   ]
 }

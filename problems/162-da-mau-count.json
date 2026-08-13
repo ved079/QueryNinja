@@ -31,7 +31,8 @@
           "month": "2024-03",
           "active_users": 1
         }
-      ]
+      ],
+      "expectedHash": "ed52ed7e03512db7bb3055d4217009f015bf558c3aa76afa265db709ac85bbec"
     },
     {
       "name": "One user many times in one month",
@@ -41,12 +42,14 @@
           "month": "2024-01",
           "active_users": 1
         }
-      ]
+      ],
+      "expectedHash": "564eb2b56d76d80eb8d9fc95f2abd73c1f52677ddfc11a8616ad430529c293c1"
     },
     {
       "name": "No logins / empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Each user in different months",
@@ -64,7 +67,8 @@
           "month": "2024-03",
           "active_users": 1
         }
-      ]
+      ],
+      "expectedHash": "087e5c13918604914c39041161e38a5ff9c0716d58c7019e6033a7b315127c3e"
     },
     {
       "name": "Heavy overlap across two months",
@@ -78,7 +82,8 @@
           "month": "2024-02",
           "active_users": 3
         }
-      ]
+      ],
+      "expectedHash": "fbebb07cc86933374600f464396ceef7aadf284c7a7f41de07f4da48f66e7f32"
     }
   ]
 }

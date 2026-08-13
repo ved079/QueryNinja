@@ -22,7 +22,8 @@
           "hour": "09",
           "events": 3
         }
-      ]
+      ],
+      "expectedHash": "404989bfb17a42aad45671f5816fc63d1ee7893f79fb34ac27bc5eb58fe41fa4"
     },
     {
       "name": "A user with a long unbroken streak",
@@ -32,7 +33,8 @@
           "hour": "10",
           "events": 8
         }
-      ]
+      ],
+      "expectedHash": "9b3fb8564b76dcda7396865ef797496dbdb823fa67f5fe64051e0c1866169ef8"
     },
     {
       "name": "Users with no events at all",
@@ -42,12 +44,14 @@
           "hour": "12",
           "events": 2
         }
-      ]
+      ],
+      "expectedHash": "98cb0d7ba99dc6e6b01504523d73ad5aae84154e31e167193ecc3c3b40dbf232"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Several events at the exact same timestamp",
@@ -57,7 +61,8 @@
           "hour": "09",
           "events": 5
         }
-      ]
+      ],
+      "expectedHash": "aed37c39253f35174a4feddb7c94aaac2c3f54a40477e72b5184182576496dfe"
     },
     {
       "name": "Single user, single event",
@@ -67,7 +72,8 @@
           "hour": "15",
           "events": 1
         }
-      ]
+      ],
+      "expectedHash": "e8331fd731cb685387e08a62abe631d9705f84e06e9cfb3d2f9cce0e924ef0be"
     },
     {
       "name": "Events with NULL type and orphan user ids",
@@ -77,7 +83,8 @@
           "hour": "09",
           "events": 2
         }
-      ]
+      ],
+      "expectedHash": "0cb3ffbf2df67a6472d486a37dfdc5373fc7983ade6be9d895b067dd98dce89f"
     },
     {
       "name": "A streak spanning a month boundary",
@@ -87,7 +94,8 @@
           "hour": "09",
           "events": 5
         }
-      ]
+      ],
+      "expectedHash": "aed37c39253f35174a4feddb7c94aaac2c3f54a40477e72b5184182576496dfe"
     },
     {
       "name": "Purchases only, no logins",
@@ -97,7 +105,8 @@
           "hour": "09",
           "events": 2
         }
-      ]
+      ],
+      "expectedHash": "0cb3ffbf2df67a6472d486a37dfdc5373fc7983ade6be9d895b067dd98dce89f"
     },
     {
       "name": "Larger multi-user activity log",
@@ -107,7 +116,8 @@
           "hour": "22",
           "events": 5
         }
-      ]
+      ],
+      "expectedHash": "48552ec634b17c5b8f68aabfffa4749c0ac6a8a1c3fba8c422f848e68bb8f2fa"
     },
     {
       "name": "Single hour with events",
@@ -133,7 +143,8 @@
           "events": 1
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Clear busiest hour",
@@ -177,7 +188,8 @@
           "events": 3
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Tie between hours",
@@ -225,7 +237,8 @@
           "events": 2
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "All events same hour",
@@ -269,7 +282,8 @@
           "events": 4
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "NULL event_time — strftime returns NULL",
@@ -301,7 +315,8 @@
           "events": 1
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Evening hours",
@@ -345,7 +360,8 @@
           "events": 2
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

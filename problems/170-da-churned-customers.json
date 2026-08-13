@@ -25,12 +25,14 @@
           "account_id": 1,
           "last_login": "2024-01-01"
         }
-      ]
+      ],
+      "expectedHash": "2146ed966f36a34b42740abed4670a3f9c28194f58183eccf3f99d3dd4a189a6"
     },
     {
       "name": "Empty tables",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Never logged in",
@@ -44,12 +46,14 @@
           "account_id": 2,
           "last_login": null
         }
-      ]
+      ],
+      "expectedHash": "2db17724badf74796423b85127ee200506b5771a6ab03c2649debbba9adbab09"
     },
     {
       "name": "Everyone active",
       "seedSql": "INSERT INTO accounts VALUES (1,'2020-01-01'),(2,'2020-01-01');\nINSERT INTO logins VALUES (1,'2024-06-20'),(2,'2024-06-15');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Mixed churn",
@@ -59,7 +63,8 @@
           "account_id": 2,
           "last_login": "2024-01-01"
         }
-      ]
+      ],
+      "expectedHash": "c540007742d28c6cd69488be22384adee3076a872c3142ad650f23b44a3936f1"
     }
   ]
 }

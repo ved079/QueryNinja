@@ -52,7 +52,8 @@
           "first_order_date": "2022-03-05",
           "last_order_date": "2022-03-06"
         }
-      ]
+      ],
+      "expectedHash": "3105d6ce2e114ef25bb4a359f06520134f18229aa98cb8b598b40e25def34b3c"
     },
     {
       "name": "Customer who never ordered",
@@ -70,7 +71,8 @@
           "first_order_date": "2022-01-11",
           "last_order_date": "2022-01-11"
         }
-      ]
+      ],
+      "expectedHash": "e793c01a089263391cbade13c4b0e58dc4bdb4bd57f367679a1a5c4f028c5a2e"
     },
     {
       "name": "All orders cancelled",
@@ -88,12 +90,14 @@
           "first_order_date": "2022-01-11",
           "last_order_date": "2022-01-11"
         }
-      ]
+      ],
+      "expectedHash": "e793c01a089263391cbade13c4b0e58dc4bdb4bd57f367679a1a5c4f028c5a2e"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -111,7 +115,8 @@
           "first_order_date": "2022-01-10",
           "last_order_date": "2022-01-11"
         }
-      ]
+      ],
+      "expectedHash": "befaecbbab3daf5e2f222fd988bc4bc082ddbb1ca426567db1f8a9333736eab4"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -129,7 +134,8 @@
           "first_order_date": "2022-01-11",
           "last_order_date": "2022-01-11"
         }
-      ]
+      ],
+      "expectedHash": "e793c01a089263391cbade13c4b0e58dc4bdb4bd57f367679a1a5c4f028c5a2e"
     },
     {
       "name": "Single customer, single order",
@@ -141,7 +147,8 @@
           "first_order_date": "2022-05-05",
           "last_order_date": "2022-05-05"
         }
-      ]
+      ],
+      "expectedHash": "86b92763c39d124e536d7b5970f4d5781e5b6c2cd928a624188ca6ad89a1b6df"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -159,7 +166,8 @@
           "first_order_date": "2022-01-01",
           "last_order_date": "2022-01-01"
         }
-      ]
+      ],
+      "expectedHash": "47e2c7d43148e0b4a8848f171de3d64741903fe720181e896d311687e275f83b"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -195,7 +203,8 @@
           "first_order_date": "2022-01-31",
           "last_order_date": "2022-02-01"
         }
-      ]
+      ],
+      "expectedHash": "87c9fea29e0646ecb145218e723e2268c49ea9a617a8f7440b9430c7f72576bf"
     },
     {
       "name": "Larger multi-country set",
@@ -261,7 +270,8 @@
           "first_order_date": "2023-02-28",
           "last_order_date": "2023-02-28"
         }
-      ]
+      ],
+      "expectedHash": "45189dcaa5909f4c628a0588dcf72f1a389453a2a767927775b24be5c59bb589"
     },
     {
       "name": "Single customer with one order — all dates are the same",
@@ -273,7 +283,8 @@
           "first_order_date": "2022-06-15",
           "last_order_date": "2022-06-15"
         }
-      ]
+      ],
+      "expectedHash": "a19b4e29c1a79a428f20968b3a552db46a680f885c8515822932c3043f8ddb79"
     },
     {
       "name": "Customer with multiple orders — first and last differ",
@@ -297,7 +308,8 @@
           "first_order_date": "2022-01-10",
           "last_order_date": "2023-01-02"
         }
-      ]
+      ],
+      "expectedHash": "5ecda90c1de3bfc4325f375c636e3e37057f4e44fb7b56b400534d5bfa7249b4"
     },
     {
       "name": "Multiple customers — each gets their own first and last",
@@ -321,12 +333,14 @@
           "first_order_date": "2022-02-20",
           "last_order_date": "2022-02-20"
         }
-      ]
+      ],
+      "expectedHash": "c522024a5f98c5bd81b6a6d516af465623ca58256ed7134b1218df864b83d519"
     },
     {
       "name": "Empty orders table — no rows",
       "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders on the same date — tie-breaker by id determines order",
@@ -350,7 +364,8 @@
           "first_order_date": "2022-01-01",
           "last_order_date": "2022-01-01"
         }
-      ]
+      ],
+      "expectedHash": "e5b58a50c1258351aada0b178a943716dc9711477bc3cd81c9a6b756afb3d70d"
     },
     {
       "name": "Orders in reverse chronological order — FIRST_VALUE gets earliest",
@@ -374,7 +389,8 @@
           "first_order_date": "2022-01-01",
           "last_order_date": "2023-01-01"
         }
-      ]
+      ],
+      "expectedHash": "eab38cf970bcbbcc164b297db89a290f4b12ba91f8e5b178751c237691996a69"
     }
   ]
 }

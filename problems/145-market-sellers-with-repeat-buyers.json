@@ -25,17 +25,20 @@
           "seller_name": "ShopA",
           "repeat_buyer_count": 2
         }
-      ]
+      ],
+      "expectedHash": "cf07fd2bbdd64685c16108db87332892c3199a1762807dc05f1db05596d0425a"
     },
     {
       "name": "No repeat buyers — empty result",
       "seedSql": "INSERT INTO sellers VALUES (1,'ShopA','Electronics','2020-01-01');\nINSERT INTO buyers VALUES (1,'Alice','2021-01-01'),(2,'Bob','2021-02-01');\nINSERT INTO transactions VALUES\n  (1,1,1,50.0,'2022-01-01','completed'),\n  (2,1,2,80.0,'2022-02-01','completed');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Cancelled transactions should not count",
       "seedSql": "INSERT INTO sellers VALUES (1,'ShopA','Electronics','2020-01-01');\nINSERT INTO buyers VALUES (1,'Alice','2021-01-01');\nINSERT INTO transactions VALUES\n  (1,1,1,50.0,'2022-01-01','completed'),\n  (2,1,1,80.0,'2022-02-01','cancelled'),\n  (3,1,1,30.0,'2022-03-01','cancelled');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single seller, many repeat buyers",
@@ -46,12 +49,14 @@
           "seller_name": "Mega",
           "repeat_buyer_count": 3
         }
-      ]
+      ],
+      "expectedHash": "dc1cf2dbe70a974afd89d391a52be1b6b77715184793e91dbdc2b44079f3c8fe"
     },
     {
       "name": "Empty tables",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

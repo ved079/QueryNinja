@@ -29,7 +29,8 @@
           "status": "pending",
           "orders": 1
         }
-      ]
+      ],
+      "expectedHash": "d633e7fad687ff3192c7919964b7e8f532db4f07e6b3953d0c546a255a699ef3"
     },
     {
       "name": "Customer who never ordered",
@@ -39,7 +40,8 @@
           "status": "completed",
           "orders": 2
         }
-      ]
+      ],
+      "expectedHash": "b152b542dc83bee2b97a4ccd35e36e47f0fbc2653c51b8b3a0268f20f5168018"
     },
     {
       "name": "All orders cancelled",
@@ -49,12 +51,14 @@
           "status": "cancelled",
           "orders": 2
         }
-      ]
+      ],
+      "expectedHash": "a3dce2c91234b79d1face2fd43258861303f9aec904553b8184bc1a3da2d952e"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -64,7 +68,8 @@
           "status": "completed",
           "orders": 2
         }
-      ]
+      ],
+      "expectedHash": "b152b542dc83bee2b97a4ccd35e36e47f0fbc2653c51b8b3a0268f20f5168018"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -78,7 +83,8 @@
           "status": "completed",
           "orders": 1
         }
-      ]
+      ],
+      "expectedHash": "6de38017446d470903afa0482fc8d92b49e08e5a21fbb55b971d105b4113fdec"
     },
     {
       "name": "Single customer, single order",
@@ -88,7 +94,8 @@
           "status": "completed",
           "orders": 1
         }
-      ]
+      ],
+      "expectedHash": "a85ffce2758c45bc66fb1b94d3804e03af10e411a1919821db24c8d40c81fabe"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -98,7 +105,8 @@
           "status": "completed",
           "orders": 2
         }
-      ]
+      ],
+      "expectedHash": "b152b542dc83bee2b97a4ccd35e36e47f0fbc2653c51b8b3a0268f20f5168018"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -108,7 +116,8 @@
           "status": "completed",
           "orders": 5
         }
-      ]
+      ],
+      "expectedHash": "a233ec8ce643a142ac2bee7a553a8acfeab317ec9c502e87a1be81b3f4970769"
     },
     {
       "name": "Larger multi-country set",
@@ -126,7 +135,8 @@
           "status": "pending",
           "orders": 1
         }
-      ]
+      ],
+      "expectedHash": "d6474a4cc578743ef92f607847ca329dc6f1f987d942600cbb052716f1ac45d4"
     },
     {
       "name": "All orders have the same status",
@@ -136,7 +146,8 @@
           "status": "completed",
           "orders": 2
         }
-      ]
+      ],
+      "expectedHash": "b152b542dc83bee2b97a4ccd35e36e47f0fbc2653c51b8b3a0268f20f5168018"
     },
     {
       "name": "NULL status grouped together",
@@ -150,7 +161,8 @@
           "status": "completed",
           "orders": 1
         }
-      ]
+      ],
+      "expectedHash": "6de38017446d470903afa0482fc8d92b49e08e5a21fbb55b971d105b4113fdec"
     },
     {
       "name": "All three statuses present",
@@ -168,7 +180,8 @@
           "status": "pending",
           "orders": 1
         }
-      ]
+      ],
+      "expectedHash": "c02d039737f18678ba685cdbcddde34d4317e8addb0778aec695816db68a5818"
     },
     {
       "name": "Only cancelled and completed",
@@ -182,7 +195,8 @@
           "status": "completed",
           "orders": 1
         }
-      ]
+      ],
+      "expectedHash": "690b5e6989e28d2ab49f8b33e2b39e5b37f966adc6fd51af6841a02f30af2813"
     },
     {
       "name": "Single order",
@@ -192,7 +206,8 @@
           "status": "completed",
           "orders": 1
         }
-      ]
+      ],
+      "expectedHash": "a85ffce2758c45bc66fb1b94d3804e03af10e411a1919821db24c8d40c81fabe"
     },
     {
       "name": "Many orders across two statuses",
@@ -206,7 +221,8 @@
           "status": "completed",
           "orders": 3
         }
-      ]
+      ],
+      "expectedHash": "2e3ad404561469b3fd9d5b23faa649dcdc6e83ed99d2bdde2f5a8d6ea755c5f8"
     }
   ]
 }

@@ -34,7 +34,8 @@
           "month": "2023-01",
           "revenue": 140
         }
-      ]
+      ],
+      "expectedHash": "7f0b77abe558499dd466b8ec4b73053c3a23b6c239d99da1aa79a5b7adc98f71"
     },
     {
       "name": "Customer who never ordered",
@@ -44,17 +45,20 @@
           "month": "2022-01",
           "revenue": 130
         }
-      ]
+      ],
+      "expectedHash": "403d6f35a84e5453d78dd15d10068752c9174a82ad62d33f6a7fadfab4efae21"
     },
     {
       "name": "All orders cancelled",
       "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','cancelled'),(2,2,'2022-01-11','cancelled');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,1,2,80.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -64,7 +68,8 @@
           "month": "2022-01",
           "revenue": 80
         }
-      ]
+      ],
+      "expectedHash": "183c91ebcd06458b5ea969b7a57ef740dfe48039d02cd70f606f93ef7fad7244"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -74,7 +79,8 @@
           "month": "2022-01",
           "revenue": 160
         }
-      ]
+      ],
+      "expectedHash": "4e3c31358b76e9331934e00a6f759e36d25e891ee9657dfc6eb53a6eaa1fe38d"
     },
     {
       "name": "Single customer, single order",
@@ -84,7 +90,8 @@
           "month": "2022-05",
           "revenue": 80
         }
-      ]
+      ],
+      "expectedHash": "1feda79e435562f9f0bc0657705555ca0cffbde000c824be346f94cc6a085d20"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -94,7 +101,8 @@
           "month": "2022-01",
           "revenue": 200
         }
-      ]
+      ],
+      "expectedHash": "3fc80451acec57063b5e0030de5da5a4c28ce158cfec26afe950c5693e22f456"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -112,7 +120,8 @@
           "month": "2022-02",
           "revenue": 80
         }
-      ]
+      ],
+      "expectedHash": "d3b51988bc6c2a1b4623fd408cee2440e0e1d74c6fa75345f5151e480f492948"
     },
     {
       "name": "Larger multi-country set",
@@ -146,7 +155,8 @@
           "month": "2023-03",
           "revenue": 612.5
         }
-      ]
+      ],
+      "expectedHash": "39f511fc447de3142a441d06fce67ce8f9d5a9464d322c73d8d1fa5acd09b375"
     },
     {
       "name": "Single month with revenue",
@@ -197,7 +207,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two months with revenue",
@@ -261,7 +272,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "No completed orders — empty result",
@@ -312,7 +324,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Multiple orders in same month",
@@ -376,7 +389,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Same month different year — separate rows",
@@ -440,7 +454,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "NULL status order not counted",
@@ -504,7 +519,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

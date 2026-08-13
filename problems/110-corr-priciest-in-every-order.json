@@ -26,7 +26,8 @@
         {
           "name": "Lamp"
         }
-      ]
+      ],
+      "expectedHash": "cdf0933aa90668a09bd364e5a0b37662964e13abadd16a1ab82cc2f6c463744d"
     },
     {
       "name": "Customer who never ordered",
@@ -38,7 +39,8 @@
         {
           "name": "Mouse"
         }
-      ]
+      ],
+      "expectedHash": "64c7f328739d98d47b1444bdc2f11bbda5a5b85ea63f715313d1bf094621c835"
     },
     {
       "name": "All orders cancelled",
@@ -47,12 +49,14 @@
         {
           "name": "Keyboard"
         }
-      ]
+      ],
+      "expectedHash": "d4339cb320ea59afc811d7ea2c7fc6daf45306be1d82e64e07c0b5c5268ae015"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -61,7 +65,8 @@
         {
           "name": "Keyboard"
         }
-      ]
+      ],
+      "expectedHash": "d4339cb320ea59afc811d7ea2c7fc6daf45306be1d82e64e07c0b5c5268ae015"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -70,7 +75,8 @@
         {
           "name": "Keyboard"
         }
-      ]
+      ],
+      "expectedHash": "d4339cb320ea59afc811d7ea2c7fc6daf45306be1d82e64e07c0b5c5268ae015"
     },
     {
       "name": "Single customer, single order",
@@ -79,7 +85,8 @@
         {
           "name": "Keyboard"
         }
-      ]
+      ],
+      "expectedHash": "d4339cb320ea59afc811d7ea2c7fc6daf45306be1d82e64e07c0b5c5268ae015"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -91,7 +98,8 @@
         {
           "name": "P2"
         }
-      ]
+      ],
+      "expectedHash": "af6041eb08cb9c72465bad071b32b8af04f6aea52480601649435e15049989d6"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -103,7 +111,8 @@
         {
           "name": "Desk"
         }
-      ]
+      ],
+      "expectedHash": "e842f2799754cfa24b1943d5334fa9896846423bd36b1a25b57a0278fb09b152"
     },
     {
       "name": "Larger multi-country set",
@@ -118,7 +127,8 @@
         {
           "name": "Desk"
         }
-      ]
+      ],
+      "expectedHash": "0f34e1d81c6c1c549a4902245931efa4e58ad496300d4205d4951d20acf51516"
     },
     {
       "name": "All products are the priciest in every order — single product per order",
@@ -130,7 +140,8 @@
         {
           "name": "Mouse"
         }
-      ]
+      ],
+      "expectedHash": "64c7f328739d98d47b1444bdc2f11bbda5a5b85ea63f715313d1bf094621c835"
     },
     {
       "name": "No product is the priciest in every order",
@@ -139,7 +150,8 @@
         {
           "name": "Keyboard"
         }
-      ]
+      ],
+      "expectedHash": "d4339cb320ea59afc811d7ea2c7fc6daf45306be1d82e64e07c0b5c5268ae015"
     },
     {
       "name": "Single product, single order — trivially the priciest",
@@ -148,7 +160,8 @@
         {
           "name": "Solo"
         }
-      ]
+      ],
+      "expectedHash": "a96d475b9de9f48232cddeabb71fcc5b87cf0b3053822df3bbbd3e2d16b8806b"
     },
     {
       "name": "NULL unit_price in an order line — should not be considered priciest",
@@ -157,12 +170,14 @@
         {
           "name": "Keyboard"
         }
-      ]
+      ],
+      "expectedHash": "d4339cb320ea59afc811d7ea2c7fc6daf45306be1d82e64e07c0b5c5268ae015"
     },
     {
       "name": "Empty products table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Product is priciest in one order but not another",
@@ -174,7 +189,8 @@
         {
           "name": "Desk"
         }
-      ]
+      ],
+      "expectedHash": "e842f2799754cfa24b1943d5334fa9896846423bd36b1a25b57a0278fb09b152"
     }
   ]
 }

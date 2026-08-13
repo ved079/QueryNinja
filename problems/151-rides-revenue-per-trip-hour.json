@@ -33,7 +33,8 @@
           "total_hours": 2.5,
           "fare_per_hour": 12
         }
-      ]
+      ],
+      "expectedHash": "0b1a522bd706e76ab2c372ae6e9b2e48e1140739f85ee4e2bd8fbd5201b3b920"
     },
     {
       "name": "Cancelled trips excluded",
@@ -46,17 +47,20 @@
           "total_hours": 1,
           "fare_per_hour": 30
         }
-      ]
+      ],
+      "expectedHash": "e8ca4ed264683a09794a51a5624863c0135178e77ee8e3cdbc0b8fa30a4e2c7e"
     },
     {
       "name": "No completed trips — empty",
       "seedSql": "INSERT INTO drivers VALUES (1,'D','NYC');\nINSERT INTO riders VALUES (1,'X');\nINSERT INTO trips VALUES (1,1,1,'2022-01-01',NULL,NULL,'cancelled',0.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Empty tables",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

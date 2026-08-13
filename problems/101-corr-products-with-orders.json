@@ -30,7 +30,8 @@
         {
           "name": "Lamp"
         }
-      ]
+      ],
+      "expectedHash": "d367bceda3fad08925100990f1d221b34b70aa868bd88918e9469d7aeec210bc"
     },
     {
       "name": "Customer who never ordered",
@@ -42,7 +43,8 @@
         {
           "name": "Mouse"
         }
-      ]
+      ],
+      "expectedHash": "64c7f328739d98d47b1444bdc2f11bbda5a5b85ea63f715313d1bf094621c835"
     },
     {
       "name": "All orders cancelled",
@@ -51,12 +53,14 @@
         {
           "name": "Keyboard"
         }
-      ]
+      ],
+      "expectedHash": "d4339cb320ea59afc811d7ea2c7fc6daf45306be1d82e64e07c0b5c5268ae015"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -65,7 +69,8 @@
         {
           "name": "Keyboard"
         }
-      ]
+      ],
+      "expectedHash": "d4339cb320ea59afc811d7ea2c7fc6daf45306be1d82e64e07c0b5c5268ae015"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -77,7 +82,8 @@
         {
           "name": "Mystery"
         }
-      ]
+      ],
+      "expectedHash": "7647a527beedeb26c5a6eb00d88580ada68427361940394015fe71a163192c70"
     },
     {
       "name": "Single customer, single order",
@@ -86,7 +92,8 @@
         {
           "name": "Keyboard"
         }
-      ]
+      ],
+      "expectedHash": "d4339cb320ea59afc811d7ea2c7fc6daf45306be1d82e64e07c0b5c5268ae015"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -98,7 +105,8 @@
         {
           "name": "P2"
         }
-      ]
+      ],
+      "expectedHash": "af6041eb08cb9c72465bad071b32b8af04f6aea52480601649435e15049989d6"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -110,7 +118,8 @@
         {
           "name": "Desk"
         }
-      ]
+      ],
+      "expectedHash": "e842f2799754cfa24b1943d5334fa9896846423bd36b1a25b57a0278fb09b152"
     },
     {
       "name": "Larger multi-country set",
@@ -131,17 +140,20 @@
         {
           "name": "Mug"
         }
-      ]
+      ],
+      "expectedHash": "64af274724f20d996b461b8a61127f815afba0e7c14190c836feae2978a5bb94"
     },
     {
       "name": "No products at all",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "No order items exist — no products qualify",
       "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Every product has been ordered",
@@ -153,7 +165,8 @@
         {
           "name": "Mouse"
         }
-      ]
+      ],
+      "expectedHash": "64c7f328739d98d47b1444bdc2f11bbda5a5b85ea63f715313d1bf094621c835"
     },
     {
       "name": "Some products never ordered",
@@ -162,12 +175,14 @@
         {
           "name": "Keyboard"
         }
-      ]
+      ],
+      "expectedHash": "d4339cb320ea59afc811d7ea2c7fc6daf45306be1d82e64e07c0b5c5268ae015"
     },
     {
       "name": "Both products and order_items empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Product ordered multiple times — still appears once",
@@ -176,7 +191,8 @@
         {
           "name": "Keyboard"
         }
-      ]
+      ],
+      "expectedHash": "d4339cb320ea59afc811d7ea2c7fc6daf45306be1d82e64e07c0b5c5268ae015"
     }
   ]
 }

@@ -68,7 +68,8 @@
           "user_id": 3,
           "minutes_since_prev": 2910
         }
-      ]
+      ],
+      "expectedHash": "3ec4ca64ecf03b02157eaddb20634335f1969c07016a51db341d908094810087"
     },
     {
       "name": "A user with a long unbroken streak",
@@ -114,7 +115,8 @@
           "user_id": 2,
           "minutes_since_prev": 2880
         }
-      ]
+      ],
+      "expectedHash": "5005d47ed12163a78c7b2825cd2eae0fa4bbfe7c4afb1b7cd66c1f6dc74f5a21"
     },
     {
       "name": "Users with no events at all",
@@ -130,12 +132,14 @@
           "user_id": 1,
           "minutes_since_prev": 30
         }
-      ]
+      ],
+      "expectedHash": "d3d38fb8967b55549437b3f39d17b6b71414561071d80d80da51fa514ec874ef"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Several events at the exact same timestamp",
@@ -166,7 +170,8 @@
           "user_id": 2,
           "minutes_since_prev": 0
         }
-      ]
+      ],
+      "expectedHash": "23185ba828187500810e1e4c46813859bb74783273e06e6ca46e15380a5d80b3"
     },
     {
       "name": "Single user, single event",
@@ -177,7 +182,8 @@
           "user_id": 1,
           "minutes_since_prev": null
         }
-      ]
+      ],
+      "expectedHash": "9300d5a77d4201915c30e7226920efd5e1c32b4b27b0e5ad0a16bd3022a03c32"
     },
     {
       "name": "Events with NULL type and orphan user ids",
@@ -203,7 +209,8 @@
           "user_id": 99,
           "minutes_since_prev": null
         }
-      ]
+      ],
+      "expectedHash": "068568e887717ae575260fb1cbc342592ebee98a86aa2392a94e40f5bd7aa8e3"
     },
     {
       "name": "A streak spanning a month boundary",
@@ -234,7 +241,8 @@
           "user_id": 1,
           "minutes_since_prev": 4320
         }
-      ]
+      ],
+      "expectedHash": "a14a2fc821f31a901e79ea69a1c1422adcc610ec054b3afb782a3a4677ed3d3d"
     },
     {
       "name": "Purchases only, no logins",
@@ -255,7 +263,8 @@
           "user_id": 2,
           "minutes_since_prev": null
         }
-      ]
+      ],
+      "expectedHash": "2d35802b3a0a2df0f50a3a6f00fbe5a9529ce8c5399165db5f242a5dcaa886dd"
     },
     {
       "name": "Larger multi-user activity log",
@@ -361,7 +370,8 @@
           "user_id": 5,
           "minutes_since_prev": 1440
         }
-      ]
+      ],
+      "expectedHash": "0b3c55def03f59c5122db28e6abeb86395952f44e5e09dacc48aa84a9155a061"
     },
     {
       "name": "Single event — minutes_since_prev is NULL",
@@ -388,7 +398,8 @@
           "minutes_since_prev": null
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two events 30 min apart",
@@ -426,7 +437,8 @@
           "minutes_since_prev": 30
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Three events with various gaps",
@@ -475,7 +487,8 @@
           "minutes_since_prev": 90
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two users each with their own timeline",
@@ -541,7 +554,8 @@
           "minutes_since_prev": 20
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Events with NULL event_time — LAG diff is NULL",
@@ -579,7 +593,8 @@
           "minutes_since_prev": null
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Events spanning multiple days",
@@ -617,7 +632,8 @@
           "minutes_since_prev": 1440
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

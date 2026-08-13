@@ -20,7 +20,8 @@
         {
           "max_price": 300
         }
-      ]
+      ],
+      "expectedHash": "31fad8a4bc2357e21106c766cbb788c81cb24106c22c0223a85e5648d2fed593"
     },
     {
       "name": "Customer who never ordered",
@@ -29,7 +30,8 @@
         {
           "max_price": 80
         }
-      ]
+      ],
+      "expectedHash": "631c004a51efe3698aee061c9cf978c0ec94e3ca13fce08dd27fc32e0f65bc2b"
     },
     {
       "name": "All orders cancelled",
@@ -38,7 +40,8 @@
         {
           "max_price": 80
         }
-      ]
+      ],
+      "expectedHash": "631c004a51efe3698aee061c9cf978c0ec94e3ca13fce08dd27fc32e0f65bc2b"
     },
     {
       "name": "Everything empty",
@@ -47,7 +50,8 @@
         {
           "max_price": null
         }
-      ]
+      ],
+      "expectedHash": "06aa139d130b2e39792d1a3d9c2a0f53a55b329d4839d6b239a2d1e1071779f0"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -56,7 +60,8 @@
         {
           "max_price": 999
         }
-      ]
+      ],
+      "expectedHash": "88e1cb7b11e1afb526e60a72df3309a3980b708204db84925d4fa38d654e610d"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -65,7 +70,8 @@
         {
           "max_price": 80
         }
-      ]
+      ],
+      "expectedHash": "631c004a51efe3698aee061c9cf978c0ec94e3ca13fce08dd27fc32e0f65bc2b"
     },
     {
       "name": "Single customer, single order",
@@ -74,7 +80,8 @@
         {
           "max_price": 80
         }
-      ]
+      ],
+      "expectedHash": "631c004a51efe3698aee061c9cf978c0ec94e3ca13fce08dd27fc32e0f65bc2b"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -83,7 +90,8 @@
         {
           "max_price": 50
         }
-      ]
+      ],
+      "expectedHash": "556eec2d197d506417325c61a86a8e8898033204933ceb6d2f0d2ee92c1bf7a0"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -92,7 +100,8 @@
         {
           "max_price": 300
         }
-      ]
+      ],
+      "expectedHash": "31fad8a4bc2357e21106c766cbb788c81cb24106c22c0223a85e5648d2fed593"
     },
     {
       "name": "Larger multi-country set",
@@ -101,7 +110,8 @@
         {
           "max_price": 300
         }
-      ]
+      ],
+      "expectedHash": "31fad8a4bc2357e21106c766cbb788c81cb24106c22c0223a85e5648d2fed593"
     },
     {
       "name": "All NULL prices — MAX returns NULL",
@@ -110,7 +120,8 @@
         {
           "max_price": null
         }
-      ]
+      ],
+      "expectedHash": "06aa139d130b2e39792d1a3d9c2a0f53a55b329d4839d6b239a2d1e1071779f0"
     },
     {
       "name": "Single product",
@@ -119,7 +130,8 @@
         {
           "max_price": 80
         }
-      ]
+      ],
+      "expectedHash": "631c004a51efe3698aee061c9cf978c0ec94e3ca13fce08dd27fc32e0f65bc2b"
     },
     {
       "name": "Tie at the top",
@@ -128,7 +140,8 @@
         {
           "max_price": 100
         }
-      ]
+      ],
+      "expectedHash": "5ddaa767f855dacb0b4f3a203265349e97d374ece521775505727c052e330554"
     },
     {
       "name": "Mix of negative and positive",
@@ -137,7 +150,8 @@
         {
           "max_price": 200
         }
-      ]
+      ],
+      "expectedHash": "e5b3f3d0b44b4d4e85d3721a360b55510a3300accb68ddde1e255c15558c448e"
     },
     {
       "name": "NULLs and values",
@@ -146,7 +160,8 @@
         {
           "max_price": 100
         }
-      ]
+      ],
+      "expectedHash": "5ddaa767f855dacb0b4f3a203265349e97d374ece521775505727c052e330554"
     },
     {
       "name": "Empty products table — MAX returns NULL",
@@ -155,7 +170,8 @@
         {
           "max_price": null
         }
-      ]
+      ],
+      "expectedHash": "06aa139d130b2e39792d1a3d9c2a0f53a55b329d4839d6b239a2d1e1071779f0"
     }
   ]
 }

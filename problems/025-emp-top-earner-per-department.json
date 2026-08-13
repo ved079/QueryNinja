@@ -33,7 +33,8 @@
           "name": "Hal",
           "salary": 60000
         }
-      ]
+      ],
+      "expectedHash": "94a85019c7c578753bb3cb69d6ddc36c269aeae4ecdfe9184a97dbd41a9e3ce9"
     },
     {
       "name": "Ties on every salary",
@@ -64,7 +65,8 @@
           "name": "E",
           "salary": 100000
         }
-      ]
+      ],
+      "expectedHash": "2e3b33ff5a3d267b092976a2a8f04810692a4c9e77da2484cff96dc8f20932f7"
     },
     {
       "name": "Department with no employees",
@@ -75,7 +77,8 @@
           "name": "Ava",
           "salary": 90000
         }
-      ]
+      ],
+      "expectedHash": "46bf5f847c2ce9c93f9580bc65fed2f830596b043c05564f13742e8a0b668285"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -91,12 +94,14 @@
           "name": "Dan",
           "salary": 75000
         }
-      ]
+      ],
+      "expectedHash": "af80331b25215cd7fa772c34cf415698c4861a7d4b39f9e66ee468cf49baa926"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -107,7 +112,8 @@
           "name": "Solo",
           "salary": 100000
         }
-      ]
+      ],
+      "expectedHash": "0a993e89361eb8a596ebe8f4a86e42455e6f065dda9d4a9f16361a64731ee5d8"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -118,7 +124,8 @@
           "name": "L1",
           "salary": 300000
         }
-      ]
+      ],
+      "expectedHash": "ddae2ceda8a74c402edb578b6cfd3d643c2b8da01d1ce1748db1d1dfca607a3e"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -134,7 +141,8 @@
           "name": "Sam",
           "salary": 95000
         }
-      ]
+      ],
+      "expectedHash": "edb07de91cbab4045ea39e16130fea85b06c2791c35772724e47db4053db61ea"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -150,7 +158,8 @@
           "name": "Dan",
           "salary": 2000000
         }
-      ]
+      ],
+      "expectedHash": "9fb7a17249ec132537f500dc58bce8cf34829d1f7b45ce31d3dc7a137a39e54d"
     },
     {
       "name": "Larger multi-department set",
@@ -181,7 +190,8 @@
           "name": "M",
           "salary": 150000
         }
-      ]
+      ],
+      "expectedHash": "65162fa711dd1fb5d4c64268c20742752146c8c984912bba45dbbbb86d114a48"
     },
     {
       "name": "Single employee per department is the top earner",
@@ -197,7 +207,8 @@
           "name": "B",
           "salary": 200
         }
-      ]
+      ],
+      "expectedHash": "a7dcdb7970c817b32ab2852ebd40caa55b0d51ef76ba315c44e53c2f57e17cf9"
     },
     {
       "name": "Tie for the top salary in one department",
@@ -213,7 +224,8 @@
           "name": "B",
           "salary": 100
         }
-      ]
+      ],
+      "expectedHash": "9f9f9f326321a13ad02738acb7bd3e7e4e7a09cb2959c5cbe95f16e80d7d5963"
     },
     {
       "name": "Only NULL salary present",
@@ -224,7 +236,8 @@
           "name": "A",
           "salary": null
         }
-      ]
+      ],
+      "expectedHash": "717c506c84a3f3268efe618c3b6da684821b90cf26348441373efcc6d60fbf30"
     },
     {
       "name": "NULL salary is not top when a real salary exists",
@@ -235,7 +248,8 @@
           "name": "A",
           "salary": 100
         }
-      ]
+      ],
+      "expectedHash": "898c33d4fcb3d354f8607baed85093d3c1f4833db4a021c65035bdbbfbfa94d5"
     },
     {
       "name": "All employees share the same salary",
@@ -256,7 +270,8 @@
           "name": "C",
           "salary": 100
         }
-      ]
+      ],
+      "expectedHash": "2f1f1f6631616f038cef75304e24fdc3905bfb5ed6688634005e45d4d33ee28a"
     },
     {
       "name": "Three departments with mixed top earners",
@@ -282,7 +297,8 @@
           "name": "F",
           "salary": 50
         }
-      ]
+      ],
+      "expectedHash": "98a2d2a6dedd6048f0d1b4bc6d555af22eddf9b6c33c74b6746ee470f3dd66e5"
     }
   ]
 }

@@ -29,7 +29,8 @@
           "customer": "Cy",
           "first_order": "2022-03-05"
         }
-      ]
+      ],
+      "expectedHash": "25b13dd8ad3bd0078a233c86f8d6f46fe8bb2432729e8315cb16f8d8e15f93c7"
     },
     {
       "name": "Customer who never ordered",
@@ -43,7 +44,8 @@
           "customer": "Bo",
           "first_order": "2022-01-11"
         }
-      ]
+      ],
+      "expectedHash": "7b7931a83f6357135edc9de1823d4ff53c8b07534a2dbf124740c112c530ffff"
     },
     {
       "name": "All orders cancelled",
@@ -57,12 +59,14 @@
           "customer": "Bo",
           "first_order": "2022-01-11"
         }
-      ]
+      ],
+      "expectedHash": "7b7931a83f6357135edc9de1823d4ff53c8b07534a2dbf124740c112c530ffff"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -72,7 +76,8 @@
           "customer": "Ada",
           "first_order": "2022-01-10"
         }
-      ]
+      ],
+      "expectedHash": "0d93f00eab2393edbd16b6f953eaec3d4af0ac5a7ed56e60a918a64a76f8eeee"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -86,7 +91,8 @@
           "customer": "Bo",
           "first_order": "2022-01-11"
         }
-      ]
+      ],
+      "expectedHash": "7b7931a83f6357135edc9de1823d4ff53c8b07534a2dbf124740c112c530ffff"
     },
     {
       "name": "Single customer, single order",
@@ -96,7 +102,8 @@
           "customer": "Solo",
           "first_order": "2022-05-05"
         }
-      ]
+      ],
+      "expectedHash": "51af54b77af511b7a0ce5b7e1918e42b6de54d41d0431ed54def543dcf4ce35d"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -110,7 +117,8 @@
           "customer": "Bo",
           "first_order": "2022-01-01"
         }
-      ]
+      ],
+      "expectedHash": "cde2534f4b8721c018ccc0b81ad85f0c74b2c97cc1c010d80447bb782cfefdc9"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -124,7 +132,8 @@
           "customer": "Bo",
           "first_order": "2022-01-31"
         }
-      ]
+      ],
+      "expectedHash": "0ebe93facadaed035a41fe2cea631358b9323f48ff6031282f664aa6eff8ef1b"
     },
     {
       "name": "Larger multi-country set",
@@ -158,7 +167,8 @@
           "customer": "G",
           "first_order": "2023-02-28"
         }
-      ]
+      ],
+      "expectedHash": "7c3c2be3bfc1dbc8c8f22607096ddafcc6fa3d7c5215abb6b35f9fcded105121"
     },
     {
       "name": "Single customer with one order",
@@ -186,7 +196,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Customer with multiple orders",
@@ -226,7 +237,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two customers each order once",
@@ -266,7 +278,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Customer has two orders on same date — smaller id wins",
@@ -300,7 +313,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Customer with no orders never appears",
@@ -334,7 +348,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Multiple customers with varied order patterns",
@@ -386,7 +401,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

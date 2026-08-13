@@ -66,7 +66,8 @@
           "plan": "pro",
           "mrr": 99
         }
-      ]
+      ],
+      "expectedHash": "e295467472dc23c5b28c18aaf38c18d8896a2343829008c616c7e7615b7f6518"
     },
     {
       "name": "Single plan, single user",
@@ -87,7 +88,8 @@
           "plan": "starter",
           "mrr": 29
         }
-      ]
+      ],
+      "expectedHash": "d68a202d424258fe892ac5923932cd423c643e298e80be17aef7bef4d6ddb617"
     },
     {
       "name": "All churn same month",
@@ -103,12 +105,14 @@
           "plan": "pro",
           "mrr": 198
         }
-      ]
+      ],
+      "expectedHash": "a81de2e1b2c1ec7ba2253e0437dee8b0a7fc0c60d16b5f5a6e9dc7bafca7d30e"
     },
     {
       "name": "No subscriptions",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Plan upgrade — two subs for one user",
@@ -129,7 +133,8 @@
           "plan": "pro",
           "mrr": 99
         }
-      ]
+      ],
+      "expectedHash": "31000bd47c6e77e9ad5ba9fec7090d400dd87bcc179f90ee3cd004864de6a151"
     }
   ]
 }

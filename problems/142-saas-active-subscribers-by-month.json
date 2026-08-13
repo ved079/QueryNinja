@@ -36,7 +36,8 @@
           "month": "2022-04",
           "active_subscribers": 1
         }
-      ]
+      ],
+      "expectedHash": "a70af459611d02dd2871739988de066a1a3f3e43b5e7e7162cae5c65c0b3609c"
     },
     {
       "name": "Single subscription entire year",
@@ -66,12 +67,14 @@
           "month": "2022-06",
           "active_subscribers": 1
         }
-      ]
+      ],
+      "expectedHash": "d46b06f714562e757d1b502002c0856d8218f8533269dd69fbeeea4a3af6a2f5"
     },
     {
       "name": "No subscriptions — empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two non-overlapping subscriptions",
@@ -101,7 +104,8 @@
           "month": "2022-08",
           "active_subscribers": 1
         }
-      ]
+      ],
+      "expectedHash": "6b683de8313e0ab6db0ef91b2e6438b8c93e0cf0796635c6e38493cd531d5f70"
     },
     {
       "name": "All still active",
@@ -255,7 +259,8 @@
           "month": "2026-01",
           "active_subscribers": 3
         }
-      ]
+      ],
+      "expectedHash": "bff52aad00666f099a3e387505b2d25b273e1ef15d84ec1dcb334983497889b5"
     }
   ]
 }

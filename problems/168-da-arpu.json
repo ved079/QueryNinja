@@ -30,12 +30,14 @@
           "paying_users": 1,
           "arpu": 100
         }
-      ]
+      ],
+      "expectedHash": "0a3016f1310b32f51c607c6e3f5cbd92fade4da5bf46745f3b75d51448969bb0"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single paying user",
@@ -46,7 +48,8 @@
           "paying_users": 1,
           "arpu": 50
         }
-      ]
+      ],
+      "expectedHash": "d910d3f10b660772c395ce7de3f86a4d72f67e8e3a9cb01699c2bf6ee8f5901c"
     },
     {
       "name": "Many small orders",
@@ -57,7 +60,8 @@
           "paying_users": 2,
           "arpu": 20
         }
-      ]
+      ],
+      "expectedHash": "22e89e7d14f15f8400981840685db97496e2c9a36d5e9aea0dcaeebf79db809a"
     }
   ]
 }

@@ -27,7 +27,8 @@
           "revenue": 390,
           "pct": 40.63
         }
-      ]
+      ],
+      "expectedHash": "422ead9a296bd1955342dd4754fbda5259171f9a2072eed14828b1438d0092b6"
     },
     {
       "name": "Customer who never ordered",
@@ -38,7 +39,8 @@
           "revenue": 130,
           "pct": 100
         }
-      ]
+      ],
+      "expectedHash": "95efa2007f70cd0519c3090e6c14fcc31ce3fb9a44d939a991029ea41a22810e"
     },
     {
       "name": "All orders cancelled",
@@ -49,12 +51,14 @@
           "revenue": 240,
           "pct": 100
         }
-      ]
+      ],
+      "expectedHash": "b95ac6ac8ce9ecb9ed58d2a2c76236c2366d379002699464ba8c36d3584dd8c0"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -65,7 +69,8 @@
           "revenue": 80,
           "pct": 100
         }
-      ]
+      ],
+      "expectedHash": "02642226493aa7f2e1981b6b8a019c322622938f82f89f551d01d266c003e3a1"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -76,7 +81,8 @@
           "revenue": 240,
           "pct": 100
         }
-      ]
+      ],
+      "expectedHash": "b95ac6ac8ce9ecb9ed58d2a2c76236c2366d379002699464ba8c36d3584dd8c0"
     },
     {
       "name": "Single customer, single order",
@@ -87,7 +93,8 @@
           "revenue": 80,
           "pct": 100
         }
-      ]
+      ],
+      "expectedHash": "02642226493aa7f2e1981b6b8a019c322622938f82f89f551d01d266c003e3a1"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -98,7 +105,8 @@
           "revenue": 200,
           "pct": 100
         }
-      ]
+      ],
+      "expectedHash": "76d0cd727ea8f06a543a84138580cccff9aa3cc8e71bf5c1e397b53095b4b95d"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -114,7 +122,8 @@
           "revenue": 400,
           "pct": 30.77
         }
-      ]
+      ],
+      "expectedHash": "09a629f0075e6df8250b9285b2011c354197eae49bc9be0ea1ae2e910fe79b8d"
     },
     {
       "name": "Larger multi-country set",
@@ -135,7 +144,8 @@
           "revenue": 495,
           "pct": 24.54
         }
-      ]
+      ],
+      "expectedHash": "a95d07bac00a5a4e5248e4a715fbd86cf9fc01277e164b258bfaaf7155f04576"
     },
     {
       "name": "Single category — 100%",
@@ -186,7 +196,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two categories equal share",
@@ -250,7 +261,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "One category dominates",
@@ -314,7 +326,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "NULL category excluded",
@@ -378,7 +391,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Three categories",
@@ -455,7 +469,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Three categories with ties",
@@ -532,7 +547,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

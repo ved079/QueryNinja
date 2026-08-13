@@ -31,12 +31,14 @@
           "new_mrr": 50,
           "carried_mrr": 300
         }
-      ]
+      ],
+      "expectedHash": "8e5cc9f348308e113cfeb2b84a28f2eb8b999282449942762d53b60ccc9cdd66"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "All start same month",
@@ -47,7 +49,8 @@
           "new_mrr": 30,
           "carried_mrr": 0
         }
-      ]
+      ],
+      "expectedHash": "5d14610fcab661a3a822d2adfdfed033af46fafbe1495cc5e66c5d4b027e2cec"
     },
     {
       "name": "Long tail carried",
@@ -68,7 +71,8 @@
           "new_mrr": 10,
           "carried_mrr": 20
         }
-      ]
+      ],
+      "expectedHash": "bf2c994b2603d7230ac6cd182e15dbb1d73b86778f0b3cd7510eb20db9b36d3a"
     }
   ]
 }

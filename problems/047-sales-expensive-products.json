@@ -25,7 +25,8 @@
           "name": "Desk",
           "price": 300
         }
-      ]
+      ],
+      "expectedHash": "b17a1788602b84baac71fea1dc795d1ceef75a65cc62dadbb35835e7f5b11385"
     },
     {
       "name": "Customer who never ordered",
@@ -35,7 +36,8 @@
           "name": "Keyboard",
           "price": 80
         }
-      ]
+      ],
+      "expectedHash": "e10fcee2ec145b01138bb4886f9bb9b0c93bc4033294c2f767bff37fb2581221"
     },
     {
       "name": "All orders cancelled",
@@ -45,12 +47,14 @@
           "name": "Keyboard",
           "price": 80
         }
-      ]
+      ],
+      "expectedHash": "e10fcee2ec145b01138bb4886f9bb9b0c93bc4033294c2f767bff37fb2581221"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -64,7 +68,8 @@
           "name": "NeverSold",
           "price": 999
         }
-      ]
+      ],
+      "expectedHash": "95110c27eb052feb6ef728927667a05995d782fb70d6094ee1e94209093b9600"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -74,7 +79,8 @@
           "name": "Keyboard",
           "price": 80
         }
-      ]
+      ],
+      "expectedHash": "e10fcee2ec145b01138bb4886f9bb9b0c93bc4033294c2f767bff37fb2581221"
     },
     {
       "name": "Single customer, single order",
@@ -84,12 +90,14 @@
           "name": "Keyboard",
           "price": 80
         }
-      ]
+      ],
+      "expectedHash": "e10fcee2ec145b01138bb4886f9bb9b0c93bc4033294c2f767bff37fb2581221"
     },
     {
       "name": "Ties in revenue between products and customers",
       "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','US','2021-01-01');\nINSERT INTO products VALUES (1,'P1','Tech',50.0),(2,'P2','Tech',50.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,2,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,2,50.0),(2,2,2,2,50.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -103,7 +111,8 @@
           "name": "Desk",
           "price": 300
         }
-      ]
+      ],
+      "expectedHash": "b17a1788602b84baac71fea1dc795d1ceef75a65cc62dadbb35835e7f5b11385"
     },
     {
       "name": "Larger multi-country set",
@@ -117,12 +126,14 @@
           "name": "Desk",
           "price": 300
         }
-      ]
+      ],
+      "expectedHash": "b17a1788602b84baac71fea1dc795d1ceef75a65cc62dadbb35835e7f5b11385"
     },
     {
       "name": "No products above 50",
       "seedSql": "INSERT INTO products VALUES (1,'Mouse','Tech',25.0),(2,'Lamp','Furniture',45.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "All products above 50",
@@ -136,7 +147,8 @@
           "name": "Desk",
           "price": 300
         }
-      ]
+      ],
+      "expectedHash": "b17a1788602b84baac71fea1dc795d1ceef75a65cc62dadbb35835e7f5b11385"
     },
     {
       "name": "NULL price is not above 50",
@@ -146,7 +158,8 @@
           "name": "Keyboard",
           "price": 80
         }
-      ]
+      ],
+      "expectedHash": "e10fcee2ec145b01138bb4886f9bb9b0c93bc4033294c2f767bff37fb2581221"
     },
     {
       "name": "Exactly 50 is not included",
@@ -156,7 +169,8 @@
           "name": "Keyboard",
           "price": 80
         }
-      ]
+      ],
+      "expectedHash": "e10fcee2ec145b01138bb4886f9bb9b0c93bc4033294c2f767bff37fb2581221"
     },
     {
       "name": "Single product above 50",
@@ -166,7 +180,8 @@
           "name": "Keyboard",
           "price": 80
         }
-      ]
+      ],
+      "expectedHash": "e10fcee2ec145b01138bb4886f9bb9b0c93bc4033294c2f767bff37fb2581221"
     },
     {
       "name": "Mix across the boundary",
@@ -180,7 +195,8 @@
           "name": "Expensive",
           "price": 100
         }
-      ]
+      ],
+      "expectedHash": "8bf89518f8c0edd9b8e57988f6eeaa36e14f01a451d00a8ddedebf89698eb033"
     }
   ]
 }

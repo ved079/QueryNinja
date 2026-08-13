@@ -36,7 +36,8 @@
           "price": 300,
           "nearby_sum": 300
         }
-      ]
+      ],
+      "expectedHash": "22e0ea87f1f3f2d3662401ed8f211e63e1ddb87e4b93b4f8eff72b82603d5b90"
     },
     {
       "name": "Customer who never ordered",
@@ -52,7 +53,8 @@
           "price": 80,
           "nearby_sum": 80
         }
-      ]
+      ],
+      "expectedHash": "9deddeedb9ff6efbc13913cacc4b6d94438465fc075cf9d655ee4cecc437ebc7"
     },
     {
       "name": "All orders cancelled",
@@ -63,12 +65,14 @@
           "price": 80,
           "nearby_sum": 80
         }
-      ]
+      ],
+      "expectedHash": "68a6426ae2fe78a78c135739667dfd8a9f11fe4e1fe996941f68d037aea1c8ab"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -84,7 +88,8 @@
           "price": 999,
           "nearby_sum": 999
         }
-      ]
+      ],
+      "expectedHash": "eaa229ab927939d02431ce212eda0070c38f8595085f639d17e2c5bac1c52b0f"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -100,7 +105,8 @@
           "price": 80,
           "nearby_sum": 80
         }
-      ]
+      ],
+      "expectedHash": "fb8e39fe5496b510daa272455498b820e4eefb430cc30adb9c3c3a5695c7b967"
     },
     {
       "name": "Single customer, single order",
@@ -111,7 +117,8 @@
           "price": 80,
           "nearby_sum": 80
         }
-      ]
+      ],
+      "expectedHash": "68a6426ae2fe78a78c135739667dfd8a9f11fe4e1fe996941f68d037aea1c8ab"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -127,7 +134,8 @@
           "price": 50,
           "nearby_sum": 100
         }
-      ]
+      ],
+      "expectedHash": "420967e7c92956aa140f9dd03c69f3b7f018ae64bd58bbbbb95177c2e7c5adc1"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -143,7 +151,8 @@
           "price": 300,
           "nearby_sum": 300
         }
-      ]
+      ],
+      "expectedHash": "6ce80254ca74b784d7e01a32703c21ac79f247a3b991367685ec432042df38b8"
     },
     {
       "name": "Larger multi-country set",
@@ -174,7 +183,8 @@
           "price": 300,
           "nearby_sum": 300
         }
-      ]
+      ],
+      "expectedHash": "b6d78a1077e622ac9ceab4603a45d07403a1d5e7348a896f94b64dc2697d2377"
     },
     {
       "name": "Two products within $10 of each other",
@@ -195,7 +205,8 @@
           "price": 100,
           "nearby_sum": 100
         }
-      ]
+      ],
+      "expectedHash": "14038dfb8a9766961e3f47339d91dfe18bd481c8a7f3a24442efecafa63d5579"
     },
     {
       "name": "No products within $10 of any other",
@@ -216,12 +227,14 @@
           "price": 60,
           "nearby_sum": 60
         }
-      ]
+      ],
+      "expectedHash": "58dbccc82dbdbdacf090a349652ceb0367f8e324f8f4aaa09a78ad2d3725f45e"
     },
     {
       "name": "Empty products table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single product — nearby_sum equals its own price",
@@ -232,7 +245,8 @@
           "price": 75,
           "nearby_sum": 75
         }
-      ]
+      ],
+      "expectedHash": "ab7adfa83d318ef4efd3178dfa08ca2baf7e66037270767eee9ce8a2378fd3b0"
     },
     {
       "name": "Products with exact same price — both within $10 of each other",
@@ -253,7 +267,8 @@
           "price": 100,
           "nearby_sum": 100
         }
-      ]
+      ],
+      "expectedHash": "03bfdbeedf3b74b9b24d74caa2317656752d61a489089de1943d6eef2fc0413a"
     },
     {
       "name": "Prices spanning a wide range — each only grouped with close neighbors",
@@ -284,7 +299,8 @@
           "price": 100,
           "nearby_sum": 100
         }
-      ]
+      ],
+      "expectedHash": "2bbbbbf96f41aae5fe7a948737b3f6a537ae10c7cf9bce2462dc470d24d490cb"
     }
   ]
 }

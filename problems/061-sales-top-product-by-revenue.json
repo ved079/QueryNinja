@@ -22,7 +22,8 @@
           "product": "Desk",
           "revenue": 300
         }
-      ]
+      ],
+      "expectedHash": "ef4b6c171d718e5e61a10663de858e1f18526f9b2c95408fab2b64a6270894f7"
     },
     {
       "name": "Customer who never ordered",
@@ -32,7 +33,8 @@
           "product": "Keyboard",
           "revenue": 80
         }
-      ]
+      ],
+      "expectedHash": "88650636e9f4259db21189027fa4b688b53370572397681d1397fa7501bb9173"
     },
     {
       "name": "All orders cancelled",
@@ -42,12 +44,14 @@
           "product": "Keyboard",
           "revenue": 240
         }
-      ]
+      ],
+      "expectedHash": "0e06f3ee3b711578c436905a3da4c5636ca335d3fc07e18547647e740df32575"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -57,7 +61,8 @@
           "product": "Keyboard",
           "revenue": 80
         }
-      ]
+      ],
+      "expectedHash": "88650636e9f4259db21189027fa4b688b53370572397681d1397fa7501bb9173"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -67,7 +72,8 @@
           "product": "Keyboard",
           "revenue": 240
         }
-      ]
+      ],
+      "expectedHash": "0e06f3ee3b711578c436905a3da4c5636ca335d3fc07e18547647e740df32575"
     },
     {
       "name": "Single customer, single order",
@@ -77,7 +83,8 @@
           "product": "Keyboard",
           "revenue": 80
         }
-      ]
+      ],
+      "expectedHash": "88650636e9f4259db21189027fa4b688b53370572397681d1397fa7501bb9173"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -91,7 +98,8 @@
           "product": "P2",
           "revenue": 100
         }
-      ]
+      ],
+      "expectedHash": "e372dc535308317a7fe079bcfccc0cdb772bcbf85afe3f647105bb54dd03f777"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -101,7 +109,8 @@
           "product": "Desk",
           "revenue": 900
         }
-      ]
+      ],
+      "expectedHash": "b0e0ed0215f4c52f296f1294e471ed1c0e457020c8dba17cc23260e8879219a1"
     },
     {
       "name": "Larger multi-country set",
@@ -111,7 +120,8 @@
           "product": "Desk",
           "revenue": 1200
         }
-      ]
+      ],
+      "expectedHash": "cf7558c2cc73882dd3689fff23751a3fe04abc05729b937b53186e1cb4a870a8"
     },
     {
       "name": "Single product sold",
@@ -162,7 +172,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Clear winner",
@@ -226,7 +237,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Tie at the top",
@@ -290,7 +302,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Three products with one clear leader",
@@ -367,7 +380,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single order with multiple products",
@@ -431,7 +445,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Only one product appears in order_items",
@@ -494,7 +509,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

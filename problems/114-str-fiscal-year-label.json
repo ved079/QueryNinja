@@ -49,7 +49,8 @@
           "name": "Hal",
           "fiscal_year": "FY2023"
         }
-      ]
+      ],
+      "expectedHash": "5b5e42983aa01df749b2e2f4b42a9583db790ac1b280b9026b502edbeebea7fb"
     },
     {
       "name": "Ties on every salary",
@@ -75,7 +76,8 @@
           "name": "E",
           "fiscal_year": "FY2019"
         }
-      ]
+      ],
+      "expectedHash": "789c31728895f1620d43d52e9e120c4ee9f9deb9b1c8ebaa7afbacb0cceabcdb"
     },
     {
       "name": "Department with no employees",
@@ -89,7 +91,8 @@
           "name": "Ben",
           "fiscal_year": "FY2020"
         }
-      ]
+      ],
+      "expectedHash": "56fd68bbe2038d7708fb994205fd8758746484601a506dff1da16d662caa16fa"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -111,12 +114,14 @@
           "name": "Dan",
           "fiscal_year": "FY2020"
         }
-      ]
+      ],
+      "expectedHash": "14a349f6838037a6097cb090b560ffeb4d56bf56f3a7e6758eb2c4211a83f090"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -126,7 +131,8 @@
           "name": "Solo",
           "fiscal_year": "FY2022"
         }
-      ]
+      ],
+      "expectedHash": "39cee7e9930dfc9bfdb6b9ef40219df58ede0e46fc5069153494c7ce470cfbbe"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -152,7 +158,8 @@
           "name": "L5",
           "fiscal_year": "FY2017"
         }
-      ]
+      ],
+      "expectedHash": "fa4b4ace3b985abcaf252f6616b061bedb2cbfb82846999f7dd224e51485823f"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -174,7 +181,8 @@
           "name": "Alex",
           "fiscal_year": "FY2021"
         }
-      ]
+      ],
+      "expectedHash": "5e6d1c81e5d8463559cf1f5386e7a5514ce6cdf0916aead03a95b58d8169d278"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -196,7 +204,8 @@
           "name": "Dan",
           "fiscal_year": "FY2020"
         }
-      ]
+      ],
+      "expectedHash": "8049863704451903ba72be5999bec6b02615402c4a070a9570b2887e54b35c93"
     },
     {
       "name": "Larger multi-department set",
@@ -254,7 +263,8 @@
           "name": "M",
           "fiscal_year": "FY2022"
         }
-      ]
+      ],
+      "expectedHash": "957c0d0eed0b8d36f5de95526995dfbee0f93bfd6e5a3217668b48ce9b69d231"
     },
     {
       "name": "All hires before April — all roll back one fiscal year",
@@ -272,7 +282,8 @@
           "name": "C",
           "fiscal_year": "FY2021"
         }
-      ]
+      ],
+      "expectedHash": "6d9a859e9d75e9c04c8a52f3262accdc1ff087ee6225914c524bc82d6229674a"
     },
     {
       "name": "All hires in or after April — FY matches calendar year",
@@ -290,12 +301,14 @@
           "name": "C",
           "fiscal_year": "FY2022"
         }
-      ]
+      ],
+      "expectedHash": "3a2945818f5a7e1afbcfd94f430b26ed6c70cdb038f7634ad1d59fedaa55139d"
     },
     {
       "name": "Empty employees table",
       "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee in January — rolls back to previous FY",
@@ -305,7 +318,8 @@
           "name": "Jan",
           "fiscal_year": "FY2022"
         }
-      ]
+      ],
+      "expectedHash": "20ca19dae3b40319da33a2782f3e944cd765a81ddd6ea50674fb0c028c176ba8"
     },
     {
       "name": "Boundary — March 31 vs April 1",
@@ -319,7 +333,8 @@
           "name": "EarlyApr",
           "fiscal_year": "FY2022"
         }
-      ]
+      ],
+      "expectedHash": "d96f8d75b105a05715f2b1515d0d8c032e2cd91a199b449d5ff36ea7fa795b2c"
     },
     {
       "name": "Multiple years — each year boundary is correct",
@@ -341,7 +356,8 @@
           "name": "D",
           "fiscal_year": "FY2021"
         }
-      ]
+      ],
+      "expectedHash": "bdb6f5682242c663a6daa07a35cc96396211189c6609c5e6976af597794fe6d8"
     }
   ]
 }

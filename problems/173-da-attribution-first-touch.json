@@ -31,12 +31,14 @@
           "conversions": 1,
           "share": 0.33
         }
-      ]
+      ],
+      "expectedHash": "e85d1263433e8b5424f90fbf490b43e25ab77621704ba3fdbe593a5f39fe9fa1"
     },
     {
       "name": "Empty tables",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Touch after conversion ignored",
@@ -47,7 +49,8 @@
           "conversions": 1,
           "share": 1
         }
-      ]
+      ],
+      "expectedHash": "34fe6a8e1aa6b68c159983947cce5276dc9b8492528627859424c710e957e826"
     },
     {
       "name": "Converted customer with no touch",
@@ -58,7 +61,8 @@
           "conversions": 1,
           "share": 1
         }
-      ]
+      ],
+      "expectedHash": "34fe6a8e1aa6b68c159983947cce5276dc9b8492528627859424c710e957e826"
     },
     {
       "name": "Same-day ties by touch id",
@@ -69,7 +73,8 @@
           "conversions": 1,
           "share": 1
         }
-      ]
+      ],
+      "expectedHash": "34fe6a8e1aa6b68c159983947cce5276dc9b8492528627859424c710e957e826"
     }
   ]
 }

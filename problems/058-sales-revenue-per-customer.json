@@ -34,7 +34,8 @@
           "customer": "Di",
           "revenue": 0
         }
-      ]
+      ],
+      "expectedHash": "a7239feba81441a278c819f3472f214d786decc7f63c56561456937adc28fb0d"
     },
     {
       "name": "Customer who never ordered",
@@ -52,7 +53,8 @@
           "customer": "NoOrders",
           "revenue": 0
         }
-      ]
+      ],
+      "expectedHash": "bd82b00eca2981f161281d986fc97b4aa7a5d25c6b70f9accbffb30ae6275566"
     },
     {
       "name": "All orders cancelled",
@@ -66,12 +68,14 @@
           "customer": "Bo",
           "revenue": 0
         }
-      ]
+      ],
+      "expectedHash": "395c770e8395da7c44341df4af8ca82b20c50008c6a5d14abd685e9d1f79f208"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Orders with no items, products never sold",
@@ -81,7 +85,8 @@
           "customer": "Ada",
           "revenue": 80
         }
-      ]
+      ],
+      "expectedHash": "dd4438ca302e235c6573e19f9712277cd8ffcd526c8204795379b02163a4fd11"
     },
     {
       "name": "NULL prices, quantities and statuses",
@@ -95,7 +100,8 @@
           "customer": "Bo",
           "revenue": 0
         }
-      ]
+      ],
+      "expectedHash": "4f55159f180c67f097d2f23a3ac841815dd8fc16ba49600bd98dee0f63632fcd"
     },
     {
       "name": "Single customer, single order",
@@ -105,7 +111,8 @@
           "customer": "Solo",
           "revenue": 80
         }
-      ]
+      ],
+      "expectedHash": "c9484d8c0a06bd96bc3ed4386ff21c91bd42e837ea91dc8ece8c66efdcc0d909"
     },
     {
       "name": "Ties in revenue between products and customers",
@@ -119,7 +126,8 @@
           "customer": "Bo",
           "revenue": 100
         }
-      ]
+      ],
+      "expectedHash": "57322b30d5774c630e9bfc4c4f8165bd9c9ffbdbd37f3550800eeac42de32a0b"
     },
     {
       "name": "Same-day repeat orders across month and year boundaries",
@@ -133,7 +141,8 @@
           "customer": "Bo",
           "revenue": 680
         }
-      ]
+      ],
+      "expectedHash": "9c51e721721a14ad09120c130f068202811ab649114f718674cd39970bf72171"
     },
     {
       "name": "Larger multi-country set",
@@ -167,7 +176,8 @@
           "customer": "G",
           "revenue": 80
         }
-      ]
+      ],
+      "expectedHash": "572c4dec1a90d6be7a4607306775a498cf92d6a10de5ba77a03a105c2d57a8ce"
     },
     {
       "name": "Customer with no orders shows 0",
@@ -184,7 +194,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Customer with only cancelled orders shows 0",
@@ -235,7 +246,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single completed order",
@@ -286,7 +298,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Multiple completed orders summed",
@@ -350,7 +363,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Multiple customers different spends",
@@ -407,7 +421,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "NULL quantity or unit_price excluded",
@@ -458,7 +473,8 @@
           ]
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

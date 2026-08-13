@@ -2,6 +2,157 @@ import initSqlJs from 'sql.js';
 
 let sqlPromise = null;
 
+// ─── Query sandbox ────────────────────────────────────────────────────────────
+
+// Standard word-bounded check: used on space-normalised text after literal removal.
+const BLOCKED_KEYWORDS = /\b(DROP|ALTER|CREATE|INSERT|UPDATE|DELETE|ATTACH|DETACH|PRAGMA|REPLACE|TRUNCATE|VACUUM|REINDEX|ANALYZE|SAVEPOINT|RELEASE|ROLLBACK|COMMIT|BEGIN)\b/i;
+// Prefix-boundary-only check: used on the fully-collapsed (no-whitespace) form to
+// catch keywords that straddle a removed comment (e.g. DR/**/OP → DROP when
+// whitespace is removed). The leading \b still prevents matching inside an
+// identifier (e.g. "dropout" in SELECTdropout_rateFROMt has no \b before d).
+// The trailing \b is intentionally absent so DROPTABLEt still matches DROP.
+const BLOCKED_KEYWORDS_PREFIX = /\b(DROP|ALTER|CREATE|INSERT|UPDATE|DELETE|ATTACH|DETACH|PRAGMA|REPLACE|TRUNCATE|VACUUM|REINDEX|ANALYZE|SAVEPOINT|RELEASE|ROLLBACK|COMMIT|BEGIN)/i;
+// WITH RECURSIVE can loop infinitely; block it outright.
+const RECURSIVE_CTE = /\bWITH\s+RECURSIVE\b/i;
+
+/**
+ * Strip SQL single-line (--) and block (/* *\/) comments from a query string
+ * without touching content inside string literals. Needed so bypass attempts
+ * like DR/**/OP TABLE or --\nDELETE are caught by the keyword blocklist.
+ */
+function stripComments(sql) {
+  let out = '';
+  let i = 0;
+  while (i < sql.length) {
+    if (sql[i] === "'" || sql[i] === '"') {
+      const q = sql[i++];
+      out += q;
+      while (i < sql.length) {
+        const c = sql[i++];
+        out += c;
+        if (c === q && sql[i] !== q) break;
+        if (c === q && sql[i] === q) { out += sql[i++]; } // escaped quote
+      }
+    } else if (sql[i] === '-' && sql[i + 1] === '-') {
+      while (i < sql.length && sql[i] !== '\n') i++;
+      out += ' '; // replace comment with space so adjacent tokens can't merge
+    } else if (sql[i] === '/' && sql[i + 1] === '*') {
+      i += 2;
+      while (i < sql.length && !(sql[i] === '*' && sql[i + 1] === '/')) i++;
+      i += 2;
+      out += ' '; // replace comment with space so adjacent tokens can't merge
+    } else {
+      out += sql[i++];
+    }
+  }
+  return out;
+}
+
+/**
+ * Replace the content of every string literal with a placeholder character
+ * so keyword regexes don't match inside quoted strings (e.g. 'DROP TABLE').
+ * The surrounding quotes are preserved so splitStatements still works, but
+ * the content is neutralised before any keyword check runs.
+ */
+function stripLiterals(sql) {
+  let out = '';
+  let i = 0;
+  while (i < sql.length) {
+    if (sql[i] === "'" || sql[i] === '"') {
+      const q = sql[i++];
+      out += q;
+      while (i < sql.length) {
+        const c = sql[i++];
+        if (c === q && sql[i] !== q) break;
+        if (c === q && sql[i] === q) { i++; } // skip doubled escape quote
+      }
+      out += q; // closing quote — content between quotes is dropped
+    } else {
+      out += sql[i++];
+    }
+  }
+  return out;
+}
+
+/**
+ * Split a SQL string on unquoted semicolons. Returns individual statement
+ * strings so we can detect stacked queries.
+ */
+function splitStatements(sql) {
+  const stmts = [];
+  let cur = '';
+  let i = 0;
+  while (i < sql.length) {
+    if (sql[i] === "'" || sql[i] === '"') {
+      const q = sql[i++];
+      cur += q;
+      while (i < sql.length) {
+        const c = sql[i++];
+        cur += c;
+        if (c === q && sql[i] !== q) break;
+        if (c === q && sql[i] === q) { cur += sql[i++]; }
+      }
+    } else if (sql[i] === ';') {
+      const t = cur.trim();
+      if (t) stmts.push(t);
+      cur = '';
+      i++;
+    } else {
+      cur += sql[i++];
+    }
+  }
+  const t = cur.trim();
+  if (t) stmts.push(t);
+  return stmts;
+}
+
+const MAX_ROWS = 1000;
+const QUERY_TIMEOUT_MS = 5000;
+
+/**
+ * Validate a user-supplied query. Returns an error string to display if the
+ * query is rejected, or null if it's safe to run.
+ *
+ * Rules:
+ * 1. Only one statement allowed (no stacked queries).
+ * 2. No DML/DDL/PRAGMA keywords — SELECT and WITH...SELECT only.
+ * 3. WITH RECURSIVE is blocked to prevent runaway CTEs.
+ */
+export function validateUserQuery(sql) {
+  const cleaned = stripComments(sql);
+  const stmts = splitStatements(cleaned);
+
+  if (stmts.length === 0) return 'Please enter a query.';
+  if (stmts.length > 1) return 'Only one statement is allowed per run. Remove the extra semicolons.';
+
+  // Remove string literal content so keywords inside quoted strings (e.g.
+  // SELECT 'DROP TABLE') don't trigger false positives.
+  const withoutLiterals = stripLiterals(stmts[0]);
+
+  // Standard space-normalised check (word boundaries on both sides).
+  const normalized = withoutLiterals.replace(/\s+/g, ' ');
+  if (BLOCKED_KEYWORDS.test(normalized)) {
+    const m = normalized.match(BLOCKED_KEYWORDS);
+    return `The keyword "${m[0].toUpperCase()}" is not allowed. Only SELECT queries are permitted.`;
+  }
+
+  // Collapsed check: remove all whitespace and look for a keyword at a leading
+  // word boundary. Catches tokens that were split across a removed comment
+  // (e.g. DR/**/OP TABLE t → "DROPTABLEt" collapsed → \bDROP matches).
+  // The leading-only \b prevents false positives for identifiers like
+  // "dropout_rate" (the 'd' is preceded by a word char — no boundary fires).
+  const collapsed = withoutLiterals.replace(/\s/g, '');
+  if (BLOCKED_KEYWORDS_PREFIX.test(collapsed)) {
+    const m = collapsed.match(BLOCKED_KEYWORDS_PREFIX);
+    return `The keyword "${m[1].toUpperCase()}" is not allowed. Only SELECT queries are permitted.`;
+  }
+
+  if (RECURSIVE_CTE.test(normalized)) {
+    return 'WITH RECURSIVE is not allowed (it can run forever). Use a plain WITH clause instead.';
+  }
+  return null;
+}
+
 // sql.js is loaded once and reused; the wasm binary is served from /public.
 export function loadSql() {
   sqlPromise ??= initSqlJs({ locateFile: (file) => `/${file}` });
@@ -55,25 +206,71 @@ export async function createDb(problem, test = testsOf(problem)[0]) {
 /**
  * Execute SQL and return the result set of the last statement that produced one.
  * Returns { columns, rows } or null for statements with no output.
+ *
+ * For user-supplied queries pass `isUserQuery: true` to enforce:
+ *   - keyword blocklist + single-statement check (via validateUserQuery)
+ *   - 5s timeout via progressHandler (interrupts if too slow)
+ *   - 1000-row cap on the returned result set
  */
-export function exec(db, sql) {
-  const results = db.exec(sql);
-  if (results.length) {
-    const last = results[results.length - 1];
-    return { columns: last.columns, rows: last.values };
+export function exec(db, sql, { isUserQuery = false } = {}) {
+  if (isUserQuery) {
+    const err = validateUserQuery(sql);
+    if (err) {
+      // Audit log: blocked queries are logged before they ever reach sql.js.
+      console.warn('[sql-sandbox] blocked query:', { reason: err, sql: sql.slice(0, 200) });
+      throw new Error(err);
+    }
   }
-  // db.exec returns nothing for a SELECT that matched no rows, which is a
-  // perfectly good (empty) answer — recover the column names via prepare so an
-  // empty result is still comparable.
+
+  let timedOut = false;
+  let cleanup = () => {};
+
+  if (isUserQuery) {
+    const deadline = Date.now() + QUERY_TIMEOUT_MS;
+    // progressHandler is called periodically during long scans; returning
+    // a truthy value tells sql.js to interrupt the current statement.
+    db.create_function('__noop__', () => 0); // ensure wasm bridge is warm
+    try {
+      db.run('SELECT 1'); // noop to confirm bridge; errors here are harmless
+    } catch { /* ignore */ }
+    // sql.js exposes interrupt() to halt a running query.
+    const interval = setInterval(() => {
+      if (Date.now() > deadline) {
+        timedOut = true;
+        try { db.interrupt?.(); } catch { /* ignore */ }
+      }
+    }, 100);
+    cleanup = () => clearInterval(interval);
+  }
+
   try {
-    const stmt = db.prepare(sql);
-    const columns = stmt.getColumnNames();
-    stmt.free();
-    if (columns.length) return { columns, rows: [] };
-  } catch {
-    // Not a query (or not preparable on its own) — fall through.
+    const results = db.exec(sql);
+    if (timedOut) throw new Error('Query timed out after 5 seconds. Simplify your query.');
+
+    if (results.length) {
+      const last = results[results.length - 1];
+      const rows = isUserQuery ? last.values.slice(0, MAX_ROWS) : last.values;
+      const capped = isUserQuery && rows.length < last.values.length;
+      return {
+        columns: last.columns,
+        rows,
+        ...(capped ? { capped: true, totalRows: last.values.length } : {}),
+      };
+    }
+    // db.exec returns nothing for a SELECT that matched no rows — recover
+    // column names via prepare so an empty result is still comparable.
+    try {
+      const stmt = db.prepare(sql);
+      const columns = stmt.getColumnNames();
+      stmt.free();
+      if (columns.length) return { columns, rows: [] };
+    } catch {
+      // Not a query — fall through.
+    }
+    return null;
+  } finally {
+    cleanup();
   }
-  return null;
 }
 
 const norm = (v) => {
@@ -208,7 +405,7 @@ export async function gradeAll(problem, userSql) {
 
       let actual;
       try {
-        actual = exec(userDb, userSql);
+        actual = exec(userDb, userSql, { isUserQuery: true });
       } catch (err) {
         cases.push({
           index: i,

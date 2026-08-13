@@ -33,12 +33,14 @@
           "completed": 3,
           "acceptance_rate": 0.6
         }
-      ]
+      ],
+      "expectedHash": "283ad27f550e55820b85d6d6087aa8cf17f7124cccbd3325922461434c7fb7b0"
     },
     {
       "name": "No driver meets 5-request threshold — empty",
       "seedSql": "INSERT INTO drivers VALUES (1,'New','NYC');\nINSERT INTO riders VALUES (1,'X');\nINSERT INTO trips VALUES\n  (1,1,1,'2022-01-01','2022-01-01','2022-01-01','completed',10.0),\n  (2,1,1,'2022-01-02','2022-01-02','2022-01-02','completed',10.0);",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "All trips cancelled — acceptance 0",
@@ -51,7 +53,8 @@
           "completed": 0,
           "acceptance_rate": 0
         }
-      ]
+      ],
+      "expectedHash": "73200525e062ea4694fd29a97556555e3a6d48cf9be80de96fdcd608c0393de7"
     },
     {
       "name": "Perfect acceptance rate",
@@ -64,12 +67,14 @@
           "completed": 5,
           "acceptance_rate": 1
         }
-      ]
+      ],
+      "expectedHash": "322e6481447b233470e5a1592bc26fbb43f0e586735c26882a836dbbe29cd5f3"
     },
     {
       "name": "Empty tables",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

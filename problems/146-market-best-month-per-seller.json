@@ -32,7 +32,8 @@
           "best_month": "2022-02",
           "revenue": 150
         }
-      ]
+      ],
+      "expectedHash": "cc5d78e95f61afc7b33b56b017229a55475fa31eb405fb7cb0cd562028c31060"
     },
     {
       "name": "Tie — earlier month wins",
@@ -44,7 +45,8 @@
           "best_month": "2022-01",
           "revenue": 100
         }
-      ]
+      ],
+      "expectedHash": "225870f0f3fdb1b8b0c54ee87ea61572be9fe8c38c19c1d75475b2f6ebb9eb67"
     },
     {
       "name": "Cancelled transactions excluded",
@@ -56,12 +58,14 @@
           "best_month": "2022-03",
           "revenue": 50
         }
-      ]
+      ],
+      "expectedHash": "e880c9df30d4e8da5ba515d29d552863753df5a9785ea7757a023804a270b221"
     },
     {
       "name": "No transactions — empty result",
       "seedSql": "INSERT INTO sellers VALUES (1,'Ghost','Electronics','2020-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Multiple sellers, single transaction each",
@@ -85,12 +89,14 @@
           "best_month": "2022-09",
           "revenue": 450
         }
-      ]
+      ],
+      "expectedHash": "3bd51eb79237f0429d4ed8d2c2209f3a03c0b1120a709a2f15b7cf48c9e35968"
     },
     {
       "name": "Empty tables",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

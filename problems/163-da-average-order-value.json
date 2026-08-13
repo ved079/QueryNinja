@@ -29,7 +29,8 @@
           "orders": 2,
           "aov": 150
         }
-      ]
+      ],
+      "expectedHash": "b44c757e869dbdccd03a0e876d5965bafb2341321000b7f7a61f817f5b262305"
     },
     {
       "name": "Single order",
@@ -40,12 +41,14 @@
           "orders": 1,
           "aov": 42.5
         }
-      ]
+      ],
+      "expectedHash": "5f14f0ed53b4e4e51c12d1fd27a385c2fe0474aa4fa6deb4b5fc1771e59ae77b"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Null total ignored by AVG",
@@ -56,7 +59,8 @@
           "orders": 3,
           "aov": 30
         }
-      ]
+      ],
+      "expectedHash": "e72d8a3851f59ab2039cd4cea1a4c194934205d994265ef0e2f674aa29bc5a32"
     },
     {
       "name": "Whole dollars across months",
@@ -72,7 +76,8 @@
           "orders": 1,
           "aov": 30
         }
-      ]
+      ],
+      "expectedHash": "4551da1e624515083a83488304533138ccff53e2f8cf079186577c4a28804808"
     }
   ]
 }

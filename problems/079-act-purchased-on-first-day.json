@@ -24,22 +24,26 @@
         {
           "name": "Cy"
         }
-      ]
+      ],
+      "expectedHash": "7f21c7ce3dd237c3b199d19d6be314ab7d72f10cc1c127e8bd8be08763bb4180"
     },
     {
       "name": "A user with a long unbroken streak",
       "seedSql": "INSERT INTO users VALUES (1,'Streak','pro','2022-01-01'),(2,'Sparse','free','2022-01-01');\nINSERT INTO events VALUES\n (1,1,'login','2022-05-01 10:00:00'),\n (2,1,'login','2022-05-02 10:00:00'),\n (3,1,'login','2022-05-03 10:00:00'),\n (4,1,'login','2022-05-04 10:00:00'),\n (5,1,'login','2022-05-05 10:00:00'),\n (6,2,'login','2022-05-01 10:00:00'),\n (7,2,'login','2022-05-03 10:00:00'),\n (8,2,'login','2022-05-05 10:00:00');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Users with no events at all",
       "seedSql": "INSERT INTO users VALUES (1,'Active','pro','2022-01-01'),(2,'Silent','free','2022-01-02'),(3,'AlsoSilent','free','2022-01-03');\nINSERT INTO events VALUES (1,1,'login','2022-04-01 12:00:00'),(2,1,'view','2022-04-01 12:30:00');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Several events at the exact same timestamp",
@@ -48,12 +52,14 @@
         {
           "name": "Ada"
         }
-      ]
+      ],
+      "expectedHash": "d43e3ee8510d7d250479d1daad698c3d22c1fa248927320df8b86fc266320a8e"
     },
     {
       "name": "Single user, single event",
       "seedSql": "INSERT INTO users VALUES (1,'Solo','free','2022-01-01');\nINSERT INTO events VALUES (1,1,'login','2022-07-04 15:00:00');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Events with NULL type and orphan user ids",
@@ -62,12 +68,14 @@
         {
           "name": "Bo"
         }
-      ]
+      ],
+      "expectedHash": "2716c5eb63556ed158068f0ecc50be1bd39b3c78e684ad1cecaf5dba6dbb990c"
     },
     {
       "name": "A streak spanning a month boundary",
       "seedSql": "INSERT INTO users VALUES (1,'Ada','pro','2022-01-01');\nINSERT INTO events VALUES\n (1,1,'login','2022-01-30 09:00:00'),\n (2,1,'login','2022-01-31 09:00:00'),\n (3,1,'login','2022-02-01 09:00:00'),\n (4,1,'login','2022-02-02 09:00:00'),\n (5,1,'login','2022-02-05 09:00:00');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Purchases only, no logins",
@@ -79,7 +87,8 @@
         {
           "name": "Bo"
         }
-      ]
+      ],
+      "expectedHash": "ebec55c281547bd3ceba5843c4b7f839e8b99209e180025f2fcaf5b590c476a2"
     },
     {
       "name": "Larger multi-user activity log",
@@ -91,7 +100,8 @@
         {
           "name": "C"
         }
-      ]
+      ],
+      "expectedHash": "03c5d854ba38d0b5fe7fffd99a6949413307999fff0439c1a8b333ddbace88c4"
     },
     {
       "name": "User who purchased on first day",
@@ -122,7 +132,8 @@
           "name": "Ada"
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "User who purchased later — not first day",
@@ -149,7 +160,8 @@
         }
       ],
       "expected": [],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "User who never purchased",
@@ -176,7 +188,8 @@
         }
       ],
       "expected": [],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "No purchase events at all — empty",
@@ -197,7 +210,8 @@
         }
       ],
       "expected": [],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two users, one qualifies",
@@ -246,7 +260,8 @@
           "name": "Ada"
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Multiple qualifying users",
@@ -292,7 +307,8 @@
           "name": "Bo"
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

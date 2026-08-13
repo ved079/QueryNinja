@@ -26,7 +26,8 @@
         {
           "name": "Gia"
         }
-      ]
+      ],
+      "expectedHash": "410b27f369d29331894572248b333afae545970d68a4b06344ce23b3c089d6dc"
     },
     {
       "name": "Ties on every salary",
@@ -38,12 +39,14 @@
         {
           "name": "E"
         }
-      ]
+      ],
+      "expectedHash": "356348b1184760db345207aa1bee1bd2e0b56566a082ebf591556a685bf1fe1b"
     },
     {
       "name": "Department with no employees",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -52,22 +55,26 @@
         {
           "name": "Dan"
         }
-      ]
+      ],
+      "expectedHash": "a7438afcbf219591e66be332ea6a138ffd2a0bc5d3c4e8b0929954c863cb00bb"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -82,7 +89,8 @@
         {
           "name": "Alex"
         }
-      ]
+      ],
+      "expectedHash": "fb1c360248aef74b5cedb7e6c6314183f3057d96f59fa9867b71cad2f00b93c1"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -94,7 +102,8 @@
         {
           "name": "Dan"
         }
-      ]
+      ],
+      "expectedHash": "740d406c969d6303e59469ed24e16a5953e75a097a9fbc9dc1afbda3cae440ea"
     },
     {
       "name": "Larger multi-department set",
@@ -112,7 +121,8 @@
         {
           "name": "I"
         }
-      ]
+      ],
+      "expectedHash": "be5ef8f066c27ca1405e7d244a62b5b2d963dba930136e0e3bbb2f6757320010"
     },
     {
       "name": "Department name in all uppercase — 'SALES' does not match 'sales'",
@@ -124,7 +134,8 @@
         {
           "name": "Finn"
         }
-      ]
+      ],
+      "expectedHash": "08213cf07c73ea42caba426c1b1715ee6752f7d958a93e71feda152c7c78dbf1"
     },
     {
       "name": "Mixed case — 'Sales' is the original bug",
@@ -133,12 +144,14 @@
         {
           "name": "Eve"
         }
-      ]
+      ],
+      "expectedHash": "69a37ffaa058759fb21e5c8170ee3da10080495f67bc422ee8c957f27da1d51c"
     },
     {
       "name": "No 'Sales' department at all — empty result is correct",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'HR','Austin');\nINSERT INTO employees VALUES (1,'Eve','E',100000,1,NULL,'2020-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Department name with lowercase 'sales' — both queries work",
@@ -147,7 +160,8 @@
         {
           "name": "Eve"
         }
-      ]
+      ],
+      "expectedHash": "69a37ffaa058759fb21e5c8170ee3da10080495f67bc422ee8c957f27da1d51c"
     },
     {
       "name": "Multiple department name casings",
@@ -159,12 +173,14 @@
         {
           "name": "Finn"
         }
-      ]
+      ],
+      "expectedHash": "08213cf07c73ea42caba426c1b1715ee6752f7d958a93e71feda152c7c78dbf1"
     },
     {
       "name": "Empty departments and employees",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

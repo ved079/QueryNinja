@@ -49,7 +49,8 @@
           "name": "Hal",
           "fiscal_quarter": "FY2023-Q2"
         }
-      ]
+      ],
+      "expectedHash": "682fb1556297025487425180b6fa9b0b98b7383a6729b75bc1f26f555e1052cc"
     },
     {
       "name": "Ties on every salary",
@@ -75,7 +76,8 @@
           "name": "E",
           "fiscal_quarter": "FY2019-Q4"
         }
-      ]
+      ],
+      "expectedHash": "886da955513cf1adea0a282a017e6b3152173548512286f73fcff97273c36477"
     },
     {
       "name": "Department with no employees",
@@ -89,7 +91,8 @@
           "name": "Ben",
           "fiscal_quarter": "FY2020-Q1"
         }
-      ]
+      ],
+      "expectedHash": "dfe23e12161585f5ea1e85748cb3e375807b46fb105da297f448b488dbac05d6"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -111,12 +114,14 @@
           "name": "Dan",
           "fiscal_quarter": "FY2020-Q4"
         }
-      ]
+      ],
+      "expectedHash": "7f993e987fbba3e482cd800157311f65a4c94a3629530abc8a0b10805d4b43ab"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -126,7 +131,8 @@
           "name": "Solo",
           "fiscal_quarter": "FY2022-Q1"
         }
-      ]
+      ],
+      "expectedHash": "ada294e4d9884e7cccb0215b0271f230e6d019b45c7523ee436818b09da9cce2"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -152,7 +158,8 @@
           "name": "L5",
           "fiscal_quarter": "FY2017-Q4"
         }
-      ]
+      ],
+      "expectedHash": "635bfd3de0fd83c4f3d1b57b8f2c8f8c7a5b2bcca286c3d21336fa6c6d0928ac"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -174,7 +181,8 @@
           "name": "Alex",
           "fiscal_quarter": "FY2021-Q1"
         }
-      ]
+      ],
+      "expectedHash": "60614ea3ab056d5eca94e2ae0fc376077b3880493713e0d047190520d3df927b"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -196,7 +204,8 @@
           "name": "Dan",
           "fiscal_quarter": "FY2020-Q3"
         }
-      ]
+      ],
+      "expectedHash": "de2952bd405fa4123c7764518a69e031ca8c7a3218687e18074ab33607cf6c57"
     },
     {
       "name": "Larger multi-department set",
@@ -254,7 +263,8 @@
           "name": "M",
           "fiscal_quarter": "FY2022-Q1"
         }
-      ]
+      ],
+      "expectedHash": "573940eab14645c247abc2da727b0f31154ef65f1b6ba8450b1c699dbfeb5eea"
     },
     {
       "name": "All hires from April onward — FY matches calendar year",
@@ -272,7 +282,8 @@
           "name": "C",
           "fiscal_quarter": "FY2022-Q3"
         }
-      ]
+      ],
+      "expectedHash": "12a191a0e24f132198f19c5bae9f822e676a09f870157b9e41abf895adea4751"
     },
     {
       "name": "All hires from January to March — FY rolls back",
@@ -290,12 +301,14 @@
           "name": "C",
           "fiscal_quarter": "FY2021-Q4"
         }
-      ]
+      ],
+      "expectedHash": "41a0dcb588b274f6003c1560341127e5aeb39ff355b3e8deea716c71161ba059"
     },
     {
       "name": "Empty employees table",
       "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Boundary months — each quarter boundary covered",
@@ -329,7 +342,8 @@
           "name": "G",
           "fiscal_quarter": "FY2022-Q3"
         }
-      ]
+      ],
+      "expectedHash": "000d04e5eac7542ba6391c63553b398dce78eca184295d1572e75eb86f2a71be"
     },
     {
       "name": "All four fiscal quarters represented across years",
@@ -351,7 +365,8 @@
           "name": "D",
           "fiscal_quarter": "FY2021-Q4"
         }
-      ]
+      ],
+      "expectedHash": "0421bbbb2dace1ec9baf0c7e5b103df2fd482981bf877db07f82e9011effa8c7"
     },
     {
       "name": "Multiple calendar years — FY rolls correctly at each boundary",
@@ -373,7 +388,8 @@
           "name": "D",
           "fiscal_quarter": "FY2023-Q1"
         }
-      ]
+      ],
+      "expectedHash": "6c60f7f92acf1aee291ccd81dd32e1bbca3845b3350d95056842d0cb0241e322"
     }
   ]
 }

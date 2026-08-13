@@ -26,7 +26,8 @@
           "manager": "Eve",
           "reports": 2
         }
-      ]
+      ],
+      "expectedHash": "d65e8f332587dfe5e0266f49bb939ede556af6a39728ba2db9cd0c7534dbacbd"
     },
     {
       "name": "Ties on every salary",
@@ -40,7 +41,8 @@
           "manager": "D",
           "reports": 1
         }
-      ]
+      ],
+      "expectedHash": "15e77a144e87f2c7ce63ead93fa3dd9f012416bc00906cd935fa570c9f359cc3"
     },
     {
       "name": "Department with no employees",
@@ -50,7 +52,8 @@
           "manager": "Ava",
           "reports": 1
         }
-      ]
+      ],
+      "expectedHash": "2246a7699b09a1c9ce49b6ebfbb58df55e28894431d7e2d38ed031f3b0ba6e75"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -60,17 +63,20 @@
           "manager": "Ava",
           "reports": 1
         }
-      ]
+      ],
+      "expectedHash": "2246a7699b09a1c9ce49b6ebfbb58df55e28894431d7e2d38ed031f3b0ba6e75"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -92,7 +98,8 @@
           "manager": "L4",
           "reports": 1
         }
-      ]
+      ],
+      "expectedHash": "f8ff9e6e69da35203301ead14602a28c30c65fa7613adcd6cbd89c5015865c3e"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -102,7 +109,8 @@
           "manager": "Sam",
           "reports": 2
         }
-      ]
+      ],
+      "expectedHash": "782ef750b3311003200537e786b01f97b18773dda3cb7a94da63b9251bb4267d"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -116,7 +124,8 @@
           "manager": "Cara",
           "reports": 1
         }
-      ]
+      ],
+      "expectedHash": "716706d5ced226d9527f5dcf7632ebf1e4c4edd0f6e6817d08dcf89e96f77d79"
     },
     {
       "name": "Larger multi-department set",
@@ -138,7 +147,8 @@
           "manager": "L",
           "reports": 1
         }
-      ]
+      ],
+      "expectedHash": "c02b6dd697a9bfe4eb25c3585af7ece96c7340717fecab19b178cb40d2509695"
     },
     {
       "name": "Manager with three direct reports",
@@ -148,12 +158,14 @@
           "manager": "Mgr",
           "reports": 3
         }
-      ]
+      ],
+      "expectedHash": "73a6070b53bff374c7cc5584a6369e526fa8d84e2fa83783a0bd4532ee5a4d35"
     },
     {
       "name": "No one manages anyone — all have NULL manager_id",
       "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,NULL,'2020-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Manager with exactly one direct report",
@@ -163,7 +175,8 @@
           "manager": "Mgr",
           "reports": 1
         }
-      ]
+      ],
+      "expectedHash": "f3487d5ba0456d0134fd58a7b7a5ca12f77f7dd00ef3797c72d136b538242cb2"
     },
     {
       "name": "Two managers across departments",
@@ -177,7 +190,8 @@
           "manager": "M2",
           "reports": 1
         }
-      ]
+      ],
+      "expectedHash": "6709c4a314d8e8a9e90e75bf9f55d15311cb288c3a25b771c50b17751903f63f"
     },
     {
       "name": "Stress with broader org tree",
@@ -203,7 +217,8 @@
           "manager": "Mgr2",
           "reports": 1
         }
-      ]
+      ],
+      "expectedHash": "1dfdbded4a599bdeea8d95db5ef8fbefd568bad42e750c44d62fba1dff3ec82f"
     },
     {
       "name": "Manager with four reports",
@@ -213,7 +228,8 @@
           "manager": "Mgr",
           "reports": 4
         }
-      ]
+      ],
+      "expectedHash": "7a013e1c8beb7c7435469fddcbd73f873ebdcc84846259c3527631da5af6b58f"
     }
   ]
 }

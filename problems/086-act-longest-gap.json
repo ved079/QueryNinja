@@ -30,7 +30,8 @@
           "name": "Cy",
           "longest_gap_days": 2.02
         }
-      ]
+      ],
+      "expectedHash": "5b025d62778c83f94c6111e816cab401ffb6b4d071b40fc5a04a4e1da737936f"
     },
     {
       "name": "A user with a long unbroken streak",
@@ -44,7 +45,8 @@
           "name": "Sparse",
           "longest_gap_days": 2
         }
-      ]
+      ],
+      "expectedHash": "669aa5205ca4a80c3b1b9544b4418310e012a899916aadcc334d998b8f6d6f95"
     },
     {
       "name": "Users with no events at all",
@@ -54,12 +56,14 @@
           "name": "Active",
           "longest_gap_days": 0.02
         }
-      ]
+      ],
+      "expectedHash": "690ef1a2b39a4dab01b402518f484b82bed4bb84f48660eb178ba744d7af140e"
     },
     {
       "name": "Everything empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Several events at the exact same timestamp",
@@ -73,12 +77,14 @@
           "name": "Bo",
           "longest_gap_days": 0
         }
-      ]
+      ],
+      "expectedHash": "7373a33fd319daf454a29e422e69bda5f807d528290719f2ad015eb97cda46a3"
     },
     {
       "name": "Single user, single event",
       "seedSql": "INSERT INTO users VALUES (1,'Solo','free','2022-01-01');\nINSERT INTO events VALUES (1,1,'login','2022-07-04 15:00:00');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Events with NULL type and orphan user ids",
@@ -88,7 +94,8 @@
           "name": "Ada",
           "longest_gap_days": 0.04
         }
-      ]
+      ],
+      "expectedHash": "539c813d952e8f045f89b3eb931953fc69f15d6743d423dd44f99c77e6477137"
     },
     {
       "name": "A streak spanning a month boundary",
@@ -98,7 +105,8 @@
           "name": "Ada",
           "longest_gap_days": 3
         }
-      ]
+      ],
+      "expectedHash": "2d2b0e04a91c5e14d01a7025c2177e13cfd79ad63159a34d11b4d2bf1e32e2bd"
     },
     {
       "name": "Purchases only, no logins",
@@ -108,7 +116,8 @@
           "name": "Ada",
           "longest_gap_days": 0.38
         }
-      ]
+      ],
+      "expectedHash": "f8512730f7b55516eabad04cfc39078b4fbc8810e456d1ed50eed6d204f680b6"
     },
     {
       "name": "Larger multi-user activity log",
@@ -134,7 +143,8 @@
           "name": "E",
           "longest_gap_days": 5.01
         }
-      ]
+      ],
+      "expectedHash": "1b5da910886414c1a077ed2a19b2dc70bcb178d5884741df677da873411fda11"
     },
     {
       "name": "User with 2 events — gap is between them",
@@ -166,7 +176,8 @@
           "longest_gap_days": 2
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Multiple gaps, longest wins",
@@ -204,7 +215,8 @@
           "longest_gap_days": 8
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two users different longest gaps",
@@ -258,7 +270,8 @@
           "longest_gap_days": 5
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single event user excluded — no gap",
@@ -302,7 +315,8 @@
           "longest_gap_days": 2
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "NULL event_time produces NULL gap",
@@ -340,7 +354,8 @@
           "longest_gap_days": 2
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Gap of 0 days (same day events)",
@@ -372,7 +387,8 @@
           "longest_gap_days": 0
         }
       ],
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

@@ -21,47 +21,56 @@
         {
           "manager": "Ava"
         }
-      ]
+      ],
+      "expectedHash": "ddd97427a6fa96319874669b753efbfedffcb344b3eb43b057217eb91cab5fee"
     },
     {
       "name": "Ties on every salary",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'A','Engineer',100000,1,NULL,'2020-01-01'),\n (2,'B','Engineer',100000,1,1,'2020-01-01'),\n (3,'C','Engineer',100000,1,1,'2020-01-01'),\n (4,'D','Rep',100000,2,NULL,'2020-01-01'),\n (5,'E','Rep',100000,2,4,'2020-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Department with no employees",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Employees with NULL department and NULL salary",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Duplicate names and same hire dates",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Austin');\nINSERT INTO employees VALUES\n (1,'Sam','Engineer',90000,1,NULL,'2021-01-01'),\n (2,'Sam','Engineer',95000,2,NULL,'2021-01-01'),\n (3,'Sam','Rep',60000,2,2,'2021-01-01'),\n (4,'Alex','Rep',60000,2,2,'2021-06-30');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Intern',0,1,NULL,'2019-12-31'),\n (2,'Ben','Engineer',-100,1,1,'2020-01-01'),\n (3,'Cara','Engineer',1,2,NULL,'2020-02-29'),\n (4,'Dan','Rep',2000000,2,3,'2020-12-31');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Larger multi-department set",
@@ -73,7 +82,8 @@
         {
           "manager": "F"
         }
-      ]
+      ],
+      "expectedHash": "c00256b368ce442e7b5d35101f2822c88946f88f8ce7b9771646fcf95b2d43e2"
     },
     {
       "name": "Manager with exactly three reports",
@@ -82,12 +92,14 @@
         {
           "manager": "Mgr"
         }
-      ]
+      ],
+      "expectedHash": "ea2c095024aaf0bda30ee2d659f5a9ce0ea5a9ec4eb03566664d3fb308af044c"
     },
     {
       "name": "No manager has three or more — empty result",
       "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'M1','M',100,1,NULL,'2020-01-01'),(2,'M2','M',100,2,NULL,'2020-01-01'),(3,'A','X',100,1,1,'2020-01-01'),(4,'B','X',100,2,2,'2020-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Two managers each with three reports",
@@ -99,7 +111,8 @@
         {
           "manager": "M2"
         }
-      ]
+      ],
+      "expectedHash": "47a7b4ce242692a0eeaac2f7c05a5ace77c984a579ad2d209a5dcd6c1d2433d5"
     },
     {
       "name": "Manager with five reports",
@@ -108,7 +121,8 @@
         {
           "manager": "Mgr"
         }
-      ]
+      ],
+      "expectedHash": "ea2c095024aaf0bda30ee2d659f5a9ce0ea5a9ec4eb03566664d3fb308af044c"
     },
     {
       "name": "Chain — middle manager qualifies but top does not",
@@ -117,7 +131,8 @@
         {
           "manager": "Mgr"
         }
-      ]
+      ],
+      "expectedHash": "ea2c095024aaf0bda30ee2d659f5a9ce0ea5a9ec4eb03566664d3fb308af044c"
     },
     {
       "name": "Mix — one qualifies, another does not",
@@ -126,7 +141,8 @@
         {
           "manager": "M1"
         }
-      ]
+      ],
+      "expectedHash": "c24b369adea7e756eef757b898bdc670c3d6ab61175a535a6298250feda02056"
     }
   ]
 }

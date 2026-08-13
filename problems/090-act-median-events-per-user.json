@@ -21,7 +21,8 @@
         {
           "median_events": 3
         }
-      ]
+      ],
+      "expectedHash": "a1d1663b3fd5f695205ec90e5188a7d1ef0797518935487e336cb18fa66e545a"
     },
     {
       "name": "A user with a long unbroken streak",
@@ -30,7 +31,8 @@
         {
           "median_events": 4
         }
-      ]
+      ],
+      "expectedHash": "9c1db53fe58ed135688c992f2d6af4f77cd2ec0a1c1f768898dfb5ebf1bc2116"
     },
     {
       "name": "Users with no events at all",
@@ -39,7 +41,8 @@
         {
           "median_events": 2
         }
-      ]
+      ],
+      "expectedHash": "4a79ddc87e2839d559e08d5fb62c54a479aebf24f7df02724733011c93595c50"
     },
     {
       "name": "Everything empty",
@@ -48,7 +51,8 @@
         {
           "median_events": null
         }
-      ]
+      ],
+      "expectedHash": "eb13f64d24b4f6d7ebb59a39f5ca01df28dc48773a197fdfe471d0edcaa57533"
     },
     {
       "name": "Several events at the exact same timestamp",
@@ -57,7 +61,8 @@
         {
           "median_events": 2.5
         }
-      ]
+      ],
+      "expectedHash": "4d26190b64ad739e89569773edff444d8570bcbad1b18de14f496f442ada1ac6"
     },
     {
       "name": "Single user, single event",
@@ -66,7 +71,8 @@
         {
           "median_events": 1
         }
-      ]
+      ],
+      "expectedHash": "ef6c00f99a21d8cde1a18c06717e720bc0d69f138c25e337c6667c67a7ad61f5"
     },
     {
       "name": "Events with NULL type and orphan user ids",
@@ -75,7 +81,8 @@
         {
           "median_events": 1
         }
-      ]
+      ],
+      "expectedHash": "ef6c00f99a21d8cde1a18c06717e720bc0d69f138c25e337c6667c67a7ad61f5"
     },
     {
       "name": "A streak spanning a month boundary",
@@ -84,7 +91,8 @@
         {
           "median_events": 5
         }
-      ]
+      ],
+      "expectedHash": "8a473002d34a2df5104528c269f3f8ceeb8d72f40350b95babcb5a649d6b7997"
     },
     {
       "name": "Purchases only, no logins",
@@ -93,7 +101,8 @@
         {
           "median_events": 1.5
         }
-      ]
+      ],
+      "expectedHash": "5f23eda0e56aa72cac9840e5135f3f5b77ddee32aca24dfcf125acc339cbc200"
     },
     {
       "name": "Larger multi-user activity log",
@@ -102,7 +111,8 @@
         {
           "median_events": 5
         }
-      ]
+      ],
+      "expectedHash": "8a473002d34a2df5104528c269f3f8ceeb8d72f40350b95babcb5a649d6b7997"
     },
     {
       "name": "Single user",
@@ -155,7 +165,8 @@
         {
           "median_events": null
         }
-      ]
+      ],
+      "expectedHash": "eb13f64d24b4f6d7ebb59a39f5ca01df28dc48773a197fdfe471d0edcaa57533"
     },
     {
       "name": "Two users (even)",
@@ -220,7 +231,8 @@
         {
           "median_events": null
         }
-      ]
+      ],
+      "expectedHash": "eb13f64d24b4f6d7ebb59a39f5ca01df28dc48773a197fdfe471d0edcaa57533"
     },
     {
       "name": "Three users (odd)",
@@ -345,7 +357,8 @@
         {
           "median_events": null
         }
-      ]
+      ],
+      "expectedHash": "eb13f64d24b4f6d7ebb59a39f5ca01df28dc48773a197fdfe471d0edcaa57533"
     },
     {
       "name": "All users same count",
@@ -416,7 +429,8 @@
         {
           "median_events": null
         }
-      ]
+      ],
+      "expectedHash": "eb13f64d24b4f6d7ebb59a39f5ca01df28dc48773a197fdfe471d0edcaa57533"
     },
     {
       "name": "Users with 1 event each",
@@ -469,7 +483,8 @@
         {
           "median_events": null
         }
-      ]
+      ],
+      "expectedHash": "eb13f64d24b4f6d7ebb59a39f5ca01df28dc48773a197fdfe471d0edcaa57533"
     },
     {
       "name": "Wide range",
@@ -576,7 +591,8 @@
         {
           "median_events": null
         }
-      ]
+      ],
+      "expectedHash": "eb13f64d24b4f6d7ebb59a39f5ca01df28dc48773a197fdfe471d0edcaa57533"
     }
   ]
 }

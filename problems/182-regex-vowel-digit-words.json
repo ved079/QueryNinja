@@ -27,12 +27,14 @@
           "id": 4,
           "word": "orange3"
         }
-      ]
+      ],
+      "expectedHash": "d0907a8a315b59acdef80cf78867480008310dd12fa9a622cfdce1cbf7c91af2"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Uppercase vowel counts",
@@ -46,12 +48,14 @@
           "id": 2,
           "word": "IGLU0"
         }
-      ]
+      ],
+      "expectedHash": "420c595caac43cf04c5548fb982855276602b168c3ecb64a434174c51eeb2a57"
     },
     {
       "name": "Digit at the very start",
       "seedSql": "INSERT INTO words VALUES\n (1,'1orange'),\n (2,'orange'),\n (3,'o');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Only digits and vowels",
@@ -61,7 +65,8 @@
           "id": 1,
           "word": "a1"
         }
-      ]
+      ],
+      "expectedHash": "1caa34c25f2c3b25e14df105f16a2f98920550620a398112155d130cc898ba82"
     }
   ]
 }

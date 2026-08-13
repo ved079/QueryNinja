@@ -31,12 +31,14 @@
           "customers": 1,
           "ltv": 100
         }
-      ]
+      ],
+      "expectedHash": "c5dba231e5ca3a010783854b6bc53f651c106b5ff1daa536a87bb78bc585a6b7"
     },
     {
       "name": "Empty table",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single customer cohort",
@@ -47,7 +49,8 @@
           "customers": 1,
           "ltv": 100
         }
-      ]
+      ],
+      "expectedHash": "f7ba3a5c301f9e0a95f39c27480d12acc17da626b53a55d6e9fb4a3e6f07c9d5"
     },
     {
       "name": "Same customer spreads across months",
@@ -58,7 +61,8 @@
           "customers": 1,
           "ltv": 30
         }
-      ]
+      ],
+      "expectedHash": "d93db3b11d882dbd155a9bb34d960f3c1e342e9df34857cd245be30f00344c00"
     }
   ]
 }

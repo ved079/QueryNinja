@@ -32,7 +32,8 @@
           "top_earner": "Hal",
           "top_salary": 60000
         }
-      ]
+      ],
+      "expectedHash": "c3418075de75fe39e272bf08409c1c6212631b2c55481e1113a61c514ab7e0d3"
     },
     {
       "name": "Ties on every salary",
@@ -63,7 +64,8 @@
           "top_earner": "E",
           "top_salary": 100000
         }
-      ]
+      ],
+      "expectedHash": "987bf811eea6ebae3a1aa89170da0e71c6f470399f1e7662762a5bf8fb9f0848"
     },
     {
       "name": "Department with no employees",
@@ -74,7 +76,8 @@
           "top_earner": "Ava",
           "top_salary": 90000
         }
-      ]
+      ],
+      "expectedHash": "5a3fea24effcf13d832454311a2172ce543297290dd9d1b61b16c63b4d58ed06"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -90,12 +93,14 @@
           "top_earner": "Dan",
           "top_salary": 75000
         }
-      ]
+      ],
+      "expectedHash": "f4e1058c1af9069fb845b019cbf8fcf39c692a869f30d2e5577d45907257bad9"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -106,7 +111,8 @@
           "top_earner": "Solo",
           "top_salary": 100000
         }
-      ]
+      ],
+      "expectedHash": "51942fe5c73f304a5e638fd4b234fe2ea55a43504ed51ca8e8e81fcc7d57e809"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -117,7 +123,8 @@
           "top_earner": "L1",
           "top_salary": 300000
         }
-      ]
+      ],
+      "expectedHash": "9211caa864ad7c46b301d8b9c578626d71afab518cb64df9b8541d35552ccc16"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -133,7 +140,8 @@
           "top_earner": "Sam",
           "top_salary": 95000
         }
-      ]
+      ],
+      "expectedHash": "c2d24f09127a62274ab6ac1d6800e4043eaa5f3c040e6b401004236e1a3b7b64"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -149,7 +157,8 @@
           "top_earner": "Dan",
           "top_salary": 2000000
         }
-      ]
+      ],
+      "expectedHash": "6553820823a0d041d073773fe569e3295847c5b1df591e480b150a03b718c378"
     },
     {
       "name": "Larger multi-department set",
@@ -180,7 +189,8 @@
           "top_earner": "M",
           "top_salary": 150000
         }
-      ]
+      ],
+      "expectedHash": "edba34621cfded3dcbcf57cae96bcd516dcfca9f4d17d97c9532fa39fc87d3e9"
     },
     {
       "name": "Max earner has a lower id — arbitrary row is wrong",
@@ -191,7 +201,8 @@
           "top_earner": "TopEarner",
           "top_salary": 150000
         }
-      ]
+      ],
+      "expectedHash": "95b277f1762643ed5ee2fc99f0b7c87796c70114920243ae259ec825a5375bd6"
     },
     {
       "name": "Single employee per department — no ambiguity",
@@ -207,7 +218,8 @@
           "top_earner": "Eve",
           "top_salary": 90000
         }
-      ]
+      ],
+      "expectedHash": "e293fc34a80d668c0074c2f679b7d919766deb08c1616b79fa0d154b7711fc69"
     },
     {
       "name": "Tie for max salary — both should show same name",
@@ -223,7 +235,8 @@
           "top_earner": "B",
           "top_salary": 150000
         }
-      ]
+      ],
+      "expectedHash": "5f3a6fb101f2c0736d26638d0d5dc15e3796043e680cb22272291931298b3590"
     },
     {
       "name": "Department with zero employees — no row contributed",
@@ -234,12 +247,14 @@
           "top_earner": "Ava",
           "top_salary": 100000
         }
-      ]
+      ],
+      "expectedHash": "2cad16a58a361ce5e092d6568d73cb652717f323d7b00b701bb0c51e353dab5c"
     },
     {
       "name": "Empty employees table",
       "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "High earner not the first-listed employee — arbitrary row trap",
@@ -250,7 +265,8 @@
           "top_earner": "C",
           "top_salary": 200000
         }
-      ]
+      ],
+      "expectedHash": "5ddf1c98484ff5fea251cec07e9b0dad4f028d1d533ff3a045a269a012f900f3"
     }
   ]
 }

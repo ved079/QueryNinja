@@ -30,12 +30,14 @@
           "campaign_name": "Campaign B",
           "attributed_conversions": 1
         }
-      ]
+      ],
+      "expectedHash": "77e12fb7ef131a60f83b6d8743c9fb8458070dc9dbb1e111024061c5011fe050"
     },
     {
       "name": "No conversions — empty result",
       "seedSql": "INSERT INTO campaigns VALUES (1,'Cam','email',100);\nINSERT INTO events VALUES\n  (1,1,1,'impression','2022-01-01'),\n  (2,1,1,'click','2022-01-02');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Click after conversion does not count",
@@ -46,12 +48,14 @@
           "campaign_name": "A",
           "attributed_conversions": 1
         }
-      ]
+      ],
+      "expectedHash": "1978cffba20e6d60c3bb2446d42670fc6fca3278347f19b84293c1536af30c51"
     },
     {
       "name": "Empty tables",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     }
   ]
 }

@@ -50,7 +50,8 @@
           "name": "Gia",
           "chain": "Eve > Gia"
         }
-      ]
+      ],
+      "expectedHash": "901ab56ea2eee0b788cf354553a9846027510111508724e6ec664e4d84a1be63"
     },
     {
       "name": "Ties on every salary",
@@ -76,7 +77,8 @@
           "name": "E",
           "chain": "D > E"
         }
-      ]
+      ],
+      "expectedHash": "0ca51591a18476ca843a5218bd320d5ba6d9509ce8e4adc529b3cfe99f037f86"
     },
     {
       "name": "Department with no employees",
@@ -90,7 +92,8 @@
           "name": "Ben",
           "chain": "Ava > Ben"
         }
-      ]
+      ],
+      "expectedHash": "1671ae7f664310e32b0b5ba8223167092b33f9d940af9e18186aec371e5a7c59"
     },
     {
       "name": "Employees with NULL department and NULL salary",
@@ -112,12 +115,14 @@
           "name": "Ben",
           "chain": "Ava > Ben"
         }
-      ]
+      ],
+      "expectedHash": "b6ceb87139ebc19bef9ab5d96f14ab6a4f06d6f3d9ba1374bccd51f9f6b8538a"
     },
     {
       "name": "Both tables empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Single employee, single department",
@@ -127,7 +132,8 @@
           "name": "Solo",
           "chain": "Solo"
         }
-      ]
+      ],
+      "expectedHash": "66e9a6a56b4588eace9d513a3fd3278ce342b6f9477ac8520028369fb5bcf8c4"
     },
     {
       "name": "Everyone reports to someone (deep chain)",
@@ -153,7 +159,8 @@
           "name": "L5",
           "chain": "L1 > L2 > L3 > L4 > L5"
         }
-      ]
+      ],
+      "expectedHash": "822ab4ff3ad1cac70424982beddda7d0250401bfbb322bdd048d46ad0f8dc5ac"
     },
     {
       "name": "Duplicate names and same hire dates",
@@ -175,7 +182,8 @@
           "name": "Sam",
           "chain": "Sam > Sam"
         }
-      ]
+      ],
+      "expectedHash": "72f4721bb54715d59c2e2290a85db116371c55f4eee4cb91e913a8d8c0c02ca0"
     },
     {
       "name": "Zero and negative salaries, boundary dates",
@@ -197,7 +205,8 @@
           "name": "Dan",
           "chain": "Cara > Dan"
         }
-      ]
+      ],
+      "expectedHash": "592ebf5b1f74a4174fc8470321a3056c53305fcfdd79f9aa257316d6249df338"
     },
     {
       "name": "Larger multi-department set",
@@ -255,7 +264,8 @@
           "name": "M",
           "chain": "L > M"
         }
-      ]
+      ],
+      "expectedHash": "96ae5b950763390df9d194c356112c38d67b85b5851cad633846c89f852149ac"
     },
     {
       "name": "Single employee — chain is just their name",
@@ -265,7 +275,8 @@
           "name": "Solo",
           "chain": "Solo"
         }
-      ]
+      ],
+      "expectedHash": "66e9a6a56b4588eace9d513a3fd3278ce342b6f9477ac8520028369fb5bcf8c4"
     },
     {
       "name": "Two-level chain",
@@ -279,7 +290,8 @@
           "name": "Emp",
           "chain": "Mgr > Emp"
         }
-      ]
+      ],
+      "expectedHash": "05bb8aa52dc03dceea1703ac20a6a88e114919e1f33c9b3f4f61256b7813f8b9"
     },
     {
       "name": "Three-level chain",
@@ -297,7 +309,8 @@
           "name": "Emp",
           "chain": "CEO > VP > Emp"
         }
-      ]
+      ],
+      "expectedHash": "bdc672eb767b715c1d08e92bcdbbe3fb0b8861ffc3764fe05ff32793737c3db1"
     },
     {
       "name": "Two roots with their own chains",
@@ -319,7 +332,8 @@
           "name": "B",
           "chain": "M2 > B"
         }
-      ]
+      ],
+      "expectedHash": "6edb12e75dd6089c9d7d70ebf44d55042bc894b5866e815350619e71cfb83451"
     },
     {
       "name": "Deep four-level chain",
@@ -341,7 +355,8 @@
           "name": "L4",
           "chain": "L1 > L2 > L3 > L4"
         }
-      ]
+      ],
+      "expectedHash": "961e530ec7a90f20e4cc6fb4b8d583225e7df729eefe29b3c1849124e2c5ae96"
     },
     {
       "name": "Bushy tree with multiple branches",
@@ -371,7 +386,8 @@
           "name": "Emp",
           "chain": "CEO > VP1 > Mgr > Emp"
         }
-      ]
+      ],
+      "expectedHash": "f1d29d44815370b14538043760be42cb0139cb420ed3e7e2ef40d812f4070d49"
     }
   ]
 }

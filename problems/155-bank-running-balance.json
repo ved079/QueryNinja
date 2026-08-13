@@ -67,7 +67,8 @@
           "amount": 500,
           "running_balance": 1500
         }
-      ]
+      ],
+      "expectedHash": "22942731e27ed54d5ffb9fd85007b302113319694506c3b40ed3c7d73bd123a6"
     },
     {
       "name": "Balance goes negative",
@@ -97,7 +98,8 @@
           "amount": 50,
           "running_balance": -150
         }
-      ]
+      ],
+      "expectedHash": "d5c4f77f0ef33a496fb99fae8780a8495225cd3256bb2d89d4e4ed9ec8723fe7"
     },
     {
       "name": "Single transaction",
@@ -111,17 +113,20 @@
           "amount": 500,
           "running_balance": 500
         }
-      ]
+      ],
+      "expectedHash": "bc9cf5fe826448c3e2dd052d67a55f17c155bd0eb99caea912e61cafd44c4008"
     },
     {
       "name": "No transactions — empty result",
       "seedSql": "INSERT INTO accounts VALUES (1,1,'checking','2022-01-01');",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Empty tables",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Multiple transactions same day — ordered by txn_id",
@@ -151,7 +156,8 @@
           "amount": 200,
           "running_balance": 600
         }
-      ]
+      ],
+      "expectedHash": "753dba70021682af9c61acdc5206cc10e1823c20526d97a4c23962ae3cdeb8e5"
     }
   ]
 }

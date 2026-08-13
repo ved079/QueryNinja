@@ -29,7 +29,8 @@
         {
           "customer": "dee fox"
         }
-      ]
+      ],
+      "expectedHash": "e6d5f9eed88c1591d3ecfe1daa8abfedab1c4274587fe2bc53729835ad0583b6"
     },
     {
       "name": "All three systems fully agree",
@@ -41,7 +42,8 @@
         {
           "customer": "ben kim"
         }
-      ]
+      ],
+      "expectedHash": "b4241927d5190b05ca32d8282cd1e26d273909a5b49ef61b4ff7a6196377f243"
     },
     {
       "name": "Completely disjoint across all three",
@@ -50,7 +52,8 @@
         {
           "customer": "ann lee"
         }
-      ]
+      ],
+      "expectedHash": "131bd9987081a10f6e5672702c4d32464e02e9df70405a53601e0bdff4e03362"
     },
     {
       "name": "Source has an accidental duplicate row",
@@ -62,12 +65,14 @@
         {
           "customer": "ben kim"
         }
-      ]
+      ],
+      "expectedHash": "b4241927d5190b05ca32d8282cd1e26d273909a5b49ef61b4ff7a6196377f243"
     },
     {
       "name": "All three systems empty",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Only source has any data",
@@ -82,7 +87,8 @@
         {
           "customer": "cy ortiz"
         }
-      ]
+      ],
+      "expectedHash": "d5ba32a05b958c30fa2b1b6c2728d38fa4091a16c74737a308e086145705171c"
     },
     {
       "name": "Same order, inconsistent name formatting",
@@ -94,7 +100,8 @@
         {
           "customer": "ben kim"
         }
-      ]
+      ],
+      "expectedHash": "b4241927d5190b05ca32d8282cd1e26d273909a5b49ef61b4ff7a6196377f243"
     },
     {
       "name": "Matching ids, mismatched amounts",
@@ -106,7 +113,8 @@
         {
           "customer": "ben kim"
         }
-      ]
+      ],
+      "expectedHash": "b4241927d5190b05ca32d8282cd1e26d273909a5b49ef61b4ff7a6196377f243"
     },
     {
       "name": "Single matching order everywhere",
@@ -115,7 +123,8 @@
         {
           "customer": "ann lee"
         }
-      ]
+      ],
+      "expectedHash": "131bd9987081a10f6e5672702c4d32464e02e9df70405a53601e0bdff4e03362"
     },
     {
       "name": "Larger mixed set: some in all three, some in two, some in one, duplicates and a mismatch",
@@ -136,7 +145,8 @@
         {
           "customer": "gio ruiz"
         }
-      ]
+      ],
+      "expectedHash": "650504a211a300121168bf248e9d99c3d7ed66abf723c99272916985244cc8fc"
     },
     {
       "name": "All names already clean",
@@ -148,7 +158,8 @@
         {
           "customer": "ben kim"
         }
-      ]
+      ],
+      "expectedHash": "b4241927d5190b05ca32d8282cd1e26d273909a5b49ef61b4ff7a6196377f243"
     },
     {
       "name": "Extra leading and trailing spaces",
@@ -160,7 +171,8 @@
         {
           "customer": "ben kim"
         }
-      ]
+      ],
+      "expectedHash": "b4241927d5190b05ca32d8282cd1e26d273909a5b49ef61b4ff7a6196377f243"
     },
     {
       "name": "Inconsistent casing only",
@@ -175,7 +187,8 @@
         {
           "customer": "cy ortiz"
         }
-      ]
+      ],
+      "expectedHash": "d5ba32a05b958c30fa2b1b6c2728d38fa4091a16c74737a308e086145705171c"
     },
     {
       "name": "Both spaces and casing mixed",
@@ -190,12 +203,14 @@
         {
           "customer": "cy ortiz"
         }
-      ]
+      ],
+      "expectedHash": "d5ba32a05b958c30fa2b1b6c2728d38fa4091a16c74737a308e086145705171c"
     },
     {
       "name": "Empty source_orders",
       "seedSql": "",
-      "expectedOutput": []
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
     },
     {
       "name": "Duplicate names after normalization — DISTINCT required",
@@ -204,7 +219,8 @@
         {
           "customer": "ann lee"
         }
-      ]
+      ],
+      "expectedHash": "131bd9987081a10f6e5672702c4d32464e02e9df70405a53601e0bdff4e03362"
     }
   ]
 }
