@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { apiFetch, getToken, setToken } from '../lib/auth.js';
 
 const DEBOUNCE_MS = 800;
 
@@ -25,7 +26,7 @@ export default function NameModal({ currentName, onSave, onClose, onSkip }) {
     timerRef.current = setTimeout(async () => {
       try {
         const params = new URLSearchParams({ name: trimmed, current: currentName ?? '' });
-        const res = await fetch(`/api/username-available?${params}`);
+        const res = await apiFetch(`/api/username-available?${params}`);
         const data = await res.json();
         if (requestId !== requestIdRef.current) return;
         if (!data.available && data.reason === 'invalid') setAvailable('invalid');
@@ -53,26 +54,34 @@ export default function NameModal({ currentName, onSave, onClose, onSkip }) {
     setError('');
   };
 
+  // link-email no longer links immediately — it emails a code and returns
+  // { pendingVerification: true }. It also authenticates as the draft name,
+  // so a fresh name claims its session token (via POST /api/auth/token)
+  // before the code is requested.
   const sendCode = async () => {
     const trimmed = email.trim();
     if (!trimmed) return;
     setBusy(true);
     setError('');
     try {
-      const res = await fetch('/api/auth/link-email', {
+      const name = value.trim();
+      if (!getToken(name)) {
+        const tokenRes = await apiFetch('/api/auth/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user: name }),
+        }, name);
+        const tokenData = await tokenRes.json();
+        if (!tokenRes.ok) throw new Error(tokenData.error || 'Could not start a session for that name.');
+        setToken(name, tokenData.token);
+      }
+      const res = await apiFetch('/api/auth/link-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user: value.trim(), email: trimmed }),
-      });
+        body: JSON.stringify({ user: name, email: trimmed }),
+      }, name);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Could not link that email.');
-      const otpRes = await fetch('/api/auth/request-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: trimmed }),
-      });
-      const otpData = await otpRes.json();
-      if (!otpRes.ok) throw new Error(otpData.error || 'Could not send the code.');
+      if (!res.ok) throw new Error(data.error || 'Could not send the code.');
       setStep('verify');
     } catch (err) {
       setError(err.message);
@@ -81,20 +90,24 @@ export default function NameModal({ currentName, onSave, onClose, onSkip }) {
     }
   };
 
+  // Only verify-otp actually links the email to the account — and only once
+  // the code proves the caller controls that inbox.
   const verifyCode = async () => {
     const trimmed = code.trim();
     if (!trimmed) return;
     setBusy(true);
     setError('');
     try {
-      const res = await fetch('/api/auth/verify-otp', {
+      const name = value.trim();
+      const res = await apiFetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), code: trimmed }),
-      });
+        body: JSON.stringify({ email: email.trim(), code: trimmed, user: name }),
+      }, name);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'That code is invalid or expired.');
-      onSave(value.trim());
+      if (data.token) setToken(name, data.token);
+      onSave(name);
     } catch (err) {
       setError(err.message);
     } finally {

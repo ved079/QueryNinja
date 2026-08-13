@@ -76,6 +76,25 @@ function createFileStore(dataDir) {
       return byUser[userKey(username)] ?? null;
     },
 
+    // One session token per username, minted when the user picks/claims a
+    // name or logs in by email. Sent back on later writes via X-User-Token.
+    async setUserToken(username, token) {
+      const file = path.join(dataDir, 'tokens.json');
+      const all = await readJsonFile(file);
+      all[userKey(username)] = token;
+      await fs.writeFile(file, JSON.stringify(all, null, 2));
+    },
+    async getUserToken(username) {
+      const all = await readJsonFile(path.join(dataDir, 'tokens.json'));
+      return all[userKey(username)] ?? null;
+    },
+    async clearUserToken(username) {
+      const file = path.join(dataDir, 'tokens.json');
+      const all = await readJsonFile(file);
+      delete all[userKey(username)];
+      await fs.writeFile(file, JSON.stringify(all, null, 2));
+    },
+
     // Short-lived OTP codes for the email login flow. File store has no
     // native TTL, so expiry is checked (and the stale entry dropped) on read.
     async setOtp(email, record) {
@@ -152,6 +171,19 @@ function createRedisStore() {
     async getEmailForUsername(username) {
       const redis = await getClient();
       return (await redis.get(`sql-practice:user-to-email:${userKey(username)}`)) ?? null;
+    },
+
+    async setUserToken(username, token) {
+      const redis = await getClient();
+      await redis.set(`sql-practice:token:${userKey(username)}`, token);
+    },
+    async getUserToken(username) {
+      const redis = await getClient();
+      return (await redis.get(`sql-practice:token:${userKey(username)}`)) ?? null;
+    },
+    async clearUserToken(username) {
+      const redis = await getClient();
+      await redis.del(`sql-practice:token:${userKey(username)}`);
     },
 
     // Redis's native TTL does the expiry work here — no manual check needed.

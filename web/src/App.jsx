@@ -9,12 +9,37 @@ import NameModal from './components/NameModal.jsx';
 import LoginModal from './components/LoginModal.jsx';
 import Markdownish from './components/Markdownish.jsx';
 import { compare, createDb, exec, describeTables, gradeAll, testsOf, diffResults } from './lib/db.js';
+import { apiFetch, getToken, setToken, clearToken } from './lib/auth.js';
 import { format } from 'sql-formatter';
 import { computeCurrentStreak } from './lib/streak.js';
 
 const STARTER = '-- Write your query here\nSELECT ';
 const NAME_KEY = 'sql-practice-name';
 const NAME_SKIP_KEY = 'sql-practice-name-skip';
+
+/**
+ * Ensure the active user has a session token minted (server-side). Called
+ * when a name is set/chosen so subsequent authenticated writes carry it. An
+ * anonymous ("use without a username") session needs no token — the server
+ * treats that shared bucket as public.
+ */
+const ensureSession = async (name) => {
+  const n = (name ?? '').trim();
+  if (!n) return;
+  if (getToken(n)) return;
+  try {
+    const res = await apiFetch('/api/auth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: n }),
+    }, n);
+    const data = await res.json();
+    if (res.ok && data.token) setToken(n, data.token);
+  } catch {
+    // Leave the token empty; a later authenticated call will surface the
+    // server's error to the user.
+  }
+};
 
 // Sections: normal (original), complex (technique-heavy), and the Data
 // Analyst (KPI/business-metric) set. Each lives in its own URL namespace.
@@ -87,7 +112,7 @@ export default function App() {
   // Populates solutionsCache so the setup effect and gradeAll can access it.
   useEffect(() => {
     if (!selectedId) return;
-    fetch(`/api/problem/${encodeURIComponent(selectedId)}`)
+    apiFetch(`/api/problem/${encodeURIComponent(selectedId)}`)
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
         if (data) solutionsCache.current[data.id] = data;
@@ -175,7 +200,7 @@ export default function App() {
   useEffect(() => {
     (async () => {
       try {
-        const p = await fetch('/api/problems').then((r) => r.json());
+        const p = await apiFetch('/api/problems').then((r) => r.json());
         setProblems(p);
         setSelectedId((cur) => {
           if (cur && p.some((prob) => prob.id === cur)) return cur;
@@ -195,8 +220,8 @@ export default function App() {
       try {
         const q = `?user=${encodeURIComponent(userName)}`;
         const [pr, subs] = await Promise.all([
-          fetch(`/api/progress${q}`).then((r) => r.json()),
-          fetch(`/api/submissions${q}`).then((r) => r.json()),
+          apiFetch(`/api/progress${q}`, {}, userName).then((r) => r.json()),
+          apiFetch(`/api/submissions${q}`, {}, userName).then((r) => r.json()),
         ]);
         setProgress(pr);
         setSubmissions(subs);
@@ -240,7 +265,7 @@ export default function App() {
         let solutionSql = solutionsCache.current[problem.id]?.solutionSql;
         if (!solutionSql) {
           try {
-            const data = await fetch(`/api/problem/${encodeURIComponent(problem.id)}`).then((r) => r.json());
+            const data = await apiFetch(`/api/problem/${encodeURIComponent(problem.id)}`).then((r) => r.json());
             solutionsCache.current[problem.id] = data;
             solutionSql = data.solutionSql;
           } catch {
@@ -268,11 +293,11 @@ export default function App() {
   }, [selectedId, problems]);
 
   const saveProgress = useCallback(async (id, status, sqlText) => {
-    const res = await fetch('/api/progress', {
+    const res = await apiFetch('/api/progress', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user: userName, id, status, code: sqlText }),
-    });
+    }, userName);
     const saved = await res.json();
     setProgress((prev) => ({ ...prev, [id]: saved }));
   }, [userName]);
@@ -282,11 +307,11 @@ export default function App() {
     // Optimistic update — flip immediately, no flash.
     setProgress((prev) => ({ ...prev, [id]: { ...prev[id], starred: !current } }));
     try {
-      const res = await fetch('/api/progress/star', {
+      const res = await apiFetch('/api/progress/star', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user: userName, id, starred: !current }),
-      });
+      }, userName);
       if (res.ok) {
         const saved = await res.json();
         setProgress((prev) => ({ ...prev, [id]: { ...prev[id], ...saved } }));
@@ -330,7 +355,7 @@ export default function App() {
   const ensureSolution = useCallback(async (id) => {
     if (solutionsCache.current[id]?.solutionSql) return;
     try {
-      const data = await fetch(`/api/problem/${encodeURIComponent(id)}`).then((r) => r.json());
+      const data = await apiFetch(`/api/problem/${encodeURIComponent(id)}`).then((r) => r.json());
       solutionsCache.current[id] = data;
     } catch { /* leave cache as-is */ }
   }, []);
@@ -365,11 +390,11 @@ export default function App() {
         status: pass ? 'solved' : 'attempted',
         submittedAt: new Date().toISOString(),
       };
-      const res = await fetch('/api/submissions', {
+      const res = await apiFetch('/api/submissions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user: userName, ...entry }),
-      });
+      }, userName);
       if (res.ok) {
         const saved = await res.json();
         entry.id = saved.id;
@@ -427,10 +452,11 @@ export default function App() {
   }, []);
 
   const handleDeleteAccount = useCallback(async () => {
-    await fetch(`/api/user?user=${encodeURIComponent(userName)}`, { method: 'DELETE' });
+    await apiFetch(`/api/user?user=${encodeURIComponent(userName)}`, { method: 'DELETE' }, userName);
     setProgress({});
     setSubmissions([]);
     localStorage.removeItem(NAME_KEY);
+    clearToken(userName);
     setUserName('');
     setNameModalOpen(true);
   }, [userName]);
@@ -676,6 +702,7 @@ export default function App() {
             setNameSkipped(false);
             setUserName(val);
             setNameModalOpen(false);
+            ensureSession(val);
           }}
         />
       )}
@@ -689,6 +716,7 @@ export default function App() {
             setNameSkipped(false);
             setUserName(username);
             setLoginModalOpen(false);
+            ensureSession(username);
           }}
         />
       )}

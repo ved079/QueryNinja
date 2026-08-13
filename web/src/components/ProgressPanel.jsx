@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { firstSolvedDays } from '../lib/streak.js';
+import { apiFetch, setToken } from '../lib/auth.js';
 
 const ARC_LENGTH = 197.92;
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -140,26 +141,56 @@ export default function ProgressPanel({ problems, progress, submissions, userNam
     setLinkedEmail(null);
     setEmailStatus(null);
     setEditingEmail(false);
-    fetch(`/api/auth/email?user=${encodeURIComponent(userName || 'anonymous')}`)
+    apiFetch(`/api/auth/email?user=${encodeURIComponent(userName || 'anonymous')}`)
       .then((r) => r.json())
       .then((d) => { if (!cancelled) setLinkedEmail(d.email ?? null); })
       .catch(() => {});
     return () => { cancelled = true; };
   }, [userName]);
 
-  const saveEmail = async () => {
+  // Step 1: link-email emails a code (it does not link yet) and returns
+  // { pendingVerification: true }. Step 2 verifies the code, which is when
+  // the email actually gets bound to the account.
+  const [emailCode, setEmailCode] = useState('');
+  const [pendingVerification, setPendingVerification] = useState(false);
+
+  const sendEmailCode = async () => {
     const trimmed = emailDraft.trim();
     if (!trimmed) return;
     setEmailStatus('saving');
+    setEmailCode('');
+    setPendingVerification(false);
     try {
-      const res = await fetch('/api/auth/link-email', {
+      const res = await apiFetch('/api/auth/link-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user: userName || 'anonymous', email: trimmed }),
-      });
+      }, userName);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Could not save that email.');
-      setLinkedEmail(data.email);
+      if (!res.ok) throw new Error(data.error || 'Could not send the code.');
+      setPendingVerification(true);
+      setEmailStatus(null);
+    } catch (err) {
+      setEmailStatus(err.message);
+    }
+  };
+
+  const saveEmail = async () => {
+    const trimmed = emailCode.trim();
+    if (!trimmed) return;
+    setEmailStatus('saving');
+    try {
+      const res = await apiFetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user: userName || 'anonymous', email: emailDraft.trim(), code: trimmed }),
+      }, userName);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'That code is invalid or expired.');
+      if (data.token) setToken(userName || 'anonymous', data.token);
+      setLinkedEmail(data.email ?? emailDraft.trim());
+      setPendingVerification(false);
+      setEmailCode('');
       setEditingEmail(false);
       setEmailStatus(null);
     } catch (err) {
@@ -390,6 +421,20 @@ export default function ProgressPanel({ problems, progress, submissions, userNam
               <span>{linkedEmail}</span>
               <button onClick={() => { setEditingEmail(true); setEmailDraft(linkedEmail); }}>Change</button>
             </div>
+          ) : pendingVerification ? (
+            <div className="recovery-email-row">
+              <input
+                className="name-input"
+                value={emailCode}
+                onChange={(e) => setEmailCode(e.target.value)}
+                placeholder="6-digit code"
+                inputMode="numeric"
+                autoFocus
+              />
+              <button className="primary" disabled={emailStatus === 'saving' || !emailCode.trim()} onClick={saveEmail}>
+                {emailStatus === 'saving' ? 'Verifying…' : 'Verify'}
+              </button>
+            </div>
           ) : (
             <div className="recovery-email-row">
               <input
@@ -398,12 +443,15 @@ export default function ProgressPanel({ problems, progress, submissions, userNam
                 value={emailDraft}
                 onChange={(e) => setEmailDraft(e.target.value)}
                 placeholder="you@example.com"
-                onKeyDown={(e) => e.key === 'Enter' && saveEmail()}
+                onKeyDown={(e) => e.key === 'Enter' && sendEmailCode()}
               />
-              <button className="primary" disabled={emailStatus === 'saving' || !emailDraft.trim()} onClick={saveEmail}>
-                {emailStatus === 'saving' ? 'Saving…' : 'Save'}
+              <button className="primary" disabled={emailStatus === 'saving' || !emailDraft.trim()} onClick={sendEmailCode}>
+                {emailStatus === 'saving' ? 'Sending…' : 'Save'}
               </button>
             </div>
+          )}
+          {pendingVerification && (
+            <button onClick={() => { setPendingVerification(false); setEmailCode(''); }}>Back</button>
           )}
           {emailStatus && emailStatus !== 'saving' && (
             <p className="name-availability taken" style={{ marginTop: 6 }}>{emailStatus}</p>

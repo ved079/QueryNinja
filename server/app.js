@@ -1,12 +1,11 @@
 import 'dotenv/config';
 import express from 'express';
-import cors from 'cors';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { randomInt, createHash } from 'node:crypto';
+import { randomInt, createHash, randomBytes } from 'node:crypto';
 import { loadProblems } from './load-problems.js';
-import { createStore, hasRedisEnv } from './store.js';
+import { createStore, hasRedisEnv, userKey } from './store.js';
 import { sendOtpEmail } from './mailer.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -19,16 +18,49 @@ const distDir = path.join(ROOT, 'dist');
 const store = createStore(DATA_DIR);
 
 export const app = express();
-app.use(cors());
 app.use(express.json());
+
+// ─── CORS: only our own domains, never *. Also the only place the origin
+// echo is set — a non-allowed origin gets no Access-Control-Allow-Origin,
+// so the browser blocks the response.
+const ALLOWED_ORIGINS = new Set([
+  'https://queryninja.vercel.app',
+  'http://localhost:5173',
+]);
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,X-User-Token');
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+  }
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
+
+// ─── Security headers on every response. unsafe-inline/unsafe-eval are
+// required by the SQL WASM bundle; the Google font origins by the UI font.
+app.use((_req, res, next) => {
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'"
+  );
+  next();
+});
 
 // Problems are re-read on every request so you can add/edit JSON files
 // without restarting the server. Never expose solutionSql/outputExplanation
-// publicly — those are only sent on solve or via the progress endpoint.
+// or hints publicly — those are only sent on solve or via the progress
+// endpoint.
 app.get('/api/problems', async (_req, res) => {
   try {
     const all = await loadProblems();
-    const sanitized = all.map(({ solutionSql, outputExplanation, ...rest }) => rest);
+    const sanitized = all.map(({ solutionSql, outputExplanation, hint, ...rest }) => rest);
     res.json(sanitized);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -62,6 +94,130 @@ app.get('/api/_debug/store', (_req, res) => {
   });
 });
 
+// ─── Auth (Issue 3) ────────────────────────────────────────────────────────
+const TOKEN_HEX = /^[0-9a-f]{64}$/;
+const isToken = (t) => typeof t === 'string' && TOKEN_HEX.test(t);
+
+const getHeaderToken = (req) => String(req.headers['x-user-token'] ?? '').trim();
+
+/**
+ * Verify that the request's X-User-Token belongs to the named user.
+ * Writes the 401/403 response itself and returns false when it fails.
+ */
+async function requireUser(req, res, user) {
+  const name = userKey(user);
+  const token = getHeaderToken(req);
+  if (!name) {
+    res.status(400).json({ error: 'user is required' });
+    return false;
+  }
+  // The shared anonymous bucket ("use without a username") is public by
+  // design — no session needed. Every named user must present their token.
+  if (name === 'anonymous') return true;
+  if (!isToken(token)) {
+    res.status(401).json({ error: 'Missing or invalid session token. Please log in or set your name again.' });
+    return false;
+  }
+  const stored = await store.getUserToken(name);
+  if (!stored || stored !== token) {
+    res.status(403).json({ error: 'Session token does not match this user.' });
+    return false;
+  }
+  return true;
+}
+
+/** Create (and persist) a fresh session token for a user, e.g. after OTP login. */
+const issueToken = async (user) => {
+  const token = randomBytes(32).toString('hex');
+  await store.setUserToken(userKey(user), token);
+  return token;
+};
+
+// Body: { user } — mints a session token for a brand-new name-only user
+// (the "set name" flow, before any email is linked). If the name already has
+// a token (someone already claimed a session for it), the caller must prove
+// they hold that token to keep using it — otherwise they must log in via the
+// linked email to take the name over.
+app.post('/api/auth/token', async (req, res) => {
+  const user = (req.body?.user ?? '').trim();
+  if (!user) return res.status(400).json({ error: 'user is required' });
+  const name = userKey(user);
+  if (name === 'anonymous') return res.status(400).json({ error: 'The anonymous bucket does not need a session token.' });
+
+  const existing = await store.getUserToken(name);
+  if (existing) {
+    if (getHeaderToken(req) === existing) return res.json({ ok: true, token: existing });
+    return res.status(403).json({ error: 'This name already has an active session. Log in with its linked email to take it over.' });
+  }
+  const token = await issueToken(name);
+  res.json({ ok: true, token });
+});
+
+// ─── OTP rate limiter (Issue 4) ────────────────────────────────────────────
+const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const OTP_MAX_PER_HOUR = 5;
+const OTP_MAX_FAILURES = 10;
+const OTP_LOCK_MS = 15 * 60 * 1000; // 15 minutes
+const rateLimits = new Map();
+
+const rateKey = (email) => email.trim().toLowerCase();
+
+/** Returns null if allowed, or the 429 error message if blocked. */
+function checkOtpRequestLimit(email) {
+  const now = Date.now();
+  const rec = rateLimits.get(rateKey(email)) ?? { windowStart: now, otpCount: 0, failed: 0, lockedUntil: 0 };
+  if (now - rec.windowStart > RATE_WINDOW_MS) {
+    rec.windowStart = now;
+    rec.otpCount = 0;
+  }
+  if (rec.lockedUntil > now) return 'Too many failed attempts. Try again later.';
+  if (rec.otpCount >= OTP_MAX_PER_HOUR) return 'Too many OTP requests. Try again later.';
+  rec.otpCount++;
+  rateLimits.set(rateKey(email), rec);
+  return null;
+}
+
+/** Returns null if allowed, or the 429 error message if blocked. */
+function checkOtpVerifyLimit(email) {
+  const now = Date.now();
+  const rec = rateLimits.get(rateKey(email)) ?? { windowStart: now, otpCount: 0, failed: 0, lockedUntil: 0 };
+  if (rec.lockedUntil > now) return 'Too many failed attempts. Try again later.';
+  rateLimits.set(rateKey(email), rec);
+  return null;
+}
+
+function recordOtpFailure(email) {
+  const now = Date.now();
+  const rec = rateLimits.get(rateKey(email)) ?? { windowStart: now, otpCount: 0, failed: 0, lockedUntil: 0 };
+  if (rec.lockedUntil > now) return;
+  rec.failed++;
+  if (rec.failed > OTP_MAX_FAILURES) {
+    rec.lockedUntil = now + OTP_LOCK_MS;
+    rec.failed = 0;
+  }
+  rateLimits.set(rateKey(email), rec);
+}
+
+function resetOtpFailures(email) {
+  const rec = rateLimits.get(rateKey(email));
+  if (rec) {
+    rec.failed = 0;
+    rateLimits.set(rateKey(email), rec);
+  }
+}
+
+// Periodically drop stale rate-limit entries older than an hour.
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, rec] of rateLimits) {
+    if (now - rec.windowStart > RATE_WINDOW_MS && rec.lockedUntil < now) {
+      rateLimits.delete(key);
+    }
+  }
+}, 10 * 60 * 1000).unref?.();
+
+// ─── Username endpoint ─────────────────────────────────────────────────────
+
 // Query: ?name=foo&current=bar (current = the user's own existing name, if
 // any, so re-saving your own name — or just changing its casing — never
 // reads as "taken").
@@ -79,21 +235,38 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const OTP_TTL_SECONDS = 10 * 60;
 const hashOtp = (code) => createHash('sha256').update(code).digest('hex');
 
-// Body: { user, email } — links an email to a username so it can be used to
-// log back in (via OTP) on another device. Refuses to steal an email that's
-// already linked to a *different* username.
+// Body: { user, email } — starts the "link an email to my username" flow.
+// Does NOT link the email yet: it validates ownership by emailing a code
+// (exactly like request-otp) and returns pendingVerification. The email is
+// only actually linked by verify-otp once the code checks out. Refuses to
+// steal an email that's already linked to a *different* username.
 app.post('/api/auth/link-email', async (req, res) => {
   const user = (req.body?.user ?? '').trim();
   const email = (req.body?.email ?? '').trim().toLowerCase();
   if (!user || !email) return res.status(400).json({ error: 'user and email are required' });
   if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'That email address looks invalid.' });
+  if (!(await requireUser(req, res, user))) return;
 
   const existingOwner = await store.getUsernameForEmail(email);
   if (existingOwner && existingOwner.toLowerCase() !== user.toLowerCase()) {
     return res.status(409).json({ error: 'That email is already linked to a different username.' });
   }
-  await store.setUserEmail(user, email);
-  res.json({ ok: true, email });
+
+  const tooMany = checkOtpRequestLimit(email);
+  if (tooMany) return res.status(429).json({ error: tooMany });
+
+  const code = String(randomInt(100000, 1000000));
+  await store.setOtp(email, {
+    codeHash: hashOtp(code),
+    username: userKey(user),
+    expiresAt: Date.now() + OTP_TTL_SECONDS * 1000,
+  });
+  try {
+    await sendOtpEmail(email, code);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+  res.json({ ok: true, pendingVerification: true });
 });
 
 app.get('/api/auth/email', async (req, res) => {
@@ -109,6 +282,9 @@ app.post('/api/auth/request-otp', async (req, res) => {
   const email = (req.body?.email ?? '').trim().toLowerCase();
   if (!email || !EMAIL_RE.test(email)) return res.status(400).json({ error: 'A valid email is required.' });
 
+  const tooMany = checkOtpRequestLimit(email);
+  if (tooMany) return res.status(429).json({ error: tooMany });
+
   const username = await store.getUsernameForEmail(email);
   if (!username) return res.status(404).json({ error: 'No account is linked to that email.' });
 
@@ -122,19 +298,42 @@ app.post('/api/auth/request-otp', async (req, res) => {
   res.json({ ok: true });
 });
 
-// Body: { email, code } — on success, returns the username this email is
-// linked to; the client then logs in as that username locally.
+// Body: { email, code, user? } — on success returns the username this email
+// is linked to (and a fresh session token): the client then logs in as that
+// username locally. If `user` is supplied and the OTP is valid, the email is
+// (finally) linked to that user account — this is the only place linking
+// actually happens.
 app.post('/api/auth/verify-otp', async (req, res) => {
   const email = (req.body?.email ?? '').trim().toLowerCase();
   const code = (req.body?.code ?? '').trim();
+  const requestedUser = (req.body?.user ?? '').trim();
   if (!email || !code) return res.status(400).json({ error: 'email and code are required' });
+
+  const blocked = checkOtpVerifyLimit(email);
+  if (blocked) return res.status(429).json({ error: blocked });
 
   const record = await store.getOtp(email);
   if (!record || record.codeHash !== hashOtp(code)) {
+    recordOtpFailure(email);
     return res.status(400).json({ error: 'That code is invalid or expired.' });
   }
+
+  resetOtpFailures(email);
   await store.clearOtp(email);
-  res.json({ username: record.username });
+
+  // Final step of the link-email flow: only now bind the email to the user.
+  if (requestedUser) {
+    if (record.username && record.username.toLowerCase() !== requestedUser.toLowerCase()) {
+      return res.status(400).json({ error: 'Wrong account for this code.' });
+    }
+    await store.setUserEmail(requestedUser, email);
+    const token = await issueToken(requestedUser);
+    return res.json({ ok: true, username: requestedUser, email, token, pendingVerification: false });
+  }
+
+  const username = record.username;
+  const token = await issueToken(username);
+  res.json({ username, token });
 });
 
 // Writes solution/hint/outputExplanation into solved progress entries so the
@@ -168,6 +367,7 @@ app.get('/api/progress', async (req, res) => {
 app.post('/api/progress', async (req, res) => {
   const { user, id, status, code } = req.body ?? {};
   if (!id) return res.status(400).json({ error: 'id is required' });
+  if (!(await requireUser(req, res, user))) return;
 
   const progress = await store.readUserBucket('progress', user);
   const prev = progress[id] ?? {};
@@ -184,15 +384,18 @@ app.post('/api/progress', async (req, res) => {
 });
 
 app.delete('/api/progress/:id', async (req, res) => {
-  const progress = await store.readUserBucket('progress', req.query.user);
+  const user = req.query.user;
+  if (!(await requireUser(req, res, user))) return;
+  const progress = await store.readUserBucket('progress', user);
   delete progress[req.params.id];
-  await store.writeUserBucket('progress', req.query.user, progress);
+  await store.writeUserBucket('progress', user, progress);
   res.json({ ok: true });
 });
 
 app.post('/api/progress/star', async (req, res) => {
   const { user, id, starred } = req.body ?? {};
   if (!id) return res.status(400).json({ error: 'id is required' });
+  if (!(await requireUser(req, res, user))) return;
   const progress = await store.readUserBucket('progress', user);
   const prev = progress[id] ?? {};
   progress[id] = { ...prev, starred: !!starred, updatedAt: new Date().toISOString() };
@@ -224,6 +427,7 @@ app.get('/api/submissions', async (req, res) => {
 app.post('/api/submissions', async (req, res) => {
   const { user, problemId, code, status } = req.body ?? {};
   if (!problemId) return res.status(400).json({ error: 'problemId is required' });
+  if (!(await requireUser(req, res, user))) return;
 
   let subs = await store.readUserBucket('submissions', user);
   if (!Array.isArray(subs)) subs = []; // discard legacy flat format
@@ -242,8 +446,10 @@ app.post('/api/submissions', async (req, res) => {
 app.delete('/api/user', async (req, res) => {
   const user = req.query.user;
   if (!user) return res.status(400).json({ error: 'user is required' });
+  if (!(await requireUser(req, res, user))) return;
   await store.writeUserBucket('progress', user, {});
   await store.writeUserBucket('submissions', user, []);
+  await store.clearUserToken(user);
   res.json({ ok: true });
 });
 

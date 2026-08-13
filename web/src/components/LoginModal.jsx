@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiFetch, setToken } from '../lib/auth.js';
 
 // Two-step flow: request a code by email, then verify it. On success calls
 // onLoggedIn(username) so the caller can set that as the active user.
@@ -15,7 +16,7 @@ export default function LoginModal({ onClose, onLoggedIn }) {
     setBusy(true);
     setError('');
     try {
-      const res = await fetch('/api/auth/request-otp', {
+      const res = await apiFetch('/api/auth/request-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: trimmed }),
@@ -36,13 +37,15 @@ export default function LoginModal({ onClose, onLoggedIn }) {
     setBusy(true);
     setError('');
     try {
-      const res = await fetch('/api/auth/verify-otp', {
+      const res = await apiFetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim(), code: trimmed }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'That code is invalid or expired.');
+      // verify-otp returns a fresh session token for the logged-in username.
+      if (data.token) setToken(data.username, data.token);
       onLoggedIn(data.username);
     } catch (err) {
       setError(err.message);
