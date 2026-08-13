@@ -18,6 +18,15 @@ const distDir = path.join(ROOT, 'dist');
 const store = createStore(DATA_DIR);
 
 export const app = express();
+
+app.use((_req, res, next) => {
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
 app.use(express.json());
 
 // ─── CORS: only our own domains, never *. Also the only place the origin
