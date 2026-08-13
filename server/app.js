@@ -108,11 +108,13 @@ const TOKEN_HEX = /^[0-9a-f]{64}$/;
 const isToken = (t) => typeof t === 'string' && TOKEN_HEX.test(t);
 
 const USERNAME_RE = /^[a-zA-Z0-9 _-]{1,24}$/;
+const RESERVED_NAMES = new Set(['admin', 'root', 'system', 'null', 'undefined', 'api', 'auth', 'user', 'server', 'moderator']);
 /** Returns an error string if the username is invalid, otherwise null. */
 function validateUsername(user) {
   if (!user || typeof user !== 'string') return 'user is required';
   const t = user.trim();
   if (!t) return 'user is required';
+  if (RESERVED_NAMES.has(t.toLowerCase())) return 'Username must be 1–24 characters: letters, numbers, spaces, hyphens, or underscores';
   if (!USERNAME_RE.test(t)) return 'Username must be 1–24 characters: letters, numbers, spaces, hyphens, or underscores';
   return null;
 }
