@@ -103,9 +103,22 @@ app.get('/api/_debug/store', (_req, res) => {
   });
 });
 
-// ─── Auth (Issue 3) ────────────────────────────────────────────────────────
+// ─── Auth helpers ─────────────────────────────────────────────────────────
 const TOKEN_HEX = /^[0-9a-f]{64}$/;
 const isToken = (t) => typeof t === 'string' && TOKEN_HEX.test(t);
+
+const USERNAME_RE = /^[a-zA-Z0-9 _-]{1,24}$/;
+/** Returns an error string if the username is invalid, otherwise null. */
+function validateUsername(user) {
+  if (!user || typeof user !== 'string') return 'user is required';
+  const t = user.trim();
+  if (!t) return 'user is required';
+  if (!USERNAME_RE.test(t)) return 'Username must be 1–24 characters: letters, numbers, spaces, hyphens, or underscores';
+  return null;
+}
+
+/** In-memory lock to prevent concurrent token creation for the same name. */
+const creationLocks = new Set();
 
 const getHeaderToken = (req) => String(req.headers['x-user-token'] ?? '').trim();
 
@@ -114,12 +127,13 @@ const getHeaderToken = (req) => String(req.headers['x-user-token'] ?? '').trim()
  * Writes the 401/403 response itself and returns false when it fails.
  */
 async function requireUser(req, res, user) {
-  const name = userKey(user);
-  const token = getHeaderToken(req);
-  if (!name) {
-    res.status(400).json({ error: 'user is required' });
+  const formatErr = validateUsername(user);
+  if (formatErr) {
+    res.status(400).json({ error: formatErr });
     return false;
   }
+  const name = userKey(user);
+  const token = getHeaderToken(req);
   // The shared anonymous bucket ("use without a username") is public by
   // design — no session needed. Every named user must present their token.
   if (name === 'anonymous') return true;
@@ -149,7 +163,8 @@ const issueToken = async (user) => {
 // linked email to take the name over.
 app.post('/api/auth/token', async (req, res) => {
   const user = (req.body?.user ?? '').trim();
-  if (!user) return res.status(400).json({ error: 'user is required' });
+  const fmtErr = validateUsername(user);
+  if (fmtErr) return res.status(400).json({ error: fmtErr });
   const name = userKey(user);
   if (name === 'anonymous') return res.status(400).json({ error: 'The anonymous bucket does not need a session token.' });
 
@@ -158,8 +173,25 @@ app.post('/api/auth/token', async (req, res) => {
     if (getHeaderToken(req) === existing) return res.json({ ok: true, token: existing });
     return res.status(403).json({ error: 'This name already has an active session. Log in with its linked email to take it over.' });
   }
-  const token = await issueToken(name);
-  res.json({ ok: true, token });
+
+  // Lock to prevent two concurrent requests both seeing no existing token and
+  // both minting a new one — the second writer would silently overwrite the first.
+  if (creationLocks.has(name)) {
+    return res.status(409).json({ error: 'A session is already being created for this name. Try again in a moment.' });
+  }
+  creationLocks.add(name);
+  try {
+    // Re-check under the lock in case another request just wrote one.
+    const raceCheck = await store.getUserToken(name);
+    if (raceCheck) {
+      if (getHeaderToken(req) === raceCheck) return res.json({ ok: true, token: raceCheck });
+      return res.status(403).json({ error: 'This name already has an active session. Log in with its linked email to take it over.' });
+    }
+    const token = await issueToken(name);
+    res.json({ ok: true, token });
+  } finally {
+    creationLocks.delete(name);
+  }
 });
 
 // ─── OTP rate limiter (Issue 4) ────────────────────────────────────────────
@@ -252,7 +284,9 @@ const hashOtp = (code) => createHash('sha256').update(code).digest('hex');
 app.post('/api/auth/link-email', async (req, res) => {
   const user = (req.body?.user ?? '').trim();
   const email = (req.body?.email ?? '').trim().toLowerCase();
-  if (!user || !email) return res.status(400).json({ error: 'user and email are required' });
+  if (!email) return res.status(400).json({ error: 'user and email are required' });
+  const fmtErr = validateUsername(user);
+  if (fmtErr) return res.status(400).json({ error: fmtErr });
   if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'That email address looks invalid.' });
   if (!(await requireUser(req, res, user))) return;
 
