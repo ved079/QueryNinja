@@ -141,9 +141,9 @@ export default function ProgressPanel({ problems, progress, submissions, userNam
     setLinkedEmail(null);
     setEmailStatus(null);
     setEditingEmail(false);
-    apiFetch(`/api/auth/email?user=${encodeURIComponent(userName || 'anonymous')}`)
-      .then((r) => r.json())
-      .then((d) => { if (!cancelled) setLinkedEmail(d.email ?? null); })
+    apiFetch(`/api/auth/email?user=${encodeURIComponent(userName || 'anonymous')}`, {}, userName)
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (!cancelled && d) setLinkedEmail(d.email ?? null); })
       .catch(() => {});
     return () => { cancelled = true; };
   }, [userName]);

@@ -85,15 +85,21 @@ app.get('/api/problems', async (_req, res) => {
   }
 });
 
-// Returns the full problem (including solutionSql) for a single problem.
-// Needed by the client for client-side grading (sql.js WASM) and expected
-// output computation. The bulk /api/problems endpoint never leaks these.
+// Returns the problem for a single ID. solutionSql, hint, and outputExplanation
+// are only included when the requesting user has solved this problem — they are
+// never sent to unauthenticated or unsolved callers.
 app.get('/api/problem/:id', async (req, res) => {
+  const user = req.query.user;
+  if (!(await requireUser(req, res, user))) return;
   try {
     const all = await loadProblems();
     const problem = all.find((p) => p.id === req.params.id);
     if (!problem) return res.status(404).json({ error: 'Problem not found' });
-    res.json(problem);
+    const progress = await store.readUserBucket('progress', user);
+    const solved = progress[req.params.id]?.status === 'solved';
+    if (solved) return res.json(problem);
+    const { solutionSql, hint, outputExplanation, ...rest } = problem;
+    res.json(rest);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -338,7 +344,7 @@ app.post('/api/auth/link-email', async (req, res) => {
 
 app.get('/api/auth/email', async (req, res) => {
   const user = req.query.user;
-  if (!user) return res.status(400).json({ error: 'user is required' });
+  if (!(await requireUser(req, res, user))) return;
   res.json({ email: (await store.getEmailForUsername(user)) ?? null });
 });
 

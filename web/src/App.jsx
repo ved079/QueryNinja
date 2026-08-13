@@ -8,7 +8,7 @@ import TopBar from './components/TopBar.jsx';
 import NameModal from './components/NameModal.jsx';
 import LoginModal from './components/LoginModal.jsx';
 import Markdownish from './components/Markdownish.jsx';
-import { compare, createDb, exec, describeTables, gradeAll, testsOf, diffResults } from './lib/db.js';
+import { compare, createDb, exec, describeTables, gradeAll, testsOf, diffResults, expectedOutputToResult } from './lib/db.js';
 import { apiFetch, getToken, setToken, clearToken } from './lib/auth.js';
 import { format } from 'sql-formatter';
 import { computeCurrentStreak } from './lib/streak.js';
@@ -108,17 +108,18 @@ export default function App() {
   const problem = problems.find((p) => p.id === selectedId) ?? null;
   const streak = useMemo(() => computeCurrentStreak(submissions), [submissions]);
 
-  // Fetch solution data for the current problem (needed for client-side grading).
-  // Populates solutionsCache so the setup effect and gradeAll can access it.
+  // Fetch problem detail (including solution fields if solved) when the selected
+  // problem changes. Passes the user identity so the server can gate solutionSql.
   useEffect(() => {
     if (!selectedId) return;
-    apiFetch(`/api/problem/${encodeURIComponent(selectedId)}`)
+    const u = encodeURIComponent(userName || 'anonymous');
+    apiFetch(`/api/problem/${encodeURIComponent(selectedId)}?user=${u}`, {}, userName)
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
         if (data) solutionsCache.current[data.id] = data;
       })
       .catch(() => {});
-  }, [selectedId]);
+  }, [selectedId, userName]);
 
   // Scope prev/next/Go-to/Problem-List to the active section (normal/complex/da).
   const visibleProblems = problems.filter(inMode(problemMode));
@@ -258,18 +259,22 @@ export default function App() {
         dbRef.current = db;
         setTables(describeTables(db));
 
-        // Sample output shown with the problem: derived from the reference
-        // solution rather than stored, so the two can never disagree.
-        // The solution is fetched separately from /api/problem/:id since the
-        // public list strips it; if it hasn't arrived yet, wait for it here.
+        // Sample output shown with the problem. solutionSql is only returned by
+        // the server when the user has already solved this problem; unsolved users
+        // fall back to the pre-computed expectedOutput stored in the first test
+        // case so the expected output panel is still populated.
         let solutionSql = solutionsCache.current[problem.id]?.solutionSql;
         if (!solutionSql) {
           try {
-            const data = await apiFetch(`/api/problem/${encodeURIComponent(problem.id)}`).then((r) => r.json());
-            solutionsCache.current[problem.id] = data;
-            solutionSql = data.solutionSql;
+            const u = encodeURIComponent(userName || 'anonymous');
+            const r = await apiFetch(`/api/problem/${encodeURIComponent(problem.id)}?user=${u}`, {}, userName);
+            if (r.ok) {
+              const data = await r.json();
+              solutionsCache.current[problem.id] = data;
+              solutionSql = data.solutionSql;
+            }
           } catch {
-            // fall through — expected will remain null
+            // fall through — expected will use the pre-computed fallback below
           }
         }
         if (solutionSql) {
@@ -279,6 +284,9 @@ export default function App() {
           } finally {
             refDb.close();
           }
+        } else {
+          // Use the pre-computed expectedOutput from the first test case.
+          setExpected(expectedOutputToResult(testsOf(problem)[0]?.expectedOutput) ?? null);
         }
       } catch (err) {
         setLoadError(`Failed to set up "${problem.title}": ${err.message}`);
@@ -300,6 +308,7 @@ export default function App() {
     }, userName);
     const saved = await res.json();
     setProgress((prev) => ({ ...prev, [id]: saved }));
+    return saved;
   }, [userName]);
 
   const handleToggleStar = useCallback(async (id) => {
@@ -366,10 +375,11 @@ export default function App() {
   const ensureSolution = useCallback(async (id) => {
     if (solutionsCache.current[id]?.solutionSql) return;
     try {
-      const data = await apiFetch(`/api/problem/${encodeURIComponent(id)}`).then((r) => r.json());
-      solutionsCache.current[id] = data;
+      const u = encodeURIComponent(userName || 'anonymous');
+      const r = await apiFetch(`/api/problem/${encodeURIComponent(id)}?user=${u}`, {}, userName);
+      if (r.ok) solutionsCache.current[id] = await r.json();
     } catch { /* leave cache as-is */ }
-  }, []);
+  }, [userName]);
 
   const submit = useCallback(async () => {
     if (!problem) return;
@@ -399,7 +409,16 @@ export default function App() {
       const caseResults = report.cases.map((c) => ({
         actual: c.actual ? { columns: c.actual.columns, rows: c.actual.rows } : null,
       }));
-      await saveProgress(problem.id, sqlText, caseResults);
+      const saved = await saveProgress(problem.id, sqlText, caseResults);
+      // If this submission just earned a solve, re-fetch the problem so the
+      // server now returns solutionSql/hint/outputExplanation for this user.
+      if (saved?.status === 'solved' && !solutionsCache.current[problem.id]?.solutionSql) {
+        try {
+          const u = encodeURIComponent(userName || 'anonymous');
+          const r = await apiFetch(`/api/problem/${encodeURIComponent(problem.id)}?user=${u}`, {}, userName);
+          if (r.ok) solutionsCache.current[problem.id] = await r.json();
+        } catch { /* non-critical; solution panel will populate on next load */ }
+      }
 
       const entry = {
         problemId: problem.id,
@@ -439,7 +458,8 @@ export default function App() {
       const refDb = await createDb(problem, test);
       let expected;
       try {
-        expected = exec(refDb, solutionsCache.current[problem.id]?.solutionSql ?? problem.solutionSql);
+        const sol = solutionsCache.current[problem.id]?.solutionSql ?? problem.solutionSql;
+        expected = sol ? exec(refDb, sol) : expectedOutputToResult(test.expectedOutput);
       } finally {
         refDb.close();
       }

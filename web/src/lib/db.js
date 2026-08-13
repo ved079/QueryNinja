@@ -346,6 +346,19 @@ export function compare(actual, expected, orderMatters) {
  * each row status is 'match' | 'diff' (ordered mode) or
  * 'match' | 'missing' | 'extra' (unordered mode, multiset comparison).
  */
+/**
+ * Convert the expectedOutput array-of-objects (stored in problem JSON) to the
+ * { columns, rows } shape that exec() returns. Used as a fallback when
+ * solutionSql is not in the API response (the user hasn't solved this problem
+ * yet, so the server withholds it).
+ */
+export function expectedOutputToResult(expectedOutput) {
+  if (!expectedOutput?.length) return null;
+  const columns = Object.keys(expectedOutput[0]);
+  const rows = expectedOutput.map((obj) => columns.map((c) => obj[c] ?? null));
+  return { columns, rows };
+}
+
 export function diffResults(actual, expected, orderMatters) {
   if (!actual || !expected) return null;
 
@@ -400,7 +413,12 @@ export async function gradeAll(problem, userSql) {
     const refDb = await createDb(problem, test);
 
     try {
-      const expected = exec(refDb, problem.solutionSql);
+      // Use solutionSql when available (server returns it only for solved users).
+      // Fall back to the pre-computed expectedOutput from the problem JSON so
+      // gradeAll still works before the user has solved the problem.
+      const expected = problem.solutionSql
+        ? exec(refDb, problem.solutionSql)
+        : expectedOutputToResult(test.expectedOutput);
       const tables = describeTables(refDb);
 
       let actual;
