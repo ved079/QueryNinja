@@ -7,6 +7,20 @@ import { randomInt, createHash, randomBytes } from 'node:crypto';
 import { loadProblems } from './load-problems.js';
 import { createStore, hasRedisEnv, userKey } from './store.js';
 import { sendOtpEmail } from './mailer.js';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+
+let _tokenRatelimit;
+const getTokenRatelimit = () => {
+  if (!_tokenRatelimit && hasRedisEnv()) {
+    const redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN,
+    });
+    _tokenRatelimit = new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(10, '1 m') });
+  }
+  return _tokenRatelimit;
+};
 import { canonicalize, hmacHex } from './canon.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -78,7 +92,10 @@ app.use((_req, res, next) => {
 app.get('/api/problems', async (_req, res) => {
   try {
     const all = await loadProblems();
-    const sanitized = all.map(({ solutionSql, outputExplanation, hint, ...rest }) => rest);
+    const sanitized = all.map(({ solutionSql, outputExplanation, hint, tests, ...rest }) => ({
+      ...rest,
+      tests: (tests ?? []).map(({ expectedOutput, expectedHash, ...t }) => t),
+    }));
     res.json(sanitized);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -184,6 +201,12 @@ const issueToken = async (user) => {
 // they hold that token to keep using it — otherwise they must log in via the
 // linked email to take the name over.
 app.post('/api/auth/token', async (req, res) => {
+  const rl = getTokenRatelimit();
+  if (rl) {
+    const ip = (req.headers['x-forwarded-for'] ?? '').split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
+    const { success } = await rl.limit(`token:${ip}`);
+    if (!success) return res.status(429).json({ error: 'Too many requests. Try again later.' });
+  }
   const user = (req.body?.user ?? '').trim();
   const fmtErr = validateUsername(user);
   if (fmtErr) return res.status(400).json({ error: fmtErr });
@@ -336,8 +359,8 @@ app.post('/api/auth/link-email', async (req, res) => {
   });
   try {
     await sendOtpEmail(email, code);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+  } catch {
+    return res.status(500).json({ error: 'Failed to send email. Please try again.' });
   }
   res.json({ ok: true, pendingVerification: true });
 });
@@ -365,8 +388,8 @@ app.post('/api/auth/request-otp', async (req, res) => {
   await store.setOtp(email, { codeHash: hashOtp(code), username, expiresAt: Date.now() + OTP_TTL_SECONDS * 1000 }, OTP_TTL_SECONDS);
   try {
     await sendOtpEmail(email, code);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+  } catch {
+    return res.status(500).json({ error: 'Failed to send email. Please try again.' });
   }
   res.json({ ok: true });
 });
