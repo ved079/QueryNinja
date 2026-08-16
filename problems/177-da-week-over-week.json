@@ -1,0 +1,89 @@
+{
+  "id": "da-week-over-week",
+  "number": 177,
+  "title": "Week-Over-Week Revenue",
+  "difficulty": "Hard",
+  "tags": [
+    "Data Analyst",
+    "Date",
+    "Gaps and Islands",
+    "Window Function"
+  ],
+  "description": "For each **ISO week** (Monday–Sunday) that has orders, report the week's revenue and its `growth` vs the previous week that had orders: `ROUND((revenue - prev_revenue) / prev_revenue * 100, 2)`, or `NULL` for the first week. Name the columns `week` (the week's Monday, `YYYY-MM-DD`) and `revenue`, `growth`. Return weeks in chronological order.",
+  "solutionSql": "WITH weeks AS (\n  SELECT date(order_date, 'weekday 0', '-6 days') AS week,\n         ROUND(SUM(total), 2) AS revenue\n  FROM orders\n  GROUP BY week\n)\nSELECT week,\n       revenue,\n       ROUND((revenue - LAG(revenue) OVER (ORDER BY week)) * 1.0\n         / LAG(revenue) OVER (ORDER BY week) * 100, 2) AS growth\nFROM weeks\nORDER BY week;",
+  "orderMatters": true,
+  "hint": "SQLite's 'weekday 0' modifier snaps a date to the *next* Monday; go back 6 days for that week's Monday. Then LAG for growth.",
+  "outputExplanation": "Week of Jan 1: $100. Week of Jan 8: $150 → +50.0%.",
+  "schemaSql": "CREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  order_date TEXT,\n  total REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO orders VALUES (1,'2024-01-01',100),(2,'2024-01-08',150);",
+      "expectedOutput": [
+        {
+          "week": "2024-01-01",
+          "revenue": 100,
+          "growth": null
+        },
+        {
+          "week": "2024-01-08",
+          "revenue": 150,
+          "growth": 50
+        }
+      ],
+      "expectedHash": "8d805940bbf9bf7c31fc9639d94c48ec624b0c3ddc59954a88851e967d0fb35a"
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Orders across week boundary",
+      "seedSql": "INSERT INTO orders VALUES (1,'2024-01-01',10),(2,'2024-01-07',20),(3,'2024-01-08',30);",
+      "expectedOutput": [
+        {
+          "week": "2024-01-01",
+          "revenue": 30,
+          "growth": null
+        },
+        {
+          "week": "2024-01-08",
+          "revenue": 30,
+          "growth": 0
+        }
+      ],
+      "expectedHash": "7292867e0e167a213de5b08ba2ac11b2b7b72d0254bb88bc66d8937827a3f842"
+    },
+    {
+      "name": "Gap week missing",
+      "seedSql": "INSERT INTO orders VALUES (1,'2024-01-01',100),(2,'2024-01-22',200);",
+      "expectedOutput": [
+        {
+          "week": "2024-01-01",
+          "revenue": 100,
+          "growth": null
+        },
+        {
+          "week": "2024-01-22",
+          "revenue": 200,
+          "growth": 100
+        }
+      ],
+      "expectedHash": "5a408acb36156fad8b1bd940cf895238c1b695a2319f9dc731aa4ab09915063d"
+    },
+    {
+      "name": "Same week many orders",
+      "seedSql": "INSERT INTO orders VALUES (1,'2024-01-01',10),(2,'2024-01-03',20),(3,'2024-01-05',70);",
+      "expectedOutput": [
+        {
+          "week": "2024-01-01",
+          "revenue": 100,
+          "growth": null
+        }
+      ],
+      "expectedHash": "612022f5d8cd613ee571a3bd81caab951c68d5d4f3b304fa5bd2652504a3413f"
+    }
+  ]
+}

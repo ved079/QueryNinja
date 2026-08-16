@@ -1,0 +1,302 @@
+{
+  "id": "consecutive-numbers",
+  "number": 6,
+  "title": "Consecutive Numbers",
+  "difficulty": "Medium",
+  "tags": [
+    "Window Function",
+    "Self Join"
+  ],
+  "description": "Table `Logs` has an auto-incrementing `id` with no gaps, and a `num` column.\n\nWrite a query to find all numbers that appear **at least three times in a row**. Name the output column `ConsecutiveNums`, and report each qualifying number only once.\n\nReturn the result in any order.",
+  "schemaSql": "CREATE TABLE Logs (\n  id INTEGER PRIMARY KEY,\n  num INTEGER\n);",
+  "solutionSql": "SELECT DISTINCT num AS ConsecutiveNums\nFROM (\n  SELECT num,\n         LAG(num, 1) OVER (ORDER BY id) AS prev1,\n         LAG(num, 2) OVER (ORDER BY id) AS prev2\n  FROM Logs\n)\nWHERE num = prev1 AND num = prev2;",
+  "orderMatters": false,
+  "hint": "LAG(num, 1) and LAG(num, 2) over ORDER BY id let you compare a row to the two before it. Don't forget DISTINCT — a number in two separate runs must still be reported once.",
+  "outputExplanation": "The number 1 appears three times consecutively (ids 1–3), and the number 2 appears three times consecutively (ids 7–9). Both are reported once.",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1),(3,1),(4,2),(5,1),(6,2),(7,2),(8,2),(9,2);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 1
+        },
+        {
+          "ConsecutiveNums": 2
+        }
+      ],
+      "expectedHash": "97aae4798576d35e470167921ed1ce5ab686a78cfcb2db4b1f63598d8532aa77"
+    },
+    {
+      "name": "No run reaches three — only pairs",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1),(3,2),(4,2),(5,3),(6,3);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Exactly three in a row — minimum qualifying run",
+      "seedSql": "INSERT INTO Logs VALUES (1,5),(2,5),(3,5),(4,9);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 5
+        }
+      ],
+      "expectedHash": "843cb49bbbe0c204a05157e5820a4844c3aeddd64243baf266e30680bc52850d"
+    },
+    {
+      "name": "Every row identical — single run spanning all rows",
+      "seedSql": "INSERT INTO Logs VALUES (1,7),(2,7),(3,7),(4,7),(5,7);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 7
+        }
+      ],
+      "expectedHash": "2d6b13da9044db198d62631b4ceab025754194585c7ff139af32850f2961d937"
+    },
+    {
+      "name": "Two different numbers each have a qualifying run",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1),(3,1),(4,2),(5,2),(6,2);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 1
+        },
+        {
+          "ConsecutiveNums": 2
+        }
+      ],
+      "expectedHash": "97aae4798576d35e470167921ed1ce5ab686a78cfcb2db4b1f63598d8532aa77"
+    },
+    {
+      "name": "Same number in two separate runs — without DISTINCT the number appears twice",
+      "seedSql": "INSERT INTO Logs VALUES (1,4),(2,4),(3,4),(4,8),(5,4),(6,4),(7,4);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 4
+        }
+      ],
+      "expectedHash": "3c673526116343965b9307de062c0c423017bd28231f124fb4b2364ccd6cddda"
+    },
+    {
+      "name": "Fewer than three rows — impossible to have three consecutive",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Empty table",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Alternating values — never three in a row",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,2),(3,1),(4,2),(5,1),(6,2);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Negative numbers with a long run and mixed positives",
+      "seedSql": "INSERT INTO Logs VALUES (1,-3),(2,-3),(3,-3),(4,-3),(5,0),(6,0),(7,1),(8,1),(9,1),(10,2);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": -3
+        },
+        {
+          "ConsecutiveNums": 1
+        }
+      ],
+      "expectedHash": "8df959124c97662b326483ea026ecb8b8efe5b8d41cf2c625afdfd974a4fd10a"
+    },
+    {
+      "name": "Run of exactly three at the very start",
+      "seedSql": "INSERT INTO Logs VALUES (1,9),(2,9),(3,9),(4,5),(5,6),(6,7);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 9
+        }
+      ],
+      "expectedHash": "8693f6999b09054c8f894333370c10d809817d5fc0116bf2c5030888fb155c8d"
+    },
+    {
+      "name": "Run of exactly three at the very end",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,2),(3,3),(4,8),(5,8),(6,8);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 8
+        }
+      ],
+      "expectedHash": "013db378537659bf05825fa11ac6c8e20375d780a1b950a71730e6ebda5658c1"
+    },
+    {
+      "name": "Number appears six times consecutively — reported once",
+      "seedSql": "INSERT INTO Logs VALUES (1,3),(2,3),(3,3),(4,3),(5,3),(6,3),(7,5);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 3
+        }
+      ],
+      "expectedHash": "f3e119b104e3839b700dc162fc1d2b754f512157a28a324931a4e0e79f689b7f"
+    },
+    {
+      "name": "Three different numbers each with a qualifying run",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1),(3,1),(4,2),(5,2),(6,2),(7,3),(8,3),(9,3);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 1
+        },
+        {
+          "ConsecutiveNums": 2
+        },
+        {
+          "ConsecutiveNums": 3
+        }
+      ],
+      "expectedHash": "c7ae4ec3b13209f4dafa7c14a9e06e15ecf098081a8237d7ac5bd085ac5625a3"
+    },
+    {
+      "name": "Stress test with 20 rows — mixed runs, pairs, and singletons",
+      "seedSql": "INSERT INTO Logs VALUES (1,5),(2,5),(3,5),(4,5),(5,1),(6,2),(7,2),(8,2),(9,3),(10,3),(11,4),(12,4),(13,4),(14,4),(15,4),(16,6),(17,6),(18,7),(19,7),(20,7);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 5
+        },
+        {
+          "ConsecutiveNums": 2
+        },
+        {
+          "ConsecutiveNums": 4
+        },
+        {
+          "ConsecutiveNums": 7
+        }
+      ],
+      "expectedHash": "a284f346d9557ad039020efadf177a0e23ff3e99a1415b2b94d1bb8365228077"
+    },
+    {
+      "name": "Only one qualifying run — rest are pairs or singletons",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1),(3,2),(4,2),(5,3),(6,3),(7,8),(8,8),(9,8);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 8
+        }
+      ],
+      "expectedHash": "013db378537659bf05825fa11ac6c8e20375d780a1b950a71730e6ebda5658c1"
+    },
+    {
+      "name": "Run of exactly three in the middle — not at either boundary",
+      "seedSql": "INSERT INTO Logs VALUES (1,2),(2,2),(3,9),(4,9),(5,9),(6,3);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 9
+        }
+      ],
+      "expectedHash": "8693f6999b09054c8f894333370c10d809817d5fc0116bf2c5030888fb155c8d"
+    },
+    {
+      "name": "Ids inserted out of order — ORDER BY id, not insertion order",
+      "seedSql": "INSERT INTO Logs VALUES (3,5),(1,5),(2,5),(6,1),(4,1),(5,1);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 5
+        },
+        {
+          "ConsecutiveNums": 1
+        }
+      ],
+      "expectedHash": "1c61d676511d90134691d2a8ab5997109ed1f815d694a5678a8183c511a2c032"
+    },
+    {
+      "name": "Non-contiguous ids with a qualifying run — catches id-gap assumptions",
+      "seedSql": "INSERT INTO Logs VALUES (1,7),(5,7),(9,7),(13,3);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 7
+        }
+      ],
+      "expectedHash": "2d6b13da9044db198d62631b4ceab025754194585c7ff139af32850f2961d937"
+    },
+    {
+      "name": "Number appears three times but never consecutively — COUNT would wrongly pass",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,2),(3,1),(4,2),(5,1),(6,3);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Four consecutive then four consecutive of a different number",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1),(3,1),(4,1),(5,2),(6,2),(7,2),(8,2);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 1
+        },
+        {
+          "ConsecutiveNums": 2
+        }
+      ],
+      "expectedHash": "97aae4798576d35e470167921ed1ce5ab686a78cfcb2db4b1f63598d8532aa77"
+    },
+    {
+      "name": "Zero-only run of exactly three",
+      "seedSql": "INSERT INTO Logs VALUES (1,0),(2,0),(3,0),(4,5);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 0
+        }
+      ],
+      "expectedHash": "3d1bbf97e63fdb84d64c6a4d68f05c95c5461e1013ef6ab68fa8e52ac510bb04"
+    },
+    {
+      "name": "Long run of 50 identical values — single output row",
+      "seedSql": "INSERT INTO Logs VALUES (1,9),(2,9),(3,9),(4,9),(5,9),(6,9),(7,9),(8,9),(9,9),(10,9),(11,9),(12,9),(13,9),(14,9),(15,9),(16,9),(17,9),(18,9),(19,9),(20,9),(21,9),(22,9),(23,9),(24,9),(25,9),(26,9),(27,9),(28,9),(29,9),(30,9),(31,9),(32,9),(33,9),(34,9),(35,9),(36,9),(37,9),(38,9),(39,9),(40,9),(41,9),(42,9),(43,9),(44,9),(45,9),(46,9),(47,9),(48,9),(49,9),(50,9);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 9
+        }
+      ],
+      "expectedHash": "8693f6999b09054c8f894333370c10d809817d5fc0116bf2c5030888fb155c8d"
+    },
+    {
+      "name": "Extreme large and small values in qualifying runs",
+      "seedSql": "INSERT INTO Logs VALUES (1,2147483647),(2,2147483647),(3,2147483647),(4,-2147483648),(5,-2147483648),(6,-2147483648),(7,0),(8,0);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 2147483647
+        },
+        {
+          "ConsecutiveNums": -2147483648
+        }
+      ],
+      "expectedHash": "63155c325119c195c0fab54746c0bcf3509b539a6c997212928ae3dc671b41bb"
+    },
+    {
+      "name": "Qualifying runs at both start and end with a pair in between",
+      "seedSql": "INSERT INTO Logs VALUES (1,1),(2,1),(3,1),(4,2),(5,2),(6,9),(7,9),(8,9);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 1
+        },
+        {
+          "ConsecutiveNums": 9
+        }
+      ],
+      "expectedHash": "9ebe371ea7253739ee928e2427d0c85cdb3869e355123d47e89b5aec1b7e2784"
+    },
+    {
+      "name": "Stress test — 30 rows, scrambled ids, pairs, runs, and singletons",
+      "seedSql": "INSERT INTO Logs VALUES (5,1),(3,1),(1,1),(2,2),(4,2),(6,3),(7,3),(8,3),(9,4),(10,4),(11,5),(12,5),(13,5),(14,5),(15,6),(16,6),(17,7),(18,7),(19,7),(20,8),(21,8),(22,9),(23,9),(24,9),(25,9),(26,9),(27,10),(28,10),(29,11),(30,11);",
+      "expectedOutput": [
+        {
+          "ConsecutiveNums": 3
+        },
+        {
+          "ConsecutiveNums": 5
+        },
+        {
+          "ConsecutiveNums": 7
+        },
+        {
+          "ConsecutiveNums": 9
+        }
+      ],
+      "expectedHash": "8054bff35e5076b437a193750f598161601d99264a38165275304b2f748828f5"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+# Rename `app` below to something unique before your first `fly launch` —
+# Fly app names are global, so "sql-practice" itself is almost certainly taken.
+app = "sql-practice"
+primary_region = "iad"
+
+[build]
+
+[env]
+  DATA_DIR = "/data"
+
+# Persistent volume for progress.json/submissions.json. Create it once with:
+#   fly volumes create sql_practice_data --size 1 --region iad
+# (1GB is enormous overkill for two small JSON files, but it's Fly's minimum.)
+[[mounts]]
+  source = "sql_practice_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

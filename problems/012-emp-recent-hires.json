@@ -1,0 +1,255 @@
+{
+  "id": "emp-recent-hires",
+  "number": 12,
+  "title": "Hired Since 2020",
+  "difficulty": "Easy",
+  "tags": [
+    "Date",
+    "Filtering"
+  ],
+  "description": "Report the `name` and `hire_date` of everyone hired on or after 1 January 2020.\n\nName the columns `name` and `hire_date`. Return the result in any order.",
+  "schemaSql": "CREATE TABLE departments (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  location TEXT\n);\n\nCREATE TABLE employees (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  title TEXT,\n  salary INTEGER,\n  dept_id INTEGER,\n  manager_id INTEGER,\n  hire_date TEXT\n);",
+  "solutionSql": "SELECT name, hire_date FROM employees WHERE hire_date >= '2020-01-01';",
+  "orderMatters": false,
+  "hint": "ISO dates (YYYY-MM-DD) compare correctly as plain strings — no date function needed.",
+  "outputExplanation": "Dan, Finn, Gia and Hal were hired on or after January 1, 2020. Ava, Ben, Cara and Eve were hired earlier.",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',150000,1,NULL,'2018-01-15'),\n (2,'Ben','Engineer',120000,1,1,'2019-03-01'),\n (3,'Cara','Engineer',120000,1,1,'2019-03-01'),\n (4,'Dan','Engineer',95000,1,1,'2021-07-19'),\n (5,'Eve','Manager',130000,2,NULL,'2017-11-02'),\n (6,'Finn','Rep',70000,2,5,'2020-05-30'),\n (7,'Gia','Rep',85000,2,5,'2022-02-14'),\n (8,'Hal','Analyst',60000,3,NULL,'2023-09-01');",
+      "expectedOutput": [
+        {
+          "name": "Dan",
+          "hire_date": "2021-07-19"
+        },
+        {
+          "name": "Finn",
+          "hire_date": "2020-05-30"
+        },
+        {
+          "name": "Gia",
+          "hire_date": "2022-02-14"
+        },
+        {
+          "name": "Hal",
+          "hire_date": "2023-09-01"
+        }
+      ],
+      "expectedHash": "7e95542f8e894a2c4ed0ebfffec80de90d3ff4ec70024fe9c62b645e7b9338b6"
+    },
+    {
+      "name": "Ties on every salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'A','Engineer',100000,1,NULL,'2020-01-01'),\n (2,'B','Engineer',100000,1,1,'2020-01-01'),\n (3,'C','Engineer',100000,1,1,'2020-01-01'),\n (4,'D','Rep',100000,2,NULL,'2020-01-01'),\n (5,'E','Rep',100000,2,4,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "hire_date": "2020-01-01"
+        },
+        {
+          "name": "B",
+          "hire_date": "2020-01-01"
+        },
+        {
+          "name": "C",
+          "hire_date": "2020-01-01"
+        },
+        {
+          "name": "D",
+          "hire_date": "2020-01-01"
+        },
+        {
+          "name": "E",
+          "hire_date": "2020-01-01"
+        }
+      ],
+      "expectedHash": "3ae1f8e739df0c7d8a0c76dd17b2b97325e68a41640f2dc4d1fd9df1a1bd6bfe"
+    },
+    {
+      "name": "Department with no employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
+      "expectedOutput": [
+        {
+          "name": "Ben",
+          "hire_date": "2020-06-15"
+        }
+      ],
+      "expectedHash": "e07ea30ea2168f4aef85c822e0e020a21f6bc1223044cf703c20443d12b980fb"
+    },
+    {
+      "name": "Employees with NULL department and NULL salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
+      "expectedOutput": [
+        {
+          "name": "Ben",
+          "hire_date": "2020-06-15"
+        },
+        {
+          "name": "Cara",
+          "hire_date": "2021-02-02"
+        },
+        {
+          "name": "Dan",
+          "hire_date": "2021-02-03"
+        }
+      ],
+      "expectedHash": "c2f087cbcc75e352a408146b012fc5287552cd456462e7708686990892e59974"
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single employee, single department",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
+      "expectedOutput": [
+        {
+          "name": "Solo",
+          "hire_date": "2022-04-01"
+        }
+      ],
+      "expectedHash": "c90464b41ed0f11cc0759d1802e2d852adf3e31c06a039c688401eb3eeaec47b"
+    },
+    {
+      "name": "Everyone reports to someone (deep chain)",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Duplicate names and same hire dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Austin');\nINSERT INTO employees VALUES\n (1,'Sam','Engineer',90000,1,NULL,'2021-01-01'),\n (2,'Sam','Engineer',95000,2,NULL,'2021-01-01'),\n (3,'Sam','Rep',60000,2,2,'2021-01-01'),\n (4,'Alex','Rep',60000,2,2,'2021-06-30');",
+      "expectedOutput": [
+        {
+          "name": "Sam",
+          "hire_date": "2021-01-01"
+        },
+        {
+          "name": "Sam",
+          "hire_date": "2021-01-01"
+        },
+        {
+          "name": "Sam",
+          "hire_date": "2021-01-01"
+        },
+        {
+          "name": "Alex",
+          "hire_date": "2021-06-30"
+        }
+      ],
+      "expectedHash": "f9d477a02a86d2503d89c7d4573d28a11ae534de21020253998397180c828c38"
+    },
+    {
+      "name": "Zero and negative salaries, boundary dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Intern',0,1,NULL,'2019-12-31'),\n (2,'Ben','Engineer',-100,1,1,'2020-01-01'),\n (3,'Cara','Engineer',1,2,NULL,'2020-02-29'),\n (4,'Dan','Rep',2000000,2,3,'2020-12-31');",
+      "expectedOutput": [
+        {
+          "name": "Ben",
+          "hire_date": "2020-01-01"
+        },
+        {
+          "name": "Cara",
+          "hire_date": "2020-02-29"
+        },
+        {
+          "name": "Dan",
+          "hire_date": "2020-12-31"
+        }
+      ],
+      "expectedHash": "03c6dc3dff85ee43d5975b40e2b7b2b3f56a0ff5150aa25b63422466a59419b5"
+    },
+    {
+      "name": "Larger multi-department set",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin'),(4,'Finance','Boston');\nINSERT INTO employees VALUES\n (1,'A','Manager',140000,1,NULL,'2015-02-10'),\n (2,'B','Engineer',130000,1,1,'2016-04-11'),\n (3,'C','Engineer',130000,1,1,'2017-06-12'),\n (4,'D','Engineer',110000,1,1,'2018-08-13'),\n (5,'E','Engineer',90000,1,1,'2019-10-14'),\n (6,'F','Manager',125000,2,NULL,'2015-03-15'),\n (7,'G','Rep',88000,2,6,'2016-05-16'),\n (8,'H','Rep',88000,2,6,'2017-07-17'),\n (9,'I','Rep',64000,2,6,'2018-09-18'),\n (10,'J','Manager',99000,3,NULL,'2019-11-19'),\n (11,'K','Analyst',72000,3,10,'2020-01-20'),\n (12,'L','Analyst',150000,4,NULL,'2021-03-21'),\n (13,'M','Analyst',150000,4,12,'2022-05-22');",
+      "expectedOutput": [
+        {
+          "name": "K",
+          "hire_date": "2020-01-20"
+        },
+        {
+          "name": "L",
+          "hire_date": "2021-03-21"
+        },
+        {
+          "name": "M",
+          "hire_date": "2022-05-22"
+        }
+      ],
+      "expectedHash": "9e13eab821c3d5a728677b51fcee6eb17660f941902ac93c316576f7dfbb401b"
+    },
+    {
+      "name": "Exactly on the boundary date qualifies (2020-01-01)",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2019-12-31');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "hire_date": "2020-01-01"
+        }
+      ],
+      "expectedHash": "6cbc27f08cfe54a0fbc811d0764b8fc0dd0ec4a0d8c723ccc58fbf3543678944"
+    },
+    {
+      "name": "All hired before 2020 — empty result",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2019-06-01'),(2,'B','X',100,1,1,'2018-12-31');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "All hired after 2020",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2021-01-01'),(2,'B','X',100,1,1,'2022-06-15');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "hire_date": "2021-01-01"
+        },
+        {
+          "name": "B",
+          "hire_date": "2022-06-15"
+        }
+      ],
+      "expectedHash": "498e6993c9b20f0d03c95cd28e0202c64c013a7546dec95d35307cb16e794f2f"
+    },
+    {
+      "name": "NULL hire_date is not >= anything",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-06-01'),(2,'B','X',100,1,1,NULL);",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "hire_date": "2020-06-01"
+        }
+      ],
+      "expectedHash": "16f6ac49c3f48db1c6e95fb5179d8b83b7793490bb246c1f2a7411934e00b311"
+    },
+    {
+      "name": "Single employee hired exactly on the boundary",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',100,1,NULL,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "Solo",
+          "hire_date": "2020-01-01"
+        }
+      ],
+      "expectedHash": "50bced95eefaf7cc5d3a91a526f1bcf75eeebf76ac6b135f477297b4a7a12115"
+    },
+    {
+      "name": "Stress test with mixed dates across the boundary",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2019-01-01'),(2,'B','X',100,1,1,'2020-01-01'),(3,'C','X',100,1,1,'2021-06-15'),(4,'D','X',100,2,NULL,'2022-12-31'),(5,'E','X',100,2,4,'2018-03-20'),(6,'F','X',100,2,4,NULL);",
+      "expectedOutput": [
+        {
+          "name": "B",
+          "hire_date": "2020-01-01"
+        },
+        {
+          "name": "C",
+          "hire_date": "2021-06-15"
+        },
+        {
+          "name": "D",
+          "hire_date": "2022-12-31"
+        }
+      ],
+      "expectedHash": "676aa7bfcb7b8afa827f6dda6409ad03c5838b04619befb49317160bc9c0895f"
+    }
+  ]
+}

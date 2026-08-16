@@ -1,0 +1,265 @@
+{
+  "id": "sales-quantity-per-product",
+  "number": 53,
+  "title": "Units Sold Per Product",
+  "difficulty": "Easy",
+  "tags": [
+    "Join",
+    "Group By"
+  ],
+  "description": "Report each product's name and the total number of units of it that appear in order items. Products that were never sold must appear with `0`.\n\nName the columns `product` and `units`. Return the result in any order.",
+  "solutionSql": "SELECT p.name AS product, COALESCE(SUM(oi.quantity), 0) AS units\nFROM products p\nLEFT JOIN order_items oi ON oi.product_id = p.id\nGROUP BY p.id, p.name;",
+  "orderMatters": false,
+  "hint": "LEFT JOIN keeps unsold products; COALESCE turns the resulting NULL sum into 0.",
+  "outputExplanation": "Mouse and Lamp each sold 6 units, Keyboard sold 3 units, and Desk sold 1 unit.",
+  "schemaSql": "CREATE TABLE customers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  country TEXT,\n  signup_date TEXT\n);\n\nCREATE TABLE products (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  category TEXT,\n  price REAL\n);\n\nCREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER,\n  order_date TEXT,\n  status TEXT\n);\n\nCREATE TABLE order_items (\n  id INTEGER PRIMARY KEY,\n  order_id INTEGER,\n  product_id INTEGER,\n  quantity INTEGER,\n  unit_price REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12'),(3,'Cy','US','2022-06-30'),(4,'Di','IN','2022-11-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Desk','Furniture',300.0),(4,'Lamp','Furniture',45.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2022-02-14','completed'),(3,2,'2022-02-20','cancelled'),(4,3,'2022-03-05','completed'),(5,3,'2022-03-06','pending'),(6,1,'2023-01-02','completed');\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,1,2,1,25.0),(3,2,3,1,300.0),(4,3,4,4,45.0),(5,4,2,3,25.0),(6,5,1,1,80.0),(7,6,4,2,45.0),(8,6,2,2,25.0);",
+      "expectedOutput": [
+        {
+          "product": "Keyboard",
+          "units": 3
+        },
+        {
+          "product": "Mouse",
+          "units": 6
+        },
+        {
+          "product": "Desk",
+          "units": 1
+        },
+        {
+          "product": "Lamp",
+          "units": 6
+        }
+      ],
+      "expectedHash": "c88e6948e0e60f8f22d0b1908f7670184c999030c61e553839256b516139fc3c"
+    },
+    {
+      "name": "Customer who never ordered",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12'),(3,'NoOrders','FR','2023-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,2,'2022-01-11','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,2,25.0);",
+      "expectedOutput": [
+        {
+          "product": "Keyboard",
+          "units": 1
+        },
+        {
+          "product": "Mouse",
+          "units": 2
+        }
+      ],
+      "expectedHash": "ecb630d1a310eb5ecfcf8e63eda35081077cd3a8d01018e56a61474f77717729"
+    },
+    {
+      "name": "All orders cancelled",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','cancelled'),(2,2,'2022-01-11','cancelled');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,1,2,80.0);",
+      "expectedOutput": [
+        {
+          "product": "Keyboard",
+          "units": 3
+        }
+      ],
+      "expectedHash": "92b5e3bd4167f5299cad679ca21710beb01a1b951a73c7e761da68a65264478f"
+    },
+    {
+      "name": "Everything empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Orders with no items, products never sold",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'NeverSold','Tech',999.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2022-01-11','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "product": "Keyboard",
+          "units": 1
+        },
+        {
+          "product": "NeverSold",
+          "units": 0
+        }
+      ],
+      "expectedHash": "3a694254e94d33d6bb60119476d5aab8beecd3e34ec802c31aa2728ec084ddc1"
+    },
+    {
+      "name": "NULL prices, quantities and statuses",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo',NULL,'2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mystery',NULL,NULL);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,2,'2022-01-11',NULL);\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,1,2,NULL,NULL),(3,2,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "product": "Keyboard",
+          "units": 3
+        },
+        {
+          "product": "Mystery",
+          "units": 0
+        }
+      ],
+      "expectedHash": "a4fc57dbc34faba3efec3e1e183885c54bb976bf3da2851d3950511b22ce0638"
+    },
+    {
+      "name": "Single customer, single order",
+      "seedSql": "INSERT INTO customers VALUES (1,'Solo','US','2022-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-05-05','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "product": "Keyboard",
+          "units": 1
+        }
+      ],
+      "expectedHash": "516c0b1d899504b5cccc308f71b8d53a35ef258d06e02c21fdad743c94505f6b"
+    },
+    {
+      "name": "Ties in revenue between products and customers",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','US','2021-01-01');\nINSERT INTO products VALUES (1,'P1','Tech',50.0),(2,'P2','Tech',50.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,2,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,2,50.0),(2,2,2,2,50.0);",
+      "expectedOutput": [
+        {
+          "product": "P1",
+          "units": 2
+        },
+        {
+          "product": "P2",
+          "units": 2
+        }
+      ],
+      "expectedHash": "9c57b04810cd0a677908775cee10774d7dd26dc8798541e16901d80555cf4586"
+    },
+    {
+      "name": "Same-day repeat orders across month and year boundaries",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2020-12-31'),(2,'Bo','UK','2021-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Desk','Furniture',300.0);\nINSERT INTO orders VALUES (1,1,'2021-12-31','completed'),(2,1,'2022-01-01','completed'),(3,1,'2022-01-01','completed'),(4,2,'2022-01-31','completed'),(5,2,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,1,300.0),(3,3,1,3,80.0),(4,4,2,2,300.0),(5,5,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "product": "Keyboard",
+          "units": 5
+        },
+        {
+          "product": "Desk",
+          "units": 3
+        }
+      ],
+      "expectedHash": "e071cc9c55a5d0fd959a5ecba77b81c8cabe5169ea91c184ca23f34ba2f6f97a"
+    },
+    {
+      "name": "Larger multi-country set",
+      "seedSql": "INSERT INTO customers VALUES (1,'A','US','2020-01-01'),(2,'B','US','2020-02-01'),(3,'C','UK','2020-03-01'),(4,'D','UK','2021-04-01'),(5,'E','IN','2021-05-01'),(6,'F','IN','2022-06-01'),(7,'G','FR','2022-07-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Desk','Furniture',300.0),(4,'Lamp','Furniture',45.0),(5,'Mug','Kitchen',12.5);\nINSERT INTO orders VALUES (1,1,'2022-01-03','completed'),(2,1,'2022-02-03','completed'),(3,2,'2022-02-14','completed'),(4,3,'2022-03-21','cancelled'),(5,4,'2022-04-02','completed'),(6,5,'2022-05-19','pending'),(7,5,'2022-06-19','completed'),(8,6,'2023-01-11','completed'),(9,7,'2023-02-28','completed'),(10,1,'2023-03-15','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,1,5,4,12.5),(3,2,3,1,300.0),(4,3,2,2,25.0),(5,4,4,1,45.0),(6,5,1,2,80.0),(7,6,5,10,12.5),(8,7,3,1,300.0),(9,7,4,2,45.0),(10,8,2,5,25.0),(11,9,1,1,80.0),(12,10,3,2,300.0),(13,10,5,1,12.5);",
+      "expectedOutput": [
+        {
+          "product": "Keyboard",
+          "units": 4
+        },
+        {
+          "product": "Mouse",
+          "units": 7
+        },
+        {
+          "product": "Desk",
+          "units": 4
+        },
+        {
+          "product": "Lamp",
+          "units": 3
+        },
+        {
+          "product": "Mug",
+          "units": 15
+        }
+      ],
+      "expectedHash": "42b88a3520374b3ab00c436ce8d935be6304dc858dc6d5a41c02135d164dfaa0"
+    },
+    {
+      "name": "All products have been sold",
+      "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,1,2,5,25.0);",
+      "expectedOutput": [
+        {
+          "product": "Keyboard",
+          "units": 2
+        },
+        {
+          "product": "Mouse",
+          "units": 5
+        }
+      ],
+      "expectedHash": "80875daa2725802a6113737f87dabf994074ef4cd4c77f0edbd77f4827dd7567"
+    },
+    {
+      "name": "No products sold — all show 0",
+      "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);",
+      "expectedOutput": [
+        {
+          "product": "Keyboard",
+          "units": 0
+        },
+        {
+          "product": "Mouse",
+          "units": 0
+        }
+      ],
+      "expectedHash": "df74f99b67c77e67c50bba759fc8c0e2d0365174ade511e01bbce4f4a1e1bf58"
+    },
+    {
+      "name": "NULL quantity treated as 0 by SUM",
+      "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO order_items VALUES (1,1,1,NULL,NULL);",
+      "expectedOutput": [
+        {
+          "product": "Keyboard",
+          "units": 0
+        }
+      ],
+      "expectedHash": "e05507a35a4c9817dce93284e1f6837bb40358078c98fba1c7e42eac0b7c857e"
+    },
+    {
+      "name": "Single product sold",
+      "seedSql": "INSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO order_items VALUES (1,1,1,5,80.0);",
+      "expectedOutput": [
+        {
+          "product": "Keyboard",
+          "units": 5
+        },
+        {
+          "product": "Mouse",
+          "units": 0
+        }
+      ],
+      "expectedHash": "f52cbaa1374783ba47acffa09fc09ef0d0c5acbd7679dde49f9d8a1da1423a0b"
+    },
+    {
+      "name": "Uneven sales across products",
+      "seedSql": "INSERT INTO products VALUES (1,'A','Tech',80.0),(2,'B','Tech',25.0),(3,'C','Furniture',300.0);\nINSERT INTO order_items VALUES (1,1,1,10,80.0),(2,1,2,3,25.0);",
+      "expectedOutput": [
+        {
+          "product": "A",
+          "units": 10
+        },
+        {
+          "product": "B",
+          "units": 3
+        },
+        {
+          "product": "C",
+          "units": 0
+        }
+      ],
+      "expectedHash": "202bcf62c555f6c636177947b9bd52538f3f1a6d25b5e926be88a3ac706319c5"
+    },
+    {
+      "name": "Only one product has sales",
+      "seedSql": "INSERT INTO products VALUES (1,'A','Tech',80.0),(2,'B','Tech',25.0),(3,'C','Furniture',300.0);\nINSERT INTO order_items VALUES (1,1,1,5,80.0);",
+      "expectedOutput": [
+        {
+          "product": "A",
+          "units": 5
+        },
+        {
+          "product": "B",
+          "units": 0
+        },
+        {
+          "product": "C",
+          "units": 0
+        }
+      ],
+      "expectedHash": "625d4c7e46eb8beb05188ba4d427320ab9d00bd4f70dcc3b1358779047a69de7"
+    }
+  ]
+}

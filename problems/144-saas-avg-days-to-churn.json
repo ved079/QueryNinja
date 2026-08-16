@@ -1,0 +1,77 @@
+{
+  "id": "saas-avg-days-to-churn",
+  "number": 144,
+  "title": "Average Days to Churn by Plan",
+  "difficulty": "Medium",
+  "tags": [
+    "Join",
+    "Date",
+    "Aggregation",
+    "SaaS"
+  ],
+  "orderMatters": false,
+  "schemaSql": "CREATE TABLE plans (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  monthly_price REAL\n);\nCREATE TABLE users (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  signup_date TEXT\n);\nCREATE TABLE subscriptions (\n  id INTEGER PRIMARY KEY,\n  user_id INTEGER,\n  plan_id INTEGER,\n  started_at TEXT,\n  ended_at TEXT\n);",
+  "description": "For each plan, compute the **average number of days** that churned subscriptions lasted before being cancelled. Only include subscriptions that have ended (`ended_at` IS NOT NULL).\n\nReturn columns `plan` and `avg_days_to_churn` (rounded to 1 decimal place). Only include plans that had at least one cancellation. Order by `avg_days_to_churn` descending.",
+  "hint": "Use julianday(ended_at) - julianday(started_at) to compute duration in days per subscription, then average by plan.",
+  "solutionSql": "SELECT p.name AS plan,\n       ROUND(AVG(julianday(s.ended_at) - julianday(s.started_at)), 1) AS avg_days_to_churn\nFROM subscriptions s\nJOIN plans p ON p.id = s.plan_id\nWHERE s.ended_at IS NOT NULL\nGROUP BY p.name\nORDER BY avg_days_to_churn DESC;",
+  "outputExplanation": "julianday differences give exact day counts between start and end of each cancelled subscription. Averaging by plan shows which tier retains users longest before they churn.",
+  "tests": [
+    {
+      "name": "Example — three plans, mixed durations",
+      "seedSql": "INSERT INTO plans VALUES (1,'starter',29),(2,'pro',99),(3,'enterprise',299);\nINSERT INTO users VALUES (1,'A','2022-01-01'),(2,'B','2022-01-01'),(3,'C','2022-01-01'),(4,'D','2022-01-01'),(5,'E','2022-01-01');\nINSERT INTO subscriptions VALUES\n  (1,1,1,'2022-01-01','2022-02-01'),\n  (2,2,1,'2022-01-01','2022-04-01'),\n  (3,3,2,'2022-01-01','2022-06-01'),\n  (4,4,3,'2022-01-01','2023-01-01'),\n  (5,5,2,'2022-01-01','2022-03-01');",
+      "expectedOutput": [
+        {
+          "plan": "enterprise",
+          "avg_days_to_churn": 365
+        },
+        {
+          "plan": "pro",
+          "avg_days_to_churn": 105
+        },
+        {
+          "plan": "starter",
+          "avg_days_to_churn": 60.5
+        }
+      ],
+      "expectedHash": "3076db89591ded3360dcea8cdb34f720f9df8f39a50e2499ed25206b8be726c6"
+    },
+    {
+      "name": "All still active — empty result",
+      "seedSql": "INSERT INTO plans VALUES (1,'pro',99);\nINSERT INTO users VALUES (1,'A','2022-01-01'),(2,'B','2022-01-01');\nINSERT INTO subscriptions VALUES (1,1,1,'2022-01-01',NULL),(2,2,1,'2022-02-01',NULL);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single day subscription",
+      "seedSql": "INSERT INTO plans VALUES (1,'starter',29);\nINSERT INTO users VALUES (1,'Flash','2022-01-01');\nINSERT INTO subscriptions VALUES (1,1,1,'2022-01-01','2022-01-01');",
+      "expectedOutput": [
+        {
+          "plan": "starter",
+          "avg_days_to_churn": 0
+        }
+      ],
+      "expectedHash": "e47b9ea5a571398d69cf9752989619ad042ac68cfe153c9e4596fda706a0e450"
+    },
+    {
+      "name": "Multiple churns per plan",
+      "seedSql": "INSERT INTO plans VALUES (1,'starter',29),(2,'pro',99);\nINSERT INTO users VALUES (1,'A','2022-01-01'),(2,'B','2022-01-01'),(3,'C','2022-01-01'),(4,'D','2022-01-01');\nINSERT INTO subscriptions VALUES\n  (1,1,1,'2022-01-01','2022-04-01'),\n  (2,2,1,'2022-01-01','2022-07-01'),\n  (3,3,2,'2022-01-01','2022-02-01'),\n  (4,4,2,'2022-01-01','2022-12-01');",
+      "expectedOutput": [
+        {
+          "plan": "pro",
+          "avg_days_to_churn": 182.5
+        },
+        {
+          "plan": "starter",
+          "avg_days_to_churn": 135.5
+        }
+      ],
+      "expectedHash": "e27dce6bf6a152b5f6d72a82c04f58ab1a1eac1652477c0bf6c68406951e03a0"
+    },
+    {
+      "name": "Empty tables",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    }
+  ]
+}

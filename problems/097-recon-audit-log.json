@@ -1,0 +1,445 @@
+{
+  "id": "recon-audit-log",
+  "number": 97,
+  "title": "Build An Audit Log Of Both Systems",
+  "difficulty": "Medium",
+  "tags": [
+    "Set Operations"
+  ],
+  "description": "Build a combined audit log listing every row from `source_orders` and every row from `warehouse_orders`, tagged with which system it came from. Unlike the reconciliation queries above, **duplicate rows must be preserved** here — if source has the same order twice, the log should show it twice.\n\nName the columns `order_id`, `customer_name`, `amount` and `system` (`source` or `warehouse`). Return the result in any order.",
+  "solutionSql": "SELECT order_id, customer_name, amount, 'source' AS system FROM source_orders\nUNION ALL\nSELECT order_id, customer_name, amount, 'warehouse' AS system FROM warehouse_orders;",
+  "orderMatters": false,
+  "hint": "This is exactly the case UNION ALL exists for — an audit log should never silently drop a real duplicate row the way UNION would.",
+  "outputExplanation": "The audit log contains all 4 source rows (tagged 'source') and all 3 warehouse rows (tagged 'warehouse'), for 7 rows total. Orders 1 and 2 appear twice — once from each system.",
+  "schemaSql": "CREATE TABLE source_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);\n\nCREATE TABLE warehouse_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);\n\nCREATE TABLE vendor_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5),(4,'Dee Fox',200.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(5,'Eli Park',60.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(3,'Cy Ortiz',45.5),(6,'Fay Nolan',15.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120,
+          "system": "source"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80,
+          "system": "source"
+        },
+        {
+          "order_id": 3,
+          "customer_name": "Cy Ortiz",
+          "amount": 45.5,
+          "system": "source"
+        },
+        {
+          "order_id": 4,
+          "customer_name": "Dee Fox",
+          "amount": 200,
+          "system": "source"
+        },
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120,
+          "system": "warehouse"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80,
+          "system": "warehouse"
+        },
+        {
+          "order_id": 5,
+          "customer_name": "Eli Park",
+          "amount": 60,
+          "system": "warehouse"
+        }
+      ],
+      "expectedHash": "aab9f747cfa825b1a9ffa9ec62e1b7bddb494d24fa1cef6e54a48cf3528a30e7"
+    },
+    {
+      "name": "All three systems fully agree",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120,
+          "system": "source"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80,
+          "system": "source"
+        },
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120,
+          "system": "warehouse"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80,
+          "system": "warehouse"
+        }
+      ],
+      "expectedHash": "8d46f562ff0693763c4df8625a47378dcaedc301b9952984e2e19596a2f385da"
+    },
+    {
+      "name": "Completely disjoint across all three",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO warehouse_orders VALUES (2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (3,'Cy Ortiz',45.5);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120,
+          "system": "source"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80,
+          "system": "warehouse"
+        }
+      ],
+      "expectedHash": "9d1e352cb3cb0d181bba428c3d823b27751dc948803301fd3480fd8bc0be50a4"
+    },
+    {
+      "name": "Source has an accidental duplicate row",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120,
+          "system": "source"
+        },
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120,
+          "system": "source"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80,
+          "system": "source"
+        },
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120,
+          "system": "warehouse"
+        }
+      ],
+      "expectedHash": "3ef4454ec0290c74e7eb183fccb9c0b456af81d7b40ec614bb9f76959c7b94a7"
+    },
+    {
+      "name": "All three systems empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Only source has any data",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120,
+          "system": "source"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80,
+          "system": "source"
+        },
+        {
+          "order_id": 3,
+          "customer_name": "Cy Ortiz",
+          "amount": 45.5,
+          "system": "source"
+        }
+      ],
+      "expectedHash": "273adebc188bd0edb25330de7113001a4afaa3fa0be77a8fc914d6b4e80215a0"
+    },
+    {
+      "name": "Same order, inconsistent name formatting",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'  ben kim ',80.0);\nINSERT INTO warehouse_orders VALUES (1,'ANN LEE',120.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'ann lee',120.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120,
+          "system": "source"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "  ben kim ",
+          "amount": 80,
+          "system": "source"
+        },
+        {
+          "order_id": 1,
+          "customer_name": "ANN LEE",
+          "amount": 120,
+          "system": "warehouse"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80,
+          "system": "warehouse"
+        }
+      ],
+      "expectedHash": "9488bc1261770a5475e3a6667252948abe0a127acf40ebc5d821f26bf8b872e9"
+    },
+    {
+      "name": "Matching ids, mismatched amounts",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',125.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120,
+          "system": "source"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80,
+          "system": "source"
+        },
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 125,
+          "system": "warehouse"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80,
+          "system": "warehouse"
+        }
+      ],
+      "expectedHash": "445f03198db31a43e78173d9baa1d710beb1d41596a607581403dec56ebb6cc0"
+    },
+    {
+      "name": "Single matching order everywhere",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120,
+          "system": "source"
+        },
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120,
+          "system": "warehouse"
+        }
+      ],
+      "expectedHash": "943d9f807b4ca37deb16d04f70b9edc04c8a0b60f2ede630ad90b25cc8c67d8f"
+    },
+    {
+      "name": "Larger mixed set: some in all three, some in two, some in one, duplicates and a mismatch",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5),(4,'Dee Fox',200.0),(7,'Gio Ruiz',33.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',99.0),(5,'Eli Park',60.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(4,'Dee Fox',200.0),(6,'Fay Nolan',15.0),(8,'Hana Cole',72.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120,
+          "system": "source"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80,
+          "system": "source"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80,
+          "system": "source"
+        },
+        {
+          "order_id": 3,
+          "customer_name": "Cy Ortiz",
+          "amount": 45.5,
+          "system": "source"
+        },
+        {
+          "order_id": 4,
+          "customer_name": "Dee Fox",
+          "amount": 200,
+          "system": "source"
+        },
+        {
+          "order_id": 7,
+          "customer_name": "Gio Ruiz",
+          "amount": 33,
+          "system": "source"
+        },
+        {
+          "order_id": 1,
+          "customer_name": "Ann Lee",
+          "amount": 120,
+          "system": "warehouse"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "Ben Kim",
+          "amount": 80,
+          "system": "warehouse"
+        },
+        {
+          "order_id": 3,
+          "customer_name": "Cy Ortiz",
+          "amount": 99,
+          "system": "warehouse"
+        },
+        {
+          "order_id": 5,
+          "customer_name": "Eli Park",
+          "amount": 60,
+          "system": "warehouse"
+        }
+      ],
+      "expectedHash": "829291cd438cf1a09890111e95c54d9b78eb9e5a1f52b20cfeec1c2da2839c7e"
+    },
+    {
+      "name": "Only source has data",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(2,'B',200.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "A",
+          "amount": 100,
+          "system": "source"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "B",
+          "amount": 200,
+          "system": "source"
+        }
+      ],
+      "expectedHash": "6ac63b48e1c64c7177a70506ce42e09974dd50bda64f061d34298a92f7f41409"
+    },
+    {
+      "name": "Only warehouse has data",
+      "seedSql": "INSERT INTO warehouse_orders VALUES (3,'C',300.0);",
+      "expectedOutput": [
+        {
+          "order_id": 3,
+          "customer_name": "C",
+          "amount": 300,
+          "system": "warehouse"
+        }
+      ],
+      "expectedHash": "3e937a0e3f12af7ddb7b2910cb576d6e316df7b61038743b7510e277aa24c31d"
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Identical row exists in both systems — both appear",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0);\nINSERT INTO warehouse_orders VALUES (1,'A',100.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "A",
+          "amount": 100,
+          "system": "source"
+        },
+        {
+          "order_id": 1,
+          "customer_name": "A",
+          "amount": 100,
+          "system": "warehouse"
+        }
+      ],
+      "expectedHash": "680056dfb895b39b34b906b237e80cc8dc3345012c071c2a99f57307605a02ed"
+    },
+    {
+      "name": "Duplicate rows in source are preserved",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(1,'A',100.0);\nINSERT INTO warehouse_orders VALUES (2,'B',200.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "A",
+          "amount": 100,
+          "system": "source"
+        },
+        {
+          "order_id": 1,
+          "customer_name": "A",
+          "amount": 100,
+          "system": "source"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "B",
+          "amount": 200,
+          "system": "warehouse"
+        }
+      ],
+      "expectedHash": "109500efb19af18f8852b5d614a1fd2515dcc164e8019fa27dab63e30ec8137d"
+    },
+    {
+      "name": "Disjoint data sets combined",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',10.0),(2,'B',20.0);\nINSERT INTO warehouse_orders VALUES (3,'C',30.0),(4,'D',40.0),(5,'E',50.0);",
+      "expectedOutput": [
+        {
+          "order_id": 1,
+          "customer_name": "A",
+          "amount": 10,
+          "system": "source"
+        },
+        {
+          "order_id": 2,
+          "customer_name": "B",
+          "amount": 20,
+          "system": "source"
+        },
+        {
+          "order_id": 3,
+          "customer_name": "C",
+          "amount": 30,
+          "system": "warehouse"
+        },
+        {
+          "order_id": 4,
+          "customer_name": "D",
+          "amount": 40,
+          "system": "warehouse"
+        },
+        {
+          "order_id": 5,
+          "customer_name": "E",
+          "amount": 50,
+          "system": "warehouse"
+        }
+      ],
+      "expectedHash": "62791a6ed3e958f3539535a09bb1625889fa45f0ccfcbd0f2f593556be1e88fe"
+    }
+  ]
+}

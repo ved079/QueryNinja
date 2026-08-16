@@ -1,0 +1,204 @@
+{
+  "id": "emp-titles-count",
+  "number": 17,
+  "title": "How Many Of Each Title",
+  "difficulty": "Easy",
+  "tags": [
+    "Group By"
+  ],
+  "description": "Report each job title and the number of employees holding it, but only for titles held by **two or more** people.\n\nName the columns `title` and `headcount`. Return the result in any order.",
+  "solutionSql": "SELECT title, COUNT(*) AS headcount\nFROM employees\nGROUP BY title\nHAVING COUNT(*) >= 2;",
+  "orderMatters": false,
+  "hint": "Filtering on an aggregate is HAVING, not WHERE.",
+  "outputExplanation": "Three employees are Engineers, two are Managers, and two are Reps. Analyst is held by only one person and is not reported.",
+  "schemaSql": "CREATE TABLE departments (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  location TEXT\n);\n\nCREATE TABLE employees (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  title TEXT,\n  salary INTEGER,\n  dept_id INTEGER,\n  manager_id INTEGER,\n  hire_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',150000,1,NULL,'2018-01-15'),\n (2,'Ben','Engineer',120000,1,1,'2019-03-01'),\n (3,'Cara','Engineer',120000,1,1,'2019-03-01'),\n (4,'Dan','Engineer',95000,1,1,'2021-07-19'),\n (5,'Eve','Manager',130000,2,NULL,'2017-11-02'),\n (6,'Finn','Rep',70000,2,5,'2020-05-30'),\n (7,'Gia','Rep',85000,2,5,'2022-02-14'),\n (8,'Hal','Analyst',60000,3,NULL,'2023-09-01');",
+      "expectedOutput": [
+        {
+          "title": "Engineer",
+          "headcount": 3
+        },
+        {
+          "title": "Manager",
+          "headcount": 2
+        },
+        {
+          "title": "Rep",
+          "headcount": 2
+        }
+      ],
+      "expectedHash": "fef25f8d7b0f04f5e18c39b667ceeebf1afe3cb7c5a465df4e735d0d5fd13f82"
+    },
+    {
+      "name": "Ties on every salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'A','Engineer',100000,1,NULL,'2020-01-01'),\n (2,'B','Engineer',100000,1,1,'2020-01-01'),\n (3,'C','Engineer',100000,1,1,'2020-01-01'),\n (4,'D','Rep',100000,2,NULL,'2020-01-01'),\n (5,'E','Rep',100000,2,4,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "title": "Engineer",
+          "headcount": 3
+        },
+        {
+          "title": "Rep",
+          "headcount": 2
+        }
+      ],
+      "expectedHash": "c408e3270599670c2f635db5d886c263f8b9aa9a1ba14c92f7ae1dda1e8b4b92"
+    },
+    {
+      "name": "Department with no employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Employees with NULL department and NULL salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
+      "expectedOutput": [
+        {
+          "title": "Rep",
+          "headcount": 2
+        }
+      ],
+      "expectedHash": "0c90f906dde0c8e1fcb9e5e10b235c20be31c510c9eac22ee512e2256138fdd2"
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single employee, single department",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Everyone reports to someone (deep chain)",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Duplicate names and same hire dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Austin');\nINSERT INTO employees VALUES\n (1,'Sam','Engineer',90000,1,NULL,'2021-01-01'),\n (2,'Sam','Engineer',95000,2,NULL,'2021-01-01'),\n (3,'Sam','Rep',60000,2,2,'2021-01-01'),\n (4,'Alex','Rep',60000,2,2,'2021-06-30');",
+      "expectedOutput": [
+        {
+          "title": "Engineer",
+          "headcount": 2
+        },
+        {
+          "title": "Rep",
+          "headcount": 2
+        }
+      ],
+      "expectedHash": "e317f43a619c17e715a1d184420da485ceb769a794553e78238e3e2809eb8e01"
+    },
+    {
+      "name": "Zero and negative salaries, boundary dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Intern',0,1,NULL,'2019-12-31'),\n (2,'Ben','Engineer',-100,1,1,'2020-01-01'),\n (3,'Cara','Engineer',1,2,NULL,'2020-02-29'),\n (4,'Dan','Rep',2000000,2,3,'2020-12-31');",
+      "expectedOutput": [
+        {
+          "title": "Engineer",
+          "headcount": 2
+        }
+      ],
+      "expectedHash": "9e5f4e5548167dccfb03579afe753124c1d98fab467f137ce8b4b589dc1816df"
+    },
+    {
+      "name": "Larger multi-department set",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin'),(4,'Finance','Boston');\nINSERT INTO employees VALUES\n (1,'A','Manager',140000,1,NULL,'2015-02-10'),\n (2,'B','Engineer',130000,1,1,'2016-04-11'),\n (3,'C','Engineer',130000,1,1,'2017-06-12'),\n (4,'D','Engineer',110000,1,1,'2018-08-13'),\n (5,'E','Engineer',90000,1,1,'2019-10-14'),\n (6,'F','Manager',125000,2,NULL,'2015-03-15'),\n (7,'G','Rep',88000,2,6,'2016-05-16'),\n (8,'H','Rep',88000,2,6,'2017-07-17'),\n (9,'I','Rep',64000,2,6,'2018-09-18'),\n (10,'J','Manager',99000,3,NULL,'2019-11-19'),\n (11,'K','Analyst',72000,3,10,'2020-01-20'),\n (12,'L','Analyst',150000,4,NULL,'2021-03-21'),\n (13,'M','Analyst',150000,4,12,'2022-05-22');",
+      "expectedOutput": [
+        {
+          "title": "Analyst",
+          "headcount": 3
+        },
+        {
+          "title": "Engineer",
+          "headcount": 4
+        },
+        {
+          "title": "Manager",
+          "headcount": 3
+        },
+        {
+          "title": "Rep",
+          "headcount": 3
+        }
+      ],
+      "expectedHash": "87372699a84f7b39176e0d2983f60422f1df900623458571025995b66c570226"
+    },
+    {
+      "name": "No title has two or more employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Mgr',100,1,1,'2020-01-01'),(3,'C','Rep',100,1,1,'2020-01-01');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Every title has two or more employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Eng',100,1,1,'2020-01-01'),(3,'C','Mgr',100,2,NULL,'2020-01-01'),(4,'D','Mgr',100,2,3,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "title": "Eng",
+          "headcount": 2
+        },
+        {
+          "title": "Mgr",
+          "headcount": 2
+        }
+      ],
+      "expectedHash": "6b0a8c2cf4eea0099f29f3ad5a4f52bdb78e9d756f09dd99fe8d53d107a41aac"
+    },
+    {
+      "name": "NULL title appears twice — qualifies",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A',NULL,100,1,NULL,'2020-01-01'),(2,'B',NULL,100,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "title": null,
+          "headcount": 2
+        }
+      ],
+      "expectedHash": "506d61363dc49afec734c87b901425844337e53e1b880b0a9556dcf6bf427af2"
+    },
+    {
+      "name": "One title with five employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Eng',100,1,1,'2020-01-01'),(3,'C','Eng',100,1,1,'2020-01-01'),(4,'D','Eng',100,1,1,'2020-01-01'),(5,'E','Eng',100,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "title": "Eng",
+          "headcount": 5
+        }
+      ],
+      "expectedHash": "f96fead8be6bed3a919397b79291d2b6338ba6f35f3ba6d3b6b04c3a3b4eee0c"
+    },
+    {
+      "name": "Mix — some titles qualify, some do not",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Eng',100,1,1,'2020-01-01'),(3,'C','Mgr',100,2,NULL,'2020-01-01'),(4,'D','Rep',100,2,3,'2020-01-01'),(5,'E','Rep',100,2,3,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "title": "Eng",
+          "headcount": 2
+        },
+        {
+          "title": "Rep",
+          "headcount": 2
+        }
+      ],
+      "expectedHash": "afa377dce250bc6dd8f254cd961b7a616476f482991f50a918d70916b494cbd8"
+    },
+    {
+      "name": "All employees share the same title",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Eng',100,1,1,'2020-01-01'),(3,'C','Eng',100,2,NULL,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "title": "Eng",
+          "headcount": 3
+        }
+      ],
+      "expectedHash": "0327f243ea853cbb518861e293cee006891f4cc1e97c1d66c7ff120f9937efb3"
+    }
+  ]
+}

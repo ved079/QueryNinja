@@ -1,0 +1,358 @@
+{
+  "id": "wf-first-value-dept-top-earner",
+  "number": 122,
+  "title": "Each Row Shows Its Department's Top Earner",
+  "difficulty": "Easy",
+  "tags": [
+    "Window Function"
+  ],
+  "description": "For every employee, report their own name alongside the name of the **highest-paid person in their own department** — repeated on every row of that department.\n\nName the columns `name` and `dept_top_earner`. Return the result in any order.",
+  "solutionSql": "SELECT name,\n  FIRST_VALUE(name) OVER (\n    PARTITION BY dept_id ORDER BY salary DESC, id\n    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING\n  ) AS dept_top_earner\nFROM employees;",
+  "orderMatters": false,
+  "hint": "FIRST_VALUE always returns the first row of the frame — order the partition by salary descending so \"first\" means \"highest paid\", and use a full-partition frame so every row (not just later ones) sees the same answer.",
+  "schemaSql": "CREATE TABLE departments (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  location TEXT\n);\n\nCREATE TABLE employees (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  title TEXT,\n  salary INTEGER,\n  dept_id INTEGER,\n  manager_id INTEGER,\n  hire_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',150000,1,NULL,'2018-01-15'),\n (2,'Ben','Engineer',120000,1,1,'2019-03-01'),\n (3,'Cara','Engineer',120000,1,1,'2019-03-01'),\n (4,'Dan','Engineer',95000,1,1,'2021-07-19'),\n (5,'Eve','Manager',130000,2,NULL,'2017-11-02'),\n (6,'Finn','Rep',70000,2,5,'2020-05-30'),\n (7,'Gia','Rep',85000,2,5,'2022-02-14'),\n (8,'Hal','Analyst',60000,3,NULL,'2023-09-01');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "dept_top_earner": "Ava"
+        },
+        {
+          "name": "Ben",
+          "dept_top_earner": "Ava"
+        },
+        {
+          "name": "Cara",
+          "dept_top_earner": "Ava"
+        },
+        {
+          "name": "Dan",
+          "dept_top_earner": "Ava"
+        },
+        {
+          "name": "Eve",
+          "dept_top_earner": "Eve"
+        },
+        {
+          "name": "Gia",
+          "dept_top_earner": "Eve"
+        },
+        {
+          "name": "Finn",
+          "dept_top_earner": "Eve"
+        },
+        {
+          "name": "Hal",
+          "dept_top_earner": "Hal"
+        }
+      ],
+      "expectedHash": "fa5e6eb3b8f16fa6b9430cb9d929b37d0c3f04e86bae59a309b164bc9a9974c9"
+    },
+    {
+      "name": "Ties on every salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'A','Engineer',100000,1,NULL,'2020-01-01'),\n (2,'B','Engineer',100000,1,1,'2020-01-01'),\n (3,'C','Engineer',100000,1,1,'2020-01-01'),\n (4,'D','Rep',100000,2,NULL,'2020-01-01'),\n (5,'E','Rep',100000,2,4,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "dept_top_earner": "A"
+        },
+        {
+          "name": "B",
+          "dept_top_earner": "A"
+        },
+        {
+          "name": "C",
+          "dept_top_earner": "A"
+        },
+        {
+          "name": "D",
+          "dept_top_earner": "D"
+        },
+        {
+          "name": "E",
+          "dept_top_earner": "D"
+        }
+      ],
+      "expectedHash": "622c5a88dfe5b095f29031341ec093d9a2ce800b5cc0f38a385c35b5a4f5eb65"
+    },
+    {
+      "name": "Department with no employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "dept_top_earner": "Ava"
+        },
+        {
+          "name": "Ben",
+          "dept_top_earner": "Ava"
+        }
+      ],
+      "expectedHash": "de1969f0f3a1bf13f1f86fbe7aa64023b2cd9f3dbe349500159a7649017b6728"
+    },
+    {
+      "name": "Employees with NULL department and NULL salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
+      "expectedOutput": [
+        {
+          "name": "Cara",
+          "dept_top_earner": "Cara"
+        },
+        {
+          "name": "Ava",
+          "dept_top_earner": "Ava"
+        },
+        {
+          "name": "Ben",
+          "dept_top_earner": "Ava"
+        },
+        {
+          "name": "Dan",
+          "dept_top_earner": "Dan"
+        }
+      ],
+      "expectedHash": "d4ee163ff6c5a704a6f5f72f57c6428cefbf602f0a52f72740b50e9d93e9bc40"
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single employee, single department",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
+      "expectedOutput": [
+        {
+          "name": "Solo",
+          "dept_top_earner": "Solo"
+        }
+      ],
+      "expectedHash": "825caccb8ca3cc0fc6b078938922dce35919f9015ace9576d9160120f424a3ba"
+    },
+    {
+      "name": "Everyone reports to someone (deep chain)",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
+      "expectedOutput": [
+        {
+          "name": "L1",
+          "dept_top_earner": "L1"
+        },
+        {
+          "name": "L5",
+          "dept_top_earner": "L1"
+        },
+        {
+          "name": "L2",
+          "dept_top_earner": "L1"
+        },
+        {
+          "name": "L3",
+          "dept_top_earner": "L1"
+        },
+        {
+          "name": "L4",
+          "dept_top_earner": "L1"
+        }
+      ],
+      "expectedHash": "d0a7f62dc1c3287500636c000282f27bf3c75df6d7dec263d892e6e92a081360"
+    },
+    {
+      "name": "Duplicate names and same hire dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Austin');\nINSERT INTO employees VALUES\n (1,'Sam','Engineer',90000,1,NULL,'2021-01-01'),\n (2,'Sam','Engineer',95000,2,NULL,'2021-01-01'),\n (3,'Sam','Rep',60000,2,2,'2021-01-01'),\n (4,'Alex','Rep',60000,2,2,'2021-06-30');",
+      "expectedOutput": [
+        {
+          "name": "Sam",
+          "dept_top_earner": "Sam"
+        },
+        {
+          "name": "Sam",
+          "dept_top_earner": "Sam"
+        },
+        {
+          "name": "Sam",
+          "dept_top_earner": "Sam"
+        },
+        {
+          "name": "Alex",
+          "dept_top_earner": "Sam"
+        }
+      ],
+      "expectedHash": "556fbf210d4e947315b1ba94c9c8bfc71713088e6a44f9dceb1c61ad8e9b5b9a"
+    },
+    {
+      "name": "Zero and negative salaries, boundary dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Intern',0,1,NULL,'2019-12-31'),\n (2,'Ben','Engineer',-100,1,1,'2020-01-01'),\n (3,'Cara','Engineer',1,2,NULL,'2020-02-29'),\n (4,'Dan','Rep',2000000,2,3,'2020-12-31');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "dept_top_earner": "Ava"
+        },
+        {
+          "name": "Ben",
+          "dept_top_earner": "Ava"
+        },
+        {
+          "name": "Dan",
+          "dept_top_earner": "Dan"
+        },
+        {
+          "name": "Cara",
+          "dept_top_earner": "Dan"
+        }
+      ],
+      "expectedHash": "0923448f3c6835e2d41923c41acc3ecc4a0f1c40fbe151477c8c2b4ca2306362"
+    },
+    {
+      "name": "Larger multi-department set",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin'),(4,'Finance','Boston');\nINSERT INTO employees VALUES\n (1,'A','Manager',140000,1,NULL,'2015-02-10'),\n (2,'B','Engineer',130000,1,1,'2016-04-11'),\n (3,'C','Engineer',130000,1,1,'2017-06-12'),\n (4,'D','Engineer',110000,1,1,'2018-08-13'),\n (5,'E','Engineer',90000,1,1,'2019-10-14'),\n (6,'F','Manager',125000,2,NULL,'2015-03-15'),\n (7,'G','Rep',88000,2,6,'2016-05-16'),\n (8,'H','Rep',88000,2,6,'2017-07-17'),\n (9,'I','Rep',64000,2,6,'2018-09-18'),\n (10,'J','Manager',99000,3,NULL,'2019-11-19'),\n (11,'K','Analyst',72000,3,10,'2020-01-20'),\n (12,'L','Analyst',150000,4,NULL,'2021-03-21'),\n (13,'M','Analyst',150000,4,12,'2022-05-22');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "dept_top_earner": "A"
+        },
+        {
+          "name": "B",
+          "dept_top_earner": "A"
+        },
+        {
+          "name": "C",
+          "dept_top_earner": "A"
+        },
+        {
+          "name": "D",
+          "dept_top_earner": "A"
+        },
+        {
+          "name": "E",
+          "dept_top_earner": "A"
+        },
+        {
+          "name": "F",
+          "dept_top_earner": "F"
+        },
+        {
+          "name": "G",
+          "dept_top_earner": "F"
+        },
+        {
+          "name": "H",
+          "dept_top_earner": "F"
+        },
+        {
+          "name": "I",
+          "dept_top_earner": "F"
+        },
+        {
+          "name": "J",
+          "dept_top_earner": "J"
+        },
+        {
+          "name": "K",
+          "dept_top_earner": "J"
+        },
+        {
+          "name": "L",
+          "dept_top_earner": "L"
+        },
+        {
+          "name": "M",
+          "dept_top_earner": "L"
+        }
+      ],
+      "expectedHash": "dac48e463d40e870463babf9e4bcb07a57ad0b7d6cb2fbcf23507373d09afa1e"
+    },
+    {
+      "name": "One employee per department — each is their own top earner",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES (1,'Ava','E',100000,1,NULL,'2020-01-01'),(2,'Eve','E',90000,2,NULL,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "dept_top_earner": "Ava"
+        },
+        {
+          "name": "Eve",
+          "dept_top_earner": "Eve"
+        }
+      ],
+      "expectedHash": "3f2d84ad2f4167a3d940b0e27126d80f2a7d01064c0f26d95541dad8aba19fb9"
+    },
+    {
+      "name": "Department with no employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere');\nINSERT INTO employees VALUES (1,'Ava','E',100000,1,NULL,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "dept_top_earner": "Ava"
+        }
+      ],
+      "expectedHash": "6fecf6fdeb6e3464e6548091e4cf8c8ab696f9faaeb748579c77849b0051aa6d"
+    },
+    {
+      "name": "All employees earn the same salary — everyone is top earner",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2020-01-01'),(2,'B','E',100000,1,1,'2020-01-01'),(3,'C','E',100000,2,NULL,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "dept_top_earner": "A"
+        },
+        {
+          "name": "B",
+          "dept_top_earner": "A"
+        },
+        {
+          "name": "C",
+          "dept_top_earner": "C"
+        }
+      ],
+      "expectedHash": "3824a7ab45d74a993d90b19f55f9e9f314f476ad673c3c5362a04ff03051b5b9"
+    },
+    {
+      "name": "Empty employees table",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single department with multiple employees — clear top earner",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Low','E',50000,1,NULL,'2020-01-01'),(2,'Mid','E',75000,1,1,'2020-01-01'),(3,'Top','E',150000,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "Top",
+          "dept_top_earner": "Top"
+        },
+        {
+          "name": "Mid",
+          "dept_top_earner": "Top"
+        },
+        {
+          "name": "Low",
+          "dept_top_earner": "Top"
+        }
+      ],
+      "expectedHash": "bff5b9a48304b1b820049d9db5f964413169d0f9d5ca50ffb8a807501168f24b"
+    },
+    {
+      "name": "Tie for top earner in a department — FIRST_VALUE picks first by id",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Ava','E',150000,1,NULL,'2020-01-01'),(2,'Ben','E',150000,1,1,'2020-01-01'),(3,'Cara','E',120000,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "dept_top_earner": "Ava"
+        },
+        {
+          "name": "Ben",
+          "dept_top_earner": "Ava"
+        },
+        {
+          "name": "Cara",
+          "dept_top_earner": "Ava"
+        }
+      ],
+      "expectedHash": "33ef36b3ffcc562c49ea09f3e50f08859ae496aeef7fcc3d2dfcdcfbdecb7312"
+    }
+  ]
+}

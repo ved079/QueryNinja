@@ -1,0 +1,89 @@
+{
+  "id": "da-mau-count",
+  "number": 162,
+  "title": "Monthly Active Users",
+  "difficulty": "Easy",
+  "tags": [
+    "Data Analyst",
+    "SaaS",
+    "Aggregation"
+  ],
+  "description": "For each calendar month, report how many **distinct** users logged in at least once. Name the columns `month` and `active_users`. Return months in chronological order.\n\nA user who logs in several times in the same month still counts once.",
+  "solutionSql": "SELECT strftime('%Y-%m', login_date) AS month,\n       COUNT(DISTINCT user_id) AS active_users\nFROM logins\nGROUP BY month\nORDER BY month;",
+  "orderMatters": true,
+  "hint": "GROUP BY the month, then COUNT(DISTINCT user_id) — never COUNT(*), which would count every login row.",
+  "outputExplanation": "The growth report shows distinct logins went 2 in January, 3 in February, and 2 in March — month/total.",
+  "schemaSql": "CREATE TABLE logins (\n  user_id INTEGER,\n  login_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO logins VALUES\n (1,'2024-01-05'),\n (1,'2024-01-20'),\n (2,'2024-01-10'),\n (1,'2024-02-01'),\n (2,'2024-02-14'),\n (3,'2024-02-28'),\n (3,'2024-03-01');",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "active_users": 2
+        },
+        {
+          "month": "2024-02",
+          "active_users": 3
+        },
+        {
+          "month": "2024-03",
+          "active_users": 1
+        }
+      ],
+      "expectedHash": "ed52ed7e03512db7bb3055d4217009f015bf558c3aa76afa265db709ac85bbec"
+    },
+    {
+      "name": "One user many times in one month",
+      "seedSql": "INSERT INTO logins VALUES\n (1,'2024-01-01'),\n (1,'2024-01-02'),\n (1,'2024-01-31');",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "active_users": 1
+        }
+      ],
+      "expectedHash": "564eb2b56d76d80eb8d9fc95f2abd73c1f52677ddfc11a8616ad430529c293c1"
+    },
+    {
+      "name": "No logins / empty table",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Each user in different months",
+      "seedSql": "INSERT INTO logins VALUES\n (1,'2024-01-10'),\n (2,'2024-02-10'),\n (3,'2024-03-10');",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "active_users": 1
+        },
+        {
+          "month": "2024-02",
+          "active_users": 1
+        },
+        {
+          "month": "2024-03",
+          "active_users": 1
+        }
+      ],
+      "expectedHash": "087e5c13918604914c39041161e38a5ff9c0716d58c7019e6033a7b315127c3e"
+    },
+    {
+      "name": "Heavy overlap across two months",
+      "seedSql": "INSERT INTO logins VALUES\n (1,'2024-01-01'),\n (2,'2024-01-02'),\n (1,'2024-02-01'),\n (2,'2024-02-02'),\n (3,'2024-02-03');",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "active_users": 2
+        },
+        {
+          "month": "2024-02",
+          "active_users": 3
+        }
+      ],
+      "expectedHash": "fbebb07cc86933374600f464396ceef7aadf284c7a7f41de07f4da48f66e7f32"
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "id": "food-customer-ltv-segments",
+  "number": 160,
+  "title": "Customer LTV Segments",
+  "difficulty": "Hard",
+  "tags": [
+    "CTE",
+    "Window Functions",
+    "Aggregation",
+    "Food Delivery"
+  ],
+  "orderMatters": false,
+  "schemaSql": "CREATE TABLE restaurants (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  cuisine TEXT,\n  city TEXT\n);\nCREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  restaurant_id INTEGER,\n  customer_id INTEGER,\n  placed_at TEXT,\n  delivered_at TEXT,\n  estimated_minutes INTEGER,\n  total_amount REAL,\n  status TEXT\n);\nCREATE TABLE order_items (\n  id INTEGER PRIMARY KEY,\n  order_id INTEGER,\n  item_name TEXT,\n  quantity INTEGER,\n  unit_price REAL\n);\nCREATE TABLE reviews (\n  id INTEGER PRIMARY KEY,\n  order_id INTEGER,\n  customer_id INTEGER,\n  restaurant_id INTEGER,\n  rating INTEGER\n);",
+  "description": "Compute the **lifetime value (LTV)** of each customer as their total spend across all delivered orders. Then segment customers into:\n- **'high'** — top 20% by LTV (NTILE bucket 1 of 5)\n- **'mid'** — next 30% (buckets 2 and 3 of 5)\n- **'low'** — bottom 50% (buckets 4 and 5 of 5)\n\nReturn columns `customer_id`, `total_ltv` (rounded to 2), and `segment`. Only include customers with at least one delivered order. Order by `total_ltv` descending, then `customer_id` ascending.",
+  "hint": "Sum delivered order amounts per customer, then use NTILE(5) OVER (ORDER BY total_ltv DESC) to bucket them, and map bucket 1 → high, 2–3 → mid, 4–5 → low.",
+  "solutionSql": "WITH ltv AS (\n  SELECT customer_id,\n         ROUND(SUM(total_amount), 2) AS total_ltv\n  FROM orders\n  WHERE status = 'delivered'\n  GROUP BY customer_id\n),\nbucketed AS (\n  SELECT customer_id,\n         total_ltv,\n         NTILE(5) OVER (ORDER BY total_ltv DESC, customer_id ASC) AS bucket\n  FROM ltv\n)\nSELECT customer_id,\n       total_ltv,\n       CASE\n         WHEN bucket = 1 THEN 'high'\n         WHEN bucket IN (2, 3) THEN 'mid'\n         ELSE 'low'\n       END AS segment\nFROM bucketed\nORDER BY total_ltv DESC, customer_id ASC;",
+  "outputExplanation": "NTILE(5) divides customers ranked by descending LTV into 5 equal buckets. Bucket 1 (top 20%) = high value, buckets 2–3 (next 30%) = mid, buckets 4–5 (bottom 50%) = low.",
+  "tests": [
+    {
+      "name": "Example — 10 customers, segments visible",
+      "seedSql": "INSERT INTO restaurants VALUES (1,'R1','Italian','NYC');\nINSERT INTO orders VALUES\n  (1,1,1,'2022-01-01','2022-01-01',30,500.0,'delivered'),\n  (2,1,2,'2022-01-01','2022-01-01',30,450.0,'delivered'),\n  (3,1,3,'2022-01-01','2022-01-01',30,400.0,'delivered'),\n  (4,1,4,'2022-01-01','2022-01-01',30,300.0,'delivered'),\n  (5,1,5,'2022-01-01','2022-01-01',30,250.0,'delivered'),\n  (6,1,6,'2022-01-01','2022-01-01',30,200.0,'delivered'),\n  (7,1,7,'2022-01-01','2022-01-01',30,150.0,'delivered'),\n  (8,1,8,'2022-01-01','2022-01-01',30,100.0,'delivered'),\n  (9,1,9,'2022-01-01','2022-01-01',30,75.0,'delivered'),\n  (10,1,10,'2022-01-01','2022-01-01',30,50.0,'delivered');",
+      "expectedOutput": [
+        {
+          "customer_id": 1,
+          "total_ltv": 500,
+          "segment": "high"
+        },
+        {
+          "customer_id": 2,
+          "total_ltv": 450,
+          "segment": "high"
+        },
+        {
+          "customer_id": 3,
+          "total_ltv": 400,
+          "segment": "mid"
+        },
+        {
+          "customer_id": 4,
+          "total_ltv": 300,
+          "segment": "mid"
+        },
+        {
+          "customer_id": 5,
+          "total_ltv": 250,
+          "segment": "mid"
+        },
+        {
+          "customer_id": 6,
+          "total_ltv": 200,
+          "segment": "mid"
+        },
+        {
+          "customer_id": 7,
+          "total_ltv": 150,
+          "segment": "low"
+        },
+        {
+          "customer_id": 8,
+          "total_ltv": 100,
+          "segment": "low"
+        },
+        {
+          "customer_id": 9,
+          "total_ltv": 75,
+          "segment": "low"
+        },
+        {
+          "customer_id": 10,
+          "total_ltv": 50,
+          "segment": "low"
+        }
+      ],
+      "expectedHash": "6e39c115fc529331599fe4e1fcd16d3a42fb36e00e3cc4d3f849aeef123dab21"
+    },
+    {
+      "name": "Pending orders excluded",
+      "seedSql": "INSERT INTO restaurants VALUES (1,'R','Italian','NYC');\nINSERT INTO orders VALUES\n  (1,1,1,'2022-01-01','2022-01-01',30,1000.0,'delivered'),\n  (2,1,2,'2022-01-01','2022-01-01',30,900.0,'delivered'),\n  (3,1,3,'2022-01-01','2022-01-01',30,800.0,'delivered'),\n  (4,1,4,'2022-01-01','2022-01-01',30,700.0,'delivered'),\n  (5,1,5,'2022-01-01','2022-01-01',30,600.0,'delivered'),\n  (6,1,1,'2022-01-02',NULL,30,9999.0,'pending');",
+      "expectedOutput": [
+        {
+          "customer_id": 1,
+          "total_ltv": 1000,
+          "segment": "high"
+        },
+        {
+          "customer_id": 2,
+          "total_ltv": 900,
+          "segment": "mid"
+        },
+        {
+          "customer_id": 3,
+          "total_ltv": 800,
+          "segment": "mid"
+        },
+        {
+          "customer_id": 4,
+          "total_ltv": 700,
+          "segment": "low"
+        },
+        {
+          "customer_id": 5,
+          "total_ltv": 600,
+          "segment": "low"
+        }
+      ],
+      "expectedHash": "695b39b714af75d7fda60ac01568f280df63d7af32ac76a88f0bddce024508c1"
+    },
+    {
+      "name": "Single customer — goes to high",
+      "seedSql": "INSERT INTO restaurants VALUES (1,'R','Italian','NYC');\nINSERT INTO orders VALUES (1,1,1,'2022-01-01','2022-01-01',30,100.0,'delivered');",
+      "expectedOutput": [
+        {
+          "customer_id": 1,
+          "total_ltv": 100,
+          "segment": "high"
+        }
+      ],
+      "expectedHash": "5f26a16bc2d03fb149cea768274591bbc4b71a45bbfd078a1a6c56eb68d8c8c8"
+    },
+    {
+      "name": "Empty tables",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Five customers equal LTV — secondary sort by customer_id",
+      "seedSql": "INSERT INTO restaurants VALUES (1,'R','Italian','NYC');\nINSERT INTO orders VALUES\n  (1,1,1,'2022-01-01','2022-01-01',30,100.0,'delivered'),\n  (2,1,2,'2022-01-01','2022-01-01',30,100.0,'delivered'),\n  (3,1,3,'2022-01-01','2022-01-01',30,100.0,'delivered'),\n  (4,1,4,'2022-01-01','2022-01-01',30,100.0,'delivered'),\n  (5,1,5,'2022-01-01','2022-01-01',30,100.0,'delivered');",
+      "expectedOutput": [
+        {
+          "customer_id": 1,
+          "total_ltv": 100,
+          "segment": "high"
+        },
+        {
+          "customer_id": 2,
+          "total_ltv": 100,
+          "segment": "mid"
+        },
+        {
+          "customer_id": 3,
+          "total_ltv": 100,
+          "segment": "mid"
+        },
+        {
+          "customer_id": 4,
+          "total_ltv": 100,
+          "segment": "low"
+        },
+        {
+          "customer_id": 5,
+          "total_ltv": 100,
+          "segment": "low"
+        }
+      ],
+      "expectedHash": "9af08c520b5463217cb26e47ed824f48495fba0172927af63d67383933b7b9cd"
+    }
+  ]
+}

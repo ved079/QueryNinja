@@ -1,0 +1,97 @@
+{
+  "id": "regex-host-domain",
+  "number": 183,
+  "title": "Find Corporate Domains",
+  "difficulty": "Medium",
+  "tags": [
+    "Regular Expression",
+    "String",
+    "Filtering"
+  ],
+  "description": "An enterprise tier is restricted to employees of three partner companies, identified by their email domain: `acme.com`, `globex.com`, and `initech.com`.\n\nWrite a query to return the `id`, `name`, and `email` of every customer whose email belongs to one of these three domains exactly. Note that `dave@fakeacme.com` does **not** qualify — the domain must match precisely after the `@`.\n\nReturn the result in any order.",
+  "solutionSql": "SELECT id, name, email\nFROM customers\nWHERE REGEXP_LIKE(email, '@(acme|globex|initech)\\.com$');",
+  "orderMatters": false,
+  "hint": "The `$` must be anchored at the end, and `|` alternation provides the choices: `@(acme|globex|initech)\\.com$`. Escape the dot before 'com' as `\\.` so it is a literal dot.",
+  "outputExplanation": "- `bob@acme.com` — domain is exactly `acme.com`. Returned. ✓\n- `carol@globex.com` — domain is exactly `globex.com`. Returned. ✓\n- `dave@fakeacme.com` — domain is `fakeacme.com`, not `acme.com`. Not returned. ✗\n- `alice@acme.co` — TLD is `.co`, not `.com`. Not returned. ✗\n- `eve@initech.com` — domain is exactly `initech.com`. Returned. ✓\n- `fred@acme.com.mx` — `.mx` appended after `.com`; the end anchor rejects it. Not returned. ✗\n\nRows 1, 2, and 5 are returned.",
+  "schemaSql": "CREATE TABLE customers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  email TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO customers VALUES\n (1,'Bob','bob@acme.com'),\n (2,'Carol','carol@globex.com'),\n (3,'Dave','dave@fakeacme.com'),\n (4,'Alice','alice@acme.co'),\n (5,'Eve','eve@initech.com'),\n (6,'Fred','fred@acme.com.mx');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "name": "Bob",
+          "email": "bob@acme.com"
+        },
+        {
+          "id": 2,
+          "name": "Carol",
+          "email": "carol@globex.com"
+        },
+        {
+          "id": 5,
+          "name": "Eve",
+          "email": "eve@initech.com"
+        }
+      ],
+      "expectedHash": "9ede509cfcb61ff3222b0084006fbd469e2829b9ac9f48b50e7f39d2af7e925a"
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "None match",
+      "seedSql": "INSERT INTO customers VALUES (1,'A','a@gmail.com'),(2,'B','b@acme.org');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Case-insensitive TLD",
+      "seedSql": "INSERT INTO customers VALUES (1,'A','a@ACME.COM'),(2,'B','b@Globex.com'),(3,'C','c@acme.com');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "name": "A",
+          "email": "a@ACME.COM"
+        },
+        {
+          "id": 2,
+          "name": "B",
+          "email": "b@Globex.com"
+        },
+        {
+          "id": 3,
+          "name": "C",
+          "email": "c@acme.com"
+        }
+      ],
+      "expectedHash": "54a0c02d42d0a7f4ab1b9365180b3c0365be54fd23a3fb211a8f85c5c4b38d8f"
+    },
+    {
+      "name": "All three corporate domains present",
+      "seedSql": "INSERT INTO customers VALUES (1,'A','x@acme.com'),(2,'B','x@globex.com'),(3,'C','x@initech.com'),(4,'D','x@initech.co');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "name": "A",
+          "email": "x@acme.com"
+        },
+        {
+          "id": 2,
+          "name": "B",
+          "email": "x@globex.com"
+        },
+        {
+          "id": 3,
+          "name": "C",
+          "email": "x@initech.com"
+        }
+      ],
+      "expectedHash": "c5bbedeaef5b54942a7068df2cdca52a34aeebacabf7fc26a133e6484f07aed9"
+    }
+  ]
+}

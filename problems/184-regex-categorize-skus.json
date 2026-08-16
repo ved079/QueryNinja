@@ -1,0 +1,93 @@
+{
+  "id": "regex-categorize-skus",
+  "number": 184,
+  "title": "Categorize Products by SKU Pattern",
+  "difficulty": "Hard",
+  "tags": [
+    "Regular Expression",
+    "String",
+    "Group By",
+    "Case Expression"
+  ],
+  "description": "Write a query to classify every product by its SKU format and return the count per category.\n\nSKUs fall into three categories:\n\n| Category   | Format |\n|------------|--------|\n| `Standard` | Exactly two uppercase letters, a hyphen, then exactly four digits — e.g. `AB-1234` |\n| `Bulk`     | One of `B`, `K`, or `G`, a hyphen, exactly three uppercase letters, then one digit — e.g. `K-ABC9` |\n| `Other`    | Anything that does not match Standard or Bulk |\n\nReturn columns `sku_type` and `product_count`. Exclude categories with zero products. Order by `sku_type` ascending.",
+  "solutionSql": "SELECT\n  CASE\n    WHEN REGEXP_LIKE(sku, '^[A-Z]{2}-[0-9]{4}$') THEN 'Standard'\n    WHEN REGEXP_LIKE(sku, '^[BKG]-[A-Z]{3}[0-9]$') THEN 'Bulk'\n    ELSE 'Other'\n  END AS sku_type,\n  COUNT(*) AS product_count\nFROM products\nGROUP BY sku_type\nORDER BY sku_type;",
+  "orderMatters": false,
+  "hint": "Put REGEXP_LIKE inside a CASE expression in the SELECT, then GROUP BY the same CASE expression. Evaluate the Standard pattern before Bulk so unambiguous SKUs are caught first.",
+  "outputExplanation": "- `AB-1234` — 2 uppercase letters, hyphen, 4 digits. `Standard`. ✓\n- `K-ABC9` — `K` prefix, hyphen, 3 uppercase letters `ABC`, digit `9`. `Bulk`. ✓\n- `B-AB12` — only 2 letters and 2 digits after the hyphen; fails both patterns. `Other`. ✗\n- `XYZ-1` — 3 letters before the hyphen; Standard requires exactly 2. `Other`. ✗\n- `$k-abc7` — starts with `$`; invalid for both patterns. `Other`. ✗\n- `G-AAA0` — `G` prefix, hyphen, 3 uppercase letters `AAA`, digit `0`. `Bulk`. ✓\n\nFinal counts: Bulk = 2, Other = 3, Standard = 1.",
+  "schemaSql": "CREATE TABLE products (\n  id INTEGER PRIMARY KEY,\n  sku TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO products VALUES\n (1,'AB-1234'),\n (2,'K-ABC9'),\n (3,'B-AB12'),\n (4,'XYZ-1'),\n (5,'$k-abc7'),\n (6,'G-AAA0');",
+      "expectedOutput": [
+        {
+          "sku_type": "Bulk",
+          "product_count": 2
+        },
+        {
+          "sku_type": "Other",
+          "product_count": 3
+        },
+        {
+          "sku_type": "Standard",
+          "product_count": 1
+        }
+      ],
+      "expectedHash": "ad4442fd7090d1c146289b373ca7b433f2a852770dd8d763075a86db32a84ffd"
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Only Standard",
+      "seedSql": "INSERT INTO products VALUES (1,'AB-1234'),(2,'CD-5678'),(3,'EF-9999');",
+      "expectedOutput": [
+        {
+          "sku_type": "Standard",
+          "product_count": 3
+        }
+      ],
+      "expectedHash": "98631a2594c60bba97ce23ecfae38f784ac8c04e30487d129117b0d73933eac6"
+    },
+    {
+      "name": "All Other",
+      "seedSql": "INSERT INTO products VALUES (1,'A-COMP1'),(2,'B-CART2');",
+      "expectedOutput": [
+        {
+          "sku_type": "Other",
+          "product_count": 2
+        }
+      ],
+      "expectedHash": "b8e63a19387447946d016ed46c370d84e35627e2c7a3d95428033dce4139ff86"
+    },
+    {
+      "name": "Lowercase matches due to case-insensitivity",
+      "seedSql": "INSERT INTO products VALUES (1,'ab-1234'),(2,'k-abc9');",
+      "expectedOutput": [
+        {
+          "sku_type": "Bulk",
+          "product_count": 1
+        },
+        {
+          "sku_type": "Standard",
+          "product_count": 1
+        }
+      ],
+      "expectedHash": "e059e4cad9e529b7cdabfcc1c7ce24c180537981bc526aabe10b24fc7bcb38ca"
+    },
+    {
+      "name": "Many Other",
+      "seedSql": "INSERT INTO products VALUES (1,'free-text'),(2,''),(3,'12-3456');",
+      "expectedOutput": [
+        {
+          "sku_type": "Other",
+          "product_count": 3
+        }
+      ],
+      "expectedHash": "955a65615f4b7b4bcc8af0abd1e7e89f6dd5bc46975d80289acd3a697ba27579"
+    }
+  ]
+}

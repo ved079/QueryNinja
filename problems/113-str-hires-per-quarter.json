@@ -1,0 +1,251 @@
+{
+  "id": "str-hires-per-quarter",
+  "number": 113,
+  "title": "Hires Per Calendar Quarter",
+  "difficulty": "Easy",
+  "tags": [
+    "Date"
+  ],
+  "description": "Report how many employees were hired in each calendar quarter (`Q1` = Jan-Mar, `Q2` = Apr-Jun, `Q3` = Jul-Sep, `Q4` = Oct-Dec), across all years combined.\n\nName the columns `quarter` and `hires`. Return the result in any order.",
+  "solutionSql": "SELECT\n  CASE\n    WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 1 AND 3 THEN 'Q1'\n    WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 4 AND 6 THEN 'Q2'\n    WHEN CAST(strftime('%m', hire_date) AS INTEGER) BETWEEN 7 AND 9 THEN 'Q3'\n    ELSE 'Q4'\n  END AS quarter,\n  COUNT(*) AS hires\nFROM employees\nGROUP BY quarter;",
+  "orderMatters": false,
+  "hint": "strftime('%m', ...) returns the month as zero-padded text ('04') — CAST it to INTEGER before comparing with BETWEEN, or the comparison happens on the wrong type.",
+  "outputExplanation": "Four employees were hired in Q1 (January-March), one in Q2, two in Q3 and one in Q4.",
+  "schemaSql": "CREATE TABLE departments (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  location TEXT\n);\n\nCREATE TABLE employees (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  title TEXT,\n  salary INTEGER,\n  dept_id INTEGER,\n  manager_id INTEGER,\n  hire_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',150000,1,NULL,'2018-01-15'),\n (2,'Ben','Engineer',120000,1,1,'2019-03-01'),\n (3,'Cara','Engineer',120000,1,1,'2019-03-01'),\n (4,'Dan','Engineer',95000,1,1,'2021-07-19'),\n (5,'Eve','Manager',130000,2,NULL,'2017-11-02'),\n (6,'Finn','Rep',70000,2,5,'2020-05-30'),\n (7,'Gia','Rep',85000,2,5,'2022-02-14'),\n (8,'Hal','Analyst',60000,3,NULL,'2023-09-01');",
+      "expectedOutput": [
+        {
+          "quarter": "Q1",
+          "hires": 4
+        },
+        {
+          "quarter": "Q2",
+          "hires": 1
+        },
+        {
+          "quarter": "Q3",
+          "hires": 2
+        },
+        {
+          "quarter": "Q4",
+          "hires": 1
+        }
+      ],
+      "expectedHash": "bca1f0e3ca3640af106e9d0ce15cb51d36666af947205db2beffc2c25226c8e1"
+    },
+    {
+      "name": "Ties on every salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'A','Engineer',100000,1,NULL,'2020-01-01'),\n (2,'B','Engineer',100000,1,1,'2020-01-01'),\n (3,'C','Engineer',100000,1,1,'2020-01-01'),\n (4,'D','Rep',100000,2,NULL,'2020-01-01'),\n (5,'E','Rep',100000,2,4,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "quarter": "Q1",
+          "hires": 5
+        }
+      ],
+      "expectedHash": "a2aaab12f7f60d3346ca1b3b14ceb0ead0e674cfc7f71e0826635d043c26ddaa"
+    },
+    {
+      "name": "Department with no employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
+      "expectedOutput": [
+        {
+          "quarter": "Q1",
+          "hires": 1
+        },
+        {
+          "quarter": "Q2",
+          "hires": 1
+        }
+      ],
+      "expectedHash": "03ed5fc363ddac4e89b33858275179cf07a5a7fb60427cf4595f26615f120102"
+    },
+    {
+      "name": "Employees with NULL department and NULL salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
+      "expectedOutput": [
+        {
+          "quarter": "Q1",
+          "hires": 3
+        },
+        {
+          "quarter": "Q2",
+          "hires": 1
+        }
+      ],
+      "expectedHash": "15d0eca009a58ef70c4805b72518719c2b04bd54b981cc9c3bfdfe23b73159ce"
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single employee, single department",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
+      "expectedOutput": [
+        {
+          "quarter": "Q2",
+          "hires": 1
+        }
+      ],
+      "expectedHash": "1ea24b7e81da0cb6d8deacfb3b1b7006959d11281ea5dfb5c165404fe4dd12a2"
+    },
+    {
+      "name": "Everyone reports to someone (deep chain)",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
+      "expectedOutput": [
+        {
+          "quarter": "Q1",
+          "hires": 5
+        }
+      ],
+      "expectedHash": "a2aaab12f7f60d3346ca1b3b14ceb0ead0e674cfc7f71e0826635d043c26ddaa"
+    },
+    {
+      "name": "Duplicate names and same hire dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Austin');\nINSERT INTO employees VALUES\n (1,'Sam','Engineer',90000,1,NULL,'2021-01-01'),\n (2,'Sam','Engineer',95000,2,NULL,'2021-01-01'),\n (3,'Sam','Rep',60000,2,2,'2021-01-01'),\n (4,'Alex','Rep',60000,2,2,'2021-06-30');",
+      "expectedOutput": [
+        {
+          "quarter": "Q1",
+          "hires": 3
+        },
+        {
+          "quarter": "Q2",
+          "hires": 1
+        }
+      ],
+      "expectedHash": "15d0eca009a58ef70c4805b72518719c2b04bd54b981cc9c3bfdfe23b73159ce"
+    },
+    {
+      "name": "Zero and negative salaries, boundary dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Intern',0,1,NULL,'2019-12-31'),\n (2,'Ben','Engineer',-100,1,1,'2020-01-01'),\n (3,'Cara','Engineer',1,2,NULL,'2020-02-29'),\n (4,'Dan','Rep',2000000,2,3,'2020-12-31');",
+      "expectedOutput": [
+        {
+          "quarter": "Q1",
+          "hires": 2
+        },
+        {
+          "quarter": "Q4",
+          "hires": 2
+        }
+      ],
+      "expectedHash": "9e0857224017cc67f827be82378b344292c55fe282a00414805baf69fb8448ce"
+    },
+    {
+      "name": "Larger multi-department set",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin'),(4,'Finance','Boston');\nINSERT INTO employees VALUES\n (1,'A','Manager',140000,1,NULL,'2015-02-10'),\n (2,'B','Engineer',130000,1,1,'2016-04-11'),\n (3,'C','Engineer',130000,1,1,'2017-06-12'),\n (4,'D','Engineer',110000,1,1,'2018-08-13'),\n (5,'E','Engineer',90000,1,1,'2019-10-14'),\n (6,'F','Manager',125000,2,NULL,'2015-03-15'),\n (7,'G','Rep',88000,2,6,'2016-05-16'),\n (8,'H','Rep',88000,2,6,'2017-07-17'),\n (9,'I','Rep',64000,2,6,'2018-09-18'),\n (10,'J','Manager',99000,3,NULL,'2019-11-19'),\n (11,'K','Analyst',72000,3,10,'2020-01-20'),\n (12,'L','Analyst',150000,4,NULL,'2021-03-21'),\n (13,'M','Analyst',150000,4,12,'2022-05-22');",
+      "expectedOutput": [
+        {
+          "quarter": "Q1",
+          "hires": 4
+        },
+        {
+          "quarter": "Q2",
+          "hires": 4
+        },
+        {
+          "quarter": "Q3",
+          "hires": 3
+        },
+        {
+          "quarter": "Q4",
+          "hires": 2
+        }
+      ],
+      "expectedHash": "c84d39baba4c1571c80f972e11a7f6198b198fc487d271c62e07a9d8a80737ec"
+    },
+    {
+      "name": "No employees — empty result",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "All hires in the same quarter",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-01-10'),(2,'B','E',90000,1,1,'2022-02-15'),(3,'C','E',80000,1,1,'2022-03-20');",
+      "expectedOutput": [
+        {
+          "quarter": "Q1",
+          "hires": 3
+        }
+      ],
+      "expectedHash": "d6c73d6f861f82bc09e2f1fa686be76afabb40a520f42f8c4c5a4ed0e5df6e48"
+    },
+    {
+      "name": "One hire in each quarter across different years",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-02-01'),(2,'B','E',90000,1,1,'2022-05-01'),(3,'C','E',80000,1,1,'2022-08-01'),(4,'D','E',70000,1,1,'2022-11-01');",
+      "expectedOutput": [
+        {
+          "quarter": "Q1",
+          "hires": 1
+        },
+        {
+          "quarter": "Q2",
+          "hires": 1
+        },
+        {
+          "quarter": "Q3",
+          "hires": 1
+        },
+        {
+          "quarter": "Q4",
+          "hires": 1
+        }
+      ],
+      "expectedHash": "fbd48481ebff137a20691a27c32d4626730800ce2cf50bef374bcbffb93efcd5"
+    },
+    {
+      "name": "Boundary months — March, June, September, December",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-03-31'),(2,'B','E',90000,1,1,'2022-06-30'),(3,'C','E',80000,1,1,'2022-09-30'),(4,'D','E',70000,1,1,'2022-12-31');",
+      "expectedOutput": [
+        {
+          "quarter": "Q1",
+          "hires": 1
+        },
+        {
+          "quarter": "Q2",
+          "hires": 1
+        },
+        {
+          "quarter": "Q3",
+          "hires": 1
+        },
+        {
+          "quarter": "Q4",
+          "hires": 1
+        }
+      ],
+      "expectedHash": "fbd48481ebff137a20691a27c32d4626730800ce2cf50bef374bcbffb93efcd5"
+    },
+    {
+      "name": "Multiple years — quarters aggregate across all years",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2020-01-01'),(2,'B','E',90000,1,1,'2021-01-01'),(3,'C','E',80000,1,1,'2022-04-01'),(4,'D','E',70000,1,1,'2023-04-01');",
+      "expectedOutput": [
+        {
+          "quarter": "Q1",
+          "hires": 2
+        },
+        {
+          "quarter": "Q2",
+          "hires": 2
+        }
+      ],
+      "expectedHash": "29dfad9647166f45c9f151ff1365cfbc2f9281fec02660c2b6c9d3ee84f5dd53"
+    },
+    {
+      "name": "February 29 in leap year 2020 — Q1",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2020-02-29'),(2,'B','E',90000,1,1,'2021-02-28');",
+      "expectedOutput": [
+        {
+          "quarter": "Q1",
+          "hires": 2
+        }
+      ],
+      "expectedHash": "ae0b3811773c8cd77ecdf89d3dda813fa15f69153fa01efd35fb65d88e16a74b"
+    }
+  ]
+}

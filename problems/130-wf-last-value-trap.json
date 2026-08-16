@@ -1,0 +1,396 @@
+{
+  "id": "wf-last-value-trap",
+  "number": 130,
+  "title": "First And Last Order Date Per Customer — The LAST_VALUE Trap",
+  "difficulty": "Hard",
+  "tags": [
+    "Window Function"
+  ],
+  "description": "For every order, report that customer's very first order date and very last order date, alongside the current order's own date.\n\nName the columns `customer`, `order_date`, `first_order_date` and `last_order_date`. Return the result in any order.",
+  "solutionSql": "SELECT c.name AS customer, o.order_date,\n  FIRST_VALUE(o.order_date) OVER (\n    PARTITION BY o.customer_id ORDER BY o.order_date, o.id\n    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING\n  ) AS first_order_date,\n  LAST_VALUE(o.order_date) OVER (\n    PARTITION BY o.customer_id ORDER BY o.order_date, o.id\n    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING\n  ) AS last_order_date\nFROM orders o\nJOIN customers c ON c.id = o.customer_id;",
+  "orderMatters": false,
+  "hint": "This is the single most common LAST_VALUE mistake: with just an ORDER BY and no explicit frame, the *default* frame is \"UNBOUNDED PRECEDING to CURRENT ROW\" — which makes LAST_VALUE return the current row's own value every time, not the true last row. You must widen the frame to the whole partition explicitly.",
+  "schemaSql": "CREATE TABLE customers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  country TEXT,\n  signup_date TEXT\n);\n\nCREATE TABLE products (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  category TEXT,\n  price REAL\n);\n\nCREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER,\n  order_date TEXT,\n  status TEXT\n);\n\nCREATE TABLE order_items (\n  id INTEGER PRIMARY KEY,\n  order_id INTEGER,\n  product_id INTEGER,\n  quantity INTEGER,\n  unit_price REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12'),(3,'Cy','US','2022-06-30'),(4,'Di','IN','2022-11-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Desk','Furniture',300.0),(4,'Lamp','Furniture',45.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2022-02-14','completed'),(3,2,'2022-02-20','cancelled'),(4,3,'2022-03-05','completed'),(5,3,'2022-03-06','pending'),(6,1,'2023-01-02','completed');\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,1,2,1,25.0),(3,2,3,1,300.0),(4,3,4,4,45.0),(5,4,2,3,25.0),(6,5,1,1,80.0),(7,6,4,2,45.0),(8,6,2,2,25.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "order_date": "2022-01-10",
+          "first_order_date": "2022-01-10",
+          "last_order_date": "2023-01-02"
+        },
+        {
+          "customer": "Ada",
+          "order_date": "2022-02-14",
+          "first_order_date": "2022-01-10",
+          "last_order_date": "2023-01-02"
+        },
+        {
+          "customer": "Ada",
+          "order_date": "2023-01-02",
+          "first_order_date": "2022-01-10",
+          "last_order_date": "2023-01-02"
+        },
+        {
+          "customer": "Bo",
+          "order_date": "2022-02-20",
+          "first_order_date": "2022-02-20",
+          "last_order_date": "2022-02-20"
+        },
+        {
+          "customer": "Cy",
+          "order_date": "2022-03-05",
+          "first_order_date": "2022-03-05",
+          "last_order_date": "2022-03-06"
+        },
+        {
+          "customer": "Cy",
+          "order_date": "2022-03-06",
+          "first_order_date": "2022-03-05",
+          "last_order_date": "2022-03-06"
+        }
+      ],
+      "expectedHash": "3105d6ce2e114ef25bb4a359f06520134f18229aa98cb8b598b40e25def34b3c"
+    },
+    {
+      "name": "Customer who never ordered",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12'),(3,'NoOrders','FR','2023-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,2,'2022-01-11','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,2,25.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "order_date": "2022-01-10",
+          "first_order_date": "2022-01-10",
+          "last_order_date": "2022-01-10"
+        },
+        {
+          "customer": "Bo",
+          "order_date": "2022-01-11",
+          "first_order_date": "2022-01-11",
+          "last_order_date": "2022-01-11"
+        }
+      ],
+      "expectedHash": "e793c01a089263391cbade13c4b0e58dc4bdb4bd57f367679a1a5c4f028c5a2e"
+    },
+    {
+      "name": "All orders cancelled",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','cancelled'),(2,2,'2022-01-11','cancelled');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,1,2,80.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "order_date": "2022-01-10",
+          "first_order_date": "2022-01-10",
+          "last_order_date": "2022-01-10"
+        },
+        {
+          "customer": "Bo",
+          "order_date": "2022-01-11",
+          "first_order_date": "2022-01-11",
+          "last_order_date": "2022-01-11"
+        }
+      ],
+      "expectedHash": "e793c01a089263391cbade13c4b0e58dc4bdb4bd57f367679a1a5c4f028c5a2e"
+    },
+    {
+      "name": "Everything empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Orders with no items, products never sold",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'NeverSold','Tech',999.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2022-01-11','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "order_date": "2022-01-10",
+          "first_order_date": "2022-01-10",
+          "last_order_date": "2022-01-11"
+        },
+        {
+          "customer": "Ada",
+          "order_date": "2022-01-11",
+          "first_order_date": "2022-01-10",
+          "last_order_date": "2022-01-11"
+        }
+      ],
+      "expectedHash": "befaecbbab3daf5e2f222fd988bc4bc082ddbb1ca426567db1f8a9333736eab4"
+    },
+    {
+      "name": "NULL prices, quantities and statuses",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo',NULL,'2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mystery',NULL,NULL);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,2,'2022-01-11',NULL);\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,1,2,NULL,NULL),(3,2,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "order_date": "2022-01-10",
+          "first_order_date": "2022-01-10",
+          "last_order_date": "2022-01-10"
+        },
+        {
+          "customer": "Bo",
+          "order_date": "2022-01-11",
+          "first_order_date": "2022-01-11",
+          "last_order_date": "2022-01-11"
+        }
+      ],
+      "expectedHash": "e793c01a089263391cbade13c4b0e58dc4bdb4bd57f367679a1a5c4f028c5a2e"
+    },
+    {
+      "name": "Single customer, single order",
+      "seedSql": "INSERT INTO customers VALUES (1,'Solo','US','2022-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-05-05','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "customer": "Solo",
+          "order_date": "2022-05-05",
+          "first_order_date": "2022-05-05",
+          "last_order_date": "2022-05-05"
+        }
+      ],
+      "expectedHash": "86b92763c39d124e536d7b5970f4d5781e5b6c2cd928a624188ca6ad89a1b6df"
+    },
+    {
+      "name": "Ties in revenue between products and customers",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','US','2021-01-01');\nINSERT INTO products VALUES (1,'P1','Tech',50.0),(2,'P2','Tech',50.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,2,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,2,50.0),(2,2,2,2,50.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "order_date": "2022-01-01",
+          "first_order_date": "2022-01-01",
+          "last_order_date": "2022-01-01"
+        },
+        {
+          "customer": "Bo",
+          "order_date": "2022-01-01",
+          "first_order_date": "2022-01-01",
+          "last_order_date": "2022-01-01"
+        }
+      ],
+      "expectedHash": "47e2c7d43148e0b4a8848f171de3d64741903fe720181e896d311687e275f83b"
+    },
+    {
+      "name": "Same-day repeat orders across month and year boundaries",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2020-12-31'),(2,'Bo','UK','2021-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Desk','Furniture',300.0);\nINSERT INTO orders VALUES (1,1,'2021-12-31','completed'),(2,1,'2022-01-01','completed'),(3,1,'2022-01-01','completed'),(4,2,'2022-01-31','completed'),(5,2,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,1,300.0),(3,3,1,3,80.0),(4,4,2,2,300.0),(5,5,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "order_date": "2021-12-31",
+          "first_order_date": "2021-12-31",
+          "last_order_date": "2022-01-01"
+        },
+        {
+          "customer": "Ada",
+          "order_date": "2022-01-01",
+          "first_order_date": "2021-12-31",
+          "last_order_date": "2022-01-01"
+        },
+        {
+          "customer": "Ada",
+          "order_date": "2022-01-01",
+          "first_order_date": "2021-12-31",
+          "last_order_date": "2022-01-01"
+        },
+        {
+          "customer": "Bo",
+          "order_date": "2022-01-31",
+          "first_order_date": "2022-01-31",
+          "last_order_date": "2022-02-01"
+        },
+        {
+          "customer": "Bo",
+          "order_date": "2022-02-01",
+          "first_order_date": "2022-01-31",
+          "last_order_date": "2022-02-01"
+        }
+      ],
+      "expectedHash": "87c9fea29e0646ecb145218e723e2268c49ea9a617a8f7440b9430c7f72576bf"
+    },
+    {
+      "name": "Larger multi-country set",
+      "seedSql": "INSERT INTO customers VALUES (1,'A','US','2020-01-01'),(2,'B','US','2020-02-01'),(3,'C','UK','2020-03-01'),(4,'D','UK','2021-04-01'),(5,'E','IN','2021-05-01'),(6,'F','IN','2022-06-01'),(7,'G','FR','2022-07-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Desk','Furniture',300.0),(4,'Lamp','Furniture',45.0),(5,'Mug','Kitchen',12.5);\nINSERT INTO orders VALUES (1,1,'2022-01-03','completed'),(2,1,'2022-02-03','completed'),(3,2,'2022-02-14','completed'),(4,3,'2022-03-21','cancelled'),(5,4,'2022-04-02','completed'),(6,5,'2022-05-19','pending'),(7,5,'2022-06-19','completed'),(8,6,'2023-01-11','completed'),(9,7,'2023-02-28','completed'),(10,1,'2023-03-15','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,1,5,4,12.5),(3,2,3,1,300.0),(4,3,2,2,25.0),(5,4,4,1,45.0),(6,5,1,2,80.0),(7,6,5,10,12.5),(8,7,3,1,300.0),(9,7,4,2,45.0),(10,8,2,5,25.0),(11,9,1,1,80.0),(12,10,3,2,300.0),(13,10,5,1,12.5);",
+      "expectedOutput": [
+        {
+          "customer": "A",
+          "order_date": "2022-01-03",
+          "first_order_date": "2022-01-03",
+          "last_order_date": "2023-03-15"
+        },
+        {
+          "customer": "A",
+          "order_date": "2022-02-03",
+          "first_order_date": "2022-01-03",
+          "last_order_date": "2023-03-15"
+        },
+        {
+          "customer": "A",
+          "order_date": "2023-03-15",
+          "first_order_date": "2022-01-03",
+          "last_order_date": "2023-03-15"
+        },
+        {
+          "customer": "B",
+          "order_date": "2022-02-14",
+          "first_order_date": "2022-02-14",
+          "last_order_date": "2022-02-14"
+        },
+        {
+          "customer": "C",
+          "order_date": "2022-03-21",
+          "first_order_date": "2022-03-21",
+          "last_order_date": "2022-03-21"
+        },
+        {
+          "customer": "D",
+          "order_date": "2022-04-02",
+          "first_order_date": "2022-04-02",
+          "last_order_date": "2022-04-02"
+        },
+        {
+          "customer": "E",
+          "order_date": "2022-05-19",
+          "first_order_date": "2022-05-19",
+          "last_order_date": "2022-06-19"
+        },
+        {
+          "customer": "E",
+          "order_date": "2022-06-19",
+          "first_order_date": "2022-05-19",
+          "last_order_date": "2022-06-19"
+        },
+        {
+          "customer": "F",
+          "order_date": "2023-01-11",
+          "first_order_date": "2023-01-11",
+          "last_order_date": "2023-01-11"
+        },
+        {
+          "customer": "G",
+          "order_date": "2023-02-28",
+          "first_order_date": "2023-02-28",
+          "last_order_date": "2023-02-28"
+        }
+      ],
+      "expectedHash": "45189dcaa5909f4c628a0588dcf72f1a389453a2a767927775b24be5c59bb589"
+    },
+    {
+      "name": "Single customer with one order — all dates are the same",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01');\nINSERT INTO orders VALUES (1,1,'2022-06-15','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0);\nINSERT INTO products VALUES (1,'K','Tech',10.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "order_date": "2022-06-15",
+          "first_order_date": "2022-06-15",
+          "last_order_date": "2022-06-15"
+        }
+      ],
+      "expectedHash": "a19b4e29c1a79a428f20968b3a552db46a680f885c8515822932c3043f8ddb79"
+    },
+    {
+      "name": "Customer with multiple orders — first and last differ",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2022-06-15','completed'),(3,1,'2023-01-02','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0),(2,2,1,1,10.0),(3,3,1,1,10.0);\nINSERT INTO products VALUES (1,'K','Tech',10.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "order_date": "2022-01-10",
+          "first_order_date": "2022-01-10",
+          "last_order_date": "2023-01-02"
+        },
+        {
+          "customer": "Ada",
+          "order_date": "2022-06-15",
+          "first_order_date": "2022-01-10",
+          "last_order_date": "2023-01-02"
+        },
+        {
+          "customer": "Ada",
+          "order_date": "2023-01-02",
+          "first_order_date": "2022-01-10",
+          "last_order_date": "2023-01-02"
+        }
+      ],
+      "expectedHash": "5ecda90c1de3bfc4325f375c636e3e37057f4e44fb7b56b400534d5bfa7249b4"
+    },
+    {
+      "name": "Multiple customers — each gets their own first and last",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','UK','2021-03-12');\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2023-01-02','completed'),(3,2,'2022-02-20','cancelled');\nINSERT INTO order_items VALUES (1,1,1,1,10.0),(2,2,1,1,10.0),(3,3,1,1,10.0);\nINSERT INTO products VALUES (1,'K','Tech',10.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "order_date": "2022-01-10",
+          "first_order_date": "2022-01-10",
+          "last_order_date": "2023-01-02"
+        },
+        {
+          "customer": "Ada",
+          "order_date": "2023-01-02",
+          "first_order_date": "2022-01-10",
+          "last_order_date": "2023-01-02"
+        },
+        {
+          "customer": "Bo",
+          "order_date": "2022-02-20",
+          "first_order_date": "2022-02-20",
+          "last_order_date": "2022-02-20"
+        }
+      ],
+      "expectedHash": "c522024a5f98c5bd81b6a6d516af465623ca58256ed7134b1218df864b83d519"
+    },
+    {
+      "name": "Empty orders table — no rows",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Orders on the same date — tie-breaker by id determines order",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01');\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,1,'2022-01-01','completed'),(3,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0),(2,2,1,1,10.0),(3,3,1,1,10.0);\nINSERT INTO products VALUES (1,'K','Tech',10.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "order_date": "2022-01-01",
+          "first_order_date": "2022-01-01",
+          "last_order_date": "2022-01-01"
+        },
+        {
+          "customer": "Ada",
+          "order_date": "2022-01-01",
+          "first_order_date": "2022-01-01",
+          "last_order_date": "2022-01-01"
+        },
+        {
+          "customer": "Ada",
+          "order_date": "2022-01-01",
+          "first_order_date": "2022-01-01",
+          "last_order_date": "2022-01-01"
+        }
+      ],
+      "expectedHash": "e5b58a50c1258351aada0b178a943716dc9711477bc3cd81c9a6b756afb3d70d"
+    },
+    {
+      "name": "Orders in reverse chronological order — FIRST_VALUE gets earliest",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01');\nINSERT INTO orders VALUES (1,1,'2023-01-01','completed'),(2,1,'2022-06-01','completed'),(3,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0),(2,2,1,1,10.0),(3,3,1,1,10.0);\nINSERT INTO products VALUES (1,'K','Tech',10.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "order_date": "2022-01-01",
+          "first_order_date": "2022-01-01",
+          "last_order_date": "2023-01-01"
+        },
+        {
+          "customer": "Ada",
+          "order_date": "2022-06-01",
+          "first_order_date": "2022-01-01",
+          "last_order_date": "2023-01-01"
+        },
+        {
+          "customer": "Ada",
+          "order_date": "2023-01-01",
+          "first_order_date": "2022-01-01",
+          "last_order_date": "2023-01-01"
+        }
+      ],
+      "expectedHash": "eab38cf970bcbbcc164b297db89a290f4b12ba91f8e5b178751c237691996a69"
+    }
+  ]
+}

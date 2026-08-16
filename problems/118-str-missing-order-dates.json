@@ -1,0 +1,2771 @@
+{
+  "id": "str-missing-order-dates",
+  "number": 118,
+  "title": "Calendar Days With Zero Orders",
+  "difficulty": "Hard",
+  "tags": [
+    "Date",
+    "Recursive CTE"
+  ],
+  "description": "Considering the full range from the earliest to the latest `order_date` in `orders`, report every calendar date **in that range** on which no order was placed at all.\n\nName the column `missing_date`. Return the result in any order.",
+  "solutionSql": "WITH RECURSIVE spine(d) AS (\n  SELECT MIN(order_date) FROM orders\n  UNION ALL\n  SELECT date(d, '+1 day') FROM spine WHERE d < (SELECT MAX(order_date) FROM orders)\n)\nSELECT d AS missing_date\nFROM spine\nWHERE d IS NOT NULL\nAND NOT EXISTS (SELECT 1 FROM orders o WHERE o.order_date = d);",
+  "orderMatters": false,
+  "hint": "There's no table of \"all possible dates\" to join against, so build one: a recursive CTE that starts at the earliest date and adds one day at a time up to the latest. Guard against an empty orders table, where MIN/MAX are both NULL.",
+  "outputExplanation": "Only 6 dates between January 10, 2022 and January 2, 2023 have orders. Every other calendar day in that range — over 300 dates — had no orders and is reported.",
+  "schemaSql": "CREATE TABLE customers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  country TEXT,\n  signup_date TEXT\n);\n\nCREATE TABLE products (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  category TEXT,\n  price REAL\n);\n\nCREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER,\n  order_date TEXT,\n  status TEXT\n);\n\nCREATE TABLE order_items (\n  id INTEGER PRIMARY KEY,\n  order_id INTEGER,\n  product_id INTEGER,\n  quantity INTEGER,\n  unit_price REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12'),(3,'Cy','US','2022-06-30'),(4,'Di','IN','2022-11-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Desk','Furniture',300.0),(4,'Lamp','Furniture',45.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2022-02-14','completed'),(3,2,'2022-02-20','cancelled'),(4,3,'2022-03-05','completed'),(5,3,'2022-03-06','pending'),(6,1,'2023-01-02','completed');\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,1,2,1,25.0),(3,2,3,1,300.0),(4,3,4,4,45.0),(5,4,2,3,25.0),(6,5,1,1,80.0),(7,6,4,2,45.0),(8,6,2,2,25.0);",
+      "expectedOutput": [
+        {
+          "missing_date": "2022-01-11"
+        },
+        {
+          "missing_date": "2022-01-12"
+        },
+        {
+          "missing_date": "2022-01-13"
+        },
+        {
+          "missing_date": "2022-01-14"
+        },
+        {
+          "missing_date": "2022-01-15"
+        },
+        {
+          "missing_date": "2022-01-16"
+        },
+        {
+          "missing_date": "2022-01-17"
+        },
+        {
+          "missing_date": "2022-01-18"
+        },
+        {
+          "missing_date": "2022-01-19"
+        },
+        {
+          "missing_date": "2022-01-20"
+        },
+        {
+          "missing_date": "2022-01-21"
+        },
+        {
+          "missing_date": "2022-01-22"
+        },
+        {
+          "missing_date": "2022-01-23"
+        },
+        {
+          "missing_date": "2022-01-24"
+        },
+        {
+          "missing_date": "2022-01-25"
+        },
+        {
+          "missing_date": "2022-01-26"
+        },
+        {
+          "missing_date": "2022-01-27"
+        },
+        {
+          "missing_date": "2022-01-28"
+        },
+        {
+          "missing_date": "2022-01-29"
+        },
+        {
+          "missing_date": "2022-01-30"
+        },
+        {
+          "missing_date": "2022-01-31"
+        },
+        {
+          "missing_date": "2022-02-01"
+        },
+        {
+          "missing_date": "2022-02-02"
+        },
+        {
+          "missing_date": "2022-02-03"
+        },
+        {
+          "missing_date": "2022-02-04"
+        },
+        {
+          "missing_date": "2022-02-05"
+        },
+        {
+          "missing_date": "2022-02-06"
+        },
+        {
+          "missing_date": "2022-02-07"
+        },
+        {
+          "missing_date": "2022-02-08"
+        },
+        {
+          "missing_date": "2022-02-09"
+        },
+        {
+          "missing_date": "2022-02-10"
+        },
+        {
+          "missing_date": "2022-02-11"
+        },
+        {
+          "missing_date": "2022-02-12"
+        },
+        {
+          "missing_date": "2022-02-13"
+        },
+        {
+          "missing_date": "2022-02-15"
+        },
+        {
+          "missing_date": "2022-02-16"
+        },
+        {
+          "missing_date": "2022-02-17"
+        },
+        {
+          "missing_date": "2022-02-18"
+        },
+        {
+          "missing_date": "2022-02-19"
+        },
+        {
+          "missing_date": "2022-02-21"
+        },
+        {
+          "missing_date": "2022-02-22"
+        },
+        {
+          "missing_date": "2022-02-23"
+        },
+        {
+          "missing_date": "2022-02-24"
+        },
+        {
+          "missing_date": "2022-02-25"
+        },
+        {
+          "missing_date": "2022-02-26"
+        },
+        {
+          "missing_date": "2022-02-27"
+        },
+        {
+          "missing_date": "2022-02-28"
+        },
+        {
+          "missing_date": "2022-03-01"
+        },
+        {
+          "missing_date": "2022-03-02"
+        },
+        {
+          "missing_date": "2022-03-03"
+        },
+        {
+          "missing_date": "2022-03-04"
+        },
+        {
+          "missing_date": "2022-03-07"
+        },
+        {
+          "missing_date": "2022-03-08"
+        },
+        {
+          "missing_date": "2022-03-09"
+        },
+        {
+          "missing_date": "2022-03-10"
+        },
+        {
+          "missing_date": "2022-03-11"
+        },
+        {
+          "missing_date": "2022-03-12"
+        },
+        {
+          "missing_date": "2022-03-13"
+        },
+        {
+          "missing_date": "2022-03-14"
+        },
+        {
+          "missing_date": "2022-03-15"
+        },
+        {
+          "missing_date": "2022-03-16"
+        },
+        {
+          "missing_date": "2022-03-17"
+        },
+        {
+          "missing_date": "2022-03-18"
+        },
+        {
+          "missing_date": "2022-03-19"
+        },
+        {
+          "missing_date": "2022-03-20"
+        },
+        {
+          "missing_date": "2022-03-21"
+        },
+        {
+          "missing_date": "2022-03-22"
+        },
+        {
+          "missing_date": "2022-03-23"
+        },
+        {
+          "missing_date": "2022-03-24"
+        },
+        {
+          "missing_date": "2022-03-25"
+        },
+        {
+          "missing_date": "2022-03-26"
+        },
+        {
+          "missing_date": "2022-03-27"
+        },
+        {
+          "missing_date": "2022-03-28"
+        },
+        {
+          "missing_date": "2022-03-29"
+        },
+        {
+          "missing_date": "2022-03-30"
+        },
+        {
+          "missing_date": "2022-03-31"
+        },
+        {
+          "missing_date": "2022-04-01"
+        },
+        {
+          "missing_date": "2022-04-02"
+        },
+        {
+          "missing_date": "2022-04-03"
+        },
+        {
+          "missing_date": "2022-04-04"
+        },
+        {
+          "missing_date": "2022-04-05"
+        },
+        {
+          "missing_date": "2022-04-06"
+        },
+        {
+          "missing_date": "2022-04-07"
+        },
+        {
+          "missing_date": "2022-04-08"
+        },
+        {
+          "missing_date": "2022-04-09"
+        },
+        {
+          "missing_date": "2022-04-10"
+        },
+        {
+          "missing_date": "2022-04-11"
+        },
+        {
+          "missing_date": "2022-04-12"
+        },
+        {
+          "missing_date": "2022-04-13"
+        },
+        {
+          "missing_date": "2022-04-14"
+        },
+        {
+          "missing_date": "2022-04-15"
+        },
+        {
+          "missing_date": "2022-04-16"
+        },
+        {
+          "missing_date": "2022-04-17"
+        },
+        {
+          "missing_date": "2022-04-18"
+        },
+        {
+          "missing_date": "2022-04-19"
+        },
+        {
+          "missing_date": "2022-04-20"
+        },
+        {
+          "missing_date": "2022-04-21"
+        },
+        {
+          "missing_date": "2022-04-22"
+        },
+        {
+          "missing_date": "2022-04-23"
+        },
+        {
+          "missing_date": "2022-04-24"
+        },
+        {
+          "missing_date": "2022-04-25"
+        },
+        {
+          "missing_date": "2022-04-26"
+        },
+        {
+          "missing_date": "2022-04-27"
+        },
+        {
+          "missing_date": "2022-04-28"
+        },
+        {
+          "missing_date": "2022-04-29"
+        },
+        {
+          "missing_date": "2022-04-30"
+        },
+        {
+          "missing_date": "2022-05-01"
+        },
+        {
+          "missing_date": "2022-05-02"
+        },
+        {
+          "missing_date": "2022-05-03"
+        },
+        {
+          "missing_date": "2022-05-04"
+        },
+        {
+          "missing_date": "2022-05-05"
+        },
+        {
+          "missing_date": "2022-05-06"
+        },
+        {
+          "missing_date": "2022-05-07"
+        },
+        {
+          "missing_date": "2022-05-08"
+        },
+        {
+          "missing_date": "2022-05-09"
+        },
+        {
+          "missing_date": "2022-05-10"
+        },
+        {
+          "missing_date": "2022-05-11"
+        },
+        {
+          "missing_date": "2022-05-12"
+        },
+        {
+          "missing_date": "2022-05-13"
+        },
+        {
+          "missing_date": "2022-05-14"
+        },
+        {
+          "missing_date": "2022-05-15"
+        },
+        {
+          "missing_date": "2022-05-16"
+        },
+        {
+          "missing_date": "2022-05-17"
+        },
+        {
+          "missing_date": "2022-05-18"
+        },
+        {
+          "missing_date": "2022-05-19"
+        },
+        {
+          "missing_date": "2022-05-20"
+        },
+        {
+          "missing_date": "2022-05-21"
+        },
+        {
+          "missing_date": "2022-05-22"
+        },
+        {
+          "missing_date": "2022-05-23"
+        },
+        {
+          "missing_date": "2022-05-24"
+        },
+        {
+          "missing_date": "2022-05-25"
+        },
+        {
+          "missing_date": "2022-05-26"
+        },
+        {
+          "missing_date": "2022-05-27"
+        },
+        {
+          "missing_date": "2022-05-28"
+        },
+        {
+          "missing_date": "2022-05-29"
+        },
+        {
+          "missing_date": "2022-05-30"
+        },
+        {
+          "missing_date": "2022-05-31"
+        },
+        {
+          "missing_date": "2022-06-01"
+        },
+        {
+          "missing_date": "2022-06-02"
+        },
+        {
+          "missing_date": "2022-06-03"
+        },
+        {
+          "missing_date": "2022-06-04"
+        },
+        {
+          "missing_date": "2022-06-05"
+        },
+        {
+          "missing_date": "2022-06-06"
+        },
+        {
+          "missing_date": "2022-06-07"
+        },
+        {
+          "missing_date": "2022-06-08"
+        },
+        {
+          "missing_date": "2022-06-09"
+        },
+        {
+          "missing_date": "2022-06-10"
+        },
+        {
+          "missing_date": "2022-06-11"
+        },
+        {
+          "missing_date": "2022-06-12"
+        },
+        {
+          "missing_date": "2022-06-13"
+        },
+        {
+          "missing_date": "2022-06-14"
+        },
+        {
+          "missing_date": "2022-06-15"
+        },
+        {
+          "missing_date": "2022-06-16"
+        },
+        {
+          "missing_date": "2022-06-17"
+        },
+        {
+          "missing_date": "2022-06-18"
+        },
+        {
+          "missing_date": "2022-06-19"
+        },
+        {
+          "missing_date": "2022-06-20"
+        },
+        {
+          "missing_date": "2022-06-21"
+        },
+        {
+          "missing_date": "2022-06-22"
+        },
+        {
+          "missing_date": "2022-06-23"
+        },
+        {
+          "missing_date": "2022-06-24"
+        },
+        {
+          "missing_date": "2022-06-25"
+        },
+        {
+          "missing_date": "2022-06-26"
+        },
+        {
+          "missing_date": "2022-06-27"
+        },
+        {
+          "missing_date": "2022-06-28"
+        },
+        {
+          "missing_date": "2022-06-29"
+        },
+        {
+          "missing_date": "2022-06-30"
+        },
+        {
+          "missing_date": "2022-07-01"
+        },
+        {
+          "missing_date": "2022-07-02"
+        },
+        {
+          "missing_date": "2022-07-03"
+        },
+        {
+          "missing_date": "2022-07-04"
+        },
+        {
+          "missing_date": "2022-07-05"
+        },
+        {
+          "missing_date": "2022-07-06"
+        },
+        {
+          "missing_date": "2022-07-07"
+        },
+        {
+          "missing_date": "2022-07-08"
+        },
+        {
+          "missing_date": "2022-07-09"
+        },
+        {
+          "missing_date": "2022-07-10"
+        },
+        {
+          "missing_date": "2022-07-11"
+        },
+        {
+          "missing_date": "2022-07-12"
+        },
+        {
+          "missing_date": "2022-07-13"
+        },
+        {
+          "missing_date": "2022-07-14"
+        },
+        {
+          "missing_date": "2022-07-15"
+        },
+        {
+          "missing_date": "2022-07-16"
+        },
+        {
+          "missing_date": "2022-07-17"
+        },
+        {
+          "missing_date": "2022-07-18"
+        },
+        {
+          "missing_date": "2022-07-19"
+        },
+        {
+          "missing_date": "2022-07-20"
+        },
+        {
+          "missing_date": "2022-07-21"
+        },
+        {
+          "missing_date": "2022-07-22"
+        },
+        {
+          "missing_date": "2022-07-23"
+        },
+        {
+          "missing_date": "2022-07-24"
+        },
+        {
+          "missing_date": "2022-07-25"
+        },
+        {
+          "missing_date": "2022-07-26"
+        },
+        {
+          "missing_date": "2022-07-27"
+        },
+        {
+          "missing_date": "2022-07-28"
+        },
+        {
+          "missing_date": "2022-07-29"
+        },
+        {
+          "missing_date": "2022-07-30"
+        },
+        {
+          "missing_date": "2022-07-31"
+        },
+        {
+          "missing_date": "2022-08-01"
+        },
+        {
+          "missing_date": "2022-08-02"
+        },
+        {
+          "missing_date": "2022-08-03"
+        },
+        {
+          "missing_date": "2022-08-04"
+        },
+        {
+          "missing_date": "2022-08-05"
+        },
+        {
+          "missing_date": "2022-08-06"
+        },
+        {
+          "missing_date": "2022-08-07"
+        },
+        {
+          "missing_date": "2022-08-08"
+        },
+        {
+          "missing_date": "2022-08-09"
+        },
+        {
+          "missing_date": "2022-08-10"
+        },
+        {
+          "missing_date": "2022-08-11"
+        },
+        {
+          "missing_date": "2022-08-12"
+        },
+        {
+          "missing_date": "2022-08-13"
+        },
+        {
+          "missing_date": "2022-08-14"
+        },
+        {
+          "missing_date": "2022-08-15"
+        },
+        {
+          "missing_date": "2022-08-16"
+        },
+        {
+          "missing_date": "2022-08-17"
+        },
+        {
+          "missing_date": "2022-08-18"
+        },
+        {
+          "missing_date": "2022-08-19"
+        },
+        {
+          "missing_date": "2022-08-20"
+        },
+        {
+          "missing_date": "2022-08-21"
+        },
+        {
+          "missing_date": "2022-08-22"
+        },
+        {
+          "missing_date": "2022-08-23"
+        },
+        {
+          "missing_date": "2022-08-24"
+        },
+        {
+          "missing_date": "2022-08-25"
+        },
+        {
+          "missing_date": "2022-08-26"
+        },
+        {
+          "missing_date": "2022-08-27"
+        },
+        {
+          "missing_date": "2022-08-28"
+        },
+        {
+          "missing_date": "2022-08-29"
+        },
+        {
+          "missing_date": "2022-08-30"
+        },
+        {
+          "missing_date": "2022-08-31"
+        },
+        {
+          "missing_date": "2022-09-01"
+        },
+        {
+          "missing_date": "2022-09-02"
+        },
+        {
+          "missing_date": "2022-09-03"
+        },
+        {
+          "missing_date": "2022-09-04"
+        },
+        {
+          "missing_date": "2022-09-05"
+        },
+        {
+          "missing_date": "2022-09-06"
+        },
+        {
+          "missing_date": "2022-09-07"
+        },
+        {
+          "missing_date": "2022-09-08"
+        },
+        {
+          "missing_date": "2022-09-09"
+        },
+        {
+          "missing_date": "2022-09-10"
+        },
+        {
+          "missing_date": "2022-09-11"
+        },
+        {
+          "missing_date": "2022-09-12"
+        },
+        {
+          "missing_date": "2022-09-13"
+        },
+        {
+          "missing_date": "2022-09-14"
+        },
+        {
+          "missing_date": "2022-09-15"
+        },
+        {
+          "missing_date": "2022-09-16"
+        },
+        {
+          "missing_date": "2022-09-17"
+        },
+        {
+          "missing_date": "2022-09-18"
+        },
+        {
+          "missing_date": "2022-09-19"
+        },
+        {
+          "missing_date": "2022-09-20"
+        },
+        {
+          "missing_date": "2022-09-21"
+        },
+        {
+          "missing_date": "2022-09-22"
+        },
+        {
+          "missing_date": "2022-09-23"
+        },
+        {
+          "missing_date": "2022-09-24"
+        },
+        {
+          "missing_date": "2022-09-25"
+        },
+        {
+          "missing_date": "2022-09-26"
+        },
+        {
+          "missing_date": "2022-09-27"
+        },
+        {
+          "missing_date": "2022-09-28"
+        },
+        {
+          "missing_date": "2022-09-29"
+        },
+        {
+          "missing_date": "2022-09-30"
+        },
+        {
+          "missing_date": "2022-10-01"
+        },
+        {
+          "missing_date": "2022-10-02"
+        },
+        {
+          "missing_date": "2022-10-03"
+        },
+        {
+          "missing_date": "2022-10-04"
+        },
+        {
+          "missing_date": "2022-10-05"
+        },
+        {
+          "missing_date": "2022-10-06"
+        },
+        {
+          "missing_date": "2022-10-07"
+        },
+        {
+          "missing_date": "2022-10-08"
+        },
+        {
+          "missing_date": "2022-10-09"
+        },
+        {
+          "missing_date": "2022-10-10"
+        },
+        {
+          "missing_date": "2022-10-11"
+        },
+        {
+          "missing_date": "2022-10-12"
+        },
+        {
+          "missing_date": "2022-10-13"
+        },
+        {
+          "missing_date": "2022-10-14"
+        },
+        {
+          "missing_date": "2022-10-15"
+        },
+        {
+          "missing_date": "2022-10-16"
+        },
+        {
+          "missing_date": "2022-10-17"
+        },
+        {
+          "missing_date": "2022-10-18"
+        },
+        {
+          "missing_date": "2022-10-19"
+        },
+        {
+          "missing_date": "2022-10-20"
+        },
+        {
+          "missing_date": "2022-10-21"
+        },
+        {
+          "missing_date": "2022-10-22"
+        },
+        {
+          "missing_date": "2022-10-23"
+        },
+        {
+          "missing_date": "2022-10-24"
+        },
+        {
+          "missing_date": "2022-10-25"
+        },
+        {
+          "missing_date": "2022-10-26"
+        },
+        {
+          "missing_date": "2022-10-27"
+        },
+        {
+          "missing_date": "2022-10-28"
+        },
+        {
+          "missing_date": "2022-10-29"
+        },
+        {
+          "missing_date": "2022-10-30"
+        },
+        {
+          "missing_date": "2022-10-31"
+        },
+        {
+          "missing_date": "2022-11-01"
+        },
+        {
+          "missing_date": "2022-11-02"
+        },
+        {
+          "missing_date": "2022-11-03"
+        },
+        {
+          "missing_date": "2022-11-04"
+        },
+        {
+          "missing_date": "2022-11-05"
+        },
+        {
+          "missing_date": "2022-11-06"
+        },
+        {
+          "missing_date": "2022-11-07"
+        },
+        {
+          "missing_date": "2022-11-08"
+        },
+        {
+          "missing_date": "2022-11-09"
+        },
+        {
+          "missing_date": "2022-11-10"
+        },
+        {
+          "missing_date": "2022-11-11"
+        },
+        {
+          "missing_date": "2022-11-12"
+        },
+        {
+          "missing_date": "2022-11-13"
+        },
+        {
+          "missing_date": "2022-11-14"
+        },
+        {
+          "missing_date": "2022-11-15"
+        },
+        {
+          "missing_date": "2022-11-16"
+        },
+        {
+          "missing_date": "2022-11-17"
+        },
+        {
+          "missing_date": "2022-11-18"
+        },
+        {
+          "missing_date": "2022-11-19"
+        },
+        {
+          "missing_date": "2022-11-20"
+        },
+        {
+          "missing_date": "2022-11-21"
+        },
+        {
+          "missing_date": "2022-11-22"
+        },
+        {
+          "missing_date": "2022-11-23"
+        },
+        {
+          "missing_date": "2022-11-24"
+        },
+        {
+          "missing_date": "2022-11-25"
+        },
+        {
+          "missing_date": "2022-11-26"
+        },
+        {
+          "missing_date": "2022-11-27"
+        },
+        {
+          "missing_date": "2022-11-28"
+        },
+        {
+          "missing_date": "2022-11-29"
+        },
+        {
+          "missing_date": "2022-11-30"
+        },
+        {
+          "missing_date": "2022-12-01"
+        },
+        {
+          "missing_date": "2022-12-02"
+        },
+        {
+          "missing_date": "2022-12-03"
+        },
+        {
+          "missing_date": "2022-12-04"
+        },
+        {
+          "missing_date": "2022-12-05"
+        },
+        {
+          "missing_date": "2022-12-06"
+        },
+        {
+          "missing_date": "2022-12-07"
+        },
+        {
+          "missing_date": "2022-12-08"
+        },
+        {
+          "missing_date": "2022-12-09"
+        },
+        {
+          "missing_date": "2022-12-10"
+        },
+        {
+          "missing_date": "2022-12-11"
+        },
+        {
+          "missing_date": "2022-12-12"
+        },
+        {
+          "missing_date": "2022-12-13"
+        },
+        {
+          "missing_date": "2022-12-14"
+        },
+        {
+          "missing_date": "2022-12-15"
+        },
+        {
+          "missing_date": "2022-12-16"
+        },
+        {
+          "missing_date": "2022-12-17"
+        },
+        {
+          "missing_date": "2022-12-18"
+        },
+        {
+          "missing_date": "2022-12-19"
+        },
+        {
+          "missing_date": "2022-12-20"
+        },
+        {
+          "missing_date": "2022-12-21"
+        },
+        {
+          "missing_date": "2022-12-22"
+        },
+        {
+          "missing_date": "2022-12-23"
+        },
+        {
+          "missing_date": "2022-12-24"
+        },
+        {
+          "missing_date": "2022-12-25"
+        },
+        {
+          "missing_date": "2022-12-26"
+        },
+        {
+          "missing_date": "2022-12-27"
+        },
+        {
+          "missing_date": "2022-12-28"
+        },
+        {
+          "missing_date": "2022-12-29"
+        },
+        {
+          "missing_date": "2022-12-30"
+        },
+        {
+          "missing_date": "2022-12-31"
+        },
+        {
+          "missing_date": "2023-01-01"
+        }
+      ],
+      "expectedHash": "877777e02afae7e34ffd08c1b7452cac5c7bfdcd425b8958247c41e26907db57"
+    },
+    {
+      "name": "Customer who never ordered",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12'),(3,'NoOrders','FR','2023-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,2,'2022-01-11','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,2,25.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "All orders cancelled",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','cancelled'),(2,2,'2022-01-11','cancelled');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,1,2,80.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Everything empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Orders with no items, products never sold",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'NeverSold','Tech',999.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2022-01-11','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "NULL prices, quantities and statuses",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo',NULL,'2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mystery',NULL,NULL);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,2,'2022-01-11',NULL);\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,1,2,NULL,NULL),(3,2,1,1,80.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single customer, single order",
+      "seedSql": "INSERT INTO customers VALUES (1,'Solo','US','2022-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-05-05','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Ties in revenue between products and customers",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','US','2021-01-01');\nINSERT INTO products VALUES (1,'P1','Tech',50.0),(2,'P2','Tech',50.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,2,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,2,50.0),(2,2,2,2,50.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Same-day repeat orders across month and year boundaries",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2020-12-31'),(2,'Bo','UK','2021-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Desk','Furniture',300.0);\nINSERT INTO orders VALUES (1,1,'2021-12-31','completed'),(2,1,'2022-01-01','completed'),(3,1,'2022-01-01','completed'),(4,2,'2022-01-31','completed'),(5,2,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,1,300.0),(3,3,1,3,80.0),(4,4,2,2,300.0),(5,5,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "missing_date": "2022-01-02"
+        },
+        {
+          "missing_date": "2022-01-03"
+        },
+        {
+          "missing_date": "2022-01-04"
+        },
+        {
+          "missing_date": "2022-01-05"
+        },
+        {
+          "missing_date": "2022-01-06"
+        },
+        {
+          "missing_date": "2022-01-07"
+        },
+        {
+          "missing_date": "2022-01-08"
+        },
+        {
+          "missing_date": "2022-01-09"
+        },
+        {
+          "missing_date": "2022-01-10"
+        },
+        {
+          "missing_date": "2022-01-11"
+        },
+        {
+          "missing_date": "2022-01-12"
+        },
+        {
+          "missing_date": "2022-01-13"
+        },
+        {
+          "missing_date": "2022-01-14"
+        },
+        {
+          "missing_date": "2022-01-15"
+        },
+        {
+          "missing_date": "2022-01-16"
+        },
+        {
+          "missing_date": "2022-01-17"
+        },
+        {
+          "missing_date": "2022-01-18"
+        },
+        {
+          "missing_date": "2022-01-19"
+        },
+        {
+          "missing_date": "2022-01-20"
+        },
+        {
+          "missing_date": "2022-01-21"
+        },
+        {
+          "missing_date": "2022-01-22"
+        },
+        {
+          "missing_date": "2022-01-23"
+        },
+        {
+          "missing_date": "2022-01-24"
+        },
+        {
+          "missing_date": "2022-01-25"
+        },
+        {
+          "missing_date": "2022-01-26"
+        },
+        {
+          "missing_date": "2022-01-27"
+        },
+        {
+          "missing_date": "2022-01-28"
+        },
+        {
+          "missing_date": "2022-01-29"
+        },
+        {
+          "missing_date": "2022-01-30"
+        }
+      ],
+      "expectedHash": "16195e95938f57339ba6050bf931e0f1d2b26a775c79ea8e616545fe4065b009"
+    },
+    {
+      "name": "Larger multi-country set",
+      "seedSql": "INSERT INTO customers VALUES (1,'A','US','2020-01-01'),(2,'B','US','2020-02-01'),(3,'C','UK','2020-03-01'),(4,'D','UK','2021-04-01'),(5,'E','IN','2021-05-01'),(6,'F','IN','2022-06-01'),(7,'G','FR','2022-07-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Desk','Furniture',300.0),(4,'Lamp','Furniture',45.0),(5,'Mug','Kitchen',12.5);\nINSERT INTO orders VALUES (1,1,'2022-01-03','completed'),(2,1,'2022-02-03','completed'),(3,2,'2022-02-14','completed'),(4,3,'2022-03-21','cancelled'),(5,4,'2022-04-02','completed'),(6,5,'2022-05-19','pending'),(7,5,'2022-06-19','completed'),(8,6,'2023-01-11','completed'),(9,7,'2023-02-28','completed'),(10,1,'2023-03-15','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,1,5,4,12.5),(3,2,3,1,300.0),(4,3,2,2,25.0),(5,4,4,1,45.0),(6,5,1,2,80.0),(7,6,5,10,12.5),(8,7,3,1,300.0),(9,7,4,2,45.0),(10,8,2,5,25.0),(11,9,1,1,80.0),(12,10,3,2,300.0),(13,10,5,1,12.5);",
+      "expectedOutput": [
+        {
+          "missing_date": "2022-01-04"
+        },
+        {
+          "missing_date": "2022-01-05"
+        },
+        {
+          "missing_date": "2022-01-06"
+        },
+        {
+          "missing_date": "2022-01-07"
+        },
+        {
+          "missing_date": "2022-01-08"
+        },
+        {
+          "missing_date": "2022-01-09"
+        },
+        {
+          "missing_date": "2022-01-10"
+        },
+        {
+          "missing_date": "2022-01-11"
+        },
+        {
+          "missing_date": "2022-01-12"
+        },
+        {
+          "missing_date": "2022-01-13"
+        },
+        {
+          "missing_date": "2022-01-14"
+        },
+        {
+          "missing_date": "2022-01-15"
+        },
+        {
+          "missing_date": "2022-01-16"
+        },
+        {
+          "missing_date": "2022-01-17"
+        },
+        {
+          "missing_date": "2022-01-18"
+        },
+        {
+          "missing_date": "2022-01-19"
+        },
+        {
+          "missing_date": "2022-01-20"
+        },
+        {
+          "missing_date": "2022-01-21"
+        },
+        {
+          "missing_date": "2022-01-22"
+        },
+        {
+          "missing_date": "2022-01-23"
+        },
+        {
+          "missing_date": "2022-01-24"
+        },
+        {
+          "missing_date": "2022-01-25"
+        },
+        {
+          "missing_date": "2022-01-26"
+        },
+        {
+          "missing_date": "2022-01-27"
+        },
+        {
+          "missing_date": "2022-01-28"
+        },
+        {
+          "missing_date": "2022-01-29"
+        },
+        {
+          "missing_date": "2022-01-30"
+        },
+        {
+          "missing_date": "2022-01-31"
+        },
+        {
+          "missing_date": "2022-02-01"
+        },
+        {
+          "missing_date": "2022-02-02"
+        },
+        {
+          "missing_date": "2022-02-04"
+        },
+        {
+          "missing_date": "2022-02-05"
+        },
+        {
+          "missing_date": "2022-02-06"
+        },
+        {
+          "missing_date": "2022-02-07"
+        },
+        {
+          "missing_date": "2022-02-08"
+        },
+        {
+          "missing_date": "2022-02-09"
+        },
+        {
+          "missing_date": "2022-02-10"
+        },
+        {
+          "missing_date": "2022-02-11"
+        },
+        {
+          "missing_date": "2022-02-12"
+        },
+        {
+          "missing_date": "2022-02-13"
+        },
+        {
+          "missing_date": "2022-02-15"
+        },
+        {
+          "missing_date": "2022-02-16"
+        },
+        {
+          "missing_date": "2022-02-17"
+        },
+        {
+          "missing_date": "2022-02-18"
+        },
+        {
+          "missing_date": "2022-02-19"
+        },
+        {
+          "missing_date": "2022-02-20"
+        },
+        {
+          "missing_date": "2022-02-21"
+        },
+        {
+          "missing_date": "2022-02-22"
+        },
+        {
+          "missing_date": "2022-02-23"
+        },
+        {
+          "missing_date": "2022-02-24"
+        },
+        {
+          "missing_date": "2022-02-25"
+        },
+        {
+          "missing_date": "2022-02-26"
+        },
+        {
+          "missing_date": "2022-02-27"
+        },
+        {
+          "missing_date": "2022-02-28"
+        },
+        {
+          "missing_date": "2022-03-01"
+        },
+        {
+          "missing_date": "2022-03-02"
+        },
+        {
+          "missing_date": "2022-03-03"
+        },
+        {
+          "missing_date": "2022-03-04"
+        },
+        {
+          "missing_date": "2022-03-05"
+        },
+        {
+          "missing_date": "2022-03-06"
+        },
+        {
+          "missing_date": "2022-03-07"
+        },
+        {
+          "missing_date": "2022-03-08"
+        },
+        {
+          "missing_date": "2022-03-09"
+        },
+        {
+          "missing_date": "2022-03-10"
+        },
+        {
+          "missing_date": "2022-03-11"
+        },
+        {
+          "missing_date": "2022-03-12"
+        },
+        {
+          "missing_date": "2022-03-13"
+        },
+        {
+          "missing_date": "2022-03-14"
+        },
+        {
+          "missing_date": "2022-03-15"
+        },
+        {
+          "missing_date": "2022-03-16"
+        },
+        {
+          "missing_date": "2022-03-17"
+        },
+        {
+          "missing_date": "2022-03-18"
+        },
+        {
+          "missing_date": "2022-03-19"
+        },
+        {
+          "missing_date": "2022-03-20"
+        },
+        {
+          "missing_date": "2022-03-22"
+        },
+        {
+          "missing_date": "2022-03-23"
+        },
+        {
+          "missing_date": "2022-03-24"
+        },
+        {
+          "missing_date": "2022-03-25"
+        },
+        {
+          "missing_date": "2022-03-26"
+        },
+        {
+          "missing_date": "2022-03-27"
+        },
+        {
+          "missing_date": "2022-03-28"
+        },
+        {
+          "missing_date": "2022-03-29"
+        },
+        {
+          "missing_date": "2022-03-30"
+        },
+        {
+          "missing_date": "2022-03-31"
+        },
+        {
+          "missing_date": "2022-04-01"
+        },
+        {
+          "missing_date": "2022-04-03"
+        },
+        {
+          "missing_date": "2022-04-04"
+        },
+        {
+          "missing_date": "2022-04-05"
+        },
+        {
+          "missing_date": "2022-04-06"
+        },
+        {
+          "missing_date": "2022-04-07"
+        },
+        {
+          "missing_date": "2022-04-08"
+        },
+        {
+          "missing_date": "2022-04-09"
+        },
+        {
+          "missing_date": "2022-04-10"
+        },
+        {
+          "missing_date": "2022-04-11"
+        },
+        {
+          "missing_date": "2022-04-12"
+        },
+        {
+          "missing_date": "2022-04-13"
+        },
+        {
+          "missing_date": "2022-04-14"
+        },
+        {
+          "missing_date": "2022-04-15"
+        },
+        {
+          "missing_date": "2022-04-16"
+        },
+        {
+          "missing_date": "2022-04-17"
+        },
+        {
+          "missing_date": "2022-04-18"
+        },
+        {
+          "missing_date": "2022-04-19"
+        },
+        {
+          "missing_date": "2022-04-20"
+        },
+        {
+          "missing_date": "2022-04-21"
+        },
+        {
+          "missing_date": "2022-04-22"
+        },
+        {
+          "missing_date": "2022-04-23"
+        },
+        {
+          "missing_date": "2022-04-24"
+        },
+        {
+          "missing_date": "2022-04-25"
+        },
+        {
+          "missing_date": "2022-04-26"
+        },
+        {
+          "missing_date": "2022-04-27"
+        },
+        {
+          "missing_date": "2022-04-28"
+        },
+        {
+          "missing_date": "2022-04-29"
+        },
+        {
+          "missing_date": "2022-04-30"
+        },
+        {
+          "missing_date": "2022-05-01"
+        },
+        {
+          "missing_date": "2022-05-02"
+        },
+        {
+          "missing_date": "2022-05-03"
+        },
+        {
+          "missing_date": "2022-05-04"
+        },
+        {
+          "missing_date": "2022-05-05"
+        },
+        {
+          "missing_date": "2022-05-06"
+        },
+        {
+          "missing_date": "2022-05-07"
+        },
+        {
+          "missing_date": "2022-05-08"
+        },
+        {
+          "missing_date": "2022-05-09"
+        },
+        {
+          "missing_date": "2022-05-10"
+        },
+        {
+          "missing_date": "2022-05-11"
+        },
+        {
+          "missing_date": "2022-05-12"
+        },
+        {
+          "missing_date": "2022-05-13"
+        },
+        {
+          "missing_date": "2022-05-14"
+        },
+        {
+          "missing_date": "2022-05-15"
+        },
+        {
+          "missing_date": "2022-05-16"
+        },
+        {
+          "missing_date": "2022-05-17"
+        },
+        {
+          "missing_date": "2022-05-18"
+        },
+        {
+          "missing_date": "2022-05-20"
+        },
+        {
+          "missing_date": "2022-05-21"
+        },
+        {
+          "missing_date": "2022-05-22"
+        },
+        {
+          "missing_date": "2022-05-23"
+        },
+        {
+          "missing_date": "2022-05-24"
+        },
+        {
+          "missing_date": "2022-05-25"
+        },
+        {
+          "missing_date": "2022-05-26"
+        },
+        {
+          "missing_date": "2022-05-27"
+        },
+        {
+          "missing_date": "2022-05-28"
+        },
+        {
+          "missing_date": "2022-05-29"
+        },
+        {
+          "missing_date": "2022-05-30"
+        },
+        {
+          "missing_date": "2022-05-31"
+        },
+        {
+          "missing_date": "2022-06-01"
+        },
+        {
+          "missing_date": "2022-06-02"
+        },
+        {
+          "missing_date": "2022-06-03"
+        },
+        {
+          "missing_date": "2022-06-04"
+        },
+        {
+          "missing_date": "2022-06-05"
+        },
+        {
+          "missing_date": "2022-06-06"
+        },
+        {
+          "missing_date": "2022-06-07"
+        },
+        {
+          "missing_date": "2022-06-08"
+        },
+        {
+          "missing_date": "2022-06-09"
+        },
+        {
+          "missing_date": "2022-06-10"
+        },
+        {
+          "missing_date": "2022-06-11"
+        },
+        {
+          "missing_date": "2022-06-12"
+        },
+        {
+          "missing_date": "2022-06-13"
+        },
+        {
+          "missing_date": "2022-06-14"
+        },
+        {
+          "missing_date": "2022-06-15"
+        },
+        {
+          "missing_date": "2022-06-16"
+        },
+        {
+          "missing_date": "2022-06-17"
+        },
+        {
+          "missing_date": "2022-06-18"
+        },
+        {
+          "missing_date": "2022-06-20"
+        },
+        {
+          "missing_date": "2022-06-21"
+        },
+        {
+          "missing_date": "2022-06-22"
+        },
+        {
+          "missing_date": "2022-06-23"
+        },
+        {
+          "missing_date": "2022-06-24"
+        },
+        {
+          "missing_date": "2022-06-25"
+        },
+        {
+          "missing_date": "2022-06-26"
+        },
+        {
+          "missing_date": "2022-06-27"
+        },
+        {
+          "missing_date": "2022-06-28"
+        },
+        {
+          "missing_date": "2022-06-29"
+        },
+        {
+          "missing_date": "2022-06-30"
+        },
+        {
+          "missing_date": "2022-07-01"
+        },
+        {
+          "missing_date": "2022-07-02"
+        },
+        {
+          "missing_date": "2022-07-03"
+        },
+        {
+          "missing_date": "2022-07-04"
+        },
+        {
+          "missing_date": "2022-07-05"
+        },
+        {
+          "missing_date": "2022-07-06"
+        },
+        {
+          "missing_date": "2022-07-07"
+        },
+        {
+          "missing_date": "2022-07-08"
+        },
+        {
+          "missing_date": "2022-07-09"
+        },
+        {
+          "missing_date": "2022-07-10"
+        },
+        {
+          "missing_date": "2022-07-11"
+        },
+        {
+          "missing_date": "2022-07-12"
+        },
+        {
+          "missing_date": "2022-07-13"
+        },
+        {
+          "missing_date": "2022-07-14"
+        },
+        {
+          "missing_date": "2022-07-15"
+        },
+        {
+          "missing_date": "2022-07-16"
+        },
+        {
+          "missing_date": "2022-07-17"
+        },
+        {
+          "missing_date": "2022-07-18"
+        },
+        {
+          "missing_date": "2022-07-19"
+        },
+        {
+          "missing_date": "2022-07-20"
+        },
+        {
+          "missing_date": "2022-07-21"
+        },
+        {
+          "missing_date": "2022-07-22"
+        },
+        {
+          "missing_date": "2022-07-23"
+        },
+        {
+          "missing_date": "2022-07-24"
+        },
+        {
+          "missing_date": "2022-07-25"
+        },
+        {
+          "missing_date": "2022-07-26"
+        },
+        {
+          "missing_date": "2022-07-27"
+        },
+        {
+          "missing_date": "2022-07-28"
+        },
+        {
+          "missing_date": "2022-07-29"
+        },
+        {
+          "missing_date": "2022-07-30"
+        },
+        {
+          "missing_date": "2022-07-31"
+        },
+        {
+          "missing_date": "2022-08-01"
+        },
+        {
+          "missing_date": "2022-08-02"
+        },
+        {
+          "missing_date": "2022-08-03"
+        },
+        {
+          "missing_date": "2022-08-04"
+        },
+        {
+          "missing_date": "2022-08-05"
+        },
+        {
+          "missing_date": "2022-08-06"
+        },
+        {
+          "missing_date": "2022-08-07"
+        },
+        {
+          "missing_date": "2022-08-08"
+        },
+        {
+          "missing_date": "2022-08-09"
+        },
+        {
+          "missing_date": "2022-08-10"
+        },
+        {
+          "missing_date": "2022-08-11"
+        },
+        {
+          "missing_date": "2022-08-12"
+        },
+        {
+          "missing_date": "2022-08-13"
+        },
+        {
+          "missing_date": "2022-08-14"
+        },
+        {
+          "missing_date": "2022-08-15"
+        },
+        {
+          "missing_date": "2022-08-16"
+        },
+        {
+          "missing_date": "2022-08-17"
+        },
+        {
+          "missing_date": "2022-08-18"
+        },
+        {
+          "missing_date": "2022-08-19"
+        },
+        {
+          "missing_date": "2022-08-20"
+        },
+        {
+          "missing_date": "2022-08-21"
+        },
+        {
+          "missing_date": "2022-08-22"
+        },
+        {
+          "missing_date": "2022-08-23"
+        },
+        {
+          "missing_date": "2022-08-24"
+        },
+        {
+          "missing_date": "2022-08-25"
+        },
+        {
+          "missing_date": "2022-08-26"
+        },
+        {
+          "missing_date": "2022-08-27"
+        },
+        {
+          "missing_date": "2022-08-28"
+        },
+        {
+          "missing_date": "2022-08-29"
+        },
+        {
+          "missing_date": "2022-08-30"
+        },
+        {
+          "missing_date": "2022-08-31"
+        },
+        {
+          "missing_date": "2022-09-01"
+        },
+        {
+          "missing_date": "2022-09-02"
+        },
+        {
+          "missing_date": "2022-09-03"
+        },
+        {
+          "missing_date": "2022-09-04"
+        },
+        {
+          "missing_date": "2022-09-05"
+        },
+        {
+          "missing_date": "2022-09-06"
+        },
+        {
+          "missing_date": "2022-09-07"
+        },
+        {
+          "missing_date": "2022-09-08"
+        },
+        {
+          "missing_date": "2022-09-09"
+        },
+        {
+          "missing_date": "2022-09-10"
+        },
+        {
+          "missing_date": "2022-09-11"
+        },
+        {
+          "missing_date": "2022-09-12"
+        },
+        {
+          "missing_date": "2022-09-13"
+        },
+        {
+          "missing_date": "2022-09-14"
+        },
+        {
+          "missing_date": "2022-09-15"
+        },
+        {
+          "missing_date": "2022-09-16"
+        },
+        {
+          "missing_date": "2022-09-17"
+        },
+        {
+          "missing_date": "2022-09-18"
+        },
+        {
+          "missing_date": "2022-09-19"
+        },
+        {
+          "missing_date": "2022-09-20"
+        },
+        {
+          "missing_date": "2022-09-21"
+        },
+        {
+          "missing_date": "2022-09-22"
+        },
+        {
+          "missing_date": "2022-09-23"
+        },
+        {
+          "missing_date": "2022-09-24"
+        },
+        {
+          "missing_date": "2022-09-25"
+        },
+        {
+          "missing_date": "2022-09-26"
+        },
+        {
+          "missing_date": "2022-09-27"
+        },
+        {
+          "missing_date": "2022-09-28"
+        },
+        {
+          "missing_date": "2022-09-29"
+        },
+        {
+          "missing_date": "2022-09-30"
+        },
+        {
+          "missing_date": "2022-10-01"
+        },
+        {
+          "missing_date": "2022-10-02"
+        },
+        {
+          "missing_date": "2022-10-03"
+        },
+        {
+          "missing_date": "2022-10-04"
+        },
+        {
+          "missing_date": "2022-10-05"
+        },
+        {
+          "missing_date": "2022-10-06"
+        },
+        {
+          "missing_date": "2022-10-07"
+        },
+        {
+          "missing_date": "2022-10-08"
+        },
+        {
+          "missing_date": "2022-10-09"
+        },
+        {
+          "missing_date": "2022-10-10"
+        },
+        {
+          "missing_date": "2022-10-11"
+        },
+        {
+          "missing_date": "2022-10-12"
+        },
+        {
+          "missing_date": "2022-10-13"
+        },
+        {
+          "missing_date": "2022-10-14"
+        },
+        {
+          "missing_date": "2022-10-15"
+        },
+        {
+          "missing_date": "2022-10-16"
+        },
+        {
+          "missing_date": "2022-10-17"
+        },
+        {
+          "missing_date": "2022-10-18"
+        },
+        {
+          "missing_date": "2022-10-19"
+        },
+        {
+          "missing_date": "2022-10-20"
+        },
+        {
+          "missing_date": "2022-10-21"
+        },
+        {
+          "missing_date": "2022-10-22"
+        },
+        {
+          "missing_date": "2022-10-23"
+        },
+        {
+          "missing_date": "2022-10-24"
+        },
+        {
+          "missing_date": "2022-10-25"
+        },
+        {
+          "missing_date": "2022-10-26"
+        },
+        {
+          "missing_date": "2022-10-27"
+        },
+        {
+          "missing_date": "2022-10-28"
+        },
+        {
+          "missing_date": "2022-10-29"
+        },
+        {
+          "missing_date": "2022-10-30"
+        },
+        {
+          "missing_date": "2022-10-31"
+        },
+        {
+          "missing_date": "2022-11-01"
+        },
+        {
+          "missing_date": "2022-11-02"
+        },
+        {
+          "missing_date": "2022-11-03"
+        },
+        {
+          "missing_date": "2022-11-04"
+        },
+        {
+          "missing_date": "2022-11-05"
+        },
+        {
+          "missing_date": "2022-11-06"
+        },
+        {
+          "missing_date": "2022-11-07"
+        },
+        {
+          "missing_date": "2022-11-08"
+        },
+        {
+          "missing_date": "2022-11-09"
+        },
+        {
+          "missing_date": "2022-11-10"
+        },
+        {
+          "missing_date": "2022-11-11"
+        },
+        {
+          "missing_date": "2022-11-12"
+        },
+        {
+          "missing_date": "2022-11-13"
+        },
+        {
+          "missing_date": "2022-11-14"
+        },
+        {
+          "missing_date": "2022-11-15"
+        },
+        {
+          "missing_date": "2022-11-16"
+        },
+        {
+          "missing_date": "2022-11-17"
+        },
+        {
+          "missing_date": "2022-11-18"
+        },
+        {
+          "missing_date": "2022-11-19"
+        },
+        {
+          "missing_date": "2022-11-20"
+        },
+        {
+          "missing_date": "2022-11-21"
+        },
+        {
+          "missing_date": "2022-11-22"
+        },
+        {
+          "missing_date": "2022-11-23"
+        },
+        {
+          "missing_date": "2022-11-24"
+        },
+        {
+          "missing_date": "2022-11-25"
+        },
+        {
+          "missing_date": "2022-11-26"
+        },
+        {
+          "missing_date": "2022-11-27"
+        },
+        {
+          "missing_date": "2022-11-28"
+        },
+        {
+          "missing_date": "2022-11-29"
+        },
+        {
+          "missing_date": "2022-11-30"
+        },
+        {
+          "missing_date": "2022-12-01"
+        },
+        {
+          "missing_date": "2022-12-02"
+        },
+        {
+          "missing_date": "2022-12-03"
+        },
+        {
+          "missing_date": "2022-12-04"
+        },
+        {
+          "missing_date": "2022-12-05"
+        },
+        {
+          "missing_date": "2022-12-06"
+        },
+        {
+          "missing_date": "2022-12-07"
+        },
+        {
+          "missing_date": "2022-12-08"
+        },
+        {
+          "missing_date": "2022-12-09"
+        },
+        {
+          "missing_date": "2022-12-10"
+        },
+        {
+          "missing_date": "2022-12-11"
+        },
+        {
+          "missing_date": "2022-12-12"
+        },
+        {
+          "missing_date": "2022-12-13"
+        },
+        {
+          "missing_date": "2022-12-14"
+        },
+        {
+          "missing_date": "2022-12-15"
+        },
+        {
+          "missing_date": "2022-12-16"
+        },
+        {
+          "missing_date": "2022-12-17"
+        },
+        {
+          "missing_date": "2022-12-18"
+        },
+        {
+          "missing_date": "2022-12-19"
+        },
+        {
+          "missing_date": "2022-12-20"
+        },
+        {
+          "missing_date": "2022-12-21"
+        },
+        {
+          "missing_date": "2022-12-22"
+        },
+        {
+          "missing_date": "2022-12-23"
+        },
+        {
+          "missing_date": "2022-12-24"
+        },
+        {
+          "missing_date": "2022-12-25"
+        },
+        {
+          "missing_date": "2022-12-26"
+        },
+        {
+          "missing_date": "2022-12-27"
+        },
+        {
+          "missing_date": "2022-12-28"
+        },
+        {
+          "missing_date": "2022-12-29"
+        },
+        {
+          "missing_date": "2022-12-30"
+        },
+        {
+          "missing_date": "2022-12-31"
+        },
+        {
+          "missing_date": "2023-01-01"
+        },
+        {
+          "missing_date": "2023-01-02"
+        },
+        {
+          "missing_date": "2023-01-03"
+        },
+        {
+          "missing_date": "2023-01-04"
+        },
+        {
+          "missing_date": "2023-01-05"
+        },
+        {
+          "missing_date": "2023-01-06"
+        },
+        {
+          "missing_date": "2023-01-07"
+        },
+        {
+          "missing_date": "2023-01-08"
+        },
+        {
+          "missing_date": "2023-01-09"
+        },
+        {
+          "missing_date": "2023-01-10"
+        },
+        {
+          "missing_date": "2023-01-12"
+        },
+        {
+          "missing_date": "2023-01-13"
+        },
+        {
+          "missing_date": "2023-01-14"
+        },
+        {
+          "missing_date": "2023-01-15"
+        },
+        {
+          "missing_date": "2023-01-16"
+        },
+        {
+          "missing_date": "2023-01-17"
+        },
+        {
+          "missing_date": "2023-01-18"
+        },
+        {
+          "missing_date": "2023-01-19"
+        },
+        {
+          "missing_date": "2023-01-20"
+        },
+        {
+          "missing_date": "2023-01-21"
+        },
+        {
+          "missing_date": "2023-01-22"
+        },
+        {
+          "missing_date": "2023-01-23"
+        },
+        {
+          "missing_date": "2023-01-24"
+        },
+        {
+          "missing_date": "2023-01-25"
+        },
+        {
+          "missing_date": "2023-01-26"
+        },
+        {
+          "missing_date": "2023-01-27"
+        },
+        {
+          "missing_date": "2023-01-28"
+        },
+        {
+          "missing_date": "2023-01-29"
+        },
+        {
+          "missing_date": "2023-01-30"
+        },
+        {
+          "missing_date": "2023-01-31"
+        },
+        {
+          "missing_date": "2023-02-01"
+        },
+        {
+          "missing_date": "2023-02-02"
+        },
+        {
+          "missing_date": "2023-02-03"
+        },
+        {
+          "missing_date": "2023-02-04"
+        },
+        {
+          "missing_date": "2023-02-05"
+        },
+        {
+          "missing_date": "2023-02-06"
+        },
+        {
+          "missing_date": "2023-02-07"
+        },
+        {
+          "missing_date": "2023-02-08"
+        },
+        {
+          "missing_date": "2023-02-09"
+        },
+        {
+          "missing_date": "2023-02-10"
+        },
+        {
+          "missing_date": "2023-02-11"
+        },
+        {
+          "missing_date": "2023-02-12"
+        },
+        {
+          "missing_date": "2023-02-13"
+        },
+        {
+          "missing_date": "2023-02-14"
+        },
+        {
+          "missing_date": "2023-02-15"
+        },
+        {
+          "missing_date": "2023-02-16"
+        },
+        {
+          "missing_date": "2023-02-17"
+        },
+        {
+          "missing_date": "2023-02-18"
+        },
+        {
+          "missing_date": "2023-02-19"
+        },
+        {
+          "missing_date": "2023-02-20"
+        },
+        {
+          "missing_date": "2023-02-21"
+        },
+        {
+          "missing_date": "2023-02-22"
+        },
+        {
+          "missing_date": "2023-02-23"
+        },
+        {
+          "missing_date": "2023-02-24"
+        },
+        {
+          "missing_date": "2023-02-25"
+        },
+        {
+          "missing_date": "2023-02-26"
+        },
+        {
+          "missing_date": "2023-02-27"
+        },
+        {
+          "missing_date": "2023-03-01"
+        },
+        {
+          "missing_date": "2023-03-02"
+        },
+        {
+          "missing_date": "2023-03-03"
+        },
+        {
+          "missing_date": "2023-03-04"
+        },
+        {
+          "missing_date": "2023-03-05"
+        },
+        {
+          "missing_date": "2023-03-06"
+        },
+        {
+          "missing_date": "2023-03-07"
+        },
+        {
+          "missing_date": "2023-03-08"
+        },
+        {
+          "missing_date": "2023-03-09"
+        },
+        {
+          "missing_date": "2023-03-10"
+        },
+        {
+          "missing_date": "2023-03-11"
+        },
+        {
+          "missing_date": "2023-03-12"
+        },
+        {
+          "missing_date": "2023-03-13"
+        },
+        {
+          "missing_date": "2023-03-14"
+        }
+      ],
+      "expectedHash": "14a7fffe77d311a787b9b700b989c556473134d55117418be6f28c04626e0d4d"
+    },
+    {
+      "name": "Every day in range has an order — no gaps",
+      "seedSql": "INSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,1,'2022-01-02','completed'),(3,1,'2022-01-03','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0),(2,2,1,1,10.0),(3,3,1,1,10.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single day range — one order on that single day",
+      "seedSql": "INSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Empty orders table — no range, no rows",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Gaps between orders spread across a month",
+      "seedSql": "INSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,1,'2022-01-10','completed'),(3,1,'2022-01-20','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0),(2,2,1,1,10.0),(3,3,1,1,10.0);",
+      "expectedOutput": [
+        {
+          "missing_date": "2022-01-02"
+        },
+        {
+          "missing_date": "2022-01-03"
+        },
+        {
+          "missing_date": "2022-01-04"
+        },
+        {
+          "missing_date": "2022-01-05"
+        },
+        {
+          "missing_date": "2022-01-06"
+        },
+        {
+          "missing_date": "2022-01-07"
+        },
+        {
+          "missing_date": "2022-01-08"
+        },
+        {
+          "missing_date": "2022-01-09"
+        },
+        {
+          "missing_date": "2022-01-11"
+        },
+        {
+          "missing_date": "2022-01-12"
+        },
+        {
+          "missing_date": "2022-01-13"
+        },
+        {
+          "missing_date": "2022-01-14"
+        },
+        {
+          "missing_date": "2022-01-15"
+        },
+        {
+          "missing_date": "2022-01-16"
+        },
+        {
+          "missing_date": "2022-01-17"
+        },
+        {
+          "missing_date": "2022-01-18"
+        },
+        {
+          "missing_date": "2022-01-19"
+        }
+      ],
+      "expectedHash": "2d5d4dfeddcf752f8bbd13ddac44d33b7333f7ef83f86191843fd5343cadd6b8"
+    },
+    {
+      "name": "Range spanning February in leap year",
+      "seedSql": "INSERT INTO customers VALUES (1,'C','US','2020-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2020-01-01','completed'),(2,1,'2020-03-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0),(2,2,1,1,10.0);",
+      "expectedOutput": [
+        {
+          "missing_date": "2020-01-02"
+        },
+        {
+          "missing_date": "2020-01-03"
+        },
+        {
+          "missing_date": "2020-01-04"
+        },
+        {
+          "missing_date": "2020-01-05"
+        },
+        {
+          "missing_date": "2020-01-06"
+        },
+        {
+          "missing_date": "2020-01-07"
+        },
+        {
+          "missing_date": "2020-01-08"
+        },
+        {
+          "missing_date": "2020-01-09"
+        },
+        {
+          "missing_date": "2020-01-10"
+        },
+        {
+          "missing_date": "2020-01-11"
+        },
+        {
+          "missing_date": "2020-01-12"
+        },
+        {
+          "missing_date": "2020-01-13"
+        },
+        {
+          "missing_date": "2020-01-14"
+        },
+        {
+          "missing_date": "2020-01-15"
+        },
+        {
+          "missing_date": "2020-01-16"
+        },
+        {
+          "missing_date": "2020-01-17"
+        },
+        {
+          "missing_date": "2020-01-18"
+        },
+        {
+          "missing_date": "2020-01-19"
+        },
+        {
+          "missing_date": "2020-01-20"
+        },
+        {
+          "missing_date": "2020-01-21"
+        },
+        {
+          "missing_date": "2020-01-22"
+        },
+        {
+          "missing_date": "2020-01-23"
+        },
+        {
+          "missing_date": "2020-01-24"
+        },
+        {
+          "missing_date": "2020-01-25"
+        },
+        {
+          "missing_date": "2020-01-26"
+        },
+        {
+          "missing_date": "2020-01-27"
+        },
+        {
+          "missing_date": "2020-01-28"
+        },
+        {
+          "missing_date": "2020-01-29"
+        },
+        {
+          "missing_date": "2020-01-30"
+        },
+        {
+          "missing_date": "2020-01-31"
+        },
+        {
+          "missing_date": "2020-02-01"
+        },
+        {
+          "missing_date": "2020-02-02"
+        },
+        {
+          "missing_date": "2020-02-03"
+        },
+        {
+          "missing_date": "2020-02-04"
+        },
+        {
+          "missing_date": "2020-02-05"
+        },
+        {
+          "missing_date": "2020-02-06"
+        },
+        {
+          "missing_date": "2020-02-07"
+        },
+        {
+          "missing_date": "2020-02-08"
+        },
+        {
+          "missing_date": "2020-02-09"
+        },
+        {
+          "missing_date": "2020-02-10"
+        },
+        {
+          "missing_date": "2020-02-11"
+        },
+        {
+          "missing_date": "2020-02-12"
+        },
+        {
+          "missing_date": "2020-02-13"
+        },
+        {
+          "missing_date": "2020-02-14"
+        },
+        {
+          "missing_date": "2020-02-15"
+        },
+        {
+          "missing_date": "2020-02-16"
+        },
+        {
+          "missing_date": "2020-02-17"
+        },
+        {
+          "missing_date": "2020-02-18"
+        },
+        {
+          "missing_date": "2020-02-19"
+        },
+        {
+          "missing_date": "2020-02-20"
+        },
+        {
+          "missing_date": "2020-02-21"
+        },
+        {
+          "missing_date": "2020-02-22"
+        },
+        {
+          "missing_date": "2020-02-23"
+        },
+        {
+          "missing_date": "2020-02-24"
+        },
+        {
+          "missing_date": "2020-02-25"
+        },
+        {
+          "missing_date": "2020-02-26"
+        },
+        {
+          "missing_date": "2020-02-27"
+        },
+        {
+          "missing_date": "2020-02-28"
+        },
+        {
+          "missing_date": "2020-02-29"
+        }
+      ],
+      "expectedHash": "a765710033c81d5ef66db9950c230a066073deac2622073e36daa95ffb99a937"
+    },
+    {
+      "name": "All consecutive dates from single to single — no gap",
+      "seedSql": "INSERT INTO customers VALUES (1,'C','US','2022-01-01');\nINSERT INTO products VALUES (1,'K','Tech',10.0);\nINSERT INTO orders VALUES (1,1,'2022-06-15','completed');\nINSERT INTO order_items VALUES (1,1,1,1,10.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    }
+  ]
+}

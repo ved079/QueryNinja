@@ -1,0 +1,81 @@
+{
+  "id": "da-repeat-purchase-rate",
+  "number": 171,
+  "title": "Repeat Purchase Rate",
+  "difficulty": "Medium",
+  "tags": [
+    "Data Analyst",
+    "Ecommerce",
+    "Aggregation",
+    "Having",
+    "Subquery"
+  ],
+  "description": "A customer is a **repeat buyer** if they made a purchase on at least **two different dates**. Report `repeat_customers` (the count of repeat buyers) and `total_customers` (the count of distinct customers who ever bought). Name the columns `repeat_customers`, `total_customers` and `rate` — the repeat share, `ROUND(repeat/total, 2)`. One row only.",
+  "solutionSql": "WITH buyer_days AS (\n  SELECT customer_id, COUNT(DISTINCT order_date) AS days\n  FROM orders\n  GROUP BY customer_id\n)\nSELECT\n  SUM(CASE WHEN days >= 2 THEN 1 ELSE 0 END) AS repeat_customers,\n  COUNT(*) AS total_customers,\n  ROUND(SUM(CASE WHEN days >= 2 THEN 1 ELSE 0 END) * 1.0 / COUNT(*), 2) AS rate\nFROM buyer_days;",
+  "orderMatters": false,
+  "hint": "Count distinct *dates* per customer — two orders on the same day are still one visit. Then count who crossed the ≥2-day threshold.",
+  "outputExplanation": "3 customers total; customer 1 bought on 2 different days so counts as repeat → 1/3 = 0.33.",
+  "schemaSql": "CREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER,\n  order_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO orders VALUES\n (1,1,'2024-01-01'),(2,1,'2024-01-10'),(3,2,'2024-01-02'),(4,3,'2024-01-03');",
+      "expectedOutput": [
+        {
+          "repeat_customers": 1,
+          "total_customers": 3,
+          "rate": 0.33
+        }
+      ],
+      "expectedHash": "e240dd93dacd3959928d132666ce21a217626b3d25d3dca4dfc443b6ec04fcbb"
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": [
+        {
+          "repeat_customers": null,
+          "total_customers": 0,
+          "rate": null
+        }
+      ],
+      "expectedHash": "a1a6f9f7c283946b4cf5700d7f1617c64dd4ece268d728a6cdf198825c5ecd6a"
+    },
+    {
+      "name": "All repeat buyers",
+      "seedSql": "INSERT INTO orders VALUES (1,1,'2024-01-01'),(2,1,'2024-02-01'),(3,2,'2024-01-05'),(4,2,'2024-01-06');",
+      "expectedOutput": [
+        {
+          "repeat_customers": 2,
+          "total_customers": 2,
+          "rate": 1
+        }
+      ],
+      "expectedHash": "bb846a7b6457b3d56cc080be3ce7fdc31400788e39f1b0415ba8a56d02541578"
+    },
+    {
+      "name": "Same-day orders are not repeat",
+      "seedSql": "INSERT INTO orders VALUES (1,1,'2024-01-01'),(2,1,'2024-01-01');",
+      "expectedOutput": [
+        {
+          "repeat_customers": 0,
+          "total_customers": 1,
+          "rate": 0
+        }
+      ],
+      "expectedHash": "11ca61c37e01556e1440312369e1d4aaa5daa3ee0c20f284540638c7f02d8b1e"
+    },
+    {
+      "name": "One repeat among many single-buyers",
+      "seedSql": "INSERT INTO orders VALUES (1,1,'2024-01-01'),(2,1,'2024-02-01'),(3,2,'2024-01-01'),(4,3,'2024-01-01'),(5,4,'2024-01-01');",
+      "expectedOutput": [
+        {
+          "repeat_customers": 1,
+          "total_customers": 4,
+          "rate": 0.25
+        }
+      ],
+      "expectedHash": "f7066980f1c6aefd52e5fdc0c0df63d482680b3d9903728b51409c6ef049e5fe"
+    }
+  ]
+}

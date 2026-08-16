@@ -1,0 +1,102 @@
+{
+  "id": "da-customer-retention",
+  "number": 166,
+  "title": "Same-Month Return Customer Rate",
+  "difficulty": "Medium",
+  "tags": [
+    "Data Analyst",
+    "Cohort",
+    "Aggregation",
+    "Self Join"
+  ],
+  "description": "For each calendar month, report the **returning customer rate**: the fraction of that month's distinct buyers who had also made a purchase in the **previous** calendar month. Name the columns `month`, `returning_customers`, `total` and `rate`, where `rate` = `returning_customers / total` rounded to 2 decimals. Return months in chronological order. A month's `total` is its distinct buyers (a customer counts once even with several purchases).",
+  "solutionSql": "WITH purchases AS (\n  SELECT customer_id, strftime('%Y-%m', order_date) AS month\n  FROM orders\n  GROUP BY customer_id, strftime('%Y-%m', order_date)\n)\nSELECT cur.month,\n       COUNT(DISTINCT prev.customer_id) AS returning_customers,\n       COUNT(DISTINCT cur.customer_id) AS total,\n       ROUND(COUNT(DISTINCT prev.customer_id) * 1.0 / COUNT(DISTINCT cur.customer_id), 2) AS rate\nFROM purchases cur\nLEFT JOIN purchases prev\n  ON prev.customer_id = cur.customer_id\n AND prev.month = strftime('%Y-%m', cur.month || '-01', '-1 month')\nGROUP BY cur.month\nORDER BY cur.month;",
+  "orderMatters": true,
+  "hint": "A buyer is 'returning' that month only if they also appear in the prior month. Self-join the per-customer, per-month set, shifting one month back with strftime.",
+  "outputExplanation": "February: 2 distinct buyers (10, 30), of which only customer 10 bought in January too, so rate = 1/2 = 0.5.",
+  "schemaSql": "CREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER,\n  order_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO orders VALUES\n (1,10,'2024-01-05'),\n (2,20,'2024-01-15'),\n (3,10,'2024-02-01'),\n (4,30,'2024-02-10'),\n (5,30,'2024-02-20');",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "returning_customers": 0,
+          "total": 2,
+          "rate": 0
+        },
+        {
+          "month": "2024-02",
+          "returning_customers": 1,
+          "total": 2,
+          "rate": 0.5
+        }
+      ],
+      "expectedHash": "83247dc062f37b39a8086e09aa1bfa0e4476852dda61986d58b6311f0480dcf7"
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Perfect carryover",
+      "seedSql": "INSERT INTO orders VALUES\n (1,10,'2024-01-01'),\n (2,20,'2024-01-02'),\n (3,10,'2024-02-01'),\n (4,20,'2024-02-02');",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "returning_customers": 0,
+          "total": 2,
+          "rate": 0
+        },
+        {
+          "month": "2024-02",
+          "returning_customers": 2,
+          "total": 2,
+          "rate": 1
+        }
+      ],
+      "expectedHash": "e97367d6002eb4d7eb46b38585428fd2ff2283ab45ebbcf43205eb6dd75b6c87"
+    },
+    {
+      "name": "No returning customers",
+      "seedSql": "INSERT INTO orders VALUES\n (1,1,'2024-01-01'),\n (2,2,'2024-02-01'),\n (3,3,'2024-02-02');",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "returning_customers": 0,
+          "total": 1,
+          "rate": 0
+        },
+        {
+          "month": "2024-02",
+          "returning_customers": 0,
+          "total": 2,
+          "rate": 0
+        }
+      ],
+      "expectedHash": "b048b43432b1c9cf85eca8d4e63feef2f6c600f802695f5b1aa870f5a3429a85"
+    },
+    {
+      "name": "Skip a month keeps prior alive (gap)",
+      "seedSql": "INSERT INTO orders VALUES\n (1,10,'2024-01-01'),\n (2,10,'2024-03-15');",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "returning_customers": 0,
+          "total": 1,
+          "rate": 0
+        },
+        {
+          "month": "2024-03",
+          "returning_customers": 0,
+          "total": 1,
+          "rate": 0
+        }
+      ],
+      "expectedHash": "e69430a27d49865b8db9201f178b8b57efdf011208ee2e1a5211c9bce2c80e4f"
+    }
+  ]
+}

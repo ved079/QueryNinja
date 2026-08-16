@@ -1,0 +1,84 @@
+{
+  "id": "regex-version-ignores",
+  "number": 181,
+  "title": "Filter Non-Gold Versions",
+  "difficulty": "Medium",
+  "tags": [
+    "Regular Expression",
+    "String",
+    "Filtering"
+  ],
+  "description": "A build pipeline logs every release to the `builds` table. Only builds in one of two approved formats are promoted:\n\n- **Numeric** — three dot-separated integers, no leading `v`, no extra characters (e.g. `1.0.0`, `12.3.456`)\n- **Gold** — the exact string `gold`, nothing else\n\nWrite a query to return the `id` and `version` of every build that does **not** match either approved format. Return the result in any order.",
+  "solutionSql": "SELECT id, version\nFROM builds\nWHERE NOT REGEXP_LIKE(version, '(^[0-9]+\\.[0-9]+\\.[0-9]+$)|(^gold$)');",
+  "orderMatters": false,
+  "hint": "Anchored alternatives `(^...$)|(^...$)` match either whole pattern. Wrap the test in NOT to keep only rows that match neither.",
+  "outputExplanation": "- `1.2.3` — three dot-separated integers, no prefix. Approved — not returned. ✓\n- `gold` — exact match for the gold format. Approved — not returned. ✓\n- `golden` — starts with `gold` but has extra characters; `^gold$` requires nothing after it. Returned. ✗\n- `v1.2.3` — has a leading `v`; the numeric pattern allows no prefix. Returned. ✗\n- `1.2` — only two segments; the pattern requires exactly three. Returned. ✗\n\nRows 3, 4, and 5 are returned.",
+  "schemaSql": "CREATE TABLE builds (\n  id INTEGER PRIMARY KEY,\n  version TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO builds VALUES\n (1,'1.2.3'),\n (2,'gold'),\n (3,'golden'),\n (4,'v1.2.3'),\n (5,'1.2');",
+      "expectedOutput": [
+        {
+          "id": 3,
+          "version": "golden"
+        },
+        {
+          "id": 4,
+          "version": "v1.2.3"
+        },
+        {
+          "id": 5,
+          "version": "1.2"
+        }
+      ],
+      "expectedHash": "f3a18455f0c7c115aedb57677cdfa9f3111d92625c5dd5bb5cbc587fe380d3b8"
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Only gold versions",
+      "seedSql": "INSERT INTO builds VALUES\n (1,'0.0.1'),\n (2,'gold'),\n (3,'999.999.999');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Sneaky near-misses",
+      "seedSql": "INSERT INTO builds VALUES\n (1,'gold.'),\n (2,'1.2.3.'),\n (3,'1.2.3.4'),\n (4,'1.02.3');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "version": "gold."
+        },
+        {
+          "id": 2,
+          "version": "1.2.3."
+        },
+        {
+          "id": 3,
+          "version": "1.2.3.4"
+        }
+      ],
+      "expectedHash": "a95ca7a061b6046b1bebaf59d58cadde04500d5a61204daf886450c3b7ce2c74"
+    },
+    {
+      "name": "All invalid",
+      "seedSql": "INSERT INTO builds VALUES (1,'beta'),(2,'alpha');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "version": "beta"
+        },
+        {
+          "id": 2,
+          "version": "alpha"
+        }
+      ],
+      "expectedHash": "03ab72ff84ca195daa297ade33cb7d2e159bb9875fecef4c8ae1dfaee8440fd0"
+    }
+  ]
+}

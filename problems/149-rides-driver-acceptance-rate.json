@@ -1,0 +1,80 @@
+{
+  "id": "rides-driver-acceptance-rate",
+  "number": 149,
+  "title": "Driver Acceptance Rate",
+  "difficulty": "Medium",
+  "tags": [
+    "Aggregation",
+    "Filtering",
+    "Rides"
+  ],
+  "orderMatters": false,
+  "schemaSql": "CREATE TABLE drivers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  city TEXT\n);\nCREATE TABLE riders (\n  id INTEGER PRIMARY KEY,\n  name TEXT\n);\nCREATE TABLE trips (\n  id INTEGER PRIMARY KEY,\n  driver_id INTEGER,\n  rider_id INTEGER,\n  requested_at TEXT,\n  started_at TEXT,\n  ended_at TEXT,\n  status TEXT,\n  fare REAL\n);",
+  "description": "For each driver who received **at least 5 trip requests**, compute their **acceptance rate**: the proportion of requests where `status = 'completed'` divided by total requests for that driver. Round to 4 decimal places.\n\nReturn columns `driver_id`, `driver_name`, `total_requests`, `completed`, and `acceptance_rate`. Order by `acceptance_rate` descending, then `driver_id` ascending.",
+  "hint": "Use COUNT(*) for total requests and COUNT(CASE WHEN status = 'completed' THEN 1 END) for completed, then divide.",
+  "solutionSql": "SELECT t.driver_id,\n       d.name AS driver_name,\n       COUNT(*) AS total_requests,\n       COUNT(CASE WHEN t.status = 'completed' THEN 1 END) AS completed,\n       ROUND(\n         CAST(COUNT(CASE WHEN t.status = 'completed' THEN 1 END) AS REAL) / COUNT(*),\n         4\n       ) AS acceptance_rate\nFROM trips t\nJOIN drivers d ON d.id = t.driver_id\nGROUP BY t.driver_id, d.name\nHAVING COUNT(*) >= 5\nORDER BY acceptance_rate DESC, t.driver_id ASC;",
+  "outputExplanation": "Only drivers with 5+ trip requests are included. Completed trips divided by total requests gives the acceptance rate. Higher rates indicate drivers who cancel less.",
+  "tests": [
+    {
+      "name": "Example — two qualifying drivers",
+      "seedSql": "INSERT INTO drivers VALUES (1,'Ace','NYC'),(2,'Ben','NYC'),(3,'Cal','NYC');\nINSERT INTO riders VALUES (1,'X'),(2,'Y'),(3,'Z');\nINSERT INTO trips VALUES\n  (1,1,1,'2022-01-01','2022-01-01','2022-01-01','completed',15.0),\n  (2,1,2,'2022-01-02','2022-01-02','2022-01-02','completed',20.0),\n  (3,1,3,'2022-01-03',NULL,NULL,'cancelled',0.0),\n  (4,1,1,'2022-01-04','2022-01-04','2022-01-04','completed',18.0),\n  (5,1,2,'2022-01-05',NULL,NULL,'cancelled',0.0),\n  (6,2,1,'2022-01-01','2022-01-01','2022-01-01','completed',10.0),\n  (7,2,2,'2022-01-02','2022-01-02','2022-01-02','completed',12.0),\n  (8,2,3,'2022-01-03','2022-01-03','2022-01-03','completed',8.0),\n  (9,2,1,'2022-01-04','2022-01-04','2022-01-04','completed',9.0),\n  (10,2,2,'2022-01-05','2022-01-05','2022-01-05','completed',11.0),\n  (11,3,1,'2022-01-01','2022-01-01','2022-01-01','completed',5.0),\n  (12,3,2,'2022-01-02',NULL,NULL,'cancelled',0.0);",
+      "expectedOutput": [
+        {
+          "driver_id": 2,
+          "driver_name": "Ben",
+          "total_requests": 5,
+          "completed": 5,
+          "acceptance_rate": 1
+        },
+        {
+          "driver_id": 1,
+          "driver_name": "Ace",
+          "total_requests": 5,
+          "completed": 3,
+          "acceptance_rate": 0.6
+        }
+      ],
+      "expectedHash": "283ad27f550e55820b85d6d6087aa8cf17f7124cccbd3325922461434c7fb7b0"
+    },
+    {
+      "name": "No driver meets 5-request threshold — empty",
+      "seedSql": "INSERT INTO drivers VALUES (1,'New','NYC');\nINSERT INTO riders VALUES (1,'X');\nINSERT INTO trips VALUES\n  (1,1,1,'2022-01-01','2022-01-01','2022-01-01','completed',10.0),\n  (2,1,1,'2022-01-02','2022-01-02','2022-01-02','completed',10.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "All trips cancelled — acceptance 0",
+      "seedSql": "INSERT INTO drivers VALUES (1,'Ghost','NYC');\nINSERT INTO riders VALUES (1,'X'),(2,'Y'),(3,'Z');\nINSERT INTO trips VALUES\n  (1,1,1,'2022-01-01',NULL,NULL,'cancelled',0),\n  (2,1,2,'2022-01-02',NULL,NULL,'cancelled',0),\n  (3,1,3,'2022-01-03',NULL,NULL,'cancelled',0),\n  (4,1,1,'2022-01-04',NULL,NULL,'cancelled',0),\n  (5,1,2,'2022-01-05',NULL,NULL,'cancelled',0);",
+      "expectedOutput": [
+        {
+          "driver_id": 1,
+          "driver_name": "Ghost",
+          "total_requests": 5,
+          "completed": 0,
+          "acceptance_rate": 0
+        }
+      ],
+      "expectedHash": "73200525e062ea4694fd29a97556555e3a6d48cf9be80de96fdcd608c0393de7"
+    },
+    {
+      "name": "Perfect acceptance rate",
+      "seedSql": "INSERT INTO drivers VALUES (1,'Perfect','NYC');\nINSERT INTO riders VALUES (1,'A'),(2,'B'),(3,'C');\nINSERT INTO trips VALUES\n  (1,1,1,'2022-01-01','2022-01-01','2022-01-01','completed',10),\n  (2,1,2,'2022-01-02','2022-01-02','2022-01-02','completed',12),\n  (3,1,3,'2022-01-03','2022-01-03','2022-01-03','completed',14),\n  (4,1,1,'2022-01-04','2022-01-04','2022-01-04','completed',16),\n  (5,1,2,'2022-01-05','2022-01-05','2022-01-05','completed',18);",
+      "expectedOutput": [
+        {
+          "driver_id": 1,
+          "driver_name": "Perfect",
+          "total_requests": 5,
+          "completed": 5,
+          "acceptance_rate": 1
+        }
+      ],
+      "expectedHash": "322e6481447b233470e5a1592bc26fbb43f0e586735c26882a836dbbe29cd5f3"
+    },
+    {
+      "name": "Empty tables",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "id": "da-attribution-first-touch",
+  "number": 173,
+  "title": "First-Touch Channel Attribution",
+  "difficulty": "Hard",
+  "tags": [
+    "Data Analyst",
+    "Attribution",
+    "CTE",
+    "Window Function",
+    "Subquery"
+  ],
+  "description": "Each conversion (`conversions.customer_id`) is attributed to the channel the customer's **first-ever** touch (`touches`) came from. A customer may have touches after converting too — only the earliest touch counts.\n\nReport each channel's `channel`, `conversions` (count attributed) and `share` — `ROUND(conversions / total conversions, 2)`. Customers with no touch at all are not attributed to any channel. Return channels in any order.",
+  "solutionSql": "WITH first_touch AS (\n  SELECT t.customer_id, t.channel,\n         ROW_NUMBER() OVER (PARTITION BY t.customer_id ORDER BY t.touch_date, t.id) AS rn\n  FROM touches t\n  JOIN conversions c ON c.customer_id = t.customer_id\n  WHERE t.touch_date <= c.conversion_date\n),\nattributed AS (\n  SELECT customer_id, channel\n  FROM first_touch\n  WHERE rn = 1\n)\nSELECT channel,\n       COUNT(*) AS conversions,\n       ROUND(COUNT(*) * 1.0 / (SELECT COUNT(*) FROM attributed), 2) AS share\nFROM attributed\nGROUP BY channel;",
+  "orderMatters": false,
+  "hint": "Pick each customer's single earliest touch (ROW_NUMBER), then GROUP BY channel. Attribution counts customers, not touch rows.",
+  "outputExplanation": "Customer 1 first touched via 'ads', customer 2 via 'email', customer 3 via 'ads' → ads 2, email 1, share 0.67 / 0.33.",
+  "schemaSql": "CREATE TABLE touches (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER,\n  channel TEXT,\n  touch_date TEXT\n);\nCREATE TABLE conversions (\n  customer_id INTEGER PRIMARY KEY,\n  conversion_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO touches VALUES\n (1,1,'ads','2024-01-01'),(2,1,'email','2024-01-02'),\n (3,2,'email','2024-01-01'),(4,3,'ads','2024-02-01');\nINSERT INTO conversions VALUES\n (1,'2024-01-10'),(2,'2024-01-05'),(3,'2024-02-05');",
+      "expectedOutput": [
+        {
+          "channel": "ads",
+          "conversions": 2,
+          "share": 0.67
+        },
+        {
+          "channel": "email",
+          "conversions": 1,
+          "share": 0.33
+        }
+      ],
+      "expectedHash": "e85d1263433e8b5424f90fbf490b43e25ab77621704ba3fdbe593a5f39fe9fa1"
+    },
+    {
+      "name": "Empty tables",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Touch after conversion ignored",
+      "seedSql": "INSERT INTO touches VALUES (1,1,'email','2024-02-01'),(2,1,'ads','2024-01-01');\nINSERT INTO conversions VALUES (1,'2024-01-15');",
+      "expectedOutput": [
+        {
+          "channel": "ads",
+          "conversions": 1,
+          "share": 1
+        }
+      ],
+      "expectedHash": "34fe6a8e1aa6b68c159983947cce5276dc9b8492528627859424c710e957e826"
+    },
+    {
+      "name": "Converted customer with no touch",
+      "seedSql": "INSERT INTO touches VALUES (1,1,'ads','2024-01-01');\nINSERT INTO conversions VALUES (1,'2024-01-10'),(2,'2024-02-01');",
+      "expectedOutput": [
+        {
+          "channel": "ads",
+          "conversions": 1,
+          "share": 1
+        }
+      ],
+      "expectedHash": "34fe6a8e1aa6b68c159983947cce5276dc9b8492528627859424c710e957e826"
+    },
+    {
+      "name": "Same-day ties by touch id",
+      "seedSql": "INSERT INTO touches VALUES (1,1,'ads','2024-01-01'),(2,1,'email','2024-01-01');\nINSERT INTO conversions VALUES (1,'2024-01-10');",
+      "expectedOutput": [
+        {
+          "channel": "ads",
+          "conversions": 1,
+          "share": 1
+        }
+      ],
+      "expectedHash": "34fe6a8e1aa6b68c159983947cce5276dc9b8492528627859424c710e957e826"
+    }
+  ]
+}

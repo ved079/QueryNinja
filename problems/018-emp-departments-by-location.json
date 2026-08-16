@@ -1,0 +1,184 @@
+{
+  "id": "emp-departments-by-location",
+  "number": 18,
+  "title": "Departments In Austin",
+  "difficulty": "Easy",
+  "tags": [
+    "Filtering"
+  ],
+  "description": "Report the `name` of every department located in Austin.\n\nName the column `name`. Return the result in any order.",
+  "solutionSql": "SELECT name FROM departments WHERE location = 'Austin';",
+  "orderMatters": false,
+  "hint": "Straight equality filter on the departments table alone.",
+  "outputExplanation": "Engineering and HR are located in Austin. Sales is in Denver.",
+  "schemaSql": "CREATE TABLE departments (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  location TEXT\n);\n\nCREATE TABLE employees (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  title TEXT,\n  salary INTEGER,\n  dept_id INTEGER,\n  manager_id INTEGER,\n  hire_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',150000,1,NULL,'2018-01-15'),\n (2,'Ben','Engineer',120000,1,1,'2019-03-01'),\n (3,'Cara','Engineer',120000,1,1,'2019-03-01'),\n (4,'Dan','Engineer',95000,1,1,'2021-07-19'),\n (5,'Eve','Manager',130000,2,NULL,'2017-11-02'),\n (6,'Finn','Rep',70000,2,5,'2020-05-30'),\n (7,'Gia','Rep',85000,2,5,'2022-02-14'),\n (8,'Hal','Analyst',60000,3,NULL,'2023-09-01');",
+      "expectedOutput": [
+        {
+          "name": "Engineering"
+        },
+        {
+          "name": "HR"
+        }
+      ],
+      "expectedHash": "f1687fb166c9a104215826222c720014e42a97e8979cbb009b293497a4dcc0c0"
+    },
+    {
+      "name": "Ties on every salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'A','Engineer',100000,1,NULL,'2020-01-01'),\n (2,'B','Engineer',100000,1,1,'2020-01-01'),\n (3,'C','Engineer',100000,1,1,'2020-01-01'),\n (4,'D','Rep',100000,2,NULL,'2020-01-01'),\n (5,'E','Rep',100000,2,4,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "Engineering"
+        }
+      ],
+      "expectedHash": "90d9286b54305d7e53e0bed0976a1ec55e1ac776a47399d00524d41b806c647b"
+    },
+    {
+      "name": "Department with no employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
+      "expectedOutput": [
+        {
+          "name": "Engineering"
+        }
+      ],
+      "expectedHash": "90d9286b54305d7e53e0bed0976a1ec55e1ac776a47399d00524d41b806c647b"
+    },
+    {
+      "name": "Employees with NULL department and NULL salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
+      "expectedOutput": [
+        {
+          "name": "Engineering"
+        }
+      ],
+      "expectedHash": "90d9286b54305d7e53e0bed0976a1ec55e1ac776a47399d00524d41b806c647b"
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single employee, single department",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
+      "expectedOutput": [
+        {
+          "name": "Engineering"
+        }
+      ],
+      "expectedHash": "90d9286b54305d7e53e0bed0976a1ec55e1ac776a47399d00524d41b806c647b"
+    },
+    {
+      "name": "Everyone reports to someone (deep chain)",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
+      "expectedOutput": [
+        {
+          "name": "Engineering"
+        }
+      ],
+      "expectedHash": "90d9286b54305d7e53e0bed0976a1ec55e1ac776a47399d00524d41b806c647b"
+    },
+    {
+      "name": "Duplicate names and same hire dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Austin');\nINSERT INTO employees VALUES\n (1,'Sam','Engineer',90000,1,NULL,'2021-01-01'),\n (2,'Sam','Engineer',95000,2,NULL,'2021-01-01'),\n (3,'Sam','Rep',60000,2,2,'2021-01-01'),\n (4,'Alex','Rep',60000,2,2,'2021-06-30');",
+      "expectedOutput": [
+        {
+          "name": "Engineering"
+        },
+        {
+          "name": "Sales"
+        }
+      ],
+      "expectedHash": "5e479fb2591ef661650c715fd3d2438e9fff46a67da8d28dc063980da90f1c3d"
+    },
+    {
+      "name": "Zero and negative salaries, boundary dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Intern',0,1,NULL,'2019-12-31'),\n (2,'Ben','Engineer',-100,1,1,'2020-01-01'),\n (3,'Cara','Engineer',1,2,NULL,'2020-02-29'),\n (4,'Dan','Rep',2000000,2,3,'2020-12-31');",
+      "expectedOutput": [
+        {
+          "name": "Engineering"
+        }
+      ],
+      "expectedHash": "90d9286b54305d7e53e0bed0976a1ec55e1ac776a47399d00524d41b806c647b"
+    },
+    {
+      "name": "Larger multi-department set",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin'),(4,'Finance','Boston');\nINSERT INTO employees VALUES\n (1,'A','Manager',140000,1,NULL,'2015-02-10'),\n (2,'B','Engineer',130000,1,1,'2016-04-11'),\n (3,'C','Engineer',130000,1,1,'2017-06-12'),\n (4,'D','Engineer',110000,1,1,'2018-08-13'),\n (5,'E','Engineer',90000,1,1,'2019-10-14'),\n (6,'F','Manager',125000,2,NULL,'2015-03-15'),\n (7,'G','Rep',88000,2,6,'2016-05-16'),\n (8,'H','Rep',88000,2,6,'2017-07-17'),\n (9,'I','Rep',64000,2,6,'2018-09-18'),\n (10,'J','Manager',99000,3,NULL,'2019-11-19'),\n (11,'K','Analyst',72000,3,10,'2020-01-20'),\n (12,'L','Analyst',150000,4,NULL,'2021-03-21'),\n (13,'M','Analyst',150000,4,12,'2022-05-22');",
+      "expectedOutput": [
+        {
+          "name": "Engineering"
+        },
+        {
+          "name": "HR"
+        }
+      ],
+      "expectedHash": "f1687fb166c9a104215826222c720014e42a97e8979cbb009b293497a4dcc0c0"
+    },
+    {
+      "name": "No departments in Austin",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','Denver'),(2,'Sales','Boston');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "All departments in Austin",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','Austin'),(2,'HR','Austin');",
+      "expectedOutput": [
+        {
+          "name": "IT"
+        },
+        {
+          "name": "HR"
+        }
+      ],
+      "expectedHash": "830f67937a570820489e39db851db6c22097e4f01f1d386d969ba5b18010e275"
+    },
+    {
+      "name": "NULL location is not 'Austin'",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','Austin'),(2,'Unknown',NULL);",
+      "expectedOutput": [
+        {
+          "name": "IT"
+        }
+      ],
+      "expectedHash": "aec3b171d5a4aa906a056981f41de1c0105ec4420bc68e94ed36f35337b2b761"
+    },
+    {
+      "name": "Single department in Austin",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','Austin');",
+      "expectedOutput": [
+        {
+          "name": "IT"
+        }
+      ],
+      "expectedHash": "aec3b171d5a4aa906a056981f41de1c0105ec4420bc68e94ed36f35337b2b761"
+    },
+    {
+      "name": "Trailing whitespace — 'Austin ' does not match 'Austin'",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','Austin'),(2,'HR','Austin ');",
+      "expectedOutput": [
+        {
+          "name": "IT"
+        }
+      ],
+      "expectedHash": "aec3b171d5a4aa906a056981f41de1c0105ec4420bc68e94ed36f35337b2b761"
+    },
+    {
+      "name": "Mixed locations across four departments",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','Austin'),(2,'Sales','Denver'),(3,'HR','Austin'),(4,'Legal','New York');",
+      "expectedOutput": [
+        {
+          "name": "IT"
+        },
+        {
+          "name": "HR"
+        }
+      ],
+      "expectedHash": "830f67937a570820489e39db851db6c22097e4f01f1d386d969ba5b18010e275"
+    }
+  ]
+}

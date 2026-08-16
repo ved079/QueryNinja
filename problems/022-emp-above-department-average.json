@@ -1,0 +1,197 @@
+{
+  "id": "emp-above-department-average",
+  "number": 22,
+  "title": "Above Your Department's Average",
+  "difficulty": "Medium",
+  "tags": [
+    "Window Function",
+    "Subquery"
+  ],
+  "description": "Report the `name` and `salary` of every employee earning strictly more than the average salary of their own department.\n\nName the columns `name` and `salary`. Return the result in any order.",
+  "solutionSql": "SELECT name, salary\nFROM (\n  SELECT name, salary,\n         AVG(salary) OVER (PARTITION BY dept_id) AS dept_avg\n  FROM employees\n)\nWHERE salary > dept_avg;",
+  "orderMatters": false,
+  "hint": "A window AVG over PARTITION BY dept_id gives each row its department average without collapsing the rows.",
+  "outputExplanation": "Ava earns more than Engineering's average of $121,250, and Eve earns more than Sales' average of $95,000. No one in HR exceeds its average.",
+  "schemaSql": "CREATE TABLE departments (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  location TEXT\n);\n\nCREATE TABLE employees (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  title TEXT,\n  salary INTEGER,\n  dept_id INTEGER,\n  manager_id INTEGER,\n  hire_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',150000,1,NULL,'2018-01-15'),\n (2,'Ben','Engineer',120000,1,1,'2019-03-01'),\n (3,'Cara','Engineer',120000,1,1,'2019-03-01'),\n (4,'Dan','Engineer',95000,1,1,'2021-07-19'),\n (5,'Eve','Manager',130000,2,NULL,'2017-11-02'),\n (6,'Finn','Rep',70000,2,5,'2020-05-30'),\n (7,'Gia','Rep',85000,2,5,'2022-02-14'),\n (8,'Hal','Analyst',60000,3,NULL,'2023-09-01');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "salary": 150000
+        },
+        {
+          "name": "Eve",
+          "salary": 130000
+        }
+      ],
+      "expectedHash": "9aee17928de8632dd61741f42adcbc806f1f133bcef97790fc8769b56ca39b37"
+    },
+    {
+      "name": "Ties on every salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'A','Engineer',100000,1,NULL,'2020-01-01'),\n (2,'B','Engineer',100000,1,1,'2020-01-01'),\n (3,'C','Engineer',100000,1,1,'2020-01-01'),\n (4,'D','Rep',100000,2,NULL,'2020-01-01'),\n (5,'E','Rep',100000,2,4,'2020-01-01');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Department with no employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "salary": 90000
+        }
+      ],
+      "expectedHash": "5861afa7ca1c63434365c6352eeaf282a20f2e4ed8d38d800518d00bd12c7a33"
+    },
+    {
+      "name": "Employees with NULL department and NULL salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single employee, single department",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Everyone reports to someone (deep chain)",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
+      "expectedOutput": [
+        {
+          "name": "L1",
+          "salary": 300000
+        },
+        {
+          "name": "L5",
+          "salary": 250000
+        }
+      ],
+      "expectedHash": "41155c33441635be3627dbf65784036ab5e6fd2fa165e2d1f2b7a5690b0f3fc5"
+    },
+    {
+      "name": "Duplicate names and same hire dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Austin');\nINSERT INTO employees VALUES\n (1,'Sam','Engineer',90000,1,NULL,'2021-01-01'),\n (2,'Sam','Engineer',95000,2,NULL,'2021-01-01'),\n (3,'Sam','Rep',60000,2,2,'2021-01-01'),\n (4,'Alex','Rep',60000,2,2,'2021-06-30');",
+      "expectedOutput": [
+        {
+          "name": "Sam",
+          "salary": 95000
+        }
+      ],
+      "expectedHash": "4ea84169bc3be974b30233e03ba342d2f2b7d4378dd8cc47c1928312cf093463"
+    },
+    {
+      "name": "Zero and negative salaries, boundary dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Intern',0,1,NULL,'2019-12-31'),\n (2,'Ben','Engineer',-100,1,1,'2020-01-01'),\n (3,'Cara','Engineer',1,2,NULL,'2020-02-29'),\n (4,'Dan','Rep',2000000,2,3,'2020-12-31');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "salary": 0
+        },
+        {
+          "name": "Dan",
+          "salary": 2000000
+        }
+      ],
+      "expectedHash": "e1cd24b05253f64331a5dfc147afa0b2d94f57eb632aeaa38d4d0c091ba8a686"
+    },
+    {
+      "name": "Larger multi-department set",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin'),(4,'Finance','Boston');\nINSERT INTO employees VALUES\n (1,'A','Manager',140000,1,NULL,'2015-02-10'),\n (2,'B','Engineer',130000,1,1,'2016-04-11'),\n (3,'C','Engineer',130000,1,1,'2017-06-12'),\n (4,'D','Engineer',110000,1,1,'2018-08-13'),\n (5,'E','Engineer',90000,1,1,'2019-10-14'),\n (6,'F','Manager',125000,2,NULL,'2015-03-15'),\n (7,'G','Rep',88000,2,6,'2016-05-16'),\n (8,'H','Rep',88000,2,6,'2017-07-17'),\n (9,'I','Rep',64000,2,6,'2018-09-18'),\n (10,'J','Manager',99000,3,NULL,'2019-11-19'),\n (11,'K','Analyst',72000,3,10,'2020-01-20'),\n (12,'L','Analyst',150000,4,NULL,'2021-03-21'),\n (13,'M','Analyst',150000,4,12,'2022-05-22');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "salary": 140000
+        },
+        {
+          "name": "B",
+          "salary": 130000
+        },
+        {
+          "name": "C",
+          "salary": 130000
+        },
+        {
+          "name": "F",
+          "salary": 125000
+        },
+        {
+          "name": "J",
+          "salary": 99000
+        }
+      ],
+      "expectedHash": "9fbc541d922d61978bc357e5515cdfc58d75215d82f379de9ecee2c9ad3ced36"
+    },
+    {
+      "name": "Single employee — equals average, not strictly above",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'Solo','X',100,1,NULL,'2020-01-01');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "No one strictly above — all salaries are equal",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "NULL salary is excluded from average",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','X',200,1,NULL,'2020-01-01'),(2,'B','X',NULL,1,1,'2020-01-01'),(3,'C','X',100,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "salary": 200
+        }
+      ],
+      "expectedHash": "c0d0fa2a9b1f048216405dcf86391c9607cb559979dcebc06d5e8040e7086f5a"
+    },
+    {
+      "name": "Two departments each with clear above-average earners",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','X',300,1,NULL,'2020-01-01'),(2,'B','X',100,1,1,'2020-01-01'),(3,'C','X',200,2,NULL,'2020-01-01'),(4,'D','X',100,2,3,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "salary": 300
+        },
+        {
+          "name": "C",
+          "salary": 200
+        }
+      ],
+      "expectedHash": "a5bf1093be412347757ead811c26b262578ba6a30156c5c37d683d1c60a0605d"
+    },
+    {
+      "name": "Stress with larger departments",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','X',100,1,NULL,'2020-01-01'),(2,'B','X',110,1,1,'2020-01-01'),(3,'C','X',90,1,1,'2020-01-01'),(4,'D','X',120,1,1,'2020-01-01'),(5,'E','X',80,1,1,'2020-01-01'),(6,'F','X',200,2,NULL,'2020-01-01'),(7,'G','X',180,2,6,'2020-01-01'),(8,'H','X',50,2,6,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "B",
+          "salary": 110
+        },
+        {
+          "name": "D",
+          "salary": 120
+        },
+        {
+          "name": "F",
+          "salary": 200
+        },
+        {
+          "name": "G",
+          "salary": 180
+        }
+      ],
+      "expectedHash": "bae7d848bd8debc34375dd18183b8481cee4d93b5ac2e28bc073c21cc0cd189b"
+    }
+  ]
+}

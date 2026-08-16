@@ -1,0 +1,309 @@
+{
+  "id": "emp-salary-range-per-title",
+  "number": 19,
+  "title": "Salary Range Per Title",
+  "difficulty": "Easy",
+  "tags": [
+    "Group By",
+    "Aggregation"
+  ],
+  "description": "For each job title report the lowest and highest salary paid.\n\nName the columns `title`, `min_salary` and `max_salary`. Return the result in any order.",
+  "solutionSql": "SELECT title, MIN(salary) AS min_salary, MAX(salary) AS max_salary\nFROM employees\nGROUP BY title;",
+  "orderMatters": false,
+  "hint": "Two aggregates over the same GROUP BY.",
+  "outputExplanation": "Manager salaries range from $130k to $150k, Engineers from $95k to $120k, Reps from $70k to $85k, and the single Analyst earns $60k.",
+  "schemaSql": "CREATE TABLE departments (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  location TEXT\n);\n\nCREATE TABLE employees (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  title TEXT,\n  salary INTEGER,\n  dept_id INTEGER,\n  manager_id INTEGER,\n  hire_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',150000,1,NULL,'2018-01-15'),\n (2,'Ben','Engineer',120000,1,1,'2019-03-01'),\n (3,'Cara','Engineer',120000,1,1,'2019-03-01'),\n (4,'Dan','Engineer',95000,1,1,'2021-07-19'),\n (5,'Eve','Manager',130000,2,NULL,'2017-11-02'),\n (6,'Finn','Rep',70000,2,5,'2020-05-30'),\n (7,'Gia','Rep',85000,2,5,'2022-02-14'),\n (8,'Hal','Analyst',60000,3,NULL,'2023-09-01');",
+      "expectedOutput": [
+        {
+          "title": "Analyst",
+          "min_salary": 60000,
+          "max_salary": 60000
+        },
+        {
+          "title": "Engineer",
+          "min_salary": 95000,
+          "max_salary": 120000
+        },
+        {
+          "title": "Manager",
+          "min_salary": 130000,
+          "max_salary": 150000
+        },
+        {
+          "title": "Rep",
+          "min_salary": 70000,
+          "max_salary": 85000
+        }
+      ],
+      "expectedHash": "9f8a6d8cbf44ce5019587a1af2a83111efad394b0ffb553ff76bfc3507803077"
+    },
+    {
+      "name": "Ties on every salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'A','Engineer',100000,1,NULL,'2020-01-01'),\n (2,'B','Engineer',100000,1,1,'2020-01-01'),\n (3,'C','Engineer',100000,1,1,'2020-01-01'),\n (4,'D','Rep',100000,2,NULL,'2020-01-01'),\n (5,'E','Rep',100000,2,4,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "title": "Engineer",
+          "min_salary": 100000,
+          "max_salary": 100000
+        },
+        {
+          "title": "Rep",
+          "min_salary": 100000,
+          "max_salary": 100000
+        }
+      ],
+      "expectedHash": "d4f20282d479aa5418772d98189ea421e5bed22b8879e9c5fccf04c0597d2982"
+    },
+    {
+      "name": "Department with no employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
+      "expectedOutput": [
+        {
+          "title": "Engineer",
+          "min_salary": 80000,
+          "max_salary": 80000
+        },
+        {
+          "title": "Manager",
+          "min_salary": 90000,
+          "max_salary": 90000
+        }
+      ],
+      "expectedHash": "be1da4fb2625aaca721283fa43eb4d57520084a3715acef29810db6111ee7fcc"
+    },
+    {
+      "name": "Employees with NULL department and NULL salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
+      "expectedOutput": [
+        {
+          "title": "Engineer",
+          "min_salary": null,
+          "max_salary": null
+        },
+        {
+          "title": "Manager",
+          "min_salary": 90000,
+          "max_salary": 90000
+        },
+        {
+          "title": "Rep",
+          "min_salary": 75000,
+          "max_salary": 75000
+        }
+      ],
+      "expectedHash": "326cf7897b73de24feb5c05c59486d451470f75b54bb847cf64c5bd18175d842"
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single employee, single department",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
+      "expectedOutput": [
+        {
+          "title": "Engineer",
+          "min_salary": 100000,
+          "max_salary": 100000
+        }
+      ],
+      "expectedHash": "4857f93f7d42a39493593a7448e151f8493f57b9e7e3ace512ec4f238acc2abf"
+    },
+    {
+      "name": "Everyone reports to someone (deep chain)",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
+      "expectedOutput": [
+        {
+          "title": "CEO",
+          "min_salary": 300000,
+          "max_salary": 300000
+        },
+        {
+          "title": "Director",
+          "min_salary": 150000,
+          "max_salary": 150000
+        },
+        {
+          "title": "Engineer",
+          "min_salary": 250000,
+          "max_salary": 250000
+        },
+        {
+          "title": "Manager",
+          "min_salary": 120000,
+          "max_salary": 120000
+        },
+        {
+          "title": "VP",
+          "min_salary": 200000,
+          "max_salary": 200000
+        }
+      ],
+      "expectedHash": "3ffcc9619d02d068c7bfcf43ddbfc86e0dc4af5ee5c1c49334c7071c0e29abed"
+    },
+    {
+      "name": "Duplicate names and same hire dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Austin');\nINSERT INTO employees VALUES\n (1,'Sam','Engineer',90000,1,NULL,'2021-01-01'),\n (2,'Sam','Engineer',95000,2,NULL,'2021-01-01'),\n (3,'Sam','Rep',60000,2,2,'2021-01-01'),\n (4,'Alex','Rep',60000,2,2,'2021-06-30');",
+      "expectedOutput": [
+        {
+          "title": "Engineer",
+          "min_salary": 90000,
+          "max_salary": 95000
+        },
+        {
+          "title": "Rep",
+          "min_salary": 60000,
+          "max_salary": 60000
+        }
+      ],
+      "expectedHash": "8982a1c92e9386ce3b0e07d346c8960288310ce7c5d73583fa14257b5b50663b"
+    },
+    {
+      "name": "Zero and negative salaries, boundary dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Intern',0,1,NULL,'2019-12-31'),\n (2,'Ben','Engineer',-100,1,1,'2020-01-01'),\n (3,'Cara','Engineer',1,2,NULL,'2020-02-29'),\n (4,'Dan','Rep',2000000,2,3,'2020-12-31');",
+      "expectedOutput": [
+        {
+          "title": "Engineer",
+          "min_salary": -100,
+          "max_salary": 1
+        },
+        {
+          "title": "Intern",
+          "min_salary": 0,
+          "max_salary": 0
+        },
+        {
+          "title": "Rep",
+          "min_salary": 2000000,
+          "max_salary": 2000000
+        }
+      ],
+      "expectedHash": "ef1ebf4df1e54f362b834a11ba468df5ab98a33ad6d394c74ec952484718dec0"
+    },
+    {
+      "name": "Larger multi-department set",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin'),(4,'Finance','Boston');\nINSERT INTO employees VALUES\n (1,'A','Manager',140000,1,NULL,'2015-02-10'),\n (2,'B','Engineer',130000,1,1,'2016-04-11'),\n (3,'C','Engineer',130000,1,1,'2017-06-12'),\n (4,'D','Engineer',110000,1,1,'2018-08-13'),\n (5,'E','Engineer',90000,1,1,'2019-10-14'),\n (6,'F','Manager',125000,2,NULL,'2015-03-15'),\n (7,'G','Rep',88000,2,6,'2016-05-16'),\n (8,'H','Rep',88000,2,6,'2017-07-17'),\n (9,'I','Rep',64000,2,6,'2018-09-18'),\n (10,'J','Manager',99000,3,NULL,'2019-11-19'),\n (11,'K','Analyst',72000,3,10,'2020-01-20'),\n (12,'L','Analyst',150000,4,NULL,'2021-03-21'),\n (13,'M','Analyst',150000,4,12,'2022-05-22');",
+      "expectedOutput": [
+        {
+          "title": "Analyst",
+          "min_salary": 72000,
+          "max_salary": 150000
+        },
+        {
+          "title": "Engineer",
+          "min_salary": 90000,
+          "max_salary": 130000
+        },
+        {
+          "title": "Manager",
+          "min_salary": 99000,
+          "max_salary": 140000
+        },
+        {
+          "title": "Rep",
+          "min_salary": 64000,
+          "max_salary": 88000
+        }
+      ],
+      "expectedHash": "4b381cadec9b0355359b46520899da840d028cecca468ffed23dcee99b92e732"
+    },
+    {
+      "name": "Single employee per title — MIN equals MAX",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Mgr',200,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "title": "Eng",
+          "min_salary": 100,
+          "max_salary": 100
+        },
+        {
+          "title": "Mgr",
+          "min_salary": 200,
+          "max_salary": 200
+        }
+      ],
+      "expectedHash": "f824c839f0780240fff6c0e2aaad98337478fca6782646d6e4ec6608f4eeaf6f"
+    },
+    {
+      "name": "NULL salaries are excluded from MIN/MAX",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Eng',NULL,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "title": "Eng",
+          "min_salary": 100,
+          "max_salary": 100
+        }
+      ],
+      "expectedHash": "f7a91628644444e81186926a2bab5d261331e577b30f6898a457b10a06920e7c"
+    },
+    {
+      "name": "Negative and positive within same title",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','Eng',-100,1,NULL,'2020-01-01'),(2,'B','Eng',100,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "title": "Eng",
+          "min_salary": -100,
+          "max_salary": 100
+        }
+      ],
+      "expectedHash": "b1743fff77ffdcf7b2875d2debc48adfcf00001c2f5fe3c23a808c3cfb80b5c0"
+    },
+    {
+      "name": "All employees share the same title",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A');\nINSERT INTO employees VALUES (1,'A','Eng',50,1,NULL,'2020-01-01'),(2,'B','Eng',100,1,1,'2020-01-01'),(3,'C','Eng',75,1,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "title": "Eng",
+          "min_salary": 50,
+          "max_salary": 100
+        }
+      ],
+      "expectedHash": "5257a71321f8c35e47a076f3f17b921f4c055eb22a55dbeb461375ba97d03c3b"
+    },
+    {
+      "name": "Wide ranges across multiple titles",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Eng',200,1,1,'2020-01-01'),(3,'C','Rep',50,2,NULL,'2020-01-01'),(4,'D','Rep',150,2,3,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "title": "Eng",
+          "min_salary": 100,
+          "max_salary": 200
+        },
+        {
+          "title": "Rep",
+          "min_salary": 50,
+          "max_salary": 150
+        }
+      ],
+      "expectedHash": "45cca0f1fd1a8756e161d5016c7bc3a940e357ac23363055434d1afea5ba1999"
+    },
+    {
+      "name": "Larger set with three titles",
+      "seedSql": "INSERT INTO departments VALUES (1,'IT','A'),(2,'Sales','B');\nINSERT INTO employees VALUES (1,'A','Eng',100,1,NULL,'2020-01-01'),(2,'B','Eng',200,1,1,'2020-01-01'),(3,'C','Eng',150,1,1,'2020-01-01'),(4,'D','Mgr',300,2,NULL,'2020-01-01'),(5,'E','Mgr',250,2,4,'2020-01-01'),(6,'F','Rep',80,2,4,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "title": "Eng",
+          "min_salary": 100,
+          "max_salary": 200
+        },
+        {
+          "title": "Mgr",
+          "min_salary": 250,
+          "max_salary": 300
+        },
+        {
+          "title": "Rep",
+          "min_salary": 80,
+          "max_salary": 80
+        }
+      ],
+      "expectedHash": "afb1ad8baa4d671a518216b0d20d4d36631b1e6b2ecec5fc70f59b18a8665293"
+    }
+  ]
+}

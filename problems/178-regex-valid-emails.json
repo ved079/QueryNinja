@@ -1,0 +1,76 @@
+{
+  "id": "regex-valid-emails",
+  "number": 178,
+  "title": "Find Valid Email Addresses",
+  "difficulty": "Easy",
+  "tags": [
+    "Regular Expression",
+    "String",
+    "Filtering"
+  ],
+  "description": "Write a query to return the `id` and `email` of every customer whose email address is **valid**.\n\nAn email is valid if it satisfies all of the following rules:\n\n1. The **local part** (everything before the `@`) contains only: letters, digits, or the characters `. _ % + -`\n2. There is exactly one `@` separating the local part from the domain\n3. The **domain** (between `@` and the final `.`) contains only: letters, digits, `.` or `-`\n4. The **TLD** (after the final `.`) is at least **2 letters** long\n\nReturn the result in any order.",
+  "solutionSql": "SELECT id, email\nFROM customers\nWHERE REGEXP_LIKE(email, '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$');",
+  "orderMatters": false,
+  "hint": "Anchors `^` and `$` pin the whole string. `+` means 'one or more', `{2,}` means 'at least two'. Escape the literal dot as `\\.`.",
+  "outputExplanation": "- `bob@example.com` — local part `bob`, domain `example`, TLD `.com`. Valid. ✓\n- `alice@mail.co` — TLD `.co` meets the 2-letter minimum. Valid. ✓\n- `bob@` — nothing after `@`; domain and TLD are both missing. Invalid. ✗\n- `nope.example` — no `@` anywhere in the string. Invalid. ✗\n- `@x.com` — local part before `@` is empty. Invalid. ✗\n\nRows 1 and 2 are returned.",
+  "schemaSql": "CREATE TABLE customers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  email TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO customers VALUES\n (1,'Bob','bob@example.com'),\n (2,'Alice','alice@mail.co'),\n (3,'Dave','bob@'),\n (4,'Eve','nope.example'),\n (5,'Zed','@x.com');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "email": "bob@example.com"
+        },
+        {
+          "id": 2,
+          "email": "alice@mail.co"
+        }
+      ],
+      "expectedHash": "8800473919b5f6952731b7ba6fa000367ed2c95631585f7c34133a8c9d85f69f"
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Edge TLD lengths",
+      "seedSql": "INSERT INTO customers VALUES\n (1,'A','a@b.c'),\n (2,'B','a@b.cc'),\n (3,'C','a@b.c.zzz');",
+      "expectedOutput": [
+        {
+          "id": 2,
+          "email": "a@b.cc"
+        },
+        {
+          "id": 3,
+          "email": "a@b.c.zzz"
+        }
+      ],
+      "expectedHash": "6a2cf15d992badbccc7d6f51caf800640e7346a89f6036374c9242f2b654e47a"
+    },
+    {
+      "name": "All invalid",
+      "seedSql": "INSERT INTO customers VALUES (1,'A','no-at-sign.com'),(2,'B','a@'),(3,'C','@@x.com');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Special chars in local part",
+      "seedSql": "INSERT INTO customers VALUES\n (1,'A','first.last+tag@example.co.uk'),\n (2,'B','first_last@example.com'),\n (3,'C','bad space@example.com');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "email": "first.last+tag@example.co.uk"
+        },
+        {
+          "id": 2,
+          "email": "first_last@example.com"
+        }
+      ],
+      "expectedHash": "72fc86d0facc3e600a9f2da53b9614d88f100349e1cd239393d6f304db08d7ef"
+    }
+  ]
+}

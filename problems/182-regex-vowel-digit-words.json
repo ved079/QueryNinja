@@ -1,0 +1,72 @@
+{
+  "id": "regex-vowel-digit-words",
+  "number": 182,
+  "title": "Words Starting with a Vowel Containing a Digit",
+  "difficulty": "Medium",
+  "tags": [
+    "Regular Expression",
+    "String",
+    "Filtering"
+  ],
+  "description": "Write a query to return the `id` and `word` of every entry that satisfies **both** conditions:\n\n1. **Starts with a vowel** — the first character is `a`, `e`, `i`, `o`, or `u` (case-insensitive)\n2. **Contains at least one digit** — anywhere in the string\n\nReturn the result in any order.",
+  "solutionSql": "SELECT id, word\nFROM words\nWHERE REGEXP_LIKE(word, '^[aeiou]') AND REGEXP_LIKE(word, '[0-9]');",
+  "orderMatters": false,
+  "hint": "This needs two separate patterns joined with AND: `^[aeiou]` checks the first character (unanchored at the end, so the rest can be anything), and `[0-9]` finds any digit. REGEXP_LIKE is case-insensitive by default here, so 'Apple2' matches.",
+  "outputExplanation": "- `elephant5` — starts with `e` (vowel), contains digit `5`. Returned. ✓\n- `zebra2` — starts with `z`, not a vowel. Not returned. ✗\n- `apple` — starts with `a` (vowel), but contains no digits. Not returned. ✗\n- `orange3` — starts with `o` (vowel), contains digit `3`. Returned. ✓\n- `X1` — starts with `X`, not a vowel. Not returned. ✗\n\nRows 1 and 4 are returned.",
+  "schemaSql": "CREATE TABLE words (\n  id INTEGER PRIMARY KEY,\n  word TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO words VALUES\n (1,'elephant5'),\n (2,'zebra2'),\n (3,'apple'),\n (4,'orange3'),\n (5,'X1');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "word": "elephant5"
+        },
+        {
+          "id": 4,
+          "word": "orange3"
+        }
+      ],
+      "expectedHash": "d0907a8a315b59acdef80cf78867480008310dd12fa9a622cfdce1cbf7c91af2"
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Uppercase vowel counts",
+      "seedSql": "INSERT INTO words VALUES\n (1,'Apple2'),\n (2,'IGLU0'),\n (3,'Unicorn'),\n (4,'Z00');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "word": "Apple2"
+        },
+        {
+          "id": 2,
+          "word": "IGLU0"
+        }
+      ],
+      "expectedHash": "420c595caac43cf04c5548fb982855276602b168c3ecb64a434174c51eeb2a57"
+    },
+    {
+      "name": "Digit at the very start",
+      "seedSql": "INSERT INTO words VALUES\n (1,'1orange'),\n (2,'orange'),\n (3,'o');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Only digits and vowels",
+      "seedSql": "INSERT INTO words VALUES\n (1,'a1'),\n (2,'ea'),\n (3,'123');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "word": "a1"
+        }
+      ],
+      "expectedHash": "1caa34c25f2c3b25e14df105f16a2f98920550620a398112155d130cc898ba82"
+    }
+  ]
+}

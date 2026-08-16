@@ -1,0 +1,67 @@
+{
+  "id": "da-arpu",
+  "number": 168,
+  "title": "Average Revenue Per Paying User",
+  "difficulty": "Medium",
+  "tags": [
+    "Data Analyst",
+    "SaaS",
+    "Aggregation",
+    "Join"
+  ],
+  "description": "For each calendar month, report **ARPU** (average revenue per paying user): total revenue that month divided by the number of distinct customers who paid that month. Name the columns `month`, `paying_users` and `arpu` (rounded to 2 decimals). Return months in chronological order.",
+  "solutionSql": "SELECT strftime('%Y-%m', order_date) AS month,\n       COUNT(DISTINCT customer_id) AS paying_users,\n       ROUND(SUM(total) * 1.0 / COUNT(DISTINCT customer_id), 2) AS arpu\nFROM orders\nGROUP BY month\nORDER BY month;",
+  "orderMatters": true,
+  "hint": "Two aggregates in one query: COUNT(DISTINCT customer_id) for the denominator and SUM(total) for the numerator, then divide.",
+  "outputExplanation": "January: customers 1 and 2 paid a total of $300 → ARPU $150. February: only customer 3 paid $100 → ARPU $100.",
+  "schemaSql": "CREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER,\n  order_date TEXT,\n  total REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO orders VALUES\n (1,1,'2024-01-05',100),\n (2,1,'2024-01-20',100),\n (3,2,'2024-01-15',100),\n (4,3,'2024-02-01',100);",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "paying_users": 2,
+          "arpu": 150
+        },
+        {
+          "month": "2024-02",
+          "paying_users": 1,
+          "arpu": 100
+        }
+      ],
+      "expectedHash": "0a3016f1310b32f51c607c6e3f5cbd92fade4da5bf46745f3b75d51448969bb0"
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single paying user",
+      "seedSql": "INSERT INTO orders VALUES (1,7,'2024-01-01',25.5),(2,7,'2024-01-10',24.5);",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "paying_users": 1,
+          "arpu": 50
+        }
+      ],
+      "expectedHash": "d910d3f10b660772c395ce7de3f86a4d72f67e8e3a9cb01699c2bf6ee8f5901c"
+    },
+    {
+      "name": "Many small orders",
+      "seedSql": "INSERT INTO orders VALUES (1,1,'2024-01-01',10),(2,1,'2024-01-02',10),(3,2,'2024-01-03',10),(4,2,'2024-01-04',10);",
+      "expectedOutput": [
+        {
+          "month": "2024-01",
+          "paying_users": 2,
+          "arpu": 20
+        }
+      ],
+      "expectedHash": "22e89e7d14f15f8400981840685db97496e2c9a36d5e9aea0dcaeebf79db809a"
+    }
+  ]
+}

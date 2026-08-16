@@ -1,0 +1,186 @@
+{
+  "id": "debug-case-sensitive-match",
+  "number": 133,
+  "title": "Debug: The Sales Department Query Returns Nothing",
+  "difficulty": "Easy",
+  "tags": [
+    "Debugging",
+    "String"
+  ],
+  "description": "Someone wants every employee in the Sales department, but this query returns zero rows even though Sales clearly has employees. Find the bug and fix it.\n\nName the column `name`. Return the result in any order.",
+  "solutionSql": "SELECT e.name\nFROM employees e\nJOIN departments d ON d.id = e.dept_id\nWHERE LOWER(d.name) = 'sales';",
+  "orderMatters": false,
+  "hint": "The `=` operator compares TEXT byte-for-byte by default in SQLite — 'sales' and 'Sales' are not equal. Normalize both sides (or at least the column) with LOWER() before comparing to a lowercase literal.",
+  "schemaSql": "CREATE TABLE departments (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  location TEXT\n);\n\nCREATE TABLE employees (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  title TEXT,\n  salary INTEGER,\n  dept_id INTEGER,\n  manager_id INTEGER,\n  hire_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',150000,1,NULL,'2018-01-15'),\n (2,'Ben','Engineer',120000,1,1,'2019-03-01'),\n (3,'Cara','Engineer',120000,1,1,'2019-03-01'),\n (4,'Dan','Engineer',95000,1,1,'2021-07-19'),\n (5,'Eve','Manager',130000,2,NULL,'2017-11-02'),\n (6,'Finn','Rep',70000,2,5,'2020-05-30'),\n (7,'Gia','Rep',85000,2,5,'2022-02-14'),\n (8,'Hal','Analyst',60000,3,NULL,'2023-09-01');",
+      "expectedOutput": [
+        {
+          "name": "Eve"
+        },
+        {
+          "name": "Finn"
+        },
+        {
+          "name": "Gia"
+        }
+      ],
+      "expectedHash": "410b27f369d29331894572248b333afae545970d68a4b06344ce23b3c089d6dc"
+    },
+    {
+      "name": "Ties on every salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'A','Engineer',100000,1,NULL,'2020-01-01'),\n (2,'B','Engineer',100000,1,1,'2020-01-01'),\n (3,'C','Engineer',100000,1,1,'2020-01-01'),\n (4,'D','Rep',100000,2,NULL,'2020-01-01'),\n (5,'E','Rep',100000,2,4,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "D"
+        },
+        {
+          "name": "E"
+        }
+      ],
+      "expectedHash": "356348b1184760db345207aa1bee1bd2e0b56566a082ebf591556a685bf1fe1b"
+    },
+    {
+      "name": "Department with no employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Employees with NULL department and NULL salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
+      "expectedOutput": [
+        {
+          "name": "Dan"
+        }
+      ],
+      "expectedHash": "a7438afcbf219591e66be332ea6a138ffd2a0bc5d3c4e8b0929954c863cb00bb"
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single employee, single department",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Everyone reports to someone (deep chain)",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Duplicate names and same hire dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Austin');\nINSERT INTO employees VALUES\n (1,'Sam','Engineer',90000,1,NULL,'2021-01-01'),\n (2,'Sam','Engineer',95000,2,NULL,'2021-01-01'),\n (3,'Sam','Rep',60000,2,2,'2021-01-01'),\n (4,'Alex','Rep',60000,2,2,'2021-06-30');",
+      "expectedOutput": [
+        {
+          "name": "Sam"
+        },
+        {
+          "name": "Sam"
+        },
+        {
+          "name": "Alex"
+        }
+      ],
+      "expectedHash": "fb1c360248aef74b5cedb7e6c6314183f3057d96f59fa9867b71cad2f00b93c1"
+    },
+    {
+      "name": "Zero and negative salaries, boundary dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Intern',0,1,NULL,'2019-12-31'),\n (2,'Ben','Engineer',-100,1,1,'2020-01-01'),\n (3,'Cara','Engineer',1,2,NULL,'2020-02-29'),\n (4,'Dan','Rep',2000000,2,3,'2020-12-31');",
+      "expectedOutput": [
+        {
+          "name": "Cara"
+        },
+        {
+          "name": "Dan"
+        }
+      ],
+      "expectedHash": "740d406c969d6303e59469ed24e16a5953e75a097a9fbc9dc1afbda3cae440ea"
+    },
+    {
+      "name": "Larger multi-department set",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin'),(4,'Finance','Boston');\nINSERT INTO employees VALUES\n (1,'A','Manager',140000,1,NULL,'2015-02-10'),\n (2,'B','Engineer',130000,1,1,'2016-04-11'),\n (3,'C','Engineer',130000,1,1,'2017-06-12'),\n (4,'D','Engineer',110000,1,1,'2018-08-13'),\n (5,'E','Engineer',90000,1,1,'2019-10-14'),\n (6,'F','Manager',125000,2,NULL,'2015-03-15'),\n (7,'G','Rep',88000,2,6,'2016-05-16'),\n (8,'H','Rep',88000,2,6,'2017-07-17'),\n (9,'I','Rep',64000,2,6,'2018-09-18'),\n (10,'J','Manager',99000,3,NULL,'2019-11-19'),\n (11,'K','Analyst',72000,3,10,'2020-01-20'),\n (12,'L','Analyst',150000,4,NULL,'2021-03-21'),\n (13,'M','Analyst',150000,4,12,'2022-05-22');",
+      "expectedOutput": [
+        {
+          "name": "F"
+        },
+        {
+          "name": "G"
+        },
+        {
+          "name": "H"
+        },
+        {
+          "name": "I"
+        }
+      ],
+      "expectedHash": "be5ef8f066c27ca1405e7d244a62b5b2d963dba930136e0e3bbb2f6757320010"
+    },
+    {
+      "name": "Department name in all uppercase — 'SALES' does not match 'sales'",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'SALES','Denver');\nINSERT INTO employees VALUES (1,'Eve','E',100000,2,NULL,'2020-01-01'),(2,'Finn','E',90000,2,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "Eve"
+        },
+        {
+          "name": "Finn"
+        }
+      ],
+      "expectedHash": "08213cf07c73ea42caba426c1b1715ee6752f7d958a93e71feda152c7c78dbf1"
+    },
+    {
+      "name": "Mixed case — 'Sales' is the original bug",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES (1,'Eve','E',100000,2,NULL,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "Eve"
+        }
+      ],
+      "expectedHash": "69a37ffaa058759fb21e5c8170ee3da10080495f67bc422ee8c957f27da1d51c"
+    },
+    {
+      "name": "No 'Sales' department at all — empty result is correct",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'HR','Austin');\nINSERT INTO employees VALUES (1,'Eve','E',100000,1,NULL,'2020-01-01');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Department name with lowercase 'sales' — both queries work",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'sales','Denver');\nINSERT INTO employees VALUES (1,'Eve','E',100000,2,NULL,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "Eve"
+        }
+      ],
+      "expectedHash": "69a37ffaa058759fb21e5c8170ee3da10080495f67bc422ee8c957f27da1d51c"
+    },
+    {
+      "name": "Multiple department name casings",
+      "seedSql": "INSERT INTO departments VALUES (1,'engineering','Austin'),(2,'SALES','Denver'),(3,'Hr','Austin');\nINSERT INTO employees VALUES (1,'Eve','E',100000,2,NULL,'2020-01-01'),(2,'Finn','E',90000,2,1,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "Eve"
+        },
+        {
+          "name": "Finn"
+        }
+      ],
+      "expectedHash": "08213cf07c73ea42caba426c1b1715ee6752f7d958a93e71feda152c7c78dbf1"
+    },
+    {
+      "name": "Empty departments and employees",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    }
+  ]
+}

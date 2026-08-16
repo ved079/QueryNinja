@@ -1,0 +1,475 @@
+{
+  "id": "department-top-three-salaries",
+  "number": 7,
+  "title": "Department Top Three Salaries",
+  "difficulty": "Hard",
+  "tags": [
+    "Window Function",
+    "Join",
+    "Ranking"
+  ],
+  "description": "Table `Employee` holds employees and their salary, with `departmentId` referencing `Department.id`.\n\nAn employee is a **high earner** in a department if there are fewer than three *distinct* salaries in that department strictly greater than theirs.\n\nWrite a query to find the high earners in each department. Report columns `Department`, `Employee`, `Salary`.\n\nReturn the result in any order.",
+  "schemaSql": "CREATE TABLE Department (\n  id INTEGER PRIMARY KEY,\n  name TEXT\n);\n\nCREATE TABLE Employee (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  salary INTEGER,\n  departmentId INTEGER\n);",
+  "solutionSql": "SELECT d.name AS Department, e.name AS Employee, e.salary AS Salary\nFROM (\n  SELECT *,\n         DENSE_RANK() OVER (PARTITION BY departmentId ORDER BY salary DESC) AS rnk\n  FROM Employee\n) e\nJOIN Department d ON d.id = e.departmentId\nWHERE e.rnk <= 3;",
+  "orderMatters": false,
+  "hint": "DENSE_RANK() (not RANK() or ROW_NUMBER()) is what treats tied salaries as one rank — exactly what \"distinct salaries greater than theirs\" means.",
+  "outputExplanation": "In IT, Max ($90k), Joe ($85k), Randy ($85k) and Will ($70k) are the top three earners. In Sales, Henry ($80k) and Sam ($60k) qualify.",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO Department VALUES (1,'IT'),(2,'Sales');\nINSERT INTO Employee VALUES (1,'Joe',85000,1),(2,'Henry',80000,2),(3,'Sam',60000,2),(4,'Max',90000,1),(5,'Janet',69000,1),(6,'Randy',85000,1),(7,'Will',70000,1);",
+      "expectedOutput": [
+        {
+          "Department": "IT",
+          "Employee": "Max",
+          "Salary": 90000
+        },
+        {
+          "Department": "IT",
+          "Employee": "Joe",
+          "Salary": 85000
+        },
+        {
+          "Department": "IT",
+          "Employee": "Randy",
+          "Salary": 85000
+        },
+        {
+          "Department": "IT",
+          "Employee": "Will",
+          "Salary": 70000
+        },
+        {
+          "Department": "Sales",
+          "Employee": "Henry",
+          "Salary": 80000
+        },
+        {
+          "Department": "Sales",
+          "Employee": "Sam",
+          "Salary": 60000
+        }
+      ],
+      "expectedHash": "4bc99b5ba5d22a11eef6020c8513e7654af091fee8614dbf0ecd50de8ea993b0"
+    },
+    {
+      "name": "Department with fewer than three employees",
+      "seedSql": "INSERT INTO Department VALUES (1,'IT');\nINSERT INTO Employee VALUES (1,'Ann',500,1),(2,'Ben',400,1);",
+      "expectedOutput": [
+        {
+          "Department": "IT",
+          "Employee": "Ann",
+          "Salary": 500
+        },
+        {
+          "Department": "IT",
+          "Employee": "Ben",
+          "Salary": 400
+        }
+      ],
+      "expectedHash": "16bb2e4a09a23e0bd4baa7adba7aaff302e3cb8b931fd065dd7db9d44bb5acfc"
+    },
+    {
+      "name": "Ties at the third distinct salary — DENSE_RANK includes all, ROW_NUMBER picks one",
+      "seedSql": "INSERT INTO Department VALUES (1,'IT');\nINSERT INTO Employee VALUES (1,'A',300,1),(2,'B',200,1),(3,'C',100,1),(4,'D',100,1),(5,'E',100,1),(6,'F',50,1);",
+      "expectedOutput": [
+        {
+          "Department": "IT",
+          "Employee": "A",
+          "Salary": 300
+        },
+        {
+          "Department": "IT",
+          "Employee": "B",
+          "Salary": 200
+        },
+        {
+          "Department": "IT",
+          "Employee": "C",
+          "Salary": 100
+        },
+        {
+          "Department": "IT",
+          "Employee": "D",
+          "Salary": 100
+        },
+        {
+          "Department": "IT",
+          "Employee": "E",
+          "Salary": 100
+        }
+      ],
+      "expectedHash": "22ee0b88b2f7260f4c6b7ef4e48c9692da211bae074f2ba37e0270d51663fd45"
+    },
+    {
+      "name": "All salaries equal in a department — everyone is rank 1",
+      "seedSql": "INSERT INTO Department VALUES (1,'IT');\nINSERT INTO Employee VALUES (1,'A',100,1),(2,'B',100,1),(3,'C',100,1),(4,'D',100,1);",
+      "expectedOutput": [
+        {
+          "Department": "IT",
+          "Employee": "A",
+          "Salary": 100
+        },
+        {
+          "Department": "IT",
+          "Employee": "B",
+          "Salary": 100
+        },
+        {
+          "Department": "IT",
+          "Employee": "C",
+          "Salary": 100
+        },
+        {
+          "Department": "IT",
+          "Employee": "D",
+          "Salary": 100
+        }
+      ],
+      "expectedHash": "5da2d8d7ba3c6aa08ae351a63ead47bf1e57283cbc4442da0125b82efcca38a6"
+    },
+    {
+      "name": "More than three distinct salaries — only top three distinct buckets qualify",
+      "seedSql": "INSERT INTO Department VALUES (1,'IT');\nINSERT INTO Employee VALUES (1,'A',500,1),(2,'B',400,1),(3,'C',300,1),(4,'D',200,1),(5,'E',100,1);",
+      "expectedOutput": [
+        {
+          "Department": "IT",
+          "Employee": "A",
+          "Salary": 500
+        },
+        {
+          "Department": "IT",
+          "Employee": "B",
+          "Salary": 400
+        },
+        {
+          "Department": "IT",
+          "Employee": "C",
+          "Salary": 300
+        }
+      ],
+      "expectedHash": "6eab50241596288486eec7c44a94c5039faa0a7f9df7da6d17a000466eb8ba23"
+    },
+    {
+      "name": "Department with no employees — empty department is not reported",
+      "seedSql": "INSERT INTO Department VALUES (1,'IT'),(2,'Empty');\nINSERT INTO Employee VALUES (1,'A',100,1);",
+      "expectedOutput": [
+        {
+          "Department": "IT",
+          "Employee": "A",
+          "Salary": 100
+        }
+      ],
+      "expectedHash": "a32cf362a4f49c331b58afdd5b83ddf3d20dd7bd1b87bfd539fd974afc3bcafd"
+    },
+    {
+      "name": "No employees at all",
+      "seedSql": "INSERT INTO Department VALUES (1,'IT'),(2,'Sales');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Employee with NULL departmentId — excluded from results",
+      "seedSql": "INSERT INTO Department VALUES (1,'IT');\nINSERT INTO Employee VALUES (1,'A',100,1),(2,'Floating',999,NULL);",
+      "expectedOutput": [
+        {
+          "Department": "IT",
+          "Employee": "A",
+          "Salary": 100
+        }
+      ],
+      "expectedHash": "a32cf362a4f49c331b58afdd5b83ddf3d20dd7bd1b87bfd539fd974afc3bcafd"
+    },
+    {
+      "name": "Employee in a department that does not exist — excluded by JOIN",
+      "seedSql": "INSERT INTO Department VALUES (1,'IT');\nINSERT INTO Employee VALUES (1,'A',100,1),(2,'Ghost',999,42);",
+      "expectedOutput": [
+        {
+          "Department": "IT",
+          "Employee": "A",
+          "Salary": 100
+        }
+      ],
+      "expectedHash": "a32cf362a4f49c331b58afdd5b83ddf3d20dd7bd1b87bfd539fd974afc3bcafd"
+    },
+    {
+      "name": "Three departments with overlapping salary distributions",
+      "seedSql": "INSERT INTO Department VALUES (1,'IT'),(2,'Sales'),(3,'HR');\nINSERT INTO Employee VALUES (1,'A',100,1),(2,'B',200,1),(3,'C',300,1),(4,'D',400,1),(5,'E',100,2),(6,'F',200,2),(7,'G',300,3),(8,'H',300,3),(9,'I',250,3),(10,'J',150,3),(11,'K',50,3);",
+      "expectedOutput": [
+        {
+          "Department": "IT",
+          "Employee": "D",
+          "Salary": 400
+        },
+        {
+          "Department": "IT",
+          "Employee": "C",
+          "Salary": 300
+        },
+        {
+          "Department": "IT",
+          "Employee": "B",
+          "Salary": 200
+        },
+        {
+          "Department": "Sales",
+          "Employee": "F",
+          "Salary": 200
+        },
+        {
+          "Department": "Sales",
+          "Employee": "E",
+          "Salary": 100
+        },
+        {
+          "Department": "HR",
+          "Employee": "G",
+          "Salary": 300
+        },
+        {
+          "Department": "HR",
+          "Employee": "H",
+          "Salary": 300
+        },
+        {
+          "Department": "HR",
+          "Employee": "I",
+          "Salary": 250
+        },
+        {
+          "Department": "HR",
+          "Employee": "J",
+          "Salary": 150
+        }
+      ],
+      "expectedHash": "44b8ad4fbca6549372b35b727e993b389f5136eaaae8707edf59e4dc6a2bc4ac"
+    },
+    {
+      "name": "RANK vs DENSE_RANK — tied top salary causes RANK to skip rank 2",
+      "seedSql": "INSERT INTO Department VALUES (1,'IT');\nINSERT INTO Employee VALUES (1,'A',100,1),(2,'B',100,1),(3,'C',90,1),(4,'D',80,1);",
+      "expectedOutput": [
+        {
+          "Department": "IT",
+          "Employee": "A",
+          "Salary": 100
+        },
+        {
+          "Department": "IT",
+          "Employee": "B",
+          "Salary": 100
+        },
+        {
+          "Department": "IT",
+          "Employee": "C",
+          "Salary": 90
+        },
+        {
+          "Department": "IT",
+          "Employee": "D",
+          "Salary": 80
+        }
+      ],
+      "expectedHash": "68d9c7e734ee80afbf984c87a84762505bc429d701f6e7e882faa3ef2ab33086"
+    },
+    {
+      "name": "Single employee, single department",
+      "seedSql": "INSERT INTO Department VALUES (1,'Eng');\nINSERT INTO Employee VALUES (1,'Solo',500,1);",
+      "expectedOutput": [
+        {
+          "Department": "Eng",
+          "Employee": "Solo",
+          "Salary": 500
+        }
+      ],
+      "expectedHash": "304d10da1091f21412c4ff2c4693decd678a54bedf39d59ef72a0deb8c358eed"
+    },
+    {
+      "name": "Two departments — one has a tie at the top, the other has three distinct",
+      "seedSql": "INSERT INTO Department VALUES (1,'IT'),(2,'Sales');\nINSERT INTO Employee VALUES (1,'A',100,1),(2,'B',100,1),(3,'C',50,1),(4,'D',90,2),(5,'E',70,2),(6,'F',50,2),(7,'G',30,2);",
+      "expectedOutput": [
+        {
+          "Department": "IT",
+          "Employee": "A",
+          "Salary": 100
+        },
+        {
+          "Department": "IT",
+          "Employee": "B",
+          "Salary": 100
+        },
+        {
+          "Department": "IT",
+          "Employee": "C",
+          "Salary": 50
+        },
+        {
+          "Department": "Sales",
+          "Employee": "D",
+          "Salary": 90
+        },
+        {
+          "Department": "Sales",
+          "Employee": "E",
+          "Salary": 70
+        },
+        {
+          "Department": "Sales",
+          "Employee": "F",
+          "Salary": 50
+        }
+      ],
+      "expectedHash": "b9a18f0b9f8464e04e565133c02f0fe7f1812369b142d55c2d2124fe89ebf45c"
+    },
+    {
+      "name": "Three departments, each with exactly three employees at distinct salaries",
+      "seedSql": "INSERT INTO Department VALUES (1,'IT'),(2,'Sales'),(3,'HR');\nINSERT INTO Employee VALUES (1,'A',100,1),(2,'B',80,1),(3,'C',60,1),(4,'D',90,2),(5,'E',70,2),(6,'F',50,2),(7,'G',120,3),(8,'H',100,3),(9,'I',80,3);",
+      "expectedOutput": [
+        {
+          "Department": "IT",
+          "Employee": "A",
+          "Salary": 100
+        },
+        {
+          "Department": "IT",
+          "Employee": "B",
+          "Salary": 80
+        },
+        {
+          "Department": "IT",
+          "Employee": "C",
+          "Salary": 60
+        },
+        {
+          "Department": "Sales",
+          "Employee": "D",
+          "Salary": 90
+        },
+        {
+          "Department": "Sales",
+          "Employee": "E",
+          "Salary": 70
+        },
+        {
+          "Department": "Sales",
+          "Employee": "F",
+          "Salary": 50
+        },
+        {
+          "Department": "HR",
+          "Employee": "G",
+          "Salary": 120
+        },
+        {
+          "Department": "HR",
+          "Employee": "H",
+          "Salary": 100
+        },
+        {
+          "Department": "HR",
+          "Employee": "I",
+          "Salary": 80
+        }
+      ],
+      "expectedHash": "daa2a3846e0818a9fe0ac8781d7178e9da456d397a361e487b5189176c986d73"
+    },
+    {
+      "name": "Stress test — four departments, 17 employees, mixed ties and scales",
+      "seedSql": "INSERT INTO Department VALUES (1,'IT'),(2,'Sales'),(3,'HR'),(4,'Mgmt');\nINSERT INTO Employee VALUES (1,'A',200,1),(2,'B',180,1),(3,'C',160,1),(4,'D',140,1),(5,'E',120,1),(6,'F',100,1),(7,'G',190,2),(8,'H',170,2),(9,'I',150,2),(10,'J',130,2),(11,'K',110,2),(12,'L',160,3),(13,'M',160,3),(14,'N',150,3),(15,'O',80,3),(16,'P',300,4),(17,'Q',200,4);",
+      "expectedOutput": [
+        {
+          "Department": "IT",
+          "Employee": "A",
+          "Salary": 200
+        },
+        {
+          "Department": "IT",
+          "Employee": "B",
+          "Salary": 180
+        },
+        {
+          "Department": "IT",
+          "Employee": "C",
+          "Salary": 160
+        },
+        {
+          "Department": "Sales",
+          "Employee": "G",
+          "Salary": 190
+        },
+        {
+          "Department": "Sales",
+          "Employee": "H",
+          "Salary": 170
+        },
+        {
+          "Department": "Sales",
+          "Employee": "I",
+          "Salary": 150
+        },
+        {
+          "Department": "HR",
+          "Employee": "L",
+          "Salary": 160
+        },
+        {
+          "Department": "HR",
+          "Employee": "M",
+          "Salary": 160
+        },
+        {
+          "Department": "HR",
+          "Employee": "N",
+          "Salary": 150
+        },
+        {
+          "Department": "HR",
+          "Employee": "O",
+          "Salary": 80
+        },
+        {
+          "Department": "Mgmt",
+          "Employee": "P",
+          "Salary": 300
+        },
+        {
+          "Department": "Mgmt",
+          "Employee": "Q",
+          "Salary": 200
+        }
+      ],
+      "expectedHash": "16481fe3a7832173c23d57bf11c6b9e2a310e242474b22ba47a2791c639bdfb4"
+    },
+    {
+      "name": "All employees have the same salary across two departments",
+      "seedSql": "INSERT INTO Department VALUES (1,'IT'),(2,'Sales');\nINSERT INTO Employee VALUES (1,'A',100,1),(2,'B',100,1),(3,'C',100,1),(4,'D',100,2),(5,'E',100,2);",
+      "expectedOutput": [
+        {
+          "Department": "IT",
+          "Employee": "A",
+          "Salary": 100
+        },
+        {
+          "Department": "IT",
+          "Employee": "B",
+          "Salary": 100
+        },
+        {
+          "Department": "IT",
+          "Employee": "C",
+          "Salary": 100
+        },
+        {
+          "Department": "Sales",
+          "Employee": "D",
+          "Salary": 100
+        },
+        {
+          "Department": "Sales",
+          "Employee": "E",
+          "Salary": 100
+        }
+      ],
+      "expectedHash": "6d3748f50dcaf870a9f958902373c419d11210e00d2c1aa394cb939dd530bf5f"
+    }
+  ]
+}

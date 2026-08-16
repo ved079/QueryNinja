@@ -1,0 +1,226 @@
+{
+  "id": "str-clean-messy-names",
+  "number": 116,
+  "title": "Clean Up Messy Customer Names",
+  "difficulty": "Medium",
+  "tags": [
+    "String"
+  ],
+  "description": "`source_orders.customer_name` has inconsistent formatting — extra whitespace, inconsistent casing. Report the distinct set of customer names after trimming leading/trailing whitespace and lowercasing.\n\nName the column `customer`. Return the result in any order.",
+  "solutionSql": "SELECT DISTINCT LOWER(TRIM(customer_name)) AS customer FROM source_orders;",
+  "orderMatters": false,
+  "hint": "TRIM only removes leading/trailing whitespace, not whitespace in the middle — that's enough here since the mess in this dataset is only at the edges and in casing.",
+  "outputExplanation": "After trimming and lowercasing, the four distinct names are 'ann lee', 'ben kim', 'cy ortiz' and 'dee fox'. A hidden test shows that TRIM removes leading/trailing spaces from names like '  ben kim '.",
+  "schemaSql": "CREATE TABLE source_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);\n\nCREATE TABLE warehouse_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);\n\nCREATE TABLE vendor_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5),(4,'Dee Fox',200.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(5,'Eli Park',60.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(3,'Cy Ortiz',45.5),(6,'Fay Nolan',15.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        },
+        {
+          "customer": "cy ortiz"
+        },
+        {
+          "customer": "dee fox"
+        }
+      ],
+      "expectedHash": "e6d5f9eed88c1591d3ecfe1daa8abfedab1c4274587fe2bc53729835ad0583b6"
+    },
+    {
+      "name": "All three systems fully agree",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        }
+      ],
+      "expectedHash": "b4241927d5190b05ca32d8282cd1e26d273909a5b49ef61b4ff7a6196377f243"
+    },
+    {
+      "name": "Completely disjoint across all three",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO warehouse_orders VALUES (2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (3,'Cy Ortiz',45.5);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        }
+      ],
+      "expectedHash": "131bd9987081a10f6e5672702c4d32464e02e9df70405a53601e0bdff4e03362"
+    },
+    {
+      "name": "Source has an accidental duplicate row",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        }
+      ],
+      "expectedHash": "b4241927d5190b05ca32d8282cd1e26d273909a5b49ef61b4ff7a6196377f243"
+    },
+    {
+      "name": "All three systems empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Only source has any data",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        },
+        {
+          "customer": "cy ortiz"
+        }
+      ],
+      "expectedHash": "d5ba32a05b958c30fa2b1b6c2728d38fa4091a16c74737a308e086145705171c"
+    },
+    {
+      "name": "Same order, inconsistent name formatting",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'  ben kim ',80.0);\nINSERT INTO warehouse_orders VALUES (1,'ANN LEE',120.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'ann lee',120.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        }
+      ],
+      "expectedHash": "b4241927d5190b05ca32d8282cd1e26d273909a5b49ef61b4ff7a6196377f243"
+    },
+    {
+      "name": "Matching ids, mismatched amounts",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',125.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        }
+      ],
+      "expectedHash": "b4241927d5190b05ca32d8282cd1e26d273909a5b49ef61b4ff7a6196377f243"
+    },
+    {
+      "name": "Single matching order everywhere",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        }
+      ],
+      "expectedHash": "131bd9987081a10f6e5672702c4d32464e02e9df70405a53601e0bdff4e03362"
+    },
+    {
+      "name": "Larger mixed set: some in all three, some in two, some in one, duplicates and a mismatch",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5),(4,'Dee Fox',200.0),(7,'Gio Ruiz',33.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',99.0),(5,'Eli Park',60.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(4,'Dee Fox',200.0),(6,'Fay Nolan',15.0),(8,'Hana Cole',72.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        },
+        {
+          "customer": "cy ortiz"
+        },
+        {
+          "customer": "dee fox"
+        },
+        {
+          "customer": "gio ruiz"
+        }
+      ],
+      "expectedHash": "650504a211a300121168bf248e9d99c3d7ed66abf723c99272916985244cc8fc"
+    },
+    {
+      "name": "All names already clean",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',100.0),(2,'Ben Kim',200.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        }
+      ],
+      "expectedHash": "b4241927d5190b05ca32d8282cd1e26d273909a5b49ef61b4ff7a6196377f243"
+    },
+    {
+      "name": "Extra leading and trailing spaces",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'  Ann Lee  ',100.0),(2,'  Ben Kim  ',200.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        }
+      ],
+      "expectedHash": "b4241927d5190b05ca32d8282cd1e26d273909a5b49ef61b4ff7a6196377f243"
+    },
+    {
+      "name": "Inconsistent casing only",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'ANN LEE',100.0),(2,'ben kim',200.0),(3,'Cy Ortiz',300.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        },
+        {
+          "customer": "cy ortiz"
+        }
+      ],
+      "expectedHash": "d5ba32a05b958c30fa2b1b6c2728d38fa4091a16c74737a308e086145705171c"
+    },
+    {
+      "name": "Both spaces and casing mixed",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'  ANN LEE ',100.0),(2,'ben kim  ',200.0),(3,'  Cy Ortiz  ',300.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        },
+        {
+          "customer": "ben kim"
+        },
+        {
+          "customer": "cy ortiz"
+        }
+      ],
+      "expectedHash": "d5ba32a05b958c30fa2b1b6c2728d38fa4091a16c74737a308e086145705171c"
+    },
+    {
+      "name": "Empty source_orders",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Duplicate names after normalization — DISTINCT required",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'  Ann Lee ',100.0),(2,'ANN LEE',200.0),(3,'ann lee  ',300.0);",
+      "expectedOutput": [
+        {
+          "customer": "ann lee"
+        }
+      ],
+      "expectedHash": "131bd9987081a10f6e5672702c4d32464e02e9df70405a53601e0bdff4e03362"
+    }
+  ]
+}

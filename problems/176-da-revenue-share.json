@@ -1,0 +1,114 @@
+{
+  "id": "da-revenue-share",
+  "number": 176,
+  "title": "Revenue Share Concentration",
+  "difficulty": "Hard",
+  "tags": [
+    "Data Analyst",
+    "Distribution",
+    "Window Function",
+    "Aggregation"
+  ],
+  "description": "Report the **revenue share** of each customer: their spend as a fraction of total company revenue, rounded to 2 decimals. Also report a **running cumulative share** sorted from the biggest customer down. Name the columns `customer_id`, `revenue`, `share`, and `cumulative_share`. Order rows by descending revenue, breaking ties by `customer_id`.",
+  "solutionSql": "SELECT customer_id,\n       revenue,\n       ROUND(revenue * 1.0 / SUM(revenue) OVER (), 2) AS share,\n       ROUND(SUM(revenue) OVER (ORDER BY revenue DESC, customer_id\n            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)\n            * 1.0 / SUM(revenue) OVER (), 2) AS cumulative_share\nFROM (\n  SELECT customer_id, SUM(total) AS revenue\n  FROM orders\n  GROUP BY customer_id\n)\nORDER BY revenue DESC, customer_id;",
+  "orderMatters": true,
+  "hint": "Total revenue is a window aggregate over all customers; the cumulative share is a running SUM sorted by revenue. ORDER BY ties on customer_id.",
+  "outputExplanation": "Customer 2 drives $500 of the $1000 total (50%); cumulatively the top 2 customers cover 75%.",
+  "schemaSql": "CREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER,\n  total REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO orders VALUES (1,1,200),(2,2,500),(3,3,300);",
+      "expectedOutput": [
+        {
+          "customer_id": 2,
+          "revenue": 500,
+          "share": 0.5,
+          "cumulative_share": 0.5
+        },
+        {
+          "customer_id": 3,
+          "revenue": 300,
+          "share": 0.3,
+          "cumulative_share": 0.8
+        },
+        {
+          "customer_id": 1,
+          "revenue": 200,
+          "share": 0.2,
+          "cumulative_share": 1
+        }
+      ],
+      "expectedHash": "02c3607fcc7a2d6e6082079e9997e8e3e6512a75a066f3605c8ca31b5fa2c2c9"
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Equal revenue customers",
+      "seedSql": "INSERT INTO orders VALUES (1,2,100),(2,1,100);",
+      "expectedOutput": [
+        {
+          "customer_id": 1,
+          "revenue": 100,
+          "share": 0.5,
+          "cumulative_share": 0.5
+        },
+        {
+          "customer_id": 2,
+          "revenue": 100,
+          "share": 0.5,
+          "cumulative_share": 1
+        }
+      ],
+      "expectedHash": "fa0897d8a9b38dc2aa0cb14cc06dbaccec73ca03d61c83b96d657f303fb60577"
+    },
+    {
+      "name": "Single customer",
+      "seedSql": "INSERT INTO orders VALUES (1,9,75),(2,9,25);",
+      "expectedOutput": [
+        {
+          "customer_id": 9,
+          "revenue": 100,
+          "share": 1,
+          "cumulative_share": 1
+        }
+      ],
+      "expectedHash": "6311d8648c8f55adc300b512e715f6180c1b9f49acd8c87a21919a34111d6bb2"
+    },
+    {
+      "name": "Long tail with top heavy",
+      "seedSql": "INSERT INTO orders VALUES (1,1,900),(2,2,50),(3,3,30),(4,4,20);",
+      "expectedOutput": [
+        {
+          "customer_id": 1,
+          "revenue": 900,
+          "share": 0.9,
+          "cumulative_share": 0.9
+        },
+        {
+          "customer_id": 2,
+          "revenue": 50,
+          "share": 0.05,
+          "cumulative_share": 0.95
+        },
+        {
+          "customer_id": 3,
+          "revenue": 30,
+          "share": 0.03,
+          "cumulative_share": 0.98
+        },
+        {
+          "customer_id": 4,
+          "revenue": 20,
+          "share": 0.02,
+          "cumulative_share": 1
+        }
+      ],
+      "expectedHash": "200cfa90ed2e973829845696daee6d55ba2782da79e475e61cd94d4849deb0f7"
+    }
+  ]
+}

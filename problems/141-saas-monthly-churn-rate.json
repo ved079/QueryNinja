@@ -1,0 +1,133 @@
+{
+  "id": "saas-monthly-churn-rate",
+  "number": 141,
+  "title": "Monthly Churn Rate",
+  "difficulty": "Hard",
+  "tags": [
+    "CTE",
+    "Date",
+    "SaaS",
+    "Aggregation"
+  ],
+  "orderMatters": false,
+  "schemaSql": "CREATE TABLE plans (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  monthly_price REAL\n);\nCREATE TABLE users (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  signup_date TEXT\n);\nCREATE TABLE subscriptions (\n  id INTEGER PRIMARY KEY,\n  user_id INTEGER,\n  plan_id INTEGER,\n  started_at TEXT,\n  ended_at TEXT\n);",
+  "description": "You are given subscription data for a SaaS product.\n\nFor each calendar month in which at least one subscription was cancelled, compute:\n- **churned** — number of subscriptions that ended in that month\n- **active_at_start** — number of subscriptions active at the *start* of that month (started before the 1st, and either still active or ended on/after the 1st)\n- **churn_rate** — churned / active_at_start, rounded to 4 decimal places\n\nName the columns `month`, `churned`, `active_at_start`, `churn_rate`.\nReturn one row per month, ordered by `month` ascending.",
+  "hint": "Use a CTE to find distinct cancellation months, then JOIN subscriptions twice — once to count churns, once to count who was active at the start of that month.",
+  "solutionSql": "WITH cancel_months AS (\n  SELECT DISTINCT\n    strftime('%Y-%m', ended_at) AS month,\n    strftime('%Y-%m', ended_at) || '-01' AS month_start\n  FROM subscriptions\n  WHERE ended_at IS NOT NULL\n),\nchurned AS (\n  SELECT strftime('%Y-%m', ended_at) AS month,\n         COUNT(*) AS churned\n  FROM subscriptions\n  WHERE ended_at IS NOT NULL\n  GROUP BY 1\n),\nactive_start AS (\n  SELECT m.month,\n         COUNT(*) AS active_at_start\n  FROM cancel_months m\n  JOIN subscriptions s\n    ON s.started_at < m.month_start\n   AND (s.ended_at IS NULL OR s.ended_at >= m.month_start)\n  GROUP BY m.month\n)\nSELECT a.month,\n       c.churned,\n       a.active_at_start,\n       ROUND(CAST(c.churned AS REAL) / a.active_at_start, 4) AS churn_rate\nFROM active_start a\nJOIN churned c USING (month)\nORDER BY a.month;",
+  "outputExplanation": "In 2022-03 two subscriptions ended (Alice and Eve) out of 4 that were active at the start of March, giving a 50% churn rate. In 2022-04 only Carol churned, but by then only 3 subscriptions were still active at the start of April, giving a ~33% churn rate.",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO plans VALUES (1,'starter',29),(2,'pro',99),(3,'enterprise',299);\nINSERT INTO users VALUES (1,'Alice','2022-01-01'),(2,'Bob','2022-01-01'),(3,'Carol','2022-02-01'),(4,'Dave','2022-03-01'),(5,'Eve','2022-01-01');\nINSERT INTO subscriptions VALUES\n  (1,1,1,'2022-01-05','2022-03-15'),\n  (2,2,2,'2022-01-10',NULL),\n  (3,3,1,'2022-02-01','2022-04-10'),\n  (4,4,2,'2022-03-01',NULL),\n  (5,5,1,'2022-01-05','2022-03-20');",
+      "expectedOutput": [
+        {
+          "month": "2022-03",
+          "churned": 2,
+          "active_at_start": 4,
+          "churn_rate": 0.5
+        },
+        {
+          "month": "2022-04",
+          "churned": 1,
+          "active_at_start": 3,
+          "churn_rate": 0.3333
+        }
+      ],
+      "expectedHash": "a283ac946c5fc43eddd70fa6c683afa2f3025f3d1db8f0bd82c13aa5b7f163c2"
+    },
+    {
+      "name": "No cancellations — empty result",
+      "seedSql": "INSERT INTO plans VALUES (1,'starter',29);\nINSERT INTO users VALUES (1,'Alice','2022-01-01'),(2,'Bob','2022-02-01');\nINSERT INTO subscriptions VALUES (1,1,1,'2022-01-01',NULL),(2,2,1,'2022-02-01',NULL);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Everyone churns in the same month",
+      "seedSql": "INSERT INTO plans VALUES (1,'starter',29);\nINSERT INTO users VALUES (1,'A','2022-01-01'),(2,'B','2022-01-01'),(3,'C','2022-01-01');\nINSERT INTO subscriptions VALUES\n  (1,1,1,'2022-01-01','2022-02-28'),\n  (2,2,1,'2022-01-01','2022-02-15'),\n  (3,3,1,'2022-01-01','2022-02-20');",
+      "expectedOutput": [
+        {
+          "month": "2022-02",
+          "churned": 3,
+          "active_at_start": 3,
+          "churn_rate": 1
+        }
+      ],
+      "expectedHash": "9f7a0c11b899c926679fbd2eb19d8798766eb9de47fa9aeaab570cbad531917d"
+    },
+    {
+      "name": "Churn spread across three months",
+      "seedSql": "INSERT INTO plans VALUES (1,'pro',99);\nINSERT INTO users VALUES (1,'A','2022-01-01'),(2,'B','2022-01-01'),(3,'C','2022-01-01'),(4,'D','2022-01-01'),(5,'E','2022-01-01');\nINSERT INTO subscriptions VALUES\n  (1,1,1,'2022-01-01','2022-02-10'),\n  (2,2,1,'2022-01-01','2022-03-05'),\n  (3,3,1,'2022-01-01','2022-04-22'),\n  (4,4,1,'2022-01-01',NULL),\n  (5,5,1,'2022-01-01',NULL);",
+      "expectedOutput": [
+        {
+          "month": "2022-02",
+          "churned": 1,
+          "active_at_start": 5,
+          "churn_rate": 0.2
+        },
+        {
+          "month": "2022-03",
+          "churned": 1,
+          "active_at_start": 4,
+          "churn_rate": 0.25
+        },
+        {
+          "month": "2022-04",
+          "churned": 1,
+          "active_at_start": 3,
+          "churn_rate": 0.3333
+        }
+      ],
+      "expectedHash": "90d95c5417d663b49763accedf2d7a2e84e84573e83ccebd4c3c1c0b3f4b53a0"
+    },
+    {
+      "name": "Subscription started and ended in same month",
+      "seedSql": "INSERT INTO plans VALUES (1,'starter',29);\nINSERT INTO users VALUES (1,'Flash','2022-06-01'),(2,'Steady','2022-06-01');\nINSERT INTO subscriptions VALUES\n  (1,1,1,'2022-06-01','2022-06-10'),\n  (2,2,1,'2022-06-15',NULL);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Empty tables",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single churn event",
+      "seedSql": "INSERT INTO plans VALUES (1,'starter',29);\nINSERT INTO users VALUES (1,'Only','2022-01-01');\nINSERT INTO subscriptions VALUES (1,1,1,'2022-01-01','2022-03-31');",
+      "expectedOutput": [
+        {
+          "month": "2022-03",
+          "churned": 1,
+          "active_at_start": 1,
+          "churn_rate": 1
+        }
+      ],
+      "expectedHash": "92983b3b8c0aa0a89169c1d5f1a1c54494d561ccddebf5a28fca00d979c7eb8c"
+    },
+    {
+      "name": "Large set — multiple plans",
+      "seedSql": "INSERT INTO plans VALUES (1,'starter',29),(2,'pro',99),(3,'enterprise',299);\nINSERT INTO users VALUES (1,'A','2022-01-01'),(2,'B','2022-01-01'),(3,'C','2022-02-01'),(4,'D','2022-02-01'),(5,'E','2022-02-01'),(6,'F','2022-03-01'),(7,'G','2022-03-01'),(8,'H','2022-01-01');\nINSERT INTO subscriptions VALUES\n  (1,1,1,'2022-01-05','2022-04-10'),\n  (2,2,2,'2022-01-10','2022-03-20'),\n  (3,3,1,'2022-02-01','2022-04-30'),\n  (4,4,2,'2022-02-01',NULL),\n  (5,5,3,'2022-02-15','2022-05-01'),\n  (6,6,1,'2022-03-01',NULL),\n  (7,7,2,'2022-03-01','2022-05-15'),\n  (8,8,3,'2022-01-15',NULL);",
+      "expectedOutput": [
+        {
+          "month": "2022-03",
+          "churned": 1,
+          "active_at_start": 6,
+          "churn_rate": 0.1667
+        },
+        {
+          "month": "2022-04",
+          "churned": 2,
+          "active_at_start": 7,
+          "churn_rate": 0.2857
+        },
+        {
+          "month": "2022-05",
+          "churned": 2,
+          "active_at_start": 5,
+          "churn_rate": 0.4
+        }
+      ],
+      "expectedHash": "7c0ffca09ba0330dd89f892e7bd2c5eb41aa261d41c2fe9f5632a30d0e7eb5b7"
+    }
+  ]
+}

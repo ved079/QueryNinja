@@ -1,0 +1,258 @@
+{
+  "id": "recon-out-of-sync-by-direction",
+  "number": 95,
+  "title": "Count Out-Of-Sync Orders By Direction",
+  "difficulty": "Medium",
+  "tags": [
+    "Set Operations",
+    "Aggregation"
+  ],
+  "description": "Report how many orders are out of sync **in each direction** between `source_orders` and `warehouse_orders`: how many exist only in source, and how many exist only in the warehouse.\n\nName the columns `direction` (`source_only` or `warehouse_only`) and `n`. Return exactly two rows, in any order.",
+  "solutionSql": "SELECT 'source_only' AS direction, COUNT(*) AS n FROM (\n  SELECT order_id FROM source_orders EXCEPT SELECT order_id FROM warehouse_orders\n)\nUNION ALL\nSELECT 'warehouse_only', COUNT(*) FROM (\n  SELECT order_id FROM warehouse_orders EXCEPT SELECT order_id FROM source_orders\n);",
+  "orderMatters": false,
+  "hint": "Use UNION ALL here, not UNION — you want exactly one row per direction even if both counts happen to be equal (UNION would collapse them into one row).",
+  "outputExplanation": "Two orders (3, 4) are source-only and one order (5) is warehouse-only.",
+  "schemaSql": "CREATE TABLE source_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);\n\nCREATE TABLE warehouse_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);\n\nCREATE TABLE vendor_orders (\n  order_id INTEGER,\n  customer_name TEXT,\n  amount REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5),(4,'Dee Fox',200.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(5,'Eli Park',60.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(3,'Cy Ortiz',45.5),(6,'Fay Nolan',15.0);",
+      "expectedOutput": [
+        {
+          "direction": "source_only",
+          "n": 2
+        },
+        {
+          "direction": "warehouse_only",
+          "n": 1
+        }
+      ],
+      "expectedHash": "5df161d97f8c5d6c54f48ef52a5a1974ea2eb787ee9a45c5f4b136b5411f63e8"
+    },
+    {
+      "name": "All three systems fully agree",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);",
+      "expectedOutput": [
+        {
+          "direction": "source_only",
+          "n": 0
+        },
+        {
+          "direction": "warehouse_only",
+          "n": 0
+        }
+      ],
+      "expectedHash": "ecd8cff639523705fc411561816f28988bad7a4319526bfbca3ad70da80ae67a"
+    },
+    {
+      "name": "Completely disjoint across all three",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO warehouse_orders VALUES (2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (3,'Cy Ortiz',45.5);",
+      "expectedOutput": [
+        {
+          "direction": "source_only",
+          "n": 1
+        },
+        {
+          "direction": "warehouse_only",
+          "n": 1
+        }
+      ],
+      "expectedHash": "f1865e22b51ae782c9344f8d96c79592066055b4db80d68640baaf8695b0a0af"
+    },
+    {
+      "name": "Source has an accidental duplicate row",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0);",
+      "expectedOutput": [
+        {
+          "direction": "source_only",
+          "n": 1
+        },
+        {
+          "direction": "warehouse_only",
+          "n": 0
+        }
+      ],
+      "expectedHash": "b4f1935f22a7ebeaa958014198c7d2be7196a19508aaf4fd6edd33a13c3eb029"
+    },
+    {
+      "name": "All three systems empty",
+      "seedSql": "",
+      "expectedOutput": [
+        {
+          "direction": "source_only",
+          "n": 0
+        },
+        {
+          "direction": "warehouse_only",
+          "n": 0
+        }
+      ],
+      "expectedHash": "ecd8cff639523705fc411561816f28988bad7a4319526bfbca3ad70da80ae67a"
+    },
+    {
+      "name": "Only source has any data",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5);",
+      "expectedOutput": [
+        {
+          "direction": "source_only",
+          "n": 3
+        },
+        {
+          "direction": "warehouse_only",
+          "n": 0
+        }
+      ],
+      "expectedHash": "528655b5ba9678ab39a79174f07b752ae294ff4df3418118806d702c4bb6d6c8"
+    },
+    {
+      "name": "Same order, inconsistent name formatting",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'  ben kim ',80.0);\nINSERT INTO warehouse_orders VALUES (1,'ANN LEE',120.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'ann lee',120.0);",
+      "expectedOutput": [
+        {
+          "direction": "source_only",
+          "n": 0
+        },
+        {
+          "direction": "warehouse_only",
+          "n": 0
+        }
+      ],
+      "expectedHash": "ecd8cff639523705fc411561816f28988bad7a4319526bfbca3ad70da80ae67a"
+    },
+    {
+      "name": "Matching ids, mismatched amounts",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',125.0),(2,'Ben Kim',80.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0);",
+      "expectedOutput": [
+        {
+          "direction": "source_only",
+          "n": 0
+        },
+        {
+          "direction": "warehouse_only",
+          "n": 0
+        }
+      ],
+      "expectedHash": "ecd8cff639523705fc411561816f28988bad7a4319526bfbca3ad70da80ae67a"
+    },
+    {
+      "name": "Single matching order everywhere",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0);",
+      "expectedOutput": [
+        {
+          "direction": "source_only",
+          "n": 0
+        },
+        {
+          "direction": "warehouse_only",
+          "n": 0
+        }
+      ],
+      "expectedHash": "ecd8cff639523705fc411561816f28988bad7a4319526bfbca3ad70da80ae67a"
+    },
+    {
+      "name": "Larger mixed set: some in all three, some in two, some in one, duplicates and a mismatch",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',45.5),(4,'Dee Fox',200.0),(7,'Gio Ruiz',33.0);\nINSERT INTO warehouse_orders VALUES (1,'Ann Lee',120.0),(2,'Ben Kim',80.0),(3,'Cy Ortiz',99.0),(5,'Eli Park',60.0);\nINSERT INTO vendor_orders VALUES (1,'Ann Lee',120.0),(4,'Dee Fox',200.0),(6,'Fay Nolan',15.0),(8,'Hana Cole',72.0);",
+      "expectedOutput": [
+        {
+          "direction": "source_only",
+          "n": 2
+        },
+        {
+          "direction": "warehouse_only",
+          "n": 1
+        }
+      ],
+      "expectedHash": "5df161d97f8c5d6c54f48ef52a5a1974ea2eb787ee9a45c5f4b136b5411f63e8"
+    },
+    {
+      "name": "All synced — both counts are zero",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(2,'B',200.0);\nINSERT INTO warehouse_orders VALUES (1,'A',100.0),(2,'B',200.0);",
+      "expectedOutput": [
+        {
+          "direction": "source_only",
+          "n": 0
+        },
+        {
+          "direction": "warehouse_only",
+          "n": 0
+        }
+      ],
+      "expectedHash": "ecd8cff639523705fc411561816f28988bad7a4319526bfbca3ad70da80ae67a"
+    },
+    {
+      "name": "Only source has orders",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(2,'B',200.0),(3,'C',300.0);",
+      "expectedOutput": [
+        {
+          "direction": "source_only",
+          "n": 3
+        },
+        {
+          "direction": "warehouse_only",
+          "n": 0
+        }
+      ],
+      "expectedHash": "528655b5ba9678ab39a79174f07b752ae294ff4df3418118806d702c4bb6d6c8"
+    },
+    {
+      "name": "Only warehouse has orders",
+      "seedSql": "INSERT INTO warehouse_orders VALUES (5,'E',500.0);",
+      "expectedOutput": [
+        {
+          "direction": "source_only",
+          "n": 0
+        },
+        {
+          "direction": "warehouse_only",
+          "n": 1
+        }
+      ],
+      "expectedHash": "a23873506a5f942e8d25746bc48085ed80c012c75ade89843c3a8b636a856eca"
+    },
+    {
+      "name": "Completely disjoint — both directions non-zero",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(2,'B',200.0);\nINSERT INTO warehouse_orders VALUES (3,'C',300.0),(4,'D',400.0);",
+      "expectedOutput": [
+        {
+          "direction": "source_only",
+          "n": 2
+        },
+        {
+          "direction": "warehouse_only",
+          "n": 2
+        }
+      ],
+      "expectedHash": "8156c2b11e0aa3e879e277a73be96eb46966dbe9fe52fa3b1b8d859674dabd9d"
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": [
+        {
+          "direction": "source_only",
+          "n": 0
+        },
+        {
+          "direction": "warehouse_only",
+          "n": 0
+        }
+      ],
+      "expectedHash": "ecd8cff639523705fc411561816f28988bad7a4319526bfbca3ad70da80ae67a"
+    },
+    {
+      "name": "Partial overlap",
+      "seedSql": "INSERT INTO source_orders VALUES (1,'A',100.0),(2,'B',200.0),(3,'C',300.0);\nINSERT INTO warehouse_orders VALUES (2,'B',200.0),(4,'D',400.0);",
+      "expectedOutput": [
+        {
+          "direction": "source_only",
+          "n": 2
+        },
+        {
+          "direction": "warehouse_only",
+          "n": 1
+        }
+      ],
+      "expectedHash": "5df161d97f8c5d6c54f48ef52a5a1974ea2eb787ee9a45c5f4b136b5411f63e8"
+    }
+  ]
+}

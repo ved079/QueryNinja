@@ -1,0 +1,61 @@
+{
+  "id": "ads-first-touch-attribution",
+  "number": 154,
+  "title": "First-Touch Attribution",
+  "difficulty": "Hard",
+  "tags": [
+    "CTE",
+    "Window Functions",
+    "Ads",
+    "Attribution"
+  ],
+  "orderMatters": false,
+  "schemaSql": "CREATE TABLE campaigns (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  channel TEXT,\n  daily_budget REAL\n);\nCREATE TABLE events (\n  id INTEGER PRIMARY KEY,\n  campaign_id INTEGER,\n  user_id INTEGER,\n  event_type TEXT,\n  occurred_at TEXT\n);",
+  "description": "In **first-touch attribution**, a conversion is credited to the campaign that received the user's **very first click** (across all campaigns) before the conversion.\n\nFor each user who converted, find the campaign they first clicked on (the click must occur **before** the conversion event). Credit that campaign for the conversion.\n\nReturn columns `campaign_id`, `campaign_name`, and `attributed_conversions`. Only include campaigns with at least one attributed conversion. Order by `attributed_conversions` descending, then `campaign_id` ascending.",
+  "hint": "Find each converting user's first-ever click timestamp using MIN() or ROW_NUMBER(). Then join that click's campaign_id to the campaigns table and aggregate.",
+  "solutionSql": "WITH user_conversions AS (\n  SELECT DISTINCT user_id\n  FROM events\n  WHERE event_type = 'conversion'\n),\nfirst_clicks AS (\n  SELECT e.user_id,\n         e.campaign_id,\n         ROW_NUMBER() OVER (PARTITION BY e.user_id ORDER BY e.occurred_at ASC, e.id ASC) AS rn\n  FROM events e\n  JOIN user_conversions uc ON uc.user_id = e.user_id\n  WHERE e.event_type = 'click'\n    AND EXISTS (\n      SELECT 1 FROM events c\n      WHERE c.user_id = e.user_id\n        AND c.event_type = 'conversion'\n        AND c.occurred_at > e.occurred_at\n    )\n),\nattributed AS (\n  SELECT campaign_id, COUNT(*) AS attributed_conversions\n  FROM first_clicks\n  WHERE rn = 1\n  GROUP BY campaign_id\n)\nSELECT a.campaign_id,\n       c.name AS campaign_name,\n       a.attributed_conversions\nFROM attributed a\nJOIN campaigns c ON c.id = a.campaign_id\nORDER BY a.attributed_conversions DESC, a.campaign_id ASC;",
+  "outputExplanation": "For each user who converted, we find the click that happened before the conversion. ROW_NUMBER() picks the chronologically first click. The campaign behind that first click gets credit for the conversion.",
+  "tests": [
+    {
+      "name": "Example — two campaigns competing for credit",
+      "seedSql": "INSERT INTO campaigns VALUES (1,'Campaign A','email',500),(2,'Campaign B','search',400);\nINSERT INTO events VALUES\n  (1,1,101,'impression','2022-01-01 08:00'),\n  (2,1,101,'click','2022-01-01 09:00'),\n  (3,2,101,'impression','2022-01-02 08:00'),\n  (4,2,101,'click','2022-01-02 09:00'),\n  (5,2,101,'conversion','2022-01-03 10:00'),\n  (6,2,102,'impression','2022-01-01 08:00'),\n  (7,2,102,'click','2022-01-01 09:00'),\n  (8,1,102,'click','2022-01-02 09:00'),\n  (9,1,102,'conversion','2022-01-03 10:00'),\n  (10,1,103,'click','2022-01-05 10:00'),\n  (11,1,103,'conversion','2022-01-06 10:00');",
+      "expectedOutput": [
+        {
+          "campaign_id": 1,
+          "campaign_name": "Campaign A",
+          "attributed_conversions": 2
+        },
+        {
+          "campaign_id": 2,
+          "campaign_name": "Campaign B",
+          "attributed_conversions": 1
+        }
+      ],
+      "expectedHash": "77e12fb7ef131a60f83b6d8743c9fb8458070dc9dbb1e111024061c5011fe050"
+    },
+    {
+      "name": "No conversions — empty result",
+      "seedSql": "INSERT INTO campaigns VALUES (1,'Cam','email',100);\nINSERT INTO events VALUES\n  (1,1,1,'impression','2022-01-01'),\n  (2,1,1,'click','2022-01-02');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Click after conversion does not count",
+      "seedSql": "INSERT INTO campaigns VALUES (1,'A','email',100),(2,'B','search',100);\nINSERT INTO events VALUES\n  (1,1,1,'click','2022-01-01'),\n  (2,1,1,'conversion','2022-01-02'),\n  (3,2,1,'click','2022-01-03');",
+      "expectedOutput": [
+        {
+          "campaign_id": 1,
+          "campaign_name": "A",
+          "attributed_conversions": 1
+        }
+      ],
+      "expectedHash": "1978cffba20e6d60c3bb2446d42670fc6fca3278347f19b84293c1536af30c51"
+    },
+    {
+      "name": "Empty tables",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    }
+  ]
+}

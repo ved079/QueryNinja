@@ -1,0 +1,123 @@
+{
+  "id": "regex-flag-sku",
+  "number": 180,
+  "title": "Flag Well-Formed SKUs",
+  "difficulty": "Medium",
+  "tags": [
+    "Regular Expression",
+    "String",
+    "Case Expression"
+  ],
+  "description": "Every SKU must follow the format: **exactly two uppercase letters, a hyphen, then exactly four digits** — for example `AB-1234` or `XY-0099`.\n\nWrite a query that returns all products with columns `id`, `name`, and `is_valid`, where `is_valid` is `1` if the SKU matches the format and `0` otherwise.\n\nReturn the result in any order.",
+  "solutionSql": "SELECT id, name,\n       CASE WHEN REGEXP_LIKE(sku, '^[A-Z]{2}-[0-9]{4}$') THEN 1 ELSE 0 END AS is_valid\nFROM products;",
+  "orderMatters": false,
+  "hint": "Compute a boolean flag in the SELECT list with CASE WHEN REGEXP_LIKE(...) THEN 1 ELSE 0 END. `{2}` and `{4}` fix the exact lengths.",
+  "outputExplanation": "- `AB-1234` (Socks) — 2 uppercase letters, hyphen, 4 digits. `is_valid = 1`. ✓\n- `XY-0000` (Hat) — leading zeros are still valid digits. `is_valid = 1`. ✓\n- `ab-1234` (Shirt) — lowercase letters; the pattern requires uppercase only. `is_valid = 0`. ✗\n- `AB-1` (Scarf) — only 1 digit after the hyphen; exactly 4 are required. `is_valid = 0`. ✗\n- `AB12-345` (Glove) — digits before the hyphen break the two-letter prefix rule. `is_valid = 0`. ✗\n\nAll five rows are returned with their flag.",
+  "schemaSql": "CREATE TABLE products (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  sku TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO products VALUES\n (1,'Socks','AB-1234'),\n (2,'Hat','XY-0000'),\n (3,'Shirt','ab-1234'),\n (4,'Scarf','AB-1'),\n (5,'Glove','AB12-345');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "name": "Socks",
+          "is_valid": 1
+        },
+        {
+          "id": 2,
+          "name": "Hat",
+          "is_valid": 1
+        },
+        {
+          "id": 3,
+          "name": "Shirt",
+          "is_valid": 1
+        },
+        {
+          "id": 4,
+          "name": "Scarf",
+          "is_valid": 0
+        },
+        {
+          "id": 5,
+          "name": "Glove",
+          "is_valid": 0
+        }
+      ],
+      "expectedHash": "25486b8dc5edb08115036a3ce34c9baa49a6fd43953f7d261c0151416a8f4093"
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Numbers and letters mixed",
+      "seedSql": "INSERT INTO products VALUES\n (1,'A1','A1-2345'),\n (2,'Ha','A1-234'),\n (3,'Po','AB-12345');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "name": "A1",
+          "is_valid": 0
+        },
+        {
+          "id": 2,
+          "name": "Ha",
+          "is_valid": 0
+        },
+        {
+          "id": 3,
+          "name": "Po",
+          "is_valid": 0
+        }
+      ],
+      "expectedHash": "112ef51ed66914d93b38f0864569e742c32c5e6ad8608d380747482fad3e3369"
+    },
+    {
+      "name": "NULL sku is invalid",
+      "seedSql": "INSERT INTO products VALUES\n (1,'A','AB-1234'),\n (2,'B',NULL);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "name": "A",
+          "is_valid": 1
+        },
+        {
+          "id": 2,
+          "name": "B",
+          "is_valid": 0
+        }
+      ],
+      "expectedHash": "68bdfbe61b3730570767c277871b5f835ce8cc52ef863318601cdbc06664c9bb"
+    },
+    {
+      "name": "Dash placement",
+      "seedSql": "INSERT INTO products VALUES\n (1,'A','AB-1234'),\n(2,'B','-1234'),\n(3,'C','AB-'),\n(4,'D','AB--1234');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "name": "A",
+          "is_valid": 1
+        },
+        {
+          "id": 2,
+          "name": "B",
+          "is_valid": 0
+        },
+        {
+          "id": 3,
+          "name": "C",
+          "is_valid": 0
+        },
+        {
+          "id": 4,
+          "name": "D",
+          "is_valid": 0
+        }
+      ],
+      "expectedHash": "5f0f1c63ad9030019ba582fa1ecb012e3681f0821194c1614953915d0e546794"
+    }
+  ]
+}

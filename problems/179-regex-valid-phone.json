@@ -1,0 +1,73 @@
+{
+  "id": "regex-valid-phone",
+  "number": 179,
+  "title": "Find Well-Formatted Phone Numbers",
+  "difficulty": "Easy",
+  "tags": [
+    "Regular Expression",
+    "String",
+    "Filtering"
+  ],
+  "description": "Write a query to return the `id` and `phone` of every contact whose phone number matches the canonical US format **exactly**.\n\nThe canonical format is: **3 digits, a hyphen, 3 digits, a hyphen, 4 digits** — for example `555-123-4567`. No leading or trailing characters are permitted.\n\nReturn the result in any order.",
+  "solutionSql": "SELECT id, phone\nFROM contacts\nWHERE REGEXP_LIKE(phone, '^[0-9]{3}-[0-9]{3}-[0-9]{4}$');",
+  "orderMatters": false,
+  "hint": "`{3}` means exactly three. The pattern must cover the whole string, so anchor it with `^` and `$` — otherwise '555-123-4567x' and 'x555-123-4567' would also match.",
+  "outputExplanation": "- `555-123-4567` — 3 digits, hyphen, 3 digits, hyphen, 4 digits. Valid. ✓\n- `555.123.4567` — uses dots instead of hyphens. Invalid. ✗\n- `5551234567` — no hyphens at all. Invalid. ✗\n- `555-123-456` — last group has only 3 digits; exactly 4 are required. Invalid. ✗\n- `555-123-45678` — last group has 5 digits; the end anchor rejects it. Invalid. ✗\n\nOnly row 1 is returned.",
+  "schemaSql": "CREATE TABLE contacts (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  phone TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO contacts VALUES\n (1,'A','555-123-4567'),\n (2,'B','555.123.4567'),\n (3,'C','5551234567'),\n (4,'D','555-123-456'),\n (5,'E','555-123-45678');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "phone": "555-123-4567"
+        }
+      ],
+      "expectedHash": "b44afe4860666384e557401a868e7aceb55a67ad18cde5330be2109819c5cd79"
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Partial-match must not pass",
+      "seedSql": "INSERT INTO contacts VALUES\n (1,'A','x555-123-4567'),\n (2,'B','555-123-4567x'),\n (3,'C','555-123-4567');",
+      "expectedOutput": [
+        {
+          "id": 3,
+          "phone": "555-123-4567"
+        }
+      ],
+      "expectedHash": "09fb7f92d12be52b48e2478a8450fa7d151e1a851954ca6222fb12de5edd97a1"
+    },
+    {
+      "name": "All valid",
+      "seedSql": "INSERT INTO contacts VALUES\n (1,'A','000-000-0000'),\n (2,'B','999-999-9999');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "phone": "000-000-0000"
+        },
+        {
+          "id": 2,
+          "phone": "999-999-9999"
+        }
+      ],
+      "expectedHash": "c006b2e1a7556c047112a749356c6bdaa9b845c1d1f15b7d74b6cc800e290313"
+    },
+    {
+      "name": "NULL and empty phone",
+      "seedSql": "INSERT INTO contacts VALUES\n (1,'A','555-123-4567'),\n (2,'B',NULL),\n (3,'C','');",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "phone": "555-123-4567"
+        }
+      ],
+      "expectedHash": "b44afe4860666384e557401a868e7aceb55a67ad18cde5330be2109819c5cd79"
+    }
+  ]
+}

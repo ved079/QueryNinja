@@ -1,0 +1,59 @@
+{
+  "id": "rides-rider-monthly-churn",
+  "number": 150,
+  "title": "Churned Riders by Month",
+  "difficulty": "Hard",
+  "tags": [
+    "CTE",
+    "Window Functions",
+    "Date",
+    "Rides"
+  ],
+  "orderMatters": false,
+  "schemaSql": "CREATE TABLE drivers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  city TEXT\n);\nCREATE TABLE riders (\n  id INTEGER PRIMARY KEY,\n  name TEXT\n);\nCREATE TABLE trips (\n  id INTEGER PRIMARY KEY,\n  driver_id INTEGER,\n  rider_id INTEGER,\n  requested_at TEXT,\n  started_at TEXT,\n  ended_at TEXT,\n  status TEXT,\n  fare REAL\n);",
+  "description": "A rider is considered **churned** in month M if they completed at least one trip in month M-1 but **zero** trips in month M.\n\nFor each month M where at least one rider churned, return `month` (YYYY-MM) and `churned_riders`. Order by `month` ascending.",
+  "hint": "Build the set of (rider, month) pairs with completed trips. A rider's **last** active month churns them in the following month — as long as that last month isn't the newest month in the whole dataset (after which we can't tell).",
+  "solutionSql": "WITH active AS (\n  SELECT DISTINCT rider_id,\n         strftime('%Y-%m', started_at) AS month\n  FROM trips\n  WHERE status = 'completed'\n    AND started_at IS NOT NULL\n),\nlast_active AS (\n  SELECT rider_id,\n         MAX(month) AS last_month\n  FROM active\n  GROUP BY rider_id\n),\nglobal_max AS (SELECT MAX(month) AS max_month FROM active)\nSELECT strftime('%Y-%m', date(l.last_month || '-01', '+1 month')) AS month,\n       COUNT(*) AS churned_riders\nFROM last_active l, global_max g\nWHERE l.last_month < g.max_month\nGROUP BY month\nORDER BY month;",
+  "outputExplanation": "For each rider, we check each active month: if the following month has no completed trip for that rider, and it's not the last month in the dataset, the rider churned at the start of the next month.",
+  "tests": [
+    {
+      "name": "Example — some riders drop off",
+      "seedSql": "INSERT INTO drivers VALUES (1,'Ace','NYC');\nINSERT INTO riders VALUES (1,'Alice'),(2,'Bob'),(3,'Carol');\nINSERT INTO trips VALUES\n  (1,1,1,'2022-01-10','2022-01-10','2022-01-10','completed',10),\n  (2,1,2,'2022-01-15','2022-01-15','2022-01-15','completed',12),\n  (3,1,3,'2022-01-20','2022-01-20','2022-01-20','completed',8),\n  (4,1,1,'2022-02-10','2022-02-10','2022-02-10','completed',10),\n  (5,1,3,'2022-02-15','2022-02-15','2022-02-15','completed',9),\n  (6,1,1,'2022-03-10','2022-03-10','2022-03-10','completed',11);",
+      "expectedOutput": [
+        {
+          "month": "2022-02",
+          "churned_riders": 1
+        },
+        {
+          "month": "2022-03",
+          "churned_riders": 1
+        }
+      ],
+      "expectedHash": "3ca7ef4250600c82d0a3d3304154272760ce2ccf233163a47f6b0c62f3e42979"
+    },
+    {
+      "name": "All riders active every month — no churn",
+      "seedSql": "INSERT INTO drivers VALUES (1,'D','NYC');\nINSERT INTO riders VALUES (1,'A'),(2,'B');\nINSERT INTO trips VALUES\n  (1,1,1,'2022-01-05','2022-01-05','2022-01-05','completed',5),\n  (2,1,2,'2022-01-10','2022-01-10','2022-01-10','completed',5),\n  (3,1,1,'2022-02-05','2022-02-05','2022-02-05','completed',5),\n  (4,1,2,'2022-02-10','2022-02-10','2022-02-10','completed',5);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single rider, single month — no churn",
+      "seedSql": "INSERT INTO drivers VALUES (1,'D','NYC');\nINSERT INTO riders VALUES (1,'Only');\nINSERT INTO trips VALUES (1,1,1,'2022-06-15','2022-06-15','2022-06-15','completed',10);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Cancelled trips do not count as active",
+      "seedSql": "INSERT INTO drivers VALUES (1,'D','NYC');\nINSERT INTO riders VALUES (1,'A'),(2,'B');\nINSERT INTO trips VALUES\n  (1,1,1,'2022-01-05','2022-01-05','2022-01-05','completed',10),\n  (2,1,2,'2022-01-10',NULL,NULL,'cancelled',0),\n  (3,1,1,'2022-02-05','2022-02-05','2022-02-05','completed',10),\n  (4,1,2,'2022-02-10','2022-02-10','2022-02-10','completed',10);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Empty tables",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    }
+  ]
+}

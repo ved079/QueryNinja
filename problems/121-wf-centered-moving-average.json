@@ -1,0 +1,370 @@
+{
+  "id": "wf-centered-moving-average",
+  "number": 121,
+  "title": "Centered 3-Employee Moving Average",
+  "difficulty": "Easy",
+  "tags": [
+    "Window Function"
+  ],
+  "description": "Order employees by hire date. For each one, report the average salary across **the employee hired just before them, themselves, and the employee hired just after them** (a centered 3-row window — fewer than 3 rows at either edge is fine).\n\nName the columns `name` and `centered_avg` (rounded to 2 decimals). Return the result in any order.",
+  "solutionSql": "SELECT name,\n  ROUND(AVG(salary) OVER (ORDER BY hire_date, id ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING), 2) AS centered_avg\nFROM employees;",
+  "orderMatters": false,
+  "hint": "\"Just before and just after\" is an explicit frame, not the default — `ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING`. The default frame (nothing after ORDER BY) would only look backward, never forward.",
+  "schemaSql": "CREATE TABLE departments (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  location TEXT\n);\n\nCREATE TABLE employees (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  title TEXT,\n  salary INTEGER,\n  dept_id INTEGER,\n  manager_id INTEGER,\n  hire_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',150000,1,NULL,'2018-01-15'),\n (2,'Ben','Engineer',120000,1,1,'2019-03-01'),\n (3,'Cara','Engineer',120000,1,1,'2019-03-01'),\n (4,'Dan','Engineer',95000,1,1,'2021-07-19'),\n (5,'Eve','Manager',130000,2,NULL,'2017-11-02'),\n (6,'Finn','Rep',70000,2,5,'2020-05-30'),\n (7,'Gia','Rep',85000,2,5,'2022-02-14'),\n (8,'Hal','Analyst',60000,3,NULL,'2023-09-01');",
+      "expectedOutput": [
+        {
+          "name": "Eve",
+          "centered_avg": 140000
+        },
+        {
+          "name": "Ava",
+          "centered_avg": 133333.33
+        },
+        {
+          "name": "Ben",
+          "centered_avg": 130000
+        },
+        {
+          "name": "Cara",
+          "centered_avg": 103333.33
+        },
+        {
+          "name": "Finn",
+          "centered_avg": 95000
+        },
+        {
+          "name": "Dan",
+          "centered_avg": 83333.33
+        },
+        {
+          "name": "Gia",
+          "centered_avg": 80000
+        },
+        {
+          "name": "Hal",
+          "centered_avg": 72500
+        }
+      ],
+      "expectedHash": "5ae3201410866f4ecb60bd014209abd66f69299b8107dc05c1ed2c80824ae740"
+    },
+    {
+      "name": "Ties on every salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'A','Engineer',100000,1,NULL,'2020-01-01'),\n (2,'B','Engineer',100000,1,1,'2020-01-01'),\n (3,'C','Engineer',100000,1,1,'2020-01-01'),\n (4,'D','Rep',100000,2,NULL,'2020-01-01'),\n (5,'E','Rep',100000,2,4,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "centered_avg": 100000
+        },
+        {
+          "name": "B",
+          "centered_avg": 100000
+        },
+        {
+          "name": "C",
+          "centered_avg": 100000
+        },
+        {
+          "name": "D",
+          "centered_avg": 100000
+        },
+        {
+          "name": "E",
+          "centered_avg": 100000
+        }
+      ],
+      "expectedHash": "e09cb749e37f7c69bd69cc43372ae74d1cc3c2a8ebdbf5972aca8ae090ce8b67"
+    },
+    {
+      "name": "Department with no employees",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Ghost','Nowhere'),(3,'Empty','Nowhere');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',80000,1,1,'2020-06-15');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "centered_avg": 85000
+        },
+        {
+          "name": "Ben",
+          "centered_avg": 85000
+        }
+      ],
+      "expectedHash": "3dd3a976d6f6fdb834412c38ab002dc613364d73563ced12fa2c40d908315a3c"
+    },
+    {
+      "name": "Employees with NULL department and NULL salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Manager',90000,1,NULL,'2019-01-01'),\n (2,'Ben','Engineer',NULL,1,1,'2020-06-15'),\n (3,'Cara','Rep',75000,NULL,NULL,'2021-02-02'),\n (4,'Dan','Rep',75000,2,NULL,'2021-02-03');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "centered_avg": 90000
+        },
+        {
+          "name": "Ben",
+          "centered_avg": 82500
+        },
+        {
+          "name": "Cara",
+          "centered_avg": 75000
+        },
+        {
+          "name": "Dan",
+          "centered_avg": 75000
+        }
+      ],
+      "expectedHash": "322e1c0f78bb5188b5ceb00e8e1e165dd1b49a388b34f2d0a4880ea98e8653e9"
+    },
+    {
+      "name": "Both tables empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single employee, single department",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES (1,'Solo','Engineer',100000,1,NULL,'2022-04-01');",
+      "expectedOutput": [
+        {
+          "name": "Solo",
+          "centered_avg": 100000
+        }
+      ],
+      "expectedHash": "769e5be768d4c933e0369a9d465e73e73a6a103fc2e83fde4dda12161cba9b7d"
+    },
+    {
+      "name": "Everyone reports to someone (deep chain)",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin');\nINSERT INTO employees VALUES\n (1,'L1','CEO',300000,1,NULL,'2010-01-01'),\n (2,'L2','VP',200000,1,1,'2012-01-01'),\n (3,'L3','Director',150000,1,2,'2014-01-01'),\n (4,'L4','Manager',120000,1,3,'2016-01-01'),\n (5,'L5','Engineer',250000,1,4,'2018-01-01');",
+      "expectedOutput": [
+        {
+          "name": "L1",
+          "centered_avg": 250000
+        },
+        {
+          "name": "L2",
+          "centered_avg": 216666.67
+        },
+        {
+          "name": "L3",
+          "centered_avg": 156666.67
+        },
+        {
+          "name": "L4",
+          "centered_avg": 173333.33
+        },
+        {
+          "name": "L5",
+          "centered_avg": 185000
+        }
+      ],
+      "expectedHash": "83e30679caa1d0f884f6d3a6b354f328ca45e1cf9c9c14bf1b76d2c84e938d07"
+    },
+    {
+      "name": "Duplicate names and same hire dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Austin');\nINSERT INTO employees VALUES\n (1,'Sam','Engineer',90000,1,NULL,'2021-01-01'),\n (2,'Sam','Engineer',95000,2,NULL,'2021-01-01'),\n (3,'Sam','Rep',60000,2,2,'2021-01-01'),\n (4,'Alex','Rep',60000,2,2,'2021-06-30');",
+      "expectedOutput": [
+        {
+          "name": "Sam",
+          "centered_avg": 92500
+        },
+        {
+          "name": "Sam",
+          "centered_avg": 81666.67
+        },
+        {
+          "name": "Sam",
+          "centered_avg": 71666.67
+        },
+        {
+          "name": "Alex",
+          "centered_avg": 60000
+        }
+      ],
+      "expectedHash": "b767d89578ece1a6bf64def755279423dc2354f22b2b1baa05a26171f14d9a6d"
+    },
+    {
+      "name": "Zero and negative salaries, boundary dates",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver');\nINSERT INTO employees VALUES\n (1,'Ava','Intern',0,1,NULL,'2019-12-31'),\n (2,'Ben','Engineer',-100,1,1,'2020-01-01'),\n (3,'Cara','Engineer',1,2,NULL,'2020-02-29'),\n (4,'Dan','Rep',2000000,2,3,'2020-12-31');",
+      "expectedOutput": [
+        {
+          "name": "Ava",
+          "centered_avg": -50
+        },
+        {
+          "name": "Ben",
+          "centered_avg": -33
+        },
+        {
+          "name": "Cara",
+          "centered_avg": 666633.67
+        },
+        {
+          "name": "Dan",
+          "centered_avg": 1000000.5
+        }
+      ],
+      "expectedHash": "fee5cf54695c7b95364e078a2bd65d5177e82bf56f0271a3378a04e539a91468"
+    },
+    {
+      "name": "Larger multi-department set",
+      "seedSql": "INSERT INTO departments VALUES (1,'Engineering','Austin'),(2,'Sales','Denver'),(3,'HR','Austin'),(4,'Finance','Boston');\nINSERT INTO employees VALUES\n (1,'A','Manager',140000,1,NULL,'2015-02-10'),\n (2,'B','Engineer',130000,1,1,'2016-04-11'),\n (3,'C','Engineer',130000,1,1,'2017-06-12'),\n (4,'D','Engineer',110000,1,1,'2018-08-13'),\n (5,'E','Engineer',90000,1,1,'2019-10-14'),\n (6,'F','Manager',125000,2,NULL,'2015-03-15'),\n (7,'G','Rep',88000,2,6,'2016-05-16'),\n (8,'H','Rep',88000,2,6,'2017-07-17'),\n (9,'I','Rep',64000,2,6,'2018-09-18'),\n (10,'J','Manager',99000,3,NULL,'2019-11-19'),\n (11,'K','Analyst',72000,3,10,'2020-01-20'),\n (12,'L','Analyst',150000,4,NULL,'2021-03-21'),\n (13,'M','Analyst',150000,4,12,'2022-05-22');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "centered_avg": 132500
+        },
+        {
+          "name": "F",
+          "centered_avg": 131666.67
+        },
+        {
+          "name": "B",
+          "centered_avg": 114333.33
+        },
+        {
+          "name": "G",
+          "centered_avg": 116000
+        },
+        {
+          "name": "C",
+          "centered_avg": 102000
+        },
+        {
+          "name": "H",
+          "centered_avg": 109333.33
+        },
+        {
+          "name": "D",
+          "centered_avg": 87333.33
+        },
+        {
+          "name": "I",
+          "centered_avg": 88000
+        },
+        {
+          "name": "E",
+          "centered_avg": 84333.33
+        },
+        {
+          "name": "J",
+          "centered_avg": 87000
+        },
+        {
+          "name": "K",
+          "centered_avg": 107000
+        },
+        {
+          "name": "L",
+          "centered_avg": 124000
+        },
+        {
+          "name": "M",
+          "centered_avg": 150000
+        }
+      ],
+      "expectedHash": "8837cd19addb7e4c77b548c1ce5ca3ed2ba4feda7e2bc73753f5cb88529f64cb"
+    },
+    {
+      "name": "Only one employee — avg is just their own salary",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'Solo','E',100000,1,NULL,'2022-01-01');",
+      "expectedOutput": [
+        {
+          "name": "Solo",
+          "centered_avg": 100000
+        }
+      ],
+      "expectedHash": "769e5be768d4c933e0369a9d465e73e73a6a103fc2e83fde4dda12161cba9b7d"
+    },
+    {
+      "name": "Only two employees — each avg uses what's available",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-01-01'),(2,'B','E',80000,1,1,'2022-02-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "centered_avg": 90000
+        },
+        {
+          "name": "B",
+          "centered_avg": 90000
+        }
+      ],
+      "expectedHash": "16f49157562ae577e6c2b30e6ba842f48b13efc03782421e387d80b10af24399"
+    },
+    {
+      "name": "Empty employees table",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Employees hired on same date — tie-breaker by id matters",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-01-01'),(2,'B','E',80000,1,1,'2022-01-01'),(3,'C','E',90000,1,1,'2022-02-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "centered_avg": 90000
+        },
+        {
+          "name": "B",
+          "centered_avg": 90000
+        },
+        {
+          "name": "C",
+          "centered_avg": 85000
+        }
+      ],
+      "expectedHash": "9bebee9325677252b0f2cc101ece2eede51d081e418025f12ef3e038d1ae2421"
+    },
+    {
+      "name": "Salary values with decimals requiring rounding",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',100000,1,NULL,'2022-01-01'),(2,'B','E',85000,1,1,'2022-02-01'),(3,'C','E',110000,1,1,'2022-03-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "centered_avg": 92500
+        },
+        {
+          "name": "B",
+          "centered_avg": 98333.33
+        },
+        {
+          "name": "C",
+          "centered_avg": 97500
+        }
+      ],
+      "expectedHash": "cc3ab9b5f19877cf7b2e154b90b1c21d7dee876cc0d1545bb36b3f415d5c3d45"
+    },
+    {
+      "name": "Large set of employees — edges still handle correctly",
+      "seedSql": "INSERT INTO departments VALUES (1,'E','Austin');\nINSERT INTO employees VALUES (1,'A','E',50000,1,NULL,'2020-01-01'),(2,'B','E',55000,1,1,'2020-02-01'),(3,'C','E',60000,1,1,'2020-03-01'),(4,'D','E',65000,1,1,'2020-04-01'),(5,'E','E',70000,1,1,'2020-05-01'),(6,'F','E',75000,1,1,'2020-06-01');",
+      "expectedOutput": [
+        {
+          "name": "A",
+          "centered_avg": 52500
+        },
+        {
+          "name": "B",
+          "centered_avg": 55000
+        },
+        {
+          "name": "C",
+          "centered_avg": 60000
+        },
+        {
+          "name": "D",
+          "centered_avg": 65000
+        },
+        {
+          "name": "E",
+          "centered_avg": 70000
+        },
+        {
+          "name": "F",
+          "centered_avg": 72500
+        }
+      ],
+      "expectedHash": "08a24eb02b992a460d5966cbde992099b86b4d7ec1411c3c17d1839e710e4594"
+    }
+  ]
+}

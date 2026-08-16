@@ -1,0 +1,70 @@
+{
+  "id": "da-churned-customers",
+  "number": 170,
+  "title": "Churned Customers",
+  "difficulty": "Medium",
+  "tags": [
+    "Data Analyst",
+    "SaaS",
+    "Anti Join",
+    "Date",
+    "Subquery"
+  ],
+  "description": "An account is **churned** if it has no login within the 90 days before the **most recent login date in the data** (the system's 'as-of' date). Report every churned account with `account_id` and `last_login` (their most recent login date, or `NULL` if they never logged in). Account ids are unique in `accounts`.",
+  "solutionSql": "SELECT a.account_id,\n       (SELECT MAX(l.login_date) FROM logins l WHERE l.account_id = a.account_id) AS last_login\nFROM accounts a\nLEFT JOIN logins l\n  ON l.account_id = a.account_id\n AND l.login_date >= date((SELECT MAX(login_date) FROM logins), '-90 days')\nWHERE l.account_id IS NULL;",
+  "orderMatters": false,
+  "hint": "The 90-day window is measured back from the newest login in the table. A LEFT JOIN on 'recent' logins with a NULL check finds accounts that never appear in that window.",
+  "outputExplanation": "The newest login in the data is today (a fresh login for account 3). Account 1's last login is >90 days before that, so it is churned; account 2 logged in recently and is not.",
+  "schemaSql": "CREATE TABLE accounts (\n  account_id INTEGER PRIMARY KEY,\n  created_at TEXT\n);\nCREATE TABLE logins (\n  account_id INTEGER,\n  login_date TEXT\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO accounts VALUES (1,'2020-01-01'),(2,'2020-01-01'),(3,'2020-01-01');\nINSERT INTO logins VALUES (1,'2024-01-01'),(2,'2024-06-01'),(3,'2024-06-20');",
+      "expectedOutput": [
+        {
+          "account_id": 1,
+          "last_login": "2024-01-01"
+        }
+      ],
+      "expectedHash": "2146ed966f36a34b42740abed4670a3f9c28194f58183eccf3f99d3dd4a189a6"
+    },
+    {
+      "name": "Empty tables",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Never logged in",
+      "seedSql": "INSERT INTO accounts VALUES (1,'2020-01-01'),(2,'2020-01-01');",
+      "expectedOutput": [
+        {
+          "account_id": 1,
+          "last_login": null
+        },
+        {
+          "account_id": 2,
+          "last_login": null
+        }
+      ],
+      "expectedHash": "2db17724badf74796423b85127ee200506b5771a6ab03c2649debbba9adbab09"
+    },
+    {
+      "name": "Everyone active",
+      "seedSql": "INSERT INTO accounts VALUES (1,'2020-01-01'),(2,'2020-01-01');\nINSERT INTO logins VALUES (1,'2024-06-20'),(2,'2024-06-15');",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Mixed churn",
+      "seedSql": "INSERT INTO accounts VALUES (1,'2020-01-01'),(2,'2020-01-01'),(3,'2020-01-01');\nINSERT INTO logins VALUES (1,'2024-06-20'),(2,'2024-01-01'),(3,'2024-05-01');",
+      "expectedOutput": [
+        {
+          "account_id": 2,
+          "last_login": "2024-01-01"
+        }
+      ],
+      "expectedHash": "c540007742d28c6cd69488be22384adee3076a872c3142ad650f23b44a3936f1"
+    }
+  ]
+}

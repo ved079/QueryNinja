@@ -1,0 +1,261 @@
+{
+  "id": "sales-completed-orders-count",
+  "number": 56,
+  "title": "Completed Orders Per Customer",
+  "difficulty": "Easy",
+  "tags": [
+    "Join",
+    "Group By"
+  ],
+  "description": "Report every customer's name and how many **completed** orders they have. Customers with none must still appear, showing 0.\n\nName the columns `customer` and `completed_orders`. Return the result in any order.",
+  "solutionSql": "SELECT c.name AS customer,\n       COUNT(CASE WHEN o.status = 'completed' THEN 1 END) AS completed_orders\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id\nGROUP BY c.id, c.name;",
+  "orderMatters": false,
+  "hint": "Putting the status test in the WHERE clause would delete the zero-order customers. Move the condition inside the COUNT instead.",
+  "outputExplanation": "Ada has 3 completed orders and Cy has 1. Bo and Di have none.",
+  "schemaSql": "CREATE TABLE customers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  country TEXT,\n  signup_date TEXT\n);\n\nCREATE TABLE products (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  category TEXT,\n  price REAL\n);\n\nCREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER,\n  order_date TEXT,\n  status TEXT\n);\n\nCREATE TABLE order_items (\n  id INTEGER PRIMARY KEY,\n  order_id INTEGER,\n  product_id INTEGER,\n  quantity INTEGER,\n  unit_price REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12'),(3,'Cy','US','2022-06-30'),(4,'Di','IN','2022-11-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Desk','Furniture',300.0),(4,'Lamp','Furniture',45.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2022-02-14','completed'),(3,2,'2022-02-20','cancelled'),(4,3,'2022-03-05','completed'),(5,3,'2022-03-06','pending'),(6,1,'2023-01-02','completed');\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,1,2,1,25.0),(3,2,3,1,300.0),(4,3,4,4,45.0),(5,4,2,3,25.0),(6,5,1,1,80.0),(7,6,4,2,45.0),(8,6,2,2,25.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "completed_orders": 3
+        },
+        {
+          "customer": "Bo",
+          "completed_orders": 0
+        },
+        {
+          "customer": "Cy",
+          "completed_orders": 1
+        },
+        {
+          "customer": "Di",
+          "completed_orders": 0
+        }
+      ],
+      "expectedHash": "35b782bb1625bcab0df94f04756accfa956cef5552b3dbcb21490c6927bda6c4"
+    },
+    {
+      "name": "Customer who never ordered",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12'),(3,'NoOrders','FR','2023-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,2,'2022-01-11','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,2,25.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "completed_orders": 1
+        },
+        {
+          "customer": "Bo",
+          "completed_orders": 1
+        },
+        {
+          "customer": "NoOrders",
+          "completed_orders": 0
+        }
+      ],
+      "expectedHash": "ee109d432523a43954c87c934298f32e52b23db1680dc87ed54d9193932fbab6"
+    },
+    {
+      "name": "All orders cancelled",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','cancelled'),(2,2,'2022-01-11','cancelled');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,1,2,80.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "completed_orders": 0
+        },
+        {
+          "customer": "Bo",
+          "completed_orders": 0
+        }
+      ],
+      "expectedHash": "909fabe8f2a2cb8e1fbe0a3199e4d070185eff5bc5d27f65ba8f066c9de97a04"
+    },
+    {
+      "name": "Everything empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Orders with no items, products never sold",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'NeverSold','Tech',999.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2022-01-11','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "completed_orders": 2
+        }
+      ],
+      "expectedHash": "c83501cef6f3690101abc833a54790b2eca715a72f4883cd2389a9bb9bb1c4e9"
+    },
+    {
+      "name": "NULL prices, quantities and statuses",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo',NULL,'2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mystery',NULL,NULL);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,2,'2022-01-11',NULL);\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,1,2,NULL,NULL),(3,2,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "completed_orders": 1
+        },
+        {
+          "customer": "Bo",
+          "completed_orders": 0
+        }
+      ],
+      "expectedHash": "668a39d133e00eb2f48970366d245222e7837802df0368dc2d5d9a0e18d77114"
+    },
+    {
+      "name": "Single customer, single order",
+      "seedSql": "INSERT INTO customers VALUES (1,'Solo','US','2022-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-05-05','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "customer": "Solo",
+          "completed_orders": 1
+        }
+      ],
+      "expectedHash": "7d4f76ee2d8df109691a9e743d3ba4ab622d4ba70d0fe39055927cb0d8c3a586"
+    },
+    {
+      "name": "Ties in revenue between products and customers",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','US','2021-01-01');\nINSERT INTO products VALUES (1,'P1','Tech',50.0),(2,'P2','Tech',50.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,2,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,2,50.0),(2,2,2,2,50.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "completed_orders": 1
+        },
+        {
+          "customer": "Bo",
+          "completed_orders": 1
+        }
+      ],
+      "expectedHash": "316b9e9af9b1bfd7211e1eb43b582dfa5da6dfe107208becada0b2e1091b9285"
+    },
+    {
+      "name": "Same-day repeat orders across month and year boundaries",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2020-12-31'),(2,'Bo','UK','2021-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Desk','Furniture',300.0);\nINSERT INTO orders VALUES (1,1,'2021-12-31','completed'),(2,1,'2022-01-01','completed'),(3,1,'2022-01-01','completed'),(4,2,'2022-01-31','completed'),(5,2,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,1,300.0),(3,3,1,3,80.0),(4,4,2,2,300.0),(5,5,1,1,80.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "completed_orders": 3
+        },
+        {
+          "customer": "Bo",
+          "completed_orders": 2
+        }
+      ],
+      "expectedHash": "c931aaa6720f4d8a62e1b3552eef5a63bea383838ea99027841c042889b018b6"
+    },
+    {
+      "name": "Larger multi-country set",
+      "seedSql": "INSERT INTO customers VALUES (1,'A','US','2020-01-01'),(2,'B','US','2020-02-01'),(3,'C','UK','2020-03-01'),(4,'D','UK','2021-04-01'),(5,'E','IN','2021-05-01'),(6,'F','IN','2022-06-01'),(7,'G','FR','2022-07-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Desk','Furniture',300.0),(4,'Lamp','Furniture',45.0),(5,'Mug','Kitchen',12.5);\nINSERT INTO orders VALUES (1,1,'2022-01-03','completed'),(2,1,'2022-02-03','completed'),(3,2,'2022-02-14','completed'),(4,3,'2022-03-21','cancelled'),(5,4,'2022-04-02','completed'),(6,5,'2022-05-19','pending'),(7,5,'2022-06-19','completed'),(8,6,'2023-01-11','completed'),(9,7,'2023-02-28','completed'),(10,1,'2023-03-15','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,1,5,4,12.5),(3,2,3,1,300.0),(4,3,2,2,25.0),(5,4,4,1,45.0),(6,5,1,2,80.0),(7,6,5,10,12.5),(8,7,3,1,300.0),(9,7,4,2,45.0),(10,8,2,5,25.0),(11,9,1,1,80.0),(12,10,3,2,300.0),(13,10,5,1,12.5);",
+      "expectedOutput": [
+        {
+          "customer": "A",
+          "completed_orders": 3
+        },
+        {
+          "customer": "B",
+          "completed_orders": 1
+        },
+        {
+          "customer": "C",
+          "completed_orders": 0
+        },
+        {
+          "customer": "D",
+          "completed_orders": 1
+        },
+        {
+          "customer": "E",
+          "completed_orders": 1
+        },
+        {
+          "customer": "F",
+          "completed_orders": 1
+        },
+        {
+          "customer": "G",
+          "completed_orders": 1
+        }
+      ],
+      "expectedHash": "1e5b6b1688bb043d4787c1b9dd04bfb11d7a54a928429ca3709fc8936fb3de4e"
+    },
+    {
+      "name": "All orders completed",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12');\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,2,'2022-02-14','completed');",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "completed_orders": 1
+        },
+        {
+          "customer": "Bo",
+          "completed_orders": 1
+        }
+      ],
+      "expectedHash": "316b9e9af9b1bfd7211e1eb43b582dfa5da6dfe107208becada0b2e1091b9285"
+    },
+    {
+      "name": "No completed orders",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05');\nINSERT INTO orders VALUES (1,1,'2022-01-10','cancelled');",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "completed_orders": 0
+        }
+      ],
+      "expectedHash": "3741357a658da0a67e77650f23b3df453612c97205f2bd49e630fbf83fbf3e23"
+    },
+    {
+      "name": "Customer with mix of completed and cancelled",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05');\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2022-02-14','completed'),(3,1,'2022-03-05','cancelled');",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "completed_orders": 2
+        }
+      ],
+      "expectedHash": "c83501cef6f3690101abc833a54790b2eca715a72f4883cd2389a9bb9bb1c4e9"
+    },
+    {
+      "name": "Customer with no orders shows 0",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12');\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed');",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "completed_orders": 1
+        },
+        {
+          "customer": "Bo",
+          "completed_orders": 0
+        }
+      ],
+      "expectedHash": "668a39d133e00eb2f48970366d245222e7837802df0368dc2d5d9a0e18d77114"
+    },
+    {
+      "name": "Single customer",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05');\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2022-02-14','completed');",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "completed_orders": 2
+        }
+      ],
+      "expectedHash": "c83501cef6f3690101abc833a54790b2eca715a72f4883cd2389a9bb9bb1c4e9"
+    },
+    {
+      "name": "NULL status is not completed",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12');\nINSERT INTO orders VALUES (1,1,'2022-01-10',NULL),(2,2,'2022-02-14','completed');",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "completed_orders": 0
+        },
+        {
+          "customer": "Bo",
+          "completed_orders": 1
+        }
+      ],
+      "expectedHash": "d12b9f54064ed3544477e8c8687c020b35f8c1590b47195678f59752d394192d"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "ads-best-channel-by-cvr",
+  "number": 153,
+  "title": "Best Performing Channel",
+  "difficulty": "Medium",
+  "tags": [
+    "CTE",
+    "Aggregation",
+    "Ads"
+  ],
+  "orderMatters": false,
+  "schemaSql": "CREATE TABLE campaigns (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  channel TEXT,\n  daily_budget REAL\n);\nCREATE TABLE events (\n  id INTEGER PRIMARY KEY,\n  campaign_id INTEGER,\n  user_id INTEGER,\n  event_type TEXT,\n  occurred_at TEXT\n);",
+  "description": "For each ad channel (e.g. 'email', 'display', 'search'), compute the overall **click-through rate** (CTR = clicks / impressions) and **conversion rate** (CVR = conversions / clicks) across all campaigns in that channel.\n\nReturn columns `channel`, `impressions`, `clicks`, `conversions`, `ctr` (rounded to 4), and `cvr` (rounded to 4). Exclude channels with zero clicks (CVR would be meaningless). Order by `cvr` descending.",
+  "hint": "Aggregate event counts per channel by joining events to campaigns. Use NULLIF to avoid division by zero.",
+  "solutionSql": "SELECT c.channel,\n       COUNT(CASE WHEN e.event_type = 'impression' THEN 1 END) AS impressions,\n       COUNT(CASE WHEN e.event_type = 'click' THEN 1 END) AS clicks,\n       COUNT(CASE WHEN e.event_type = 'conversion' THEN 1 END) AS conversions,\n       ROUND(\n         CAST(COUNT(CASE WHEN e.event_type = 'click' THEN 1 END) AS REAL)\n         / NULLIF(COUNT(CASE WHEN e.event_type = 'impression' THEN 1 END), 0),\n         4\n       ) AS ctr,\n       ROUND(\n         CAST(COUNT(CASE WHEN e.event_type = 'conversion' THEN 1 END) AS REAL)\n         / NULLIF(COUNT(CASE WHEN e.event_type = 'click' THEN 1 END), 0),\n         4\n       ) AS cvr\nFROM events e\nJOIN campaigns c ON c.id = e.campaign_id\nGROUP BY c.channel\nHAVING COUNT(CASE WHEN e.event_type = 'click' THEN 1 END) > 0\nORDER BY cvr DESC;",
+  "outputExplanation": "Events are grouped by the campaign's channel. Channels with no clicks are excluded since CVR requires clicks as the denominator. The channel with the highest CVR converts the most efficiently.",
+  "tests": [
+    {
+      "name": "Example — three channels",
+      "seedSql": "INSERT INTO campaigns VALUES (1,'Email-1','email',500),(2,'Email-2','email',400),(3,'Display-1','display',800),(4,'Search-1','search',300);\nINSERT INTO events VALUES\n  (1,1,1,'impression','2022-01-01'),(2,1,1,'click','2022-01-02'),(3,1,1,'conversion','2022-01-03'),\n  (4,1,2,'impression','2022-01-01'),(5,1,2,'click','2022-01-02'),\n  (6,2,3,'impression','2022-01-01'),(7,2,3,'click','2022-01-02'),(8,2,3,'conversion','2022-01-03'),\n  (9,3,4,'impression','2022-01-01'),(10,3,4,'impression','2022-01-01'),(11,3,4,'impression','2022-01-01'),(12,3,5,'click','2022-01-02'),\n  (13,4,6,'impression','2022-01-01'),(14,4,6,'click','2022-01-02'),(15,4,6,'conversion','2022-01-03'),\n  (16,4,7,'impression','2022-01-01'),(17,4,7,'click','2022-01-02'),(18,4,7,'conversion','2022-01-03');",
+      "expectedOutput": [
+        {
+          "channel": "search",
+          "impressions": 2,
+          "clicks": 2,
+          "conversions": 2,
+          "ctr": 1,
+          "cvr": 1
+        },
+        {
+          "channel": "email",
+          "impressions": 3,
+          "clicks": 3,
+          "conversions": 2,
+          "ctr": 1,
+          "cvr": 0.6667
+        },
+        {
+          "channel": "display",
+          "impressions": 3,
+          "clicks": 1,
+          "conversions": 0,
+          "ctr": 0.3333,
+          "cvr": 0
+        }
+      ],
+      "expectedHash": "e47541b477887be55d9dbfedd2117acdb5fc25ea40ef9c1a2b47400ff737ca1d"
+    },
+    {
+      "name": "Channel with only impressions excluded",
+      "seedSql": "INSERT INTO campaigns VALUES (1,'Email','email',100),(2,'Display','display',200);\nINSERT INTO events VALUES\n  (1,1,1,'impression','2022-01-01'),(2,1,1,'click','2022-01-02'),(3,1,1,'conversion','2022-01-03'),\n  (4,2,2,'impression','2022-01-01'),(5,2,3,'impression','2022-01-01');",
+      "expectedOutput": [
+        {
+          "channel": "email",
+          "impressions": 1,
+          "clicks": 1,
+          "conversions": 1,
+          "ctr": 1,
+          "cvr": 1
+        }
+      ],
+      "expectedHash": "9484870c26d02ed0b3d59a16ce365f839bd51cbaff25f81240330664acbd1f6a"
+    },
+    {
+      "name": "Empty tables",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    }
+  ]
+}

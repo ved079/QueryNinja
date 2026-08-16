@@ -1,0 +1,394 @@
+{
+  "id": "customers-who-never-order",
+  "number": 3,
+  "title": "Customers Who Never Order",
+  "difficulty": "Easy",
+  "tags": [
+    "Join",
+    "Subquery",
+    "Anti-Join",
+    "NULL Handling"
+  ],
+  "description": "Table `Customers` holds all customers and table `Orders` holds orders placed, referencing `Customers.id` via `customerId`.\n\nWrite a query to report the names of all customers who have **never** placed an order. Name the output column `Customers`.\n\nReturn the result in any order.",
+  "schemaSql": "CREATE TABLE Customers (\n  id INTEGER PRIMARY KEY,\n  name TEXT\n);\n\nCREATE TABLE Orders (\n  id INTEGER PRIMARY KEY,\n  customerId INTEGER\n);",
+  "solutionSql": "SELECT c.name AS Customers\nFROM Customers c\nLEFT JOIN Orders o ON c.id = o.customerId\nWHERE o.id IS NULL;",
+  "orderMatters": false,
+  "hint": "An anti-join (LEFT JOIN ... WHERE right side IS NULL) or NOT EXISTS both work. Watch out: NOT IN returns nothing at all if the subquery contains a NULL.",
+  "outputExplanation": "Each output row is a customer name with no matching order. A customer who ordered at least once is excluded, even if they also have orphan orders. Customers sharing the same name each appear once per row (no deduplication). Result order is arbitrary.",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry'),(3,'Sam'),(4,'Max');\nINSERT INTO Orders VALUES (1,3),(2,1);",
+      "expectedOutput": [
+        {
+          "Customers": "Henry"
+        },
+        {
+          "Customers": "Max"
+        }
+      ],
+      "expectedHash": "6f515189d9fb54f4d938d5cbabc76011ee0ad28dd795b4b0bf22f8d0d57ffe8d"
+    },
+    {
+      "name": "Every customer has ordered",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO Orders VALUES (1,1),(2,2);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "No orders exist at all",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry'),(3,'Sam');",
+      "expectedOutput": [
+        {
+          "Customers": "Joe"
+        },
+        {
+          "Customers": "Henry"
+        },
+        {
+          "Customers": "Sam"
+        }
+      ],
+      "expectedHash": "b3087b2ccb9504c28e3f8039b63e84ea755406ceb893ef05b762a94c280df01a"
+    },
+    {
+      "name": "No customers exist",
+      "seedSql": "INSERT INTO Orders VALUES (1,5);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single customer, never ordered",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Solo');",
+      "expectedOutput": [
+        {
+          "Customers": "Solo"
+        }
+      ],
+      "expectedHash": "f758801a2370291014fb61d3c8f48f5ca3fb0e65b80a340b2b2df0b1cec1c917"
+    },
+    {
+      "name": "Single customer, has ordered",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Solo');\nINSERT INTO Orders VALUES (1,1);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "NULL customerId — NOT IN returns empty",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry'),(3,'Sam');\nINSERT INTO Orders VALUES (1,1),(2,NULL);",
+      "expectedOutput": [
+        {
+          "Customers": "Henry"
+        },
+        {
+          "Customers": "Sam"
+        }
+      ],
+      "expectedHash": "bdfb2933b4373774801d016036053487b4d65c796508f381f9f2e46eb9a80b8a"
+    },
+    {
+      "name": "All orders have NULL customerId",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO Orders VALUES (1,NULL),(2,NULL);",
+      "expectedOutput": [
+        {
+          "Customers": "Joe"
+        },
+        {
+          "Customers": "Henry"
+        }
+      ],
+      "expectedHash": "a64e8cd52811f1e8ad9c978fd3b93bae36fcc50391a9c985a4d7dbc9d829ba29"
+    },
+    {
+      "name": "Two customers share a name, one has ordered",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Alex'),(2,'Alex'),(3,'Ravi');\nINSERT INTO Orders VALUES (1,3);",
+      "expectedOutput": [
+        {
+          "Customers": "Alex"
+        },
+        {
+          "Customers": "Alex"
+        }
+      ],
+      "expectedHash": "b68360f48a6b130ac61812b2913e08f8f67648983eae8eb9759949357b8be47a"
+    },
+    {
+      "name": "Customer with NULL name, no orders",
+      "seedSql": "INSERT INTO Customers VALUES (1,NULL);",
+      "expectedOutput": [
+        {
+          "Customers": null
+        }
+      ],
+      "expectedHash": "197771eb2c564c7347a26d09f73d93777cb7803bf1e2b699f351d5e700010563"
+    },
+    {
+      "name": "Orphan order plus a valid order",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO Orders VALUES (1,99),(2,1);",
+      "expectedOutput": [
+        {
+          "Customers": "Henry"
+        }
+      ],
+      "expectedHash": "2e6a65c437b5e6fcf36493b33bbcfeea0d9eb55a74f2c7d279d6aec7b34d55c3"
+    },
+    {
+      "name": "One customer with many orders, the other never ordered",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Joe'),(2,'Henry');\nINSERT INTO Orders VALUES (1,1),(2,1),(3,1),(4,1);",
+      "expectedOutput": [
+        {
+          "Customers": "Henry"
+        }
+      ],
+      "expectedHash": "2e6a65c437b5e6fcf36493b33bbcfeea0d9eb55a74f2c7d279d6aec7b34d55c3"
+    },
+    {
+      "name": "All customers ordered except one",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Ann'),(2,'Ben'),(3,'Cal');\nINSERT INTO Orders VALUES (1,1),(2,2);",
+      "expectedOutput": [
+        {
+          "Customers": "Cal"
+        }
+      ],
+      "expectedHash": "2c359c962b6f44874360ac83c73e54a1dfbde963d847750fc64ef1e7d7a8fe0d"
+    },
+    {
+      "name": "All orders reference non-existent customers",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Only');\nINSERT INTO Orders VALUES (1,99),(2,100);",
+      "expectedOutput": [
+        {
+          "Customers": "Only"
+        }
+      ],
+      "expectedHash": "7f18b9f114b20e96f976d35d0432660868ab63548eff7a67fbee2129fd47a15f"
+    },
+    {
+      "name": "Stress test — 20 customers, 15 orders, mixed with NULL",
+      "seedSql": "INSERT INTO Customers VALUES (1,'A'),(2,'B'),(3,'C'),(4,'D'),(5,'E'),(6,'F'),(7,'G'),(8,'H'),(9,'I'),(10,'J'),(11,'K'),(12,'L'),(13,'M'),(14,'N'),(15,'O'),(16,'P'),(17,'Q'),(18,'R'),(19,'S'),(20,'T');\nINSERT INTO Orders VALUES (1,1),(2,2),(3,1),(4,4),(5,6),(6,8),(7,10),(8,NULL),(9,12),(10,14),(11,16),(12,18),(13,20),(14,3),(15,5);",
+      "expectedOutput": [
+        {
+          "Customers": "G"
+        },
+        {
+          "Customers": "I"
+        },
+        {
+          "Customers": "K"
+        },
+        {
+          "Customers": "M"
+        },
+        {
+          "Customers": "O"
+        },
+        {
+          "Customers": "Q"
+        },
+        {
+          "Customers": "S"
+        }
+      ],
+      "expectedHash": "13c8fb55e5afd0a9903d20fed1011da7735a1f6c9c222479f6bc9093c3c24c23"
+    },
+    {
+      "name": "Half the customers ordered, half never ordered",
+      "seedSql": "INSERT INTO Customers VALUES (1,'A'),(2,'B'),(3,'C'),(4,'D'),(5,'E'),(6,'F');\nINSERT INTO Orders VALUES (1,1),(2,3),(3,5);",
+      "expectedOutput": [
+        {
+          "Customers": "B"
+        },
+        {
+          "Customers": "D"
+        },
+        {
+          "Customers": "F"
+        }
+      ],
+      "expectedHash": "276d1ab59bc1d4ea80d2de0d47ca798cf6e92003a20a21bf621ad399cc219ff4"
+    },
+    {
+      "name": "Negative and non-sequential customer ids",
+      "seedSql": "INSERT INTO Customers VALUES (-5,'Neg'),(100,'Hundred'),(7,'Seven');\nINSERT INTO Orders VALUES (1,100);",
+      "expectedOutput": [
+        {
+          "Customers": "Neg"
+        },
+        {
+          "Customers": "Seven"
+        }
+      ],
+      "expectedHash": "b50c3f0871cd5aec8d6459ba5031ded11548f4a2f3ebabd051dc0e7bd367d3ab"
+    },
+    {
+      "name": "Customer name with empty string, no orders",
+      "seedSql": "INSERT INTO Customers VALUES (1,''),(2,'Named');",
+      "expectedOutput": [
+        {
+          "Customers": ""
+        },
+        {
+          "Customers": "Named"
+        }
+      ],
+      "expectedHash": "5d9a799acf369108534d9b014e0900292790df0f5ff02a43aa8b8d7399292717"
+    },
+    {
+      "name": "Whitespace-only customer name, has ordered",
+      "seedSql": "INSERT INTO Customers VALUES (1,' '),(2,'Real');\nINSERT INTO Orders VALUES (1,1);",
+      "expectedOutput": [
+        {
+          "Customers": "Real"
+        }
+      ],
+      "expectedHash": "f5d4f61a31d5363cf2d1e89240b7e7167b04cb4114af60d3116530edfc7677b2"
+    },
+    {
+      "name": "Very long customer name, never ordered",
+      "seedSql": "INSERT INTO Customers VALUES (1,'ThisIsAnExtremelyLongCustomerNameThatGoesOnAndOn'),(2,'Short');\nINSERT INTO Orders VALUES (1,2);",
+      "expectedOutput": [
+        {
+          "Customers": "ThisIsAnExtremelyLongCustomerNameThatGoesOnAndOn"
+        }
+      ],
+      "expectedHash": "63a088e10a2d7899ab4f81766bdb5e4008a87bc6cbdc63c38de3e6e0004009aa"
+    },
+    {
+      "name": "Orders reference NULL and orphans alongside valid orders",
+      "seedSql": "INSERT INTO Customers VALUES (1,'A'),(2,'B'),(3,'C'),(4,'D');\nINSERT INTO Orders VALUES (1,1),(2,NULL),(3,99);",
+      "expectedOutput": [
+        {
+          "Customers": "B"
+        },
+        {
+          "Customers": "C"
+        },
+        {
+          "Customers": "D"
+        }
+      ],
+      "expectedHash": "c9c8cf506dff7dadbf9b16f97014abae7ec40085ce925ad8bb8d1712e90a333a"
+    },
+    {
+      "name": "All customers never ordered — 10 rows",
+      "seedSql": "INSERT INTO Customers VALUES (1,'A'),(2,'B'),(3,'C'),(4,'D'),(5,'E'),(6,'F'),(7,'G'),(8,'H'),(9,'I'),(10,'J');",
+      "expectedOutput": [
+        {
+          "Customers": "A"
+        },
+        {
+          "Customers": "B"
+        },
+        {
+          "Customers": "C"
+        },
+        {
+          "Customers": "D"
+        },
+        {
+          "Customers": "E"
+        },
+        {
+          "Customers": "F"
+        },
+        {
+          "Customers": "G"
+        },
+        {
+          "Customers": "H"
+        },
+        {
+          "Customers": "I"
+        },
+        {
+          "Customers": "J"
+        }
+      ],
+      "expectedHash": "8aefe9e36baa86a0769e0b91749eba8755f0112ff59c96237b4725e968011169"
+    },
+    {
+      "name": "One customer with orders and NULLs and orphans — others never ordered",
+      "seedSql": "INSERT INTO Customers VALUES (1,'Busy'),(2,'Idle1'),(3,'Idle2');\nINSERT INTO Orders VALUES (1,1),(2,1),(3,NULL),(4,999);",
+      "expectedOutput": [
+        {
+          "Customers": "Idle1"
+        },
+        {
+          "Customers": "Idle2"
+        }
+      ],
+      "expectedHash": "6a4d8de6ad7c3682f13f78c4f7935754d0f0afa032f4c184c94632c60b7862c8"
+    },
+    {
+      "name": "Unicode customer names, none ordered",
+      "seedSql": "INSERT INTO Customers VALUES (1,'张三'),(2,'José'),(3,'Søren'),(4,'Алекс');",
+      "expectedOutput": [
+        {
+          "Customers": "张三"
+        },
+        {
+          "Customers": "José"
+        },
+        {
+          "Customers": "Søren"
+        },
+        {
+          "Customers": "Алекс"
+        }
+      ],
+      "expectedHash": "06a38e0fea2fcc1454ef2460a202e632eb79d063a0300efc3fb2aca9b2b8dcbd"
+    },
+    {
+      "name": "Unicode names, some ordered some did not",
+      "seedSql": "INSERT INTO Customers VALUES (1,'张三'),(2,'José'),(3,'Søren'),(4,'Алекс');\nINSERT INTO Orders VALUES (1,2),(2,4);",
+      "expectedOutput": [
+        {
+          "Customers": "张三"
+        },
+        {
+          "Customers": "Søren"
+        }
+      ],
+      "expectedHash": "1db1a2cec0aa7c948f6498ce6a953b2d2b859c90fc78c6aafbcb221cec9b9941"
+    },
+    {
+      "name": "30-row stress with NULL customerId mixed in",
+      "seedSql": "INSERT INTO Customers VALUES (1,'A'),(2,'B'),(3,'C'),(4,'D'),(5,'E'),(6,'F'),(7,'G'),(8,'H'),(9,'I'),(10,'J'),(11,'K'),(12,'L'),(13,'M'),(14,'N'),(15,'O'),(16,'P'),(17,'Q'),(18,'R'),(19,'S'),(20,'T'),(21,'U'),(22,'V'),(23,'W'),(24,'X'),(25,'Y'),(26,'Z'),(27,'AA'),(28,'AB'),(29,'AC'),(30,'AD');\nINSERT INTO Orders VALUES (1,1),(2,3),(3,5),(4,7),(5,9),(6,11),(7,13),(8,15),(9,17),(10,19),(11,21),(12,23),(13,25),(14,27),(15,29),(16,NULL),(17,2),(18,4),(19,6),(20,8);",
+      "expectedOutput": [
+        {
+          "Customers": "J"
+        },
+        {
+          "Customers": "L"
+        },
+        {
+          "Customers": "N"
+        },
+        {
+          "Customers": "P"
+        },
+        {
+          "Customers": "R"
+        },
+        {
+          "Customers": "T"
+        },
+        {
+          "Customers": "V"
+        },
+        {
+          "Customers": "X"
+        },
+        {
+          "Customers": "Z"
+        },
+        {
+          "Customers": "AB"
+        },
+        {
+          "Customers": "AD"
+        }
+      ],
+      "expectedHash": "4b2895aa37b3660122d853ceee2262f87564860220c26637ae29a0ff198a60f2"
+    }
+  ]
+}

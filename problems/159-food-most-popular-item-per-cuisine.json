@@ -1,0 +1,67 @@
+{
+  "id": "food-most-popular-item-per-cuisine",
+  "number": 159,
+  "title": "Most Popular Item per Cuisine",
+  "difficulty": "Hard",
+  "tags": [
+    "CTE",
+    "Window Functions",
+    "Join",
+    "Food Delivery"
+  ],
+  "orderMatters": false,
+  "schemaSql": "CREATE TABLE restaurants (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  cuisine TEXT,\n  city TEXT\n);\nCREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  restaurant_id INTEGER,\n  customer_id INTEGER,\n  placed_at TEXT,\n  delivered_at TEXT,\n  estimated_minutes INTEGER,\n  total_amount REAL,\n  status TEXT\n);\nCREATE TABLE order_items (\n  id INTEGER PRIMARY KEY,\n  order_id INTEGER,\n  item_name TEXT,\n  quantity INTEGER,\n  unit_price REAL\n);\nCREATE TABLE reviews (\n  id INTEGER PRIMARY KEY,\n  order_id INTEGER,\n  customer_id INTEGER,\n  restaurant_id INTEGER,\n  rating INTEGER\n);",
+  "description": "For each cuisine type, find the **single most-ordered menu item** (by total quantity sold across all delivered orders). If two items tie, return the one that comes **first alphabetically**.\n\nReturn columns `cuisine`, `item_name`, and `total_quantity`. Order by `cuisine` ascending.",
+  "hint": "Join order_items → orders → restaurants, filter to delivered orders, sum quantity by (cuisine, item_name), then use ROW_NUMBER() to pick rank 1 per cuisine.",
+  "solutionSql": "WITH item_sales AS (\n  SELECT r.cuisine,\n         oi.item_name,\n         SUM(oi.quantity) AS total_quantity\n  FROM order_items oi\n  JOIN orders o ON o.id = oi.order_id\n  JOIN restaurants r ON r.id = o.restaurant_id\n  WHERE o.status = 'delivered'\n  GROUP BY r.cuisine, oi.item_name\n),\nranked AS (\n  SELECT *,\n         ROW_NUMBER() OVER (PARTITION BY cuisine ORDER BY total_quantity DESC, item_name ASC) AS rn\n  FROM item_sales\n)\nSELECT cuisine, item_name, total_quantity\nFROM ranked\nWHERE rn = 1\nORDER BY cuisine;",
+  "outputExplanation": "Quantity is summed per (cuisine, item) across delivered orders. ROW_NUMBER() with ORDER BY total_quantity DESC, item_name ASC picks the top item per cuisine, breaking ties alphabetically.",
+  "tests": [
+    {
+      "name": "Example — two cuisines",
+      "seedSql": "INSERT INTO restaurants VALUES (1,'PizzaPalace','Italian','NYC'),(2,'PastaPlace','Italian','NYC'),(3,'BurgerBarn','American','NYC');\nINSERT INTO orders VALUES\n  (1,1,101,'2022-01-01','2022-01-01',30,20.0,'delivered'),\n  (2,1,102,'2022-01-02','2022-01-02',30,18.0,'delivered'),\n  (3,2,103,'2022-01-03','2022-01-03',30,22.0,'delivered'),\n  (4,3,101,'2022-01-01','2022-01-01',25,15.0,'delivered'),\n  (5,3,102,'2022-01-02',NULL,25,15.0,'pending');\nINSERT INTO order_items VALUES\n  (1,1,'Margherita Pizza',2,10.0),\n  (2,1,'Garlic Bread',1,5.0),\n  (3,2,'Margherita Pizza',3,10.0),\n  (4,3,'Spaghetti Bolognese',2,11.0),\n  (5,4,'Cheeseburger',2,7.5),\n  (6,4,'Fries',3,3.0),\n  (7,5,'Cheeseburger',1,7.5);",
+      "expectedOutput": [
+        {
+          "cuisine": "American",
+          "item_name": "Fries",
+          "total_quantity": 3
+        },
+        {
+          "cuisine": "Italian",
+          "item_name": "Margherita Pizza",
+          "total_quantity": 5
+        }
+      ],
+      "expectedHash": "e73ec33cc2111070a28fe433630a6ef8e9fb43fb5edee4ed4c2504bdb0a5c568"
+    },
+    {
+      "name": "Tie broken alphabetically",
+      "seedSql": "INSERT INTO restaurants VALUES (1,'R1','Asian','NYC'),(2,'R2','Asian','NYC');\nINSERT INTO orders VALUES\n  (1,1,1,'2022-01-01','2022-01-01',30,10.0,'delivered'),\n  (2,2,1,'2022-01-02','2022-01-02',30,10.0,'delivered');\nINSERT INTO order_items VALUES\n  (1,1,'Ramen',5,8.0),\n  (2,2,'Gyoza',5,5.0);",
+      "expectedOutput": [
+        {
+          "cuisine": "Asian",
+          "item_name": "Gyoza",
+          "total_quantity": 5
+        }
+      ],
+      "expectedHash": "8fcc4e4dcf7a26d67da14d8922217e0500daecd138d9b11c6dd1db805cdc7f13"
+    },
+    {
+      "name": "Pending orders not counted",
+      "seedSql": "INSERT INTO restaurants VALUES (1,'R','Italian','NYC');\nINSERT INTO orders VALUES\n  (1,1,1,'2022-01-01','2022-01-01',30,10.0,'delivered'),\n  (2,1,2,'2022-01-02',NULL,30,10.0,'pending');\nINSERT INTO order_items VALUES\n  (1,1,'Pizza',2,10.0),\n  (2,2,'Pasta',100,8.0);",
+      "expectedOutput": [
+        {
+          "cuisine": "Italian",
+          "item_name": "Pizza",
+          "total_quantity": 2
+        }
+      ],
+      "expectedHash": "d5c5311b4e9dc3863c49ce87da1038f77b623802d91017812a16a640307aa460"
+    },
+    {
+      "name": "Empty tables",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    }
+  ]
+}

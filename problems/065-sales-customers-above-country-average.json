@@ -1,0 +1,551 @@
+{
+  "id": "sales-customers-above-country-average",
+  "number": 65,
+  "title": "Spending More Than Your Country's Average",
+  "difficulty": "Medium",
+  "tags": [
+    "Window Function",
+    "Join"
+  ],
+  "description": "For each customer compute their total spend over all order items. Report those who spend strictly more than the average spend of customers in the same country. Customers who never ordered count as spending 0.\n\nName the columns `customer`, `country` and `spend`, with spend rounded to 2 decimals. Return the result in any order.",
+  "solutionSql": "WITH spend AS (\n  SELECT c.id, c.name, c.country,\n         COALESCE(SUM(oi.quantity * oi.unit_price), 0) AS total\n  FROM customers c\n  LEFT JOIN orders o ON o.customer_id = c.id\n  LEFT JOIN order_items oi ON oi.order_id = o.id\n  GROUP BY c.id, c.name, c.country\n)\nSELECT name AS customer, country, ROUND(total, 2) AS spend\nFROM (SELECT *, AVG(total) OVER (PARTITION BY country) AS country_avg FROM spend)\nWHERE total > country_avg;",
+  "orderMatters": false,
+  "hint": "Compute the per-customer totals first, then apply a window average over country to that derived table.",
+  "outputExplanation": "Ada spends $625, well above the US average of $350. Cy ($75), Bo ($0) and Di ($0) all spend at or below their country's average.",
+  "schemaSql": "CREATE TABLE customers (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  country TEXT,\n  signup_date TEXT\n);\n\nCREATE TABLE products (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  category TEXT,\n  price REAL\n);\n\nCREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  customer_id INTEGER,\n  order_date TEXT,\n  status TEXT\n);\n\nCREATE TABLE order_items (\n  id INTEGER PRIMARY KEY,\n  order_id INTEGER,\n  product_id INTEGER,\n  quantity INTEGER,\n  unit_price REAL\n);",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12'),(3,'Cy','US','2022-06-30'),(4,'Di','IN','2022-11-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Desk','Furniture',300.0),(4,'Lamp','Furniture',45.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2022-02-14','completed'),(3,2,'2022-02-20','cancelled'),(4,3,'2022-03-05','completed'),(5,3,'2022-03-06','pending'),(6,1,'2023-01-02','completed');\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,1,2,1,25.0),(3,2,3,1,300.0),(4,3,4,4,45.0),(5,4,2,3,25.0),(6,5,1,1,80.0),(7,6,4,2,45.0),(8,6,2,2,25.0);",
+      "expectedOutput": [
+        {
+          "customer": "Ada",
+          "country": "US",
+          "spend": 625
+        }
+      ],
+      "expectedHash": "30b2899b2098926a8e96631ad8471b61868d9865bb033172c818e7d3bb81d46d"
+    },
+    {
+      "name": "Customer who never ordered",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12'),(3,'NoOrders','FR','2023-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,2,'2022-01-11','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,2,25.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "All orders cancelled",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo','UK','2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','cancelled'),(2,2,'2022-01-11','cancelled');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,1,2,80.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Everything empty",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Orders with no items, products never sold",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'NeverSold','Tech',999.0);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,1,'2022-01-11','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "NULL prices, quantities and statuses",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-05'),(2,'Bo',NULL,'2021-03-12');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mystery',NULL,NULL);\nINSERT INTO orders VALUES (1,1,'2022-01-10','completed'),(2,2,'2022-01-11',NULL);\nINSERT INTO order_items VALUES (1,1,1,2,80.0),(2,1,2,NULL,NULL),(3,2,1,1,80.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Single customer, single order",
+      "seedSql": "INSERT INTO customers VALUES (1,'Solo','US','2022-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0);\nINSERT INTO orders VALUES (1,1,'2022-05-05','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Ties in revenue between products and customers",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2021-01-01'),(2,'Bo','US','2021-01-01');\nINSERT INTO products VALUES (1,'P1','Tech',50.0),(2,'P2','Tech',50.0);\nINSERT INTO orders VALUES (1,1,'2022-01-01','completed'),(2,2,'2022-01-01','completed');\nINSERT INTO order_items VALUES (1,1,1,2,50.0),(2,2,2,2,50.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Same-day repeat orders across month and year boundaries",
+      "seedSql": "INSERT INTO customers VALUES (1,'Ada','US','2020-12-31'),(2,'Bo','UK','2021-01-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Desk','Furniture',300.0);\nINSERT INTO orders VALUES (1,1,'2021-12-31','completed'),(2,1,'2022-01-01','completed'),(3,1,'2022-01-01','completed'),(4,2,'2022-01-31','completed'),(5,2,'2022-02-01','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,2,2,1,300.0),(3,3,1,3,80.0),(4,4,2,2,300.0),(5,5,1,1,80.0);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Larger multi-country set",
+      "seedSql": "INSERT INTO customers VALUES (1,'A','US','2020-01-01'),(2,'B','US','2020-02-01'),(3,'C','UK','2020-03-01'),(4,'D','UK','2021-04-01'),(5,'E','IN','2021-05-01'),(6,'F','IN','2022-06-01'),(7,'G','FR','2022-07-01');\nINSERT INTO products VALUES (1,'Keyboard','Tech',80.0),(2,'Mouse','Tech',25.0),(3,'Desk','Furniture',300.0),(4,'Lamp','Furniture',45.0),(5,'Mug','Kitchen',12.5);\nINSERT INTO orders VALUES (1,1,'2022-01-03','completed'),(2,1,'2022-02-03','completed'),(3,2,'2022-02-14','completed'),(4,3,'2022-03-21','cancelled'),(5,4,'2022-04-02','completed'),(6,5,'2022-05-19','pending'),(7,5,'2022-06-19','completed'),(8,6,'2023-01-11','completed'),(9,7,'2023-02-28','completed'),(10,1,'2023-03-15','completed');\nINSERT INTO order_items VALUES (1,1,1,1,80.0),(2,1,5,4,12.5),(3,2,3,1,300.0),(4,3,2,2,25.0),(5,4,4,1,45.0),(6,5,1,2,80.0),(7,6,5,10,12.5),(8,7,3,1,300.0),(9,7,4,2,45.0),(10,8,2,5,25.0),(11,9,1,1,80.0),(12,10,3,2,300.0),(13,10,5,1,12.5);",
+      "expectedOutput": [
+        {
+          "customer": "E",
+          "country": "IN",
+          "spend": 515
+        },
+        {
+          "customer": "D",
+          "country": "UK",
+          "spend": 160
+        },
+        {
+          "customer": "A",
+          "country": "US",
+          "spend": 1042.5
+        }
+      ],
+      "expectedHash": "ea240626a7b332a0c707c1d0a9641d81f1fddc172d93f2a7a408d967d6df4be7"
+    },
+    {
+      "name": "Single customer — cannot exceed own average",
+      "data": [
+        {
+          "table": "customers",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Ada",
+              "country": "US",
+              "signup_date": "2022-01-01"
+            }
+          ]
+        },
+        {
+          "table": "products",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Widget",
+              "category": "Tech",
+              "price": 100
+            }
+          ]
+        },
+        {
+          "table": "orders",
+          "rows": [
+            {
+              "id": 1,
+              "customer_id": 1,
+              "order_date": "2022-01-10",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "table": "order_items",
+          "rows": [
+            {
+              "id": 1,
+              "order_id": 1,
+              "product_id": 1,
+              "quantity": 1,
+              "unit_price": 100
+            }
+          ]
+        }
+      ],
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "All customers spend the same — none exceeds",
+      "data": [
+        {
+          "table": "customers",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Ada",
+              "country": "US",
+              "signup_date": "2022-01-01"
+            },
+            {
+              "id": 2,
+              "name": "Bo",
+              "country": "US",
+              "signup_date": "2022-02-01"
+            }
+          ]
+        },
+        {
+          "table": "products",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Widget",
+              "category": "Tech",
+              "price": 100
+            }
+          ]
+        },
+        {
+          "table": "orders",
+          "rows": [
+            {
+              "id": 1,
+              "customer_id": 1,
+              "order_date": "2022-01-10",
+              "status": "completed"
+            },
+            {
+              "id": 2,
+              "customer_id": 2,
+              "order_date": "2022-02-10",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "table": "order_items",
+          "rows": [
+            {
+              "id": 1,
+              "order_id": 1,
+              "product_id": 1,
+              "quantity": 1,
+              "unit_price": 100
+            },
+            {
+              "id": 2,
+              "order_id": 2,
+              "product_id": 1,
+              "quantity": 1,
+              "unit_price": 100
+            }
+          ]
+        }
+      ],
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "One US customer exceeds average",
+      "data": [
+        {
+          "table": "customers",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Ada",
+              "country": "US",
+              "signup_date": "2022-01-01"
+            },
+            {
+              "id": 2,
+              "name": "Bo",
+              "country": "US",
+              "signup_date": "2022-02-01"
+            }
+          ]
+        },
+        {
+          "table": "products",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Widget",
+              "category": "Tech",
+              "price": 100
+            }
+          ]
+        },
+        {
+          "table": "orders",
+          "rows": [
+            {
+              "id": 1,
+              "customer_id": 1,
+              "order_date": "2022-01-10",
+              "status": "completed"
+            },
+            {
+              "id": 2,
+              "customer_id": 2,
+              "order_date": "2022-02-10",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "table": "order_items",
+          "rows": [
+            {
+              "id": 1,
+              "order_id": 1,
+              "product_id": 1,
+              "quantity": 3,
+              "unit_price": 100
+            },
+            {
+              "id": 2,
+              "order_id": 2,
+              "product_id": 1,
+              "quantity": 1,
+              "unit_price": 100
+            }
+          ]
+        }
+      ],
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Two countries with one above-avg each",
+      "data": [
+        {
+          "table": "customers",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Ada",
+              "country": "US",
+              "signup_date": "2022-01-01"
+            },
+            {
+              "id": 2,
+              "name": "Bo",
+              "country": "US",
+              "signup_date": "2022-02-01"
+            },
+            {
+              "id": 3,
+              "name": "Cy",
+              "country": "UK",
+              "signup_date": "2022-03-01"
+            },
+            {
+              "id": 4,
+              "name": "Di",
+              "country": "UK",
+              "signup_date": "2022-04-01"
+            }
+          ]
+        },
+        {
+          "table": "products",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Widget",
+              "category": "Tech",
+              "price": 100
+            }
+          ]
+        },
+        {
+          "table": "orders",
+          "rows": [
+            {
+              "id": 1,
+              "customer_id": 1,
+              "order_date": "2022-01-10",
+              "status": "completed"
+            },
+            {
+              "id": 2,
+              "customer_id": 2,
+              "order_date": "2022-02-10",
+              "status": "completed"
+            },
+            {
+              "id": 3,
+              "customer_id": 3,
+              "order_date": "2022-03-10",
+              "status": "completed"
+            },
+            {
+              "id": 4,
+              "customer_id": 4,
+              "order_date": "2022-04-10",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "table": "order_items",
+          "rows": [
+            {
+              "id": 1,
+              "order_id": 1,
+              "product_id": 1,
+              "quantity": 3,
+              "unit_price": 100
+            },
+            {
+              "id": 2,
+              "order_id": 2,
+              "product_id": 1,
+              "quantity": 1,
+              "unit_price": 100
+            },
+            {
+              "id": 3,
+              "order_id": 3,
+              "product_id": 1,
+              "quantity": 2,
+              "unit_price": 100
+            },
+            {
+              "id": 4,
+              "order_id": 4,
+              "product_id": 1,
+              "quantity": 1,
+              "unit_price": 50
+            }
+          ]
+        }
+      ],
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Customer who never ordered spends 0",
+      "data": [
+        {
+          "table": "customers",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Ada",
+              "country": "US",
+              "signup_date": "2022-01-01"
+            },
+            {
+              "id": 2,
+              "name": "Bo",
+              "country": "US",
+              "signup_date": "2022-02-01"
+            }
+          ]
+        },
+        {
+          "table": "products",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Widget",
+              "category": "Tech",
+              "price": 100
+            }
+          ]
+        },
+        {
+          "table": "orders",
+          "rows": [
+            {
+              "id": 1,
+              "customer_id": 1,
+              "order_date": "2022-01-10",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "table": "order_items",
+          "rows": [
+            {
+              "id": 1,
+              "order_id": 1,
+              "product_id": 1,
+              "quantity": 2,
+              "unit_price": 100
+            }
+          ]
+        }
+      ],
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Multiple customers, only one exceeds",
+      "data": [
+        {
+          "table": "customers",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Ada",
+              "country": "US",
+              "signup_date": "2022-01-01"
+            },
+            {
+              "id": 2,
+              "name": "Bo",
+              "country": "US",
+              "signup_date": "2022-02-01"
+            },
+            {
+              "id": 3,
+              "name": "Cy",
+              "country": "US",
+              "signup_date": "2022-03-01"
+            }
+          ]
+        },
+        {
+          "table": "products",
+          "rows": [
+            {
+              "id": 1,
+              "name": "Widget",
+              "category": "Tech",
+              "price": 100
+            }
+          ]
+        },
+        {
+          "table": "orders",
+          "rows": [
+            {
+              "id": 1,
+              "customer_id": 1,
+              "order_date": "2022-01-10",
+              "status": "completed"
+            },
+            {
+              "id": 2,
+              "customer_id": 2,
+              "order_date": "2022-02-10",
+              "status": "completed"
+            },
+            {
+              "id": 3,
+              "customer_id": 3,
+              "order_date": "2022-03-10",
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "table": "order_items",
+          "rows": [
+            {
+              "id": 1,
+              "order_id": 1,
+              "product_id": 1,
+              "quantity": 5,
+              "unit_price": 100
+            },
+            {
+              "id": 2,
+              "order_id": 2,
+              "product_id": 1,
+              "quantity": 1,
+              "unit_price": 100
+            },
+            {
+              "id": 3,
+              "order_id": 3,
+              "product_id": 1,
+              "quantity": 1,
+              "unit_price": 100
+            }
+          ]
+        }
+      ],
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    }
+  ]
+}

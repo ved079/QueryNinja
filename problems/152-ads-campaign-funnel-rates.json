@@ -1,0 +1,89 @@
+{
+  "id": "ads-campaign-funnel-rates",
+  "number": 152,
+  "title": "Campaign Funnel Rates",
+  "difficulty": "Hard",
+  "tags": [
+    "CTE",
+    "Aggregation",
+    "Ads",
+    "Funnel"
+  ],
+  "orderMatters": false,
+  "schemaSql": "CREATE TABLE campaigns (\n  id INTEGER PRIMARY KEY,\n  name TEXT,\n  channel TEXT,\n  daily_budget REAL\n);\nCREATE TABLE events (\n  id INTEGER PRIMARY KEY,\n  campaign_id INTEGER,\n  user_id INTEGER,\n  event_type TEXT,\n  occurred_at TEXT\n);",
+  "description": "For each campaign, compute:\n- `impressions` — count of impression events\n- `clicks` — count of click events\n- `conversions` — count of conversion events\n- `ctr` — clicks / impressions, rounded to 4 decimal places (NULL if no impressions)\n- `cvr` — conversions / clicks, rounded to 4 decimal places (NULL if no clicks)\n\nOnly include campaigns that have at least one impression. Order by `cvr` descending (NULLs last), then `campaign_id` ascending.",
+  "hint": "Use conditional COUNT(CASE WHEN event_type = ... THEN 1 END) to count each funnel stage, then divide.",
+  "solutionSql": "SELECT e.campaign_id,\n       c.name AS campaign_name,\n       COUNT(CASE WHEN e.event_type = 'impression' THEN 1 END) AS impressions,\n       COUNT(CASE WHEN e.event_type = 'click' THEN 1 END) AS clicks,\n       COUNT(CASE WHEN e.event_type = 'conversion' THEN 1 END) AS conversions,\n       ROUND(\n         CAST(COUNT(CASE WHEN e.event_type = 'click' THEN 1 END) AS REAL)\n         / NULLIF(COUNT(CASE WHEN e.event_type = 'impression' THEN 1 END), 0),\n         4\n       ) AS ctr,\n       ROUND(\n         CAST(COUNT(CASE WHEN e.event_type = 'conversion' THEN 1 END) AS REAL)\n         / NULLIF(COUNT(CASE WHEN e.event_type = 'click' THEN 1 END), 0),\n         4\n       ) AS cvr\nFROM events e\nJOIN campaigns c ON c.id = e.campaign_id\nGROUP BY e.campaign_id, c.name\nHAVING COUNT(CASE WHEN e.event_type = 'impression' THEN 1 END) > 0\nORDER BY cvr DESC NULLS LAST, e.campaign_id ASC;",
+  "outputExplanation": "Conditional COUNTs pivot the event_type column into separate columns. NULLIF prevents division by zero. CVR is NULL when there are impressions but no clicks (no denominator for conversion rate).",
+  "tests": [
+    {
+      "name": "Example — two campaigns, different funnel shapes",
+      "seedSql": "INSERT INTO campaigns VALUES (1,'Summer Sale','email',500),(2,'Brand Awareness','display',1000);\nINSERT INTO events VALUES\n  (1,1,101,'impression','2022-06-01'),\n  (2,1,102,'impression','2022-06-01'),\n  (3,1,103,'impression','2022-06-01'),\n  (4,1,104,'impression','2022-06-01'),\n  (5,1,101,'click','2022-06-02'),\n  (6,1,102,'click','2022-06-02'),\n  (7,1,101,'conversion','2022-06-03'),\n  (8,2,201,'impression','2022-06-01'),\n  (9,2,202,'impression','2022-06-01'),\n  (10,2,203,'impression','2022-06-01'),\n  (11,2,204,'impression','2022-06-01'),\n  (12,2,205,'impression','2022-06-01'),\n  (13,2,201,'click','2022-06-02');",
+      "expectedOutput": [
+        {
+          "campaign_id": 1,
+          "campaign_name": "Summer Sale",
+          "impressions": 4,
+          "clicks": 2,
+          "conversions": 1,
+          "ctr": 0.5,
+          "cvr": 0.5
+        },
+        {
+          "campaign_id": 2,
+          "campaign_name": "Brand Awareness",
+          "impressions": 5,
+          "clicks": 1,
+          "conversions": 0,
+          "ctr": 0.2,
+          "cvr": 0
+        }
+      ],
+      "expectedHash": "080097d93c55f954cb43d17199b11ac91a022b44ed6d69eeda0e70ed0aaff55b"
+    },
+    {
+      "name": "Campaign with impressions only — CVR is NULL",
+      "seedSql": "INSERT INTO campaigns VALUES (1,'Awareness','display',200);\nINSERT INTO events VALUES\n  (1,1,1,'impression','2022-01-01'),\n  (2,1,2,'impression','2022-01-01'),\n  (3,1,3,'impression','2022-01-01');",
+      "expectedOutput": [
+        {
+          "campaign_id": 1,
+          "campaign_name": "Awareness",
+          "impressions": 3,
+          "clicks": 0,
+          "conversions": 0,
+          "ctr": 0,
+          "cvr": null
+        }
+      ],
+      "expectedHash": "e957a6a1b0e4c3effb1e1ca4f0f526b4692fd3924ad4ee816fe3f1c06f70ce4e"
+    },
+    {
+      "name": "No impressions — empty result",
+      "seedSql": "INSERT INTO campaigns VALUES (1,'Ghost','email',100);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Perfect CVR — every click converts",
+      "seedSql": "INSERT INTO campaigns VALUES (1,'Elite','email',100);\nINSERT INTO events VALUES\n  (1,1,1,'impression','2022-01-01'),\n  (2,1,1,'click','2022-01-02'),\n  (3,1,1,'conversion','2022-01-03'),\n  (4,1,2,'impression','2022-01-01'),\n  (5,1,2,'click','2022-01-02'),\n  (6,1,2,'conversion','2022-01-03');",
+      "expectedOutput": [
+        {
+          "campaign_id": 1,
+          "campaign_name": "Elite",
+          "impressions": 2,
+          "clicks": 2,
+          "conversions": 2,
+          "ctr": 1,
+          "cvr": 1
+        }
+      ],
+      "expectedHash": "98e82de548c7c2fe5ab05991ce948cc9333856fcfdc73df02869a11c18ae1762"
+    },
+    {
+      "name": "Empty tables",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    }
+  ]
+}
