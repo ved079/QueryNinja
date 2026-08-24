@@ -1,0 +1,21 @@
+{
+  "id": "py-s1-t1-002",
+  "stage": 1,
+  "stageLabel": "Python Fundamentals",
+  "topic": "Variables & Types",
+  "topicIndex": 1,
+  "problemIndex": 2,
+  "title": "String to Number",
+  "difficulty": "Easy",
+  "description": "Write a function `to_number(s)` that takes a string representing a number and returns it as an `int` if it has no decimal point, or a `float` if it does.\n\n**Examples:**\n```python\nto_number(\"42\")     # 42   (int)\nto_number(\"3.14\")   # 3.14 (float)\nto_number(\"-7\")     # -7   (int)\nto_number(\"0.5\")    # 0.5  (float)\n```\n\n**Hint:** Use `'.' in s` to check if the string contains a decimal point.",
+  "starterCode": "def to_number(s):\n    pass\n",
+  "solutionCode": "def to_number(s):\n    if '.' in s:\n        return float(s)\n    return int(s)\n",
+  "functionName": "to_number",
+  "tests": [
+    { "name": "integer string", "input": ["42"], "expectedOutput": 42 },
+    { "name": "float string", "input": ["3.14"], "expectedOutput": 3.14 },
+    { "name": "negative int", "input": ["-7"], "expectedOutput": -7 },
+    { "name": "zero", "input": ["0"], "expectedOutput": 0 },
+    { "name": "decimal zero", "input": ["0.5"], "expectedOutput": 0.5 }
+  ]
+}

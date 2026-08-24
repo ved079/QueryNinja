@@ -1,0 +1,22 @@
+{
+  "id": "py-s1-t5-003",
+  "stage": 1,
+  "stageLabel": "Python Fundamentals",
+  "topic": "Conditionals",
+  "topicIndex": 5,
+  "problemIndex": 3,
+  "title": "Classify a Number",
+  "difficulty": "Easy",
+  "description": "Write a function `classify(n)` that returns a string classifying the integer:\n- `'positive even'` — greater than 0 and divisible by 2\n- `'positive odd'` — greater than 0 and not divisible by 2\n- `'negative even'` — less than 0 and divisible by 2\n- `'negative odd'` — less than 0 and not divisible by 2\n- `'zero'` — equal to 0\n\n**Examples:**\n```python\nclassify(4)    # 'positive even'\nclassify(7)    # 'positive odd'\nclassify(-2)   # 'negative even'\nclassify(-3)   # 'negative odd'\nclassify(0)    # 'zero'\n```",
+  "starterCode": "def classify(n):\n    pass\n",
+  "solutionCode": "def classify(n):\n    if n == 0:\n        return 'zero'\n    sign = 'positive' if n > 0 else 'negative'\n    parity = 'even' if n % 2 == 0 else 'odd'\n    return f'{sign} {parity}'\n",
+  "functionName": "classify",
+  "tests": [
+    { "name": "positive even", "input": [4], "expectedOutput": "positive even" },
+    { "name": "positive odd", "input": [7], "expectedOutput": "positive odd" },
+    { "name": "negative even", "input": [-2], "expectedOutput": "negative even" },
+    { "name": "negative odd", "input": [-3], "expectedOutput": "negative odd" },
+    { "name": "zero", "input": [0], "expectedOutput": "zero" },
+    { "name": "one", "input": [1], "expectedOutput": "positive odd" }
+  ]
+}

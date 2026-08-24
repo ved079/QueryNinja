@@ -1,0 +1,24 @@
+{
+  "id": "py-s1-t1-003",
+  "stage": 1,
+  "stageLabel": "Python Fundamentals",
+  "topic": "Variables & Types",
+  "topicIndex": 1,
+  "problemIndex": 3,
+  "title": "Is It Truthy?",
+  "difficulty": "Easy",
+  "description": "Write a function `is_truthy(x)` that returns `True` if `x` is truthy in Python, and `False` if it is falsy.\n\nFalsy values in Python: `0`, `0.0`, `\"\"`, `[]`, `{}`, `None`, `False`.\nEverything else is truthy.\n\n**Examples:**\n```python\nis_truthy(1)      # True\nis_truthy(0)      # False\nis_truthy(\"hi\")   # True\nis_truthy(\"\")     # False\nis_truthy([1,2])  # True\nis_truthy([])     # False\n```\n\n**Hint:** You can convert any value to bool with `bool(x)`. That's all you need.",
+  "starterCode": "def is_truthy(x):\n    pass\n",
+  "solutionCode": "def is_truthy(x):\n    return bool(x)\n",
+  "functionName": "is_truthy",
+  "tests": [
+    { "name": "1 is truthy", "input": [1], "expectedOutput": true },
+    { "name": "0 is falsy", "input": [0], "expectedOutput": false },
+    { "name": "non-empty string", "input": ["hello"], "expectedOutput": true },
+    { "name": "empty string", "input": [""], "expectedOutput": false },
+    { "name": "non-empty list", "input": [[1, 2]], "expectedOutput": true },
+    { "name": "empty list", "input": [[]], "expectedOutput": false },
+    { "name": "None is falsy", "input": [null], "expectedOutput": false },
+    { "name": "-1 is truthy", "input": [-1], "expectedOutput": true }
+  ]
+}

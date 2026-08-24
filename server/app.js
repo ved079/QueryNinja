@@ -1,13 +1,12 @@
 import 'dotenv/config';
 import express from 'express';
 import fs from 'node:fs/promises';
-import { writeFileSync, unlinkSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomInt, createHash, randomBytes } from 'node:crypto';
 import { loadProblems } from './load-problems.js';
+import { loadPythonProblems } from './load-python-problems.js';
+import { runPython } from './python-runner.js';
 import { createStore, hasRedisEnv, userKey } from './store.js';
 import { sendOtpEmail } from './mailer.js';
 import { Ratelimit } from '@upstash/ratelimit';
@@ -613,205 +612,77 @@ app.delete('/api/user', async (req, res) => {
   res.json({ ok: true });
 });
 
-// ─── Python Section ────────────────────────────────────────────────────────
+// ─── Python curriculum ────────────────────────────────────────────────────
 
-const PYTHON_DIR = path.join(ROOT, 'problems', 'python');
-const PYTHON_TIMEOUT_MS = 8000;
-
-let pythonProblemsCache = null;
-
-async function loadPythonProblems() {
-  if (pythonProblemsCache) return pythonProblemsCache;
-  try {
-    const files = await fs.readdir(PYTHON_DIR);
-    const problems = [];
-    for (const file of files) {
-      if (!file.endsWith('.json')) continue;
-      const raw = await fs.readFile(path.join(PYTHON_DIR, file), 'utf-8');
-      problems.push(JSON.parse(raw));
-    }
-    problems.sort((a, b) => a.number - b.number);
-    pythonProblemsCache = problems;
-    return problems;
-  } catch {
-    return [];
-  }
-}
-
-function runPythonCode(fullCode, timeout = PYTHON_TIMEOUT_MS) {
-  const tmpFile = path.join(os.tmpdir(), `sqlleetcode_py_${Date.now()}_${Math.random().toString(36).slice(2)}.py`);
-  writeFileSync(tmpFile, fullCode);
-  try {
-    const result = spawnSync('python3', [tmpFile], {
-      timeout,
-      encoding: 'utf-8',
-      env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' },
-    });
-    return {
-      stdout: (result.stdout || '').trim(),
-      stderr: (result.stderr || '').trim(),
-      timedOut: result.status === null,
-      exitCode: result.status,
-    };
-  } finally {
-    try { unlinkSync(tmpFile); } catch {}
-  }
-}
-
-// List all Python problems (sanitized — no solutionCode)
-app.get('/api/python/problems', async (req, res) => {
+app.get('/api/python/problems', async (_req, res) => {
   try {
     const all = await loadPythonProblems();
-    const { solutionCode, ...sanitized } = {};
-    const problems = all.map(({ solutionCode, ...rest }) => rest);
-    const category = req.query.category;
-    const difficulty = req.query.difficulty;
-    let result = problems;
-    if (category && category !== 'All') {
-      result = result.filter((p) => p.category === category);
-    }
-    if (difficulty && difficulty !== 'All') {
-      result = result.filter((p) => p.difficulty === difficulty);
-    }
-    res.json(result);
+    // Strip solutions and helper code from the public list
+    const sanitized = all.map(({ solutionCode, _helperCode, _testNote, _functionArgMap, ...rest }) => rest);
+    res.json(sanitized);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Get single Python problem (solution only if solved)
 app.get('/api/python/problem/:id', async (req, res) => {
-  const user = req.query.user;
-  if (!(await requireUser(req, res, user))) return;
   try {
     const all = await loadPythonProblems();
     const problem = all.find((p) => p.id === req.params.id);
     if (!problem) return res.status(404).json({ error: 'Problem not found' });
-    const progress = await store.readUserBucket('py_progress', user);
-    const solved = progress[req.params.id]?.status === 'solved';
-    if (solved) return res.json(problem);
-    const { solutionCode, ...rest } = problem;
-    res.json(rest);
+    res.json(problem);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Run Python code (single test case)
+// Body: { code, functionName, helperCode?, tests }
+// Runs the user's Python code against the provided test cases server-side.
 app.post('/api/python/run', async (req, res) => {
+  const { code, functionName, helperCode, tests } = req.body ?? {};
+  if (!code || !functionName || !Array.isArray(tests)) {
+    return res.status(400).json({ error: 'code, functionName, and tests are required' });
+  }
+  if (tests.length > 50) return res.status(400).json({ error: 'Too many tests' });
+  if (typeof code !== 'string' || code.length > 32768) {
+    return res.status(400).json({ error: 'Code too long' });
+  }
+
+  // Prepend helper functions (e.g. for apply_twice problems) to user code
+  const fullCode = helperCode ? `${helperCode}\n${code}` : code;
+
   try {
-    const { code, testInput, setupCode, timeout } = req.body;
-    if (!code) return res.status(400).json({ error: 'code is required' });
-    const fullCode = [setupCode || '', code, '', testInput].filter(Boolean).join('\n');
-    const result = runPythonCode(fullCode, timeout || PYTHON_TIMEOUT_MS);
+    const result = await runPython(fullCode, functionName, tests);
     res.json(result);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to run code', details: String(err) });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// Submit Python code (all test cases)
-app.post('/api/python/submit', async (req, res) => {
-  const user = req.body?.user;
-  if (!(await requireUser(req, res, user))) return;
-  try {
-    const { code, problemId } = req.body;
-    if (!code || !problemId) return res.status(400).json({ error: 'code and problemId are required' });
-
-    const all = await loadPythonProblems();
-    const problem = all.find((p) => p.id === problemId);
-    if (!problem) return res.status(404).json({ error: 'Problem not found' });
-
-    const results = [];
-    let passed = 0;
-
-    for (const test of problem.tests) {
-      const fullCode = [test.setupCode || '', code, '', test.input].filter(Boolean).join('\n');
-      const result = runPythonCode(fullCode, PYTHON_TIMEOUT_MS);
-      const isPassed = !result.timedOut && result.exitCode === 0 && result.stdout === test.expectedOutput;
-      if (isPassed) passed++;
-      results.push({
-        name: test.name,
-        passed: isPassed,
-        actual: result.stdout,
-        expected: test.expectedOutput,
-        stderr: result.stderr,
-        timedOut: result.timedOut,
-      });
-    }
-
-    const allPassed = passed === problem.tests.length;
-    const status = allPassed ? 'solved' : 'attempted';
-
-    // Save progress
-    const progress = await store.readUserBucket('py_progress', user);
-    const prev = progress[problemId] ?? {};
-    progress[problemId] = {
-      ...prev,
-      status: prev.status === 'solved' ? 'solved' : status,
-      code,
-      bestScore: Math.max(prev.bestScore || 0, passed),
-      totalCases: problem.tests.length,
-      solvedAt: (allPassed && !prev.solvedAt) ? new Date().toISOString() : prev.solvedAt,
-      updatedAt: new Date().toISOString(),
-    };
-    await store.writeUserBucket('py_progress', user, progress);
-
-    // Save submission
-    let subs = await store.readUserBucket('py_submissions', user);
-    if (!Array.isArray(subs)) subs = [];
-    subs.push({
-      id: crypto.randomUUID(),
-      problemId,
-      code,
-      status,
-      passed,
-      total: problem.tests.length,
-      submittedAt: new Date().toISOString(),
-    });
-    // Keep last 200 submissions
-    if (subs.length > 200) subs = subs.slice(-200);
-    await store.writeUserBucket('py_submissions', user, subs);
-
-    res.json({ passed, total: problem.tests.length, allPassed, results });
-  } catch (err) {
-    console.error('Python submit error:', err);
-    res.status(500).json({ error: 'Failed to submit code', details: String(err) });
-  }
-});
-
-// Get Python progress
 app.get('/api/python/progress', async (req, res) => {
   const user = req.query.user;
   if (!(await requireUser(req, res, user))) return;
-  try {
-    const progress = await store.readUserBucket('py_progress', user);
-    const submissions = await store.readUserBucket('py_submissions', user);
-    res.json({ progress, submissions: Array.isArray(submissions) ? submissions : [] });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch progress' });
-  }
+  const progress = await store.readUserBucket('py-progress', user);
+  res.json(progress);
 });
 
-// Save Python progress (from client-side run tracking)
 app.post('/api/python/progress', async (req, res) => {
-  const { user, problemId, code, status } = req.body ?? {};
-  if (!problemId) return res.status(400).json({ error: 'problemId is required' });
+  const { user, id, code, status } = req.body ?? {};
+  if (!id) return res.status(400).json({ error: 'id is required' });
   if (!(await requireUser(req, res, user))) return;
-  try {
-    const progress = await store.readUserBucket('py_progress', user);
-    const prev = progress[problemId] ?? {};
-    progress[problemId] = {
-      ...prev,
-      status: prev.status === 'solved' ? 'solved' : (status || 'attempted'),
-      code: code ?? prev.code,
-      updatedAt: new Date().toISOString(),
-    };
-    await store.writeUserBucket('py_progress', user, progress);
-    res.json(progress[problemId]);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to save progress' });
-  }
+
+  const progress = await store.readUserBucket('py-progress', user);
+  const prev = progress[id] ?? {};
+  const newStatus = prev.status === 'solved' ? 'solved' : (status ?? 'attempted');
+  progress[id] = {
+    ...prev,
+    status: newStatus,
+    code: code ?? prev.code,
+    solvedAt: newStatus === 'solved' ? (prev.solvedAt ?? new Date().toISOString()) : prev.solvedAt,
+    updatedAt: new Date().toISOString(),
+  };
+  await store.writeUserBucket('py-progress', user, progress);
+  res.json(progress[id]);
 });
 
 // Only relevant for the "one process serves everything" deployments (local

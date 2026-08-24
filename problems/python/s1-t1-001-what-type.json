@@ -1,0 +1,23 @@
+{
+  "id": "py-s1-t1-001",
+  "stage": 1,
+  "stageLabel": "Python Fundamentals",
+  "topic": "Variables & Types",
+  "topicIndex": 1,
+  "problemIndex": 1,
+  "title": "What Type Is It?",
+  "difficulty": "Easy",
+  "lesson": "## Variables & Types\n\nok so — what even is a variable?\n\nyou know how your phone has contacts? like **Mom → 555-1234**.\n\n\"Mom\" is the name. 555-1234 is the value.\n\na variable is literally that — a name you give to a value so python can remember it.\n\n```python\nname = \"Alice\"\nage  = 25\n```\n\nthat's it. two variables. python will remember them for the rest of your program.\n\n---\n\n### so what kinds of values are there?\n\nevery value has a **type** — what kind of thing it is. there are 4 basic ones:\n\n| type | what it is | examples |\n|------|-----------|----------|\n| `int` | whole number, no decimal | 42, -5, 0 |\n| `float` | number with a decimal | 3.14, 9.99 |\n| `str` | text — always in quotes | \"hello\", \"Alice\" |\n| `bool` | only ever True or False | True, False |\n\n```python\nscore  = 95       # int\nprice  = 9.99     # float\nname   = \"Alice\"  # str\nis_on  = True     # bool\n```\n\npython figures out the type automatically — you never have to tell it.\n\n---\n\n### how do you check what type something is?\n\n```python\ntype(42)       # int\ntype(\"hello\")  # str\ntype(3.14)     # float\ntype(True)     # bool\n```\n\nwant the type name as plain text? add `.__name__`:\n\n```python\ntype(42).__name__      # 'int'\ntype(\"hello\").__name__ # 'str'\n```\n\nthe `.__name__` just pulls out the name part. you'll need this for the problem below.\n\n---\n\n### converting between types\n\nsome useful conversions:\n\n```python\nint(\"42\")   # text \"42\" becomes the number 42\nstr(99)     # number 99 becomes the text \"99\"\nfloat(10)   # 10 becomes 10.0\nint(3.99)   # becomes 3 — drops the decimal, doesn't round!\n```\n\n> `True` and `False` MUST start with a capital letter. writing `true` or `false` will crash your code.",
+  "description": "Write a function `what_type(x)` that takes any value and returns its type name as a string.\n\n**Examples:**\n```python\nwhat_type(42)       # 'int'\nwhat_type(\"hello\")  # 'str'\nwhat_type(3.14)     # 'float'\nwhat_type(True)     # 'bool'\n```\n\n**Hint:** Use `type(x).__name__` to get the type name as a string.",
+  "starterCode": "def what_type(x):\n    pass\n",
+  "solutionCode": "def what_type(x):\n    return type(x).__name__\n",
+  "functionName": "what_type",
+  "tests": [
+    { "name": "integer 42", "input": [42], "expectedOutput": "int" },
+    { "name": "string hello", "input": ["hello"], "expectedOutput": "str" },
+    { "name": "float 3.14", "input": [3.14], "expectedOutput": "float" },
+    { "name": "bool True", "input": [true], "expectedOutput": "bool" },
+    { "name": "negative int", "input": [-7], "expectedOutput": "int" },
+    { "name": "empty string", "input": [""], "expectedOutput": "str" }
+  ]
+}

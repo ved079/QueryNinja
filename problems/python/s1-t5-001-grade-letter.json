@@ -1,0 +1,25 @@
+{
+  "id": "py-s1-t5-001",
+  "stage": 1,
+  "stageLabel": "Python Fundamentals",
+  "topic": "Conditionals",
+  "topicIndex": 5,
+  "problemIndex": 1,
+  "title": "Letter Grade",
+  "difficulty": "Easy",
+  "lesson": "## Conditionals\n\nyour code needs to make decisions. that's what conditionals do.\n\nthink of a traffic light: green → go. red → stop.\n\n```python\nlight = \"green\"\n\nif light == \"green\":\n    print(\"go!\")\n```\n\nthe indented code only runs **if the condition is true**.\n\n---\n\n### if / elif / else\n\n`elif` = \"else if\" — another condition to check. `else` = the fallback.\n\n```python\nscore = 75\n\nif score >= 90:\n    print(\"A\")  # is 75 >= 90? no. skip.\nelif score >= 80:\n    print(\"B\")  # is 75 >= 80? no. skip.\nelif score >= 70:\n    print(\"C\")  # is 75 >= 70? YES. run this.\nelse:\n    print(\"F\")  # skipped — already found a match above\n```\n\npython checks **top to bottom** and runs the **first** condition that's true. everything else is skipped.\n\n---\n\n### comparison operators\n\n| operator | meaning | example |\n|----------|---------|--------|\n| `==` | equal to | `5 == 5` → True |\n| `!=` | not equal | `5 != 3` → True |\n| `>` | greater than | `7 > 3` → True |\n| `>=` | greater or equal | `5 >= 5` → True |\n| `<` | less than | `3 < 5` → True |\n| `<=` | less or equal | `5 <= 6` → True |\n\n> `=` sets a value. `==` checks if two values match. they're different — notice the double equals.\n\n---\n\n### combining conditions\n\n```python\nage = 20\n\nif age >= 18 and age < 65:   # BOTH must be true\n    print(\"working age\")\n\nif age < 13 or age >= 65:    # at least ONE must be true\n    print(\"discount eligible\")\n```",
+  "description": "Write a function `grade_letter(score)` that converts a numeric score (0–100) to a letter grade:\n- 90–100 → `'A'`\n- 80–89 → `'B'`\n- 70–79 → `'C'`\n- 60–69 → `'D'`\n- 0–59 → `'F'`\n\n**Examples:**\n```python\ngrade_letter(95)  # 'A'\ngrade_letter(82)  # 'B'\ngrade_letter(71)  # 'C'\ngrade_letter(65)  # 'D'\ngrade_letter(40)  # 'F'\n```",
+  "starterCode": "def grade_letter(score):\n    pass\n",
+  "solutionCode": "def grade_letter(score):\n    if score >= 90:\n        return 'A'\n    elif score >= 80:\n        return 'B'\n    elif score >= 70:\n        return 'C'\n    elif score >= 60:\n        return 'D'\n    else:\n        return 'F'\n",
+  "functionName": "grade_letter",
+  "tests": [
+    { "name": "A grade", "input": [95], "expectedOutput": "A" },
+    { "name": "B grade", "input": [82], "expectedOutput": "B" },
+    { "name": "C grade", "input": [71], "expectedOutput": "C" },
+    { "name": "D grade", "input": [65], "expectedOutput": "D" },
+    { "name": "F grade", "input": [40], "expectedOutput": "F" },
+    { "name": "boundary 90", "input": [90], "expectedOutput": "A" },
+    { "name": "boundary 80", "input": [80], "expectedOutput": "B" },
+    { "name": "score 0", "input": [0], "expectedOutput": "F" }
+  ]
+}

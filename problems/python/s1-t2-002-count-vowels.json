@@ -1,0 +1,22 @@
+{
+  "id": "py-s1-t2-002",
+  "stage": 1,
+  "stageLabel": "Python Fundamentals",
+  "topic": "Strings",
+  "topicIndex": 2,
+  "problemIndex": 2,
+  "title": "Count Vowels",
+  "difficulty": "Easy",
+  "description": "Write a function `count_vowels(s)` that returns the number of vowels (a, e, i, o, u) in the string. Count both uppercase and lowercase vowels.\n\n**Examples:**\n```python\ncount_vowels(\"hello\")   # 2  (e, o)\ncount_vowels(\"Python\")  # 1  (o)\ncount_vowels(\"AEIOU\")   # 5\ncount_vowels(\"xyz\")     # 0\n```",
+  "starterCode": "def count_vowels(s):\n    pass\n",
+  "solutionCode": "def count_vowels(s):\n    return sum(1 for c in s if c.lower() in 'aeiou')\n",
+  "functionName": "count_vowels",
+  "tests": [
+    { "name": "hello", "input": ["hello"], "expectedOutput": 2 },
+    { "name": "Python", "input": ["Python"], "expectedOutput": 1 },
+    { "name": "all uppercase vowels", "input": ["AEIOU"], "expectedOutput": 5 },
+    { "name": "no vowels", "input": ["xyz"], "expectedOutput": 0 },
+    { "name": "empty", "input": [""], "expectedOutput": 0 },
+    { "name": "mixed case", "input": ["Hello World"], "expectedOutput": 3 }
+  ]
+}

@@ -34,6 +34,8 @@ export default function TopBar({
   nav,
   onRun,
   onSubmit,
+  appMode,
+  onChangeAppMode,
 }) {
   const [navOpen, setNavOpen] = useState(false);
   const [sectionsOpen, setSectionsOpen] = useState(false);
@@ -60,57 +62,67 @@ export default function TopBar({
     <header className="top-bar">
       <div className="top-bar-left">
         <img src="/logo.png" alt="QueryNinja" className="top-logo" />
-        <button className="sidebar-show" onClick={onShowSidebar} title="Show problem list">
-          Problem List
-        </button>
-        <div className="nav-dropdown" ref={sectionsRef}>
+        <div className="app-mode-toggle">
           <button
-            className="sidebar-show"
-            onClick={() => setSectionsOpen((o) => !o)}
-            title="Switch problem section"
-          >
-            {currentSection.label} ▾
-          </button>
-          {sectionsOpen && (
-            <div className="nav-dropdown-menu">
-              {SECTION_OPTIONS.map((s) => (
-                <button
-                  key={s.value}
-                  className={problemMode === s.value ? 'section-active' : ''}
-                  onClick={() => { onChangeMode(s.value); setSectionsOpen(false); }}
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
-          )}
+            className={appMode !== 'python' ? 'mode-active' : ''}
+            onClick={() => onChangeAppMode?.('sql')}
+          >SQL</button>
+          <button
+            className={appMode === 'python' ? 'mode-active' : ''}
+            onClick={() => onChangeAppMode?.('python')}
+          >Python</button>
         </div>
-        <button onClick={nav.prev} title="Previous problem" disabled={!nav.hasPrev}>
-          ‹
-        </button>
-        <div className="nav-dropdown" ref={navRef}>
-          <button onClick={() => setNavOpen((o) => !o)} title="Navigate">
-            Go to ▾
-          </button>
-          {navOpen && (
-            <div className="nav-dropdown-menu">
-              {NAV_OPTIONS.map((opt) => (
-                <button key={opt.action} onClick={() => handleNav(opt.action)}>
-                  {opt.label}
-                </button>
-              ))}
+        {appMode !== 'python' && (
+          <>
+            <button className="sidebar-show" onClick={onShowSidebar} title="Show problem list">
+              Problem List
+            </button>
+            <div className="nav-dropdown" ref={sectionsRef}>
+              <button
+                className="sidebar-show"
+                onClick={() => setSectionsOpen((o) => !o)}
+                title="Switch problem section"
+              >
+                {currentSection.label} ▾
+              </button>
+              {sectionsOpen && (
+                <div className="nav-dropdown-menu">
+                  {SECTION_OPTIONS.map((s) => (
+                    <button
+                      key={s.value}
+                      className={problemMode === s.value ? 'section-active' : ''}
+                      onClick={() => { onChangeMode(s.value); setSectionsOpen(false); }}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-        <button onClick={nav.next} title="Next problem" disabled={!nav.hasNext}>
-          ›
-        </button>
+            <button onClick={nav.prev} title="Previous problem" disabled={!nav.hasPrev}>‹</button>
+            <div className="nav-dropdown" ref={navRef}>
+              <button onClick={() => setNavOpen((o) => !o)} title="Navigate">Go to ▾</button>
+              {navOpen && (
+                <div className="nav-dropdown-menu">
+                  {NAV_OPTIONS.map((opt) => (
+                    <button key={opt.action} onClick={() => handleNav(opt.action)}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button onClick={nav.next} title="Next problem" disabled={!nav.hasNext}>›</button>
+          </>
+        )}
       </div>
 
-      <div className="top-bar-center">
-        <button onClick={onRun}>Run</button>
-        <SubmitButton onClick={onSubmit} />
-      </div>
+      {appMode !== 'python' && (
+        <div className="top-bar-center">
+          <button onClick={onRun}>Run</button>
+          <SubmitButton onClick={onSubmit} />
+        </div>
+      )}
 
       <div className="top-bar-right">
         {userName ? (

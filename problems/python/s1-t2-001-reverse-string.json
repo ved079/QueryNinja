@@ -1,0 +1,23 @@
+{
+  "id": "py-s1-t2-001",
+  "stage": 1,
+  "stageLabel": "Python Fundamentals",
+  "topic": "Strings",
+  "topicIndex": 2,
+  "problemIndex": 1,
+  "title": "Reverse a String",
+  "difficulty": "Easy",
+  "lesson": "## Strings\n\na string is just text. wrap anything in quotes — that's a string.\n\n```python\nname    = \"Alice\"\nmessage = \"hello, world!\"\nempty   = \"\"\n```\n\nsingle quotes work too. `'Alice'` and `\"Alice\"` are the same thing.\n\n---\n\n### reading one character at a time\n\nimagine a string as a row of boxes. each box holds one character.\n\npython numbers the boxes starting at **0**, not 1.\n\n```python\ns = \"Python\"\n#    P  y  t  h  o  n\n#    0  1  2  3  4  5\n\ns[0]   # 'P'  — first box\ns[-1]  # 'n'  — last box (negatives count from the end)\ns[-2]  # 'o'  — second to last\n```\n\n> counting starts at 0. always. this trips up beginners constantly.\n\n---\n\n### grabbing a chunk (slicing)\n\n`s[start:stop]` gives you characters from start up to — but **not including** — stop.\n\n```python\ns = \"Hello\"\n\ns[0:3]   # 'Hel'   — positions 0, 1, 2 (stops before 3)\ns[1:]    # 'ello'  — from 1 to the end\ns[:3]    # 'Hel'   — from start to position 2\ns[::-1]  # 'olleH' — reversed (step -1 = go backwards)\n```\n\n> the stop number is never included. `s[0:3]` gives 3 characters, not 4.\n\n---\n\n### putting variables inside text — f-strings\n\nput `f` before the quote, then use `{variable}` to drop anything in:\n\n```python\nname = \"Alice\"\nage  = 25\n\nf\"hello, {name}!\"           # 'hello, Alice!'\nf\"you are {age} years old.\" # 'you are 25 years old.'\nf\"next year: {age + 1}\"     # 'next year: 26'  — math works too!\n```\n\n---\n\n### the most useful string tools\n\n```python\n\"hello\".upper()             # 'HELLO'\n\"HELLO\".lower()             # 'hello'\n\"  hi  \".strip()            # 'hi'    — removes edge spaces\n\"hello\".replace(\"l\", \"r\")  # 'herro'\n\"a,b,c\".split(\",\")          # ['a', 'b', 'c']\nlen(\"hello\")                # 5\n```\n\n> you can't change a character inside a string. `s[0] = \"H\"` will crash. build a new string instead: `\"H\" + s[1:]`",
+  "description": "Write a function `reverse_string(s)` that returns the string reversed.\n\n**Examples:**\n```python\nreverse_string(\"hello\")   # 'olleh'\nreverse_string(\"Python\")  # 'nohtyP'\nreverse_string(\"a\")       # 'a'\nreverse_string(\"\")        # ''\n```\n\n**Hint:** Python slicing with a step of `-1` reverses a sequence: `s[::-1]`",
+  "starterCode": "def reverse_string(s):\n    pass\n",
+  "solutionCode": "def reverse_string(s):\n    return s[::-1]\n",
+  "functionName": "reverse_string",
+  "tests": [
+    { "name": "hello", "input": ["hello"], "expectedOutput": "olleh" },
+    { "name": "Python", "input": ["Python"], "expectedOutput": "nohtyP" },
+    { "name": "single char", "input": ["a"], "expectedOutput": "a" },
+    { "name": "empty string", "input": [""], "expectedOutput": "" },
+    { "name": "palindrome", "input": ["racecar"], "expectedOutput": "racecar" },
+    { "name": "with spaces", "input": ["hello world"], "expectedOutput": "dlrow olleh" }
+  ]
+}
