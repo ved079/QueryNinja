@@ -84,7 +84,10 @@ export default function PythonApp({ userName }) {
       if (data.error && !data.results?.length) {
         setOutput({ error: data.error });
       } else {
-        setOutput(data);
+        const results = data.results ?? [];
+        const passed = results.length > 0 && results.every((r) => r.passed);
+        const passedCount = results.filter((r) => r.passed).length;
+        setVerdict({ results, passed, passedCount, total: results.length, error: data.error, isRun: true });
       }
     } catch (err) {
       setOutput({ error: err.message });
@@ -252,15 +255,17 @@ export default function PythonApp({ userName }) {
               <>
                 <div className={`verdict ${verdict.passed ? 'pass' : 'fail'}`}>
                   <strong>
-                    {verdict.passed ? 'Accepted' : 'Wrong Answer'}
-                    <span className="score">{verdict.passedCount} / {verdict.total} passed</span>
+                    {verdict.isRun
+                      ? `${verdict.passedCount} / ${verdict.total} tests passed`
+                      : verdict.passed ? 'Accepted' : 'Wrong Answer'}
+                    {!verdict.isRun && <span className="score">{verdict.passedCount} / {verdict.total} passed</span>}
                   </strong>
                   <span>
                     {verdict.passed
                       ? `All ${verdict.total} test cases passed.`
                       : verdict.error
                         ? verdict.error
-                        : `${verdict.total - verdict.passedCount} test case(s) failed. Check Results tab.`}
+                        : `${verdict.total - verdict.passedCount} test case(s) failed.`}
                   </span>
                 </div>
                 {verdict.results?.map((r, i) => (
