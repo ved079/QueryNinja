@@ -48,7 +48,8 @@ self.onmessage = async (e) => {
   const { id, code, functionName, helperCode, tests } = e.data;
   try {
     const py = await init();
-    const fullCode = helperCode ? `${helperCode}\n${code}` : code;
+    const normalize = (s) => (s || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    const fullCode = helperCode ? `${normalize(helperCode)}\n${normalize(code)}` : normalize(code);
     const script = buildRunner(fullCode, functionName, tests);
     const output = await py.runPythonAsync(script);
     const results = JSON.parse(output);
