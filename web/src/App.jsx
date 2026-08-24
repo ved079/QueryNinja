@@ -50,6 +50,11 @@ const parseRoute = () => {
   return m ? { mode: m[1], id: decodeURIComponent(m[2]) } : null;
 };
 
+const parsePythonRoute = () => {
+  const m = window.location.pathname.match(/^\/python\/([^/]+)/);
+  return m ? decodeURIComponent(m[1]) : null;
+};
+
 // Exclusive membership: normal = numbers 1-90, complex = numbers >90 that are
 // not Data Analyst problems, da = anything tagged "Data Analyst".
 const isDataAnalyst = (p) => (p.tags ?? []).includes('Data Analyst');
@@ -532,7 +537,7 @@ export default function App() {
       />
 
       {appMode === 'python' && (
-        <PythonApp userName={userName} />
+        <PythonApp userName={userName} initialId={parsePythonRoute()} />
       )}
 
       {appMode === 'sql' && <main className="workspace">

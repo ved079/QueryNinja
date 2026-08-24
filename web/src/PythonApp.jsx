@@ -8,7 +8,7 @@ import { runPython } from './lib/pyodide-runner.js';
 
 const PYTHON_STARTER = '# Write your solution here\n';
 
-export default function PythonApp({ userName }) {
+export default function PythonApp({ userName, initialId }) {
   const [problems, setProblems] = useState([]);
   const [progress, setProgress] = useState({});
   const [selectedId, setSelectedId] = useState(null);
@@ -43,10 +43,32 @@ export default function PythonApp({ userName }) {
         setProblems(ps);
         setSelectedId((cur) => {
           if (cur && ps.some((p) => p.id === cur)) return cur;
+          if (initialId && ps.some((p) => p.id === initialId)) return initialId;
           return ps[0]?.id ?? null;
         });
       })
       .catch((err) => setLoadError(err.message));
+  }, []);
+
+  // Sync URL when selected problem changes
+  useEffect(() => {
+    if (!selectedId) return;
+    const target = `/python/${encodeURIComponent(selectedId)}`;
+    if (window.location.pathname === '/python') {
+      window.history.replaceState(null, '', target);
+    } else if (window.location.pathname !== target) {
+      window.history.pushState(null, '', target);
+    }
+  }, [selectedId]);
+
+  // Browser back/forward
+  useEffect(() => {
+    const onPop = () => {
+      const m = window.location.pathname.match(/^\/python\/([^/]+)/);
+      if (m) setSelectedId(decodeURIComponent(m[1]));
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
   }, []);
 
   useEffect(() => {

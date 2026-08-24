@@ -15,6 +15,7 @@
   ],
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api" },
-    { "source": "/(normal|complex)_problems/:path*", "destination": "/index.html" }
+    { "source": "/(normal|complex)_problems/:path*", "destination": "/index.html" },
+    { "source": "/python/:path*", "destination": "/index.html" }
   ]
 }
