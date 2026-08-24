@@ -13,52 +13,31 @@ const HARNESS = `
 import json as _json, sys as _sys, traceback as _tb
 _sys.setrecursionlimit(500)
 
-# execute user code so their function lands in globals
+_results = []
+_done = False
+
 try:
     exec(_user_code, globals())
 except Exception as _e:
-    print(_json.dumps([{
-        "name": "Syntax / Runtime Error",
-        "passed": False,
-        "error": _tb.format_exc(),
-        "actual": None,
-        "expected": None,
-    }]))
-    raise SystemExit(0)
+    _results = [{"name": "Error in your code", "passed": False, "error": _tb.format_exc(), "actual": None, "expected": None}]
+    _done = True
 
-_fn = globals().get(_fn_name)
-if _fn is None:
-    print(_json.dumps([{
-        "name": "Setup Error",
-        "passed": False,
-        "error": f"Function '{_fn_name}' not found. Make sure you defined it.",
-        "actual": None,
-        "expected": None,
-    }]))
-    raise SystemExit(0)
+if not _done:
+    _fn = globals().get(_fn_name)
+    if _fn is None:
+        _results = [{"name": "Setup Error", "passed": False, "error": f"Function '{_fn_name}' not found. Make sure you defined it.", "actual": None, "expected": None}]
+        _done = True
 
-_results = []
-for _test in _test_cases:
-    try:
-        _inp = _test['input']
-        _args = _inp if isinstance(_inp, list) else [_inp]
-        _actual = _fn(*_args)
-        _expected = _test['expectedOutput']
-        _passed = _actual == _expected
-        _results.append({
-            'name': _test['name'],
-            'passed': _passed,
-            'actual': repr(_actual),
-            'expected': repr(_expected),
-        })
-    except Exception as _e:
-        _results.append({
-            'name': _test['name'],
-            'passed': False,
-            'error': str(_e),
-            'actual': None,
-            'expected': repr(_test.get('expectedOutput')),
-        })
+if not _done:
+    for _test in _test_cases:
+        try:
+            _inp = _test['input']
+            _args = _inp if isinstance(_inp, list) else [_inp]
+            _actual = _fn(*_args)
+            _expected = _test['expectedOutput']
+            _results.append({'name': _test['name'], 'passed': _actual == _expected, 'actual': repr(_actual), 'expected': repr(_expected)})
+        except Exception as _e:
+            _results.append({'name': _test['name'], 'passed': False, 'error': str(_e), 'actual': None, 'expected': repr(_test.get('expectedOutput'))})
 
 print(_json.dumps(_results))
 `;
