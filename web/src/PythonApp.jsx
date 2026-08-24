@@ -174,6 +174,9 @@ export default function PythonApp({ userName, initialId, listOpen, onListClose }
           problem={problem}
           verdict={verdict}
           defaultTab={problem?.lesson && !progress[problem?.id] ? 'lesson' : 'problem'}
+          problems={problems}
+          progress={progress}
+          onSelect={handleSelect}
         />
       </div>
 

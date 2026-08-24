@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import LessonRenderer from './LessonRenderer.jsx';
 
-export default function PythonPane({ problem, verdict, defaultTab }) {
+const DIFF_COLOR = { easy: '#35c46b', medium: '#e8a33d', hard: '#f0553f' };
+
+export default function PythonPane({ problem, verdict, defaultTab, problems = [], progress = {}, onSelect }) {
   const [tab, setTab] = useState(defaultTab ?? 'problem');
   const [bodySplit, setBodySplit] = useState(45);
 
@@ -13,6 +15,11 @@ export default function PythonPane({ problem, verdict, defaultTab }) {
   if (!problem) return null;
 
   const diff = problem.difficulty?.toLowerCase() ?? 'easy';
+
+  // All problems in this topic (for the lesson view)
+  const topicProblems = problems.filter(
+    (p) => p.stage === problem.stage && p.topic === problem.topic
+  );
 
   const hasBottom = tab === 'problem';
 
@@ -43,11 +50,37 @@ export default function PythonPane({ problem, verdict, defaultTab }) {
 
       <div className="pane-body">
 
-        {/* ── LESSON ── full-height scrollable */}
+        {/* ── LESSON ── lesson content + topic problem list */}
         {tab === 'lesson' && (
           <div className="pane-body-top" style={{ flex: 100 }}>
             <div className="pane-body-scroll">
               <LessonRenderer markdown={problem.lesson} />
+
+              {topicProblems.length > 0 && (
+                <div className="py-topic-problems">
+                  <h1>Python Problems</h1>
+                  <ul className="fs-list-items">
+                    {topicProblems.map((p) => {
+                      const st = progress[p.id]?.status;
+                      const dc = DIFF_COLOR[p.difficulty?.toLowerCase()] ?? '#8b95a5';
+                      return (
+                        <li key={p.id}>
+                          <button
+                            className={`problem-item ${p.id === problem.id ? 'selected' : ''}`}
+                            onClick={() => onSelect?.(p.id)}
+                          >
+                            <span className={`status ${st ?? 'none'}`} title={st ?? 'not started'} />
+                            <span className="problem-title">{p.title}</span>
+                            <span className="badge" style={{ color: dc, background: `${dc}18`, borderColor: `${dc}30` }}>
+                              {p.difficulty}
+                            </span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -1503,6 +1503,9 @@ button.link {
   background: rgba(240, 85, 63, 0.1);
 }
 .py-results { display: flex; flex-direction: column; gap: 8px; }
+.py-topic-problems { margin-top: 28px; border-top: 1px solid var(--border); padding-top: 20px; }
+.py-topic-problems h1 { font-size: 16px; font-weight: 600; margin: 0 0 12px; }
+.py-topic-problems .fs-list-items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
 .py-result-row {
   border-radius: 8px;
   border: 1px solid var(--border);
