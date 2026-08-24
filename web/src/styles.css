@@ -1383,6 +1383,68 @@ button.link {
   background: rgba(240, 85, 63, 0.1);
 }
 
+/* ---------- Python problem list modal ---------- */
+.fs-list-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+.fs-list-title {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.fs-search {
+  flex: 1;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+.fs-search:focus { border-color: var(--accent); }
+.fs-close {
+  font-size: 16px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.fs-close:hover { color: var(--text); }
+
+.py-pl-body { padding: 12px 0 24px; }
+.py-pl-empty { padding: 32px; text-align: center; color: var(--muted); font-size: 13px; }
+
+.py-pl-stage { margin-bottom: 8px; }
+.py-pl-stage.locked { opacity: 0.4; pointer-events: none; }
+.py-pl-stage-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 10px 20px 4px;
+  gap: 8px;
+}
+.py-pl-stage-left { display: flex; align-items: baseline; gap: 8px; }
+.py-pl-stage-num { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; }
+.py-pl-stage-label { font-size: 13px; font-weight: 600; color: var(--text); }
+.py-pl-stage-count { font-size: 11px; color: var(--muted); }
+
+.py-pl-topic { padding: 2px 0; }
+.py-pl-topic-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 20px 2px;
+}
+.py-pl-topic-name { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.py-pl-topic-name.done { color: var(--easy); }
+.py-pl-topic-count { font-size: 10.5px; color: var(--muted); opacity: 0.6; }
+.py-pl-locked-msg { padding: 4px 20px 8px; font-size: 12px; color: var(--muted); }
+
 /* ---------- Python problem pane ---------- */
 .py-problem-header {
   margin-bottom: 20px;
@@ -2030,10 +2092,8 @@ tbody tr:last-child td {
 
 /* ---------- Python layout ---------- */
 .py-layout {
-  display: grid;
-  grid-template-rows: 1fr;
-  grid-template-columns: 240px 1fr;
-  grid-template-areas: "sidebar workspace";
+  display: flex;
+  flex-direction: column;
   height: 100%;
   overflow: hidden;
 }
@@ -2215,10 +2275,9 @@ tbody tr:last-child td {
 .py-diff-dot.medium { background: var(--medium); }
 .py-diff-dot.hard   { background: var(--hard); }
 .py-workspace {
-  grid-area: workspace;
   display: flex;
   overflow: hidden;
-  height: 100%;
+  flex: 1;
   min-height: 0;
 }
 .py-left-pane {

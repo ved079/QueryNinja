@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import PythonSidebar from './components/python/PythonSidebar.jsx';
 import PythonPane from './components/python/PythonPane.jsx';
+import PythonProblemList from './components/python/PythonProblemList.jsx';
 import PythonEditor from './components/python/PythonEditor.jsx';
 import TopicComplete from './components/python/TopicComplete.jsx';
 import { apiFetch } from './lib/auth.js';
@@ -17,6 +17,7 @@ export default function PythonApp({ userName, initialId }) {
   const [verdict, setVerdict] = useState(null);
   const [running, setRunning] = useState(false);
   const [topicComplete, setTopicComplete] = useState(null); // { topic, nextId }
+  const [listOpen, setListOpen] = useState(false);
   const [splitRatio, setSplitRatio] = useState(40);
   const [workspaceSplit, setWorkspaceSplit] = useState(42);
   const [editorNonce, setEditorNonce] = useState(0);
@@ -168,13 +169,6 @@ export default function PythonApp({ userName, initialId }) {
 
   return (
     <div className="py-layout">
-      <PythonSidebar
-        problems={problems}
-        progress={progress}
-        selectedId={selectedId}
-        onSelect={handleSelect}
-      />
-
       <div className="py-workspace">
         {/* Left: lesson + problem pane */}
         <div className="py-left-pane" style={{ flex: workspaceSplit }}>
@@ -210,7 +204,7 @@ export default function PythonApp({ userName, initialId }) {
         {/* Right: editor + output */}
         <section className="editor-pane" style={{ flex: 100 - workspaceSplit }}>
           <div className="toolbar">
-            <span className="muted">Python 3</span>
+            <button className="sidebar-show" onClick={() => setListOpen(true)}>Problem List</button>
             <div className="actions">
               <button
                 onClick={() => {
@@ -321,6 +315,16 @@ export default function PythonApp({ userName, initialId }) {
           </div>
         </section>
       </div>
+
+      {listOpen && (
+        <PythonProblemList
+          problems={problems}
+          progress={progress}
+          selectedId={selectedId}
+          onSelect={handleSelect}
+          onHide={() => setListOpen(false)}
+        />
+      )}
 
       {topicComplete && (
         <TopicComplete
