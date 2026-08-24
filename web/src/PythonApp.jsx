@@ -167,29 +167,77 @@ export default function PythonApp({ userName, initialId, listOpen, onListClose }
   if (!problems.length) return <div className="fatal muted">Loading Python problems…</div>;
 
   return (
-    <div className="py-layout">
-      <div className="py-workspace">
-        {/* Left: lesson + problem pane */}
-        <div className="py-left-pane" style={{ flex: workspaceSplit }}>
-          <PythonPane
-            problem={problem}
-            verdict={verdict}
-            defaultTab={problem?.lesson && !progress[problem?.id] ? 'lesson' : 'problem'}
-          />
+    <main className="workspace">
+      {/* Left: lesson + problem pane */}
+      <div style={{ flex: workspaceSplit, minWidth: 0 }}>
+        <PythonPane
+          problem={problem}
+          verdict={verdict}
+          defaultTab={problem?.lesson && !progress[problem?.id] ? 'lesson' : 'problem'}
+        />
+      </div>
+
+      {/* Vertical splitter */}
+      <div
+        className="splitter-vert"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          const pane = e.currentTarget.parentElement;
+          const totalW = pane.offsetWidth - e.currentTarget.offsetWidth;
+          const startX = e.clientX;
+          const startFlex = workspaceSplit;
+          const onMove = (me) => {
+            const dx = me.clientX - startX;
+            setWorkspaceSplit(Math.min(75, Math.max(20, startFlex + (dx / totalW) * 100)));
+          };
+          const onUp = () => {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+          };
+          document.addEventListener('mousemove', onMove);
+          document.addEventListener('mouseup', onUp);
+        }}
+      />
+
+      {/* Right: editor + output */}
+      <section className="editor-pane" style={{ flex: 100 - workspaceSplit, minWidth: 0 }}>
+        <div className="toolbar">
+          <span className="muted">Python 3</span>
+          <div className="actions">
+            <button onClick={() => { setCode(problem?.starterCode || PYTHON_STARTER); setEditorNonce((n) => n + 1); }}>
+              Reset
+            </button>
+            <button onClick={run} disabled={running}>
+              {running ? 'Running…' : 'Run'}
+            </button>
+            <button className="primary" onClick={submit} disabled={running}>
+              Submit
+            </button>
+          </div>
         </div>
 
-        {/* Vertical splitter */}
+        <div className="editor-wrap" style={{ flex: splitRatio }}>
+          {problem && (
+            <PythonEditor
+              value={code}
+              docKey={`${problem.id}:${editorNonce}`}
+              onChange={setCode}
+              onRun={run}
+            />
+          )}
+        </div>
+
         <div
-          className="splitter-vert"
+          className="splitter"
           onMouseDown={(e) => {
             e.preventDefault();
             const pane = e.currentTarget.parentElement;
-            const totalW = pane.offsetWidth - e.currentTarget.offsetWidth;
-            const startX = e.clientX;
-            const startFlex = workspaceSplit;
+            const totalH = pane.offsetHeight - pane.querySelector('.splitter').offsetHeight;
+            const startY = e.clientY;
+            const startFlex = splitRatio;
             const onMove = (me) => {
-              const dx = me.clientX - startX;
-              setWorkspaceSplit(Math.min(75, Math.max(20, startFlex + (dx / totalW) * 100)));
+              const dy = me.clientY - startY;
+              setSplitRatio(Math.min(90, Math.max(10, startFlex + (dy / totalH) * 100)));
             };
             const onUp = () => {
               document.removeEventListener('mousemove', onMove);
@@ -200,120 +248,55 @@ export default function PythonApp({ userName, initialId, listOpen, onListClose }
           }}
         />
 
-        {/* Right: editor + output */}
-        <section className="editor-pane" style={{ flex: 100 - workspaceSplit }}>
-          <div className="toolbar">
-            <span className="muted">Python 3</span>
-            <div className="actions">
-              <button
-                onClick={() => {
-                  setCode(problem?.starterCode || PYTHON_STARTER);
-                  setEditorNonce((n) => n + 1);
-                }}
-              >
-                Reset
-              </button>
-              <button onClick={run} disabled={running}>
-                {running ? 'Running…' : 'Run'}
-              </button>
-              <button className="primary" onClick={submit} disabled={running}>
-                Submit
-              </button>
-            </div>
-          </div>
+        <div className="output" style={{ flex: 100 - splitRatio }}>
+          {running && <p className="muted">Running…</p>}
 
-          <div className="editor-wrap" style={{ flex: splitRatio }}>
-            {problem && (
-              <PythonEditor
-                value={code}
-                docKey={`${problem.id}:${editorNonce}`}
-                onChange={setCode}
-                onRun={run}
-              />
-            )}
-          </div>
+          {!running && verdict && (
+            <>
+              <div className={`verdict ${verdict.passed ? 'pass' : 'fail'}`}>
+                <strong>
+                  {verdict.isRun
+                    ? `${verdict.passedCount} / ${verdict.total} tests passed`
+                    : verdict.passed ? 'Accepted' : 'Wrong Answer'}
+                  {!verdict.isRun && <span className="score">{verdict.passedCount} / {verdict.total} passed</span>}
+                </strong>
+                <span>
+                  {verdict.passed
+                    ? `All ${verdict.total} test cases passed.`
+                    : verdict.error
+                      ? verdict.error
+                      : `${verdict.total - verdict.passedCount} test case(s) failed.`}
+                </span>
+              </div>
+              {verdict.results?.map((r, i) => (
+                !r.passed && (
+                  <div key={i} className="py-fail-detail">
+                    <div className="py-fail-name">{r.name}</div>
+                    {r.error
+                      ? <pre className="error">{r.error}</pre>
+                      : (
+                        <div className="diff">
+                          <div><h4>Expected</h4><pre className="py-val">{r.expected}</pre></div>
+                          <div><h4>Got</h4><pre className="py-val">{r.actual ?? 'None'}</pre></div>
+                        </div>
+                      )}
+                  </div>
+                )
+              ))}
+            </>
+          )}
 
-          <div
-            className="splitter"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              const pane = e.currentTarget.parentElement;
-              const totalH = pane.offsetHeight - pane.querySelector('.splitter').offsetHeight;
-              const startY = e.clientY;
-              const startFlex = splitRatio;
-              const onMove = (me) => {
-                const dy = me.clientY - startY;
-                setSplitRatio(Math.min(90, Math.max(10, startFlex + (dy / totalH) * 100)));
-              };
-              const onUp = () => {
-                document.removeEventListener('mousemove', onMove);
-                document.removeEventListener('mouseup', onUp);
-              };
-              document.addEventListener('mousemove', onMove);
-              document.addEventListener('mouseup', onUp);
-            }}
-          />
+          {!running && !verdict && output?.error && (
+            <pre className="error">{output.error}</pre>
+          )}
 
-          <div className="py-output-panel" style={{ flex: 100 - splitRatio, minHeight: 0 }}>
-            <div className="py-output-header">
-              <span>Output</span>
-              {(verdict || output) && (
-                <button className="py-output-clear" onClick={() => { setVerdict(null); setOutput(null); }}>
-                  Clear
-                </button>
-              )}
-            </div>
-          <div className="output" style={{ flex: 1, minHeight: 0 }}>
-            {running && <p className="muted">Running…</p>}
-
-            {!running && verdict && (
-              <>
-                <div className={`verdict ${verdict.passed ? 'pass' : 'fail'}`}>
-                  <strong>
-                    {verdict.isRun
-                      ? `${verdict.passedCount} / ${verdict.total} tests passed`
-                      : verdict.passed ? 'Accepted' : 'Wrong Answer'}
-                    {!verdict.isRun && <span className="score">{verdict.passedCount} / {verdict.total} passed</span>}
-                  </strong>
-                  <span>
-                    {verdict.passed
-                      ? `All ${verdict.total} test cases passed.`
-                      : verdict.error
-                        ? verdict.error
-                        : `${verdict.total - verdict.passedCount} test case(s) failed.`}
-                  </span>
-                </div>
-                {verdict.results?.map((r, i) => (
-                  !r.passed && (
-                    <div key={i} className="py-fail-detail">
-                      <div className="py-fail-name">{r.name}</div>
-                      {r.error
-                        ? <pre className="error">{r.error}</pre>
-                        : (
-                          <div className="diff">
-                            <div><h4>Expected</h4><pre className="py-val">{r.expected}</pre></div>
-                            <div><h4>Got</h4><pre className="py-val">{r.actual ?? 'None'}</pre></div>
-                          </div>
-                        )}
-                    </div>
-                  )
-                ))}
-              </>
-            )}
-
-            {!running && !verdict && output?.error && (
-              <pre className="error">{output.error}</pre>
-            )}
-
-            {!running && !verdict && !output && (
-              <p className="muted">
-                Press <kbd>Ctrl+Enter</kbd> to run · <kbd>Submit</kbd> to grade all tests
-              </p>
-            )}
-          </div>
-          </div>
-        </section>
-      </div>
+          {!running && !verdict && !output && (
+            <p className="muted">
+              Press <kbd>Ctrl+Enter</kbd> to run · <kbd>Submit</kbd> to grade all tests
+            </p>
+          )}
+        </div>
+      </section>
 
       {listOpen && (
         <PythonProblemList
@@ -333,6 +316,6 @@ export default function PythonApp({ userName, initialId, listOpen, onListClose }
         />
       )}
 
-    </div>
+    </main>
   );
 }

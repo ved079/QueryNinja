@@ -2090,12 +2090,9 @@ tbody tr:last-child td {
   color: #fff;
 }
 
-/* ---------- Python layout ---------- */
+/* ---------- Python layout (reuses .workspace) ---------- */
 .py-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
+  display: contents;
 }
 .py-sidebar {
   grid-area: sidebar;
