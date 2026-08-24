@@ -4,6 +4,7 @@ import PythonPane from './components/python/PythonPane.jsx';
 import PythonEditor from './components/python/PythonEditor.jsx';
 import TopicComplete from './components/python/TopicComplete.jsx';
 import { apiFetch } from './lib/auth.js';
+import { runPython } from './lib/pyodide-runner.js';
 
 const PYTHON_STARTER = '# Write your solution here\n';
 
@@ -74,17 +75,12 @@ export default function PythonApp({ userName }) {
     setOutput(null);
     setVerdict(null);
     try {
-      const res = await apiFetch('/api/python/run', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          code: codeRef.current,
-          functionName: problem.functionName,
-          helperCode: problem._helperCode ?? '',
-          tests: problem.tests,
-        }),
+      const data = await runPython({
+        code: codeRef.current,
+        functionName: problem.functionName,
+        helperCode: problem._helperCode ?? '',
+        tests: problem.tests,
       });
-      const data = await res.json();
       if (data.error && !data.results?.length) {
         setOutput({ error: data.error });
       } else {
@@ -103,17 +99,12 @@ export default function PythonApp({ userName }) {
     setOutput(null);
     setVerdict(null);
     try {
-      const res = await apiFetch('/api/python/run', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          code: codeRef.current,
-          functionName: problem.functionName,
-          helperCode: problem._helperCode ?? '',
-          tests: problem.tests,
-        }),
+      const data = await runPython({
+        code: codeRef.current,
+        functionName: problem.functionName,
+        helperCode: problem._helperCode ?? '',
+        tests: problem.tests,
       });
-      const data = await res.json();
       const results = data.results ?? [];
       const passed = results.length > 0 && results.every((r) => r.passed);
       const passedCount = results.filter((r) => r.passed).length;
