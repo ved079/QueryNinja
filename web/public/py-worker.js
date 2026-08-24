@@ -9,21 +9,40 @@ async function init() {
   return pyodide;
 }
 
-function buildRunner(code, functionName, tests) {
-  const testsJson = JSON.stringify(JSON.stringify(tests));
-  return `
-import json as _json, sys as _sys
+const HARNESS = `
+import json as _json, sys as _sys, traceback as _tb
 _sys.setrecursionlimit(500)
 
-${code}
+# execute user code so their function lands in globals
+try:
+    exec(_user_code, globals())
+except Exception as _e:
+    print(_json.dumps([{
+        "name": "Syntax / Runtime Error",
+        "passed": False,
+        "error": _tb.format_exc(),
+        "actual": None,
+        "expected": None,
+    }]))
+    raise SystemExit(0)
+
+_fn = globals().get(_fn_name)
+if _fn is None:
+    print(_json.dumps([{
+        "name": "Setup Error",
+        "passed": False,
+        "error": f"Function '{_fn_name}' not found. Make sure you defined it.",
+        "actual": None,
+        "expected": None,
+    }]))
+    raise SystemExit(0)
 
 _results = []
-_tests = _json.loads(${testsJson})
-for _test in _tests:
+for _test in _test_cases:
     try:
         _inp = _test['input']
         _args = _inp if isinstance(_inp, list) else [_inp]
-        _actual = ${functionName}(*_args)
+        _actual = _fn(*_args)
         _expected = _test['expectedOutput']
         _passed = _actual == _expected
         _results.append({
@@ -38,24 +57,34 @@ for _test in _tests:
             'passed': False,
             'error': str(_e),
             'actual': None,
-            'expected': repr(_test['expectedOutput']),
+            'expected': repr(_test.get('expectedOutput')),
         })
-_json.dumps(_results)
+
+print(_json.dumps(_results))
 `;
-}
 
 self.onmessage = async (e) => {
   const { id, code, functionName, helperCode, tests } = e.data;
   try {
     const py = await init();
+
     const normalize = (s) => (s || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     const fullCode = helperCode ? `${normalize(helperCode)}\n${normalize(code)}` : normalize(code);
-    const script = buildRunner(fullCode, functionName, tests);
-    const output = await py.runPythonAsync(script);
-    const results = JSON.parse(output);
+
+    // Pass data through Pyodide globals — no string interpolation of Python code
+    py.globals.set('_user_code', fullCode);
+    py.globals.set('_fn_name', functionName);
+    py.globals.set('_test_cases', py.toPy(tests));
+
+    // Capture stdout (print calls)
+    let output = '';
+    py.setStdout({ batched: (s) => { output += s + '\n'; } });
+
+    await py.runPythonAsync(HARNESS);
+
+    const results = JSON.parse(output.trim());
     self.postMessage({ id, results });
   } catch (err) {
-    // Pyodide surfaces Python tracebacks as the error message
     self.postMessage({ id, error: err.message ?? String(err) });
   }
 };
