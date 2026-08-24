@@ -19,5 +19,6 @@ export async function loadPythonProblems() {
       return JSON.parse(raw);
     })
   );
-  return problems;
+  // Only return new-format problems (have functionName + array inputs)
+  return problems.filter((p) => p.functionName && Array.isArray(p.tests?.[0]?.input));
 }
