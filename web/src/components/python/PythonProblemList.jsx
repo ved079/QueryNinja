@@ -1,115 +1,154 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import Dropdown from '../Dropdown.jsx';
 
-const STAGE_COLORS = ['#4c8dff', '#35c46b', '#e8a33d', '#a855f7', '#f0553f'];
-const DIFF_COLOR = { easy: '#35c46b', medium: '#e8a33d', hard: '#f0553f' };
-
-function stageProgress(problems, progress, stage) {
-  const ps = problems.filter((p) => p.stage === stage);
-  const solved = ps.filter((p) => progress[p.id]?.status === 'solved').length;
-  return { total: ps.length, solved };
-}
-
-function isStageUnlocked(problems, progress, stage) {
-  if (stage === 1) return true;
-  const prev = stageProgress(problems, progress, stage - 1);
-  return prev.solved === prev.total && prev.total > 0;
-}
+const DIFFICULTIES = ['All', 'Easy', 'Medium', 'Hard'];
+const STATUSES = ['All', 'Solved', 'Unsolved'];
+const DIFFICULTY_ORDER = { Easy: 0, Medium: 1, Hard: 2 };
 
 export default function PythonProblemList({ problems, progress, selectedId, onSelect, onHide }) {
   const [query, setQuery] = useState('');
+  const [difficulty, setDifficulty] = useState('All');
+  const [status, setStatus] = useState('All');
+  const [topic, setTopic] = useState('All');
+  const [sortBy, setSortBy] = useState('number');
+  const topicMenuPortalRef = useRef(null);
 
-  const stages = [...new Set(problems.map((p) => p.stage))].sort((a, b) => a - b);
+  const isSolved = (p) => progress[p.id]?.status === 'solved';
 
-  const filtered = query.trim()
-    ? problems.filter((p) => p.title.toLowerCase().includes(query.toLowerCase()) || p.topic.toLowerCase().includes(query.toLowerCase()))
-    : null;
+  const topics = useMemo(
+    () => ['All', ...new Set(problems.map((p) => p.topic).filter(Boolean))].sort((a, b) =>
+      a === 'All' ? -1 : b === 'All' ? 1 : a.localeCompare(b)
+    ),
+    [problems]
+  );
+
+  const stats = useMemo(() => {
+    const base = { Easy: [0, 0], Medium: [0, 0], Hard: [0, 0] };
+    for (const p of problems) {
+      const row = base[p.difficulty];
+      if (!row) continue;
+      row[1] += 1;
+      if (isSolved(p)) row[0] += 1;
+    }
+    return base;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [problems, progress]);
+
+  const visible = useMemo(() => {
+    const filtered = problems.filter((p) => {
+      if (difficulty !== 'All' && p.difficulty !== difficulty) return false;
+      if (status === 'Solved' && !isSolved(p)) return false;
+      if (status === 'Unsolved' && isSolved(p)) return false;
+      if (topic !== 'All' && p.topic !== topic) return false;
+      const haystack = `${p.title} ${p.topic ?? ''}`.toLowerCase();
+      return haystack.includes(query.toLowerCase());
+    });
+
+    return filtered.sort((a, b) => {
+      if (sortBy === 'difficulty') {
+        const d = (DIFFICULTY_ORDER[a.difficulty] ?? 0) - (DIFFICULTY_ORDER[b.difficulty] ?? 0);
+        if (d !== 0) return d;
+      }
+      if (sortBy === 'status') {
+        const s = Number(isSolved(a)) - Number(isSolved(b));
+        if (s !== 0) return s;
+      }
+      const ai = problems.indexOf(a);
+      const bi = problems.indexOf(b);
+      return ai - bi;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [problems, progress, query, difficulty, status, topic, sortBy]);
+
+  const solved = problems.filter(isSolved).length;
+
+  useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onHide(); };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onHide]);
 
   return (
-    <div className="fullscreen-overlay" onClick={(e) => { if (e.target === e.currentTarget) onHide(); }}>
-      <div className="fs-list">
-        <div className="fs-list-header">
-          <span className="fs-list-title">Python Problems</span>
-          <input
-            className="fs-search"
-            placeholder="Search problems…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            autoFocus
-          />
-          <button className="link fs-close" onClick={onHide}>✕</button>
-        </div>
+    <div className="fullscreen-overlay" onClick={onHide}>
+      <div className="fs-list" onClick={(e) => e.stopPropagation()}>
+        <header className="fs-list-head">
+          <div className="fs-list-head-top">
+            <h1>Python Problems</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span className="muted" style={{ fontSize: 12 }}>Esc to close</span>
+              <button className="hide-btn" onClick={onHide} title="Close">×</button>
+            </div>
+          </div>
+          <div className="fs-list-head-stats">
+            <span className="big">{solved}</span>
+            <span className="muted">/ {problems.length} solved</span>
+            <div className="bar" style={{ display: 'flex', borderRadius: 4, overflow: 'hidden' }}>
+              {['Easy', 'Medium', 'Hard'].map((d) => {
+                const w = problems.length ? (stats[d][0] / problems.length) * 100 : 0;
+                if (w <= 0) return null;
+                return <div key={d} style={{ width: `${w}%`, height: '100%', background: d === 'Easy' ? 'var(--easy)' : d === 'Medium' ? 'var(--medium)' : 'var(--hard)' }} />;
+              })}
+            </div>
+            <div className="stat-row">
+              {DIFFICULTIES.slice(1).map((d) => (
+                <span key={d} className="stat">
+                  <span className={`difficulty ${d.toLowerCase()}`}>{d}</span>
+                  <span className="muted">{stats[d][0]}/{stats[d][1]}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="fs-list-filters">
+            <div className="chips">
+              {STATUSES.map((s) => (
+                <button key={s} className={`chip ${status === s ? 'active' : ''}`}
+                  onClick={() => setStatus(s)}>{s}</button>
+              ))}
+            </div>
+            <Dropdown label="Topic" value={topic} options={topics} onChange={setTopic} menuPortalRef={topicMenuPortalRef} />
+            <Dropdown label="Sort" value={sortBy} options={[
+              { label: 'Default', value: 'number' },
+              { label: 'Difficulty', value: 'difficulty' },
+              { label: 'Unsolved first', value: 'status' },
+            ]} onChange={setSortBy} menuPortalRef={topicMenuPortalRef} />
+            <input
+              className="fs-search"
+              placeholder="Search…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              autoFocus
+            />
+          </div>
+        </header>
+        <div ref={topicMenuPortalRef} className="topic-menu-portal" />
 
-        <div className="fs-list-body py-pl-body">
-          {filtered ? (
-            /* flat search results */
-            filtered.length === 0 ? (
-              <div className="py-pl-empty">No problems match "{query}"</div>
-            ) : filtered.map((p) => (
-              <ProblemRow key={p.id} p={p} progress={progress} selectedId={selectedId} onSelect={onSelect} onHide={onHide} />
-            ))
-          ) : (
-            /* grouped by stage → topic */
-            stages.map((stage) => {
-              const unlocked = isStageUnlocked(problems, progress, stage);
-              const { solved, total } = stageProgress(problems, progress, stage);
-              const stageLabel = problems.find((p) => p.stage === stage)?.stageLabel ?? `Stage ${stage}`;
-              const color = STAGE_COLORS[(stage - 1) % STAGE_COLORS.length];
-              const topics = [...new Set(problems.filter((p) => p.stage === stage).map((p) => p.topic))];
-
+        <div className="fs-list-body">
+          <ul className="fs-list-items">
+            {visible.map((p) => {
+              const itemStatus = progress[p.id]?.status;
               return (
-                <div key={stage} className={`py-pl-stage ${unlocked ? '' : 'locked'}`}>
-                  <div className="py-pl-stage-header">
-                    <div className="py-pl-stage-left">
-                      <span className="py-pl-stage-num" style={{ color }}>Stage {stage}</span>
-                      <span className="py-pl-stage-label">{stageLabel}</span>
-                    </div>
-                    <span className="py-pl-stage-count">
-                      {unlocked ? `${solved}/${total}` : '🔒'}
+                <li key={p.id}>
+                  <button
+                    className={`problem-item ${selectedId === p.id ? 'selected' : ''}`}
+                    onClick={() => { onSelect(p.id); onHide(); }}
+                  >
+                    <span className={`status ${itemStatus ?? 'none'}`} title={itemStatus ?? 'not started'} />
+                    <span className="problem-title">{p.title}</span>
+                    <span className={`difficulty ${(p.difficulty ?? 'easy').toLowerCase()}`}>
+                      {(p.difficulty ?? 'Easy')[0]}
                     </span>
-                  </div>
-
-                  {unlocked && topics.map((topic) => {
-                    const topicProblems = problems.filter((p) => p.stage === stage && p.topic === topic);
-                    const topicSolved = topicProblems.filter((p) => progress[p.id]?.status === 'solved').length;
-                    return (
-                      <div key={topic} className="py-pl-topic">
-                        <div className="py-pl-topic-header">
-                          <span className={`py-pl-topic-name ${topicSolved === topicProblems.length ? 'done' : ''}`}>{topic}</span>
-                          <span className="py-pl-topic-count">{topicSolved}/{topicProblems.length}</span>
-                        </div>
-                        {topicProblems.map((p) => (
-                          <ProblemRow key={p.id} p={p} progress={progress} selectedId={selectedId} onSelect={onSelect} onHide={onHide} />
-                        ))}
-                      </div>
-                    );
-                  })}
-
-                  {!unlocked && (
-                    <div className="py-pl-locked-msg">Complete Stage {stage - 1} to unlock</div>
-                  )}
-                </div>
+                  </button>
+                </li>
               );
-            })
-          )}
+            })}
+            {!visible.length && <li className="muted pad">No problems match these filters.</li>}
+          </ul>
         </div>
+
+        <footer className="fs-list-foot muted">
+          {visible.length} shown · {problems.length} total
+        </footer>
       </div>
     </div>
-  );
-}
-
-function ProblemRow({ p, progress, selectedId, onSelect, onHide }) {
-  const status = progress[p.id]?.status;
-  const diffColor = DIFF_COLOR[p.difficulty?.toLowerCase()] ?? '#8b95a5';
-  return (
-    <button
-      className={`problem-item ${p.id === selectedId ? 'selected' : ''}`}
-      onClick={() => { onSelect(p.id); onHide(); }}
-    >
-      <span className={`status ${status === 'solved' ? 'solved' : status === 'attempted' ? 'attempted' : ''}`} />
-      <span className="problem-title">{p.title}</span>
-      <span className="badge" style={{ color: diffColor, background: `${diffColor}18`, borderColor: `${diffColor}30` }}>
-        {p.difficulty}
-      </span>
-    </button>
   );
 }
