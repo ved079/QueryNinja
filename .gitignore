@@ -11,3 +11,6 @@ users-by-name.json
 
 # Copied from node_modules by scripts/copy-wasm.mjs on npm install
 web/public/*.wasm
+tokens.json
+py_progress.json
+py_submissions.json

@@ -1818,3 +1818,496 @@ tbody tr:last-child td {
     overflow-y: auto;
   }
 }
+
+/* ─── Python Section Styles ──────────────────────────────────────────────── */
+
+.python-problem-pane {
+  height: 100%;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.python-problem-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.python-problem-number {
+  font-family: monospace;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.python-problem-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.python-problem-difficulty {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.python-problem-difficulty.easy {
+  background: rgba(53, 196, 107, 0.15);
+  color: var(--easy);
+}
+
+.python-problem-difficulty.medium {
+  background: rgba(232, 163, 61, 0.15);
+  color: var(--medium);
+}
+
+.python-problem-difficulty.hard {
+  background: rgba(240, 85, 63, 0.15);
+  color: var(--hard);
+}
+
+.python-solved-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(53, 196, 107, 0.15);
+  color: var(--easy);
+}
+
+.python-problem-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.python-tag {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: var(--panel-2);
+  color: var(--muted);
+}
+
+.python-tag.category {
+  background: rgba(76, 141, 255, 0.12);
+  color: var(--accent);
+}
+
+.python-problem-description {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text);
+  margin-bottom: 1.25rem;
+}
+
+.python-problem-description p {
+  margin: 0.5rem 0;
+}
+
+.python-problem-description li {
+  margin: 0.25rem 0 0.25rem 1.25rem;
+  list-style: disc;
+}
+
+.python-problem-description .inline-code {
+  background: var(--panel-2);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.85em;
+  color: #e06c75;
+}
+
+.python-problem-description .python-code-block {
+  background: var(--bg);
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+.python-starter-code {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.python-starter-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.python-starter-pre {
+  margin: 0;
+  padding: 0.75rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.python-solution {
+  background: rgba(53, 196, 107, 0.05);
+  border: 1px solid rgba(53, 196, 107, 0.2);
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.python-solution h4 {
+  margin: 0 0 0.5rem;
+  color: var(--easy);
+  font-size: 0.85rem;
+}
+
+.python-solution-code {
+  background: var(--bg);
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.85rem;
+  overflow-x: auto;
+  white-space: pre;
+  margin: 0;
+}
+
+.python-explanation {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(53, 196, 107, 0.15);
+}
+
+.python-explanation p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.python-hint {
+  background: rgba(232, 163, 61, 0.05);
+  border: 1px solid rgba(232, 163, 61, 0.2);
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.python-hint h4 {
+  margin: 0 0 0.5rem;
+  color: var(--medium);
+  font-size: 0.85rem;
+}
+
+.python-hint p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* Python Test Cases */
+.python-test-cases {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.python-test-cases-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+}
+
+.python-test-case {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 0.35rem;
+  overflow: hidden;
+}
+
+.python-test-case-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.65rem;
+  background: var(--panel-2);
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.8rem;
+  text-align: left;
+}
+
+.python-test-case-header:hover {
+  background: var(--border);
+}
+
+.python-test-case-status {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--panel);
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.python-test-case-status.pass {
+  background: rgba(53, 196, 107, 0.2);
+  color: var(--easy);
+}
+
+.python-test-case-status.fail {
+  background: rgba(240, 85, 63, 0.2);
+  color: var(--hard);
+}
+
+.python-test-case-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.python-test-case-chevron {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.python-test-case-detail {
+  padding: 0.65rem;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+.python-test-case-section {
+  margin-bottom: 0.5rem;
+}
+
+.python-test-case-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+
+.python-test-case-code {
+  margin: 0;
+  padding: 0.5rem;
+  background: var(--panel-2);
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text);
+}
+
+.python-test-case-code.expected {
+  background: rgba(53, 196, 107, 0.08);
+  color: var(--easy);
+}
+
+.python-test-case-code.fail {
+  background: rgba(240, 85, 63, 0.08);
+  color: var(--hard);
+}
+
+.python-run-test-btn {
+  margin-top: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.python-run-test-btn:hover {
+  opacity: 0.9;
+}
+
+/* Python Output */
+.python-output {
+  padding: 0.75rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.python-output-status {
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.python-output-status.running {
+  background: rgba(76, 141, 255, 0.12);
+  color: var(--accent);
+}
+
+.python-output-status.pass {
+  background: rgba(53, 196, 107, 0.12);
+  color: var(--easy);
+}
+
+.python-output-status.fail {
+  background: rgba(240, 85, 63, 0.12);
+  color: var(--hard);
+}
+
+.python-score {
+  margin-left: 0.5rem;
+  font-weight: 400;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.python-test-results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.python-test-result {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  background: var(--panel-2);
+}
+
+.python-test-result.pass {
+  border-left: 2px solid var(--easy);
+}
+
+.python-test-result.fail {
+  border-left: 2px solid var(--hard);
+}
+
+.python-test-indicator {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.python-test-result.pass .python-test-indicator {
+  color: var(--easy);
+}
+
+.python-test-result.fail .python-test-indicator {
+  color: var(--hard);
+}
+
+.python-test-name {
+  flex: 1;
+}
+
+.python-test-error {
+  font-size: 0.75rem;
+  color: var(--hard);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.python-test-diff {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.python-test-diff code {
+  font-family: monospace;
+  background: var(--bg);
+  padding: 0.1rem 0.3rem;
+  border-radius: 2px;
+  font-size: 0.75rem;
+}
+
+.python-output-section {
+  margin-bottom: 0.5rem;
+}
+
+.python-output-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+
+.python-stdout, .python-stderr {
+  margin: 0;
+  padding: 0.5rem;
+  background: var(--panel-2);
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.python-stderr {
+  color: var(--hard);
+  background: rgba(240, 85, 63, 0.05);
+}
+
+.python-error {
+  margin: 0;
+  padding: 0.5rem;
+  background: rgba(240, 85, 63, 0.08);
+  border: 1px solid rgba(240, 85, 63, 0.2);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: var(--hard);
+  white-space: pre-wrap;
+}
+
+.python-output-empty {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.python-output-timeout {
+  color: var(--hard);
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+/* Python Problem List (Sidebar) */
+.problem-list .diff-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.problem-list .problem-item .diff-dot {
+  margin-right: 0.25rem;
+}

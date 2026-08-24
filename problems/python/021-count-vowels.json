@@ -1,0 +1,34 @@
+{
+  "id": "count-vowels",
+  "number": 21,
+  "title": "Count Vowels and Consonants",
+  "difficulty": "Easy",
+  "category": "Strings",
+  "tags": [
+    "Strings",
+    "Loops"
+  ],
+  "type": "python",
+  "description": "Write a function `count_chars(s)` that returns a tuple `(vowels, consonants)` where:\n- `vowels` is the count of vowel characters (a, e, i, o, u — case-insensitive)\n- `consonants` is the count of alphabetic characters that are not vowels\n\nIgnore non-alphabetic characters.",
+  "starterCode": "def count_chars(s):\n    # Your code here\n    pass",
+  "solutionCode": "def count_chars(s):\n    vowels = set(\"aeiou\")\n    v = c = 0\n    for char in s.lower():\n        if char.isalpha():\n            if char in vowels:\n                v += 1\n            else:\n                c += 1\n    return (v, c)",
+  "hint": "Convert to lowercase, iterate, use a set of vowels for O(1) lookup.",
+  "outputExplanation": "count_chars(\"Hello World!\") counts e,o (2 vowels) and h,l,l,w,r,l,d (7 consonants), returning (2, 7).",
+  "tests": [
+    {
+      "name": "Basic case",
+      "input": "print(count_chars(\"Hello World!\"))",
+      "expectedOutput": "(3, 7)"
+    },
+    {
+      "name": "All vowels",
+      "input": "print(count_chars(\"aeiou\"))",
+      "expectedOutput": "(5, 0)"
+    },
+    {
+      "name": "Empty",
+      "input": "print(count_chars(\"\"))",
+      "expectedOutput": "(0, 0)"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "reverse-string",
+  "number": 5,
+  "title": "Reverse String",
+  "difficulty": "Easy",
+  "category": "Strings",
+  "tags": [
+    "Strings",
+    "Slicing"
+  ],
+  "type": "python",
+  "description": "Write a function `reverse_string(s)` that returns the reverse of the input string `s` without using the built-in `reversed()` function or `[::-1]` slicing.",
+  "starterCode": "def reverse_string(s):\n    # Your code here - do NOT use [::-1] or reversed()\n    pass",
+  "solutionCode": "def reverse_string(s):\n    result = \"\"\n    for char in s:\n        result = char + result\n    return result",
+  "hint": "Build the result character by character, prepending each new character.",
+  "outputExplanation": "reverse_string(\"hello\") builds \"\" + \"h\" = \"h\", then \"e\" + \"h\" = \"eh\", etc., resulting in \"olleh\".",
+  "tests": [
+    {
+      "name": "Simple word",
+      "input": "print(reverse_string(\"hello\"))",
+      "expectedOutput": "olleh"
+    },
+    {
+      "name": "Single char",
+      "input": "print(reverse_string(\"a\"))",
+      "expectedOutput": "a"
+    },
+    {
+      "name": "Empty string",
+      "input": "print(reverse_string(\"\"))",
+      "expectedOutput": ""
+    },
+    {
+      "name": "With spaces",
+      "input": "print(reverse_string(\"abc def\"))",
+      "expectedOutput": "fed cba"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "longest-common-subsequence",
+  "number": 14,
+  "title": "Longest Common Subsequence",
+  "difficulty": "Hard",
+  "category": "Dynamic Programming",
+  "tags": [
+    "Dynamic Programming",
+    "Strings"
+  ],
+  "type": "python",
+  "description": "Write a function `lcs(s1, s2)` that returns the length of the longest common subsequence (LCS) between two strings.\n\nA subsequence is a sequence that appears in the same relative order but not necessarily contiguous.\n\nExample: `lcs(\"abcde\", \"ace\")` returns `3` (the LCS is \"ace\").",
+  "starterCode": "def lcs(s1, s2):\n    # Your code here\n    pass",
+  "solutionCode": "def lcs(s1, s2):\n    m, n = len(s1), len(s2)\n    dp = [[0] * (n + 1) for _ in range(m + 1)]\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if s1[i-1] == s2[j-1]:\n                dp[i][j] = dp[i-1][j-1] + 1\n            else:\n                dp[i][j] = max(dp[i-1][j], dp[i][j-1])\n    return dp[m][n]",
+  "hint": "Build a 2D DP table where dp[i][j] = LCS length of s1[:i] and s2[:j]. If characters match, add 1 to the diagonal. Otherwise, take the max of left and above.",
+  "outputExplanation": "For \"abcde\" and \"ace\", the DP table builds up to find that the longest common subsequence has length 3 (\"ace\").",
+  "tests": [
+    {
+      "name": "Basic case",
+      "input": "print(lcs(\"abcde\", \"ace\"))",
+      "expectedOutput": "3"
+    },
+    {
+      "name": "No common",
+      "input": "print(lcs(\"abc\", \"def\"))",
+      "expectedOutput": "0"
+    },
+    {
+      "name": "Same string",
+      "input": "print(lcs(\"abc\", \"abc\"))",
+      "expectedOutput": "3"
+    },
+    {
+      "name": "Empty string",
+      "input": "print(lcs(\"\", \"abc\"))",
+      "expectedOutput": "0"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "palindrome-checker",
+  "number": 4,
+  "title": "Palindrome Checker",
+  "difficulty": "Easy",
+  "category": "Strings",
+  "tags": [
+    "Strings",
+    "Two Pointers"
+  ],
+  "type": "python",
+  "description": "Write a function `is_palindrome(s)` that returns `True` if the string `s` is a palindrome (reads the same forwards and backwards), ignoring case and non-alphanumeric characters. Otherwise return `False`.",
+  "starterCode": "def is_palindrome(s):\n    # Your code here\n    pass",
+  "solutionCode": "def is_palindrome(s):\n    cleaned = ''.join(c.lower() for c in s if c.isalnum())\n    return cleaned == cleaned[::-1]",
+  "hint": "First clean the string (lowercase + alphanumeric only), then compare with its reverse using slicing `[::-1]`.",
+  "outputExplanation": "is_palindrome(\"A man, a plan, a canal: Panama\") returns True after cleaning to \"amanaplanacanalpanama\".",
+  "tests": [
+    {
+      "name": "Classic palindrome",
+      "input": "print(is_palindrome(\"A man, a plan, a canal: Panama\"))",
+      "expectedOutput": "True"
+    },
+    {
+      "name": "Simple word",
+      "input": "print(is_palindrome(\"racecar\"))",
+      "expectedOutput": "True"
+    },
+    {
+      "name": "Not a palindrome",
+      "input": "print(is_palindrome(\"hello world\"))",
+      "expectedOutput": "False"
+    },
+    {
+      "name": "Empty string",
+      "input": "print(is_palindrome(\"\"))",
+      "expectedOutput": "True"
+    }
+  ]
+}

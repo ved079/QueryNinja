@@ -1,0 +1,44 @@
+{
+  "id": "valid-parentheses",
+  "number": 7,
+  "title": "Valid Parentheses",
+  "difficulty": "Medium",
+  "category": "Stack",
+  "tags": [
+    "Stack",
+    "String"
+  ],
+  "type": "python",
+  "description": "Given a string `s` containing only `()`, `{}`, and `[]`, determine if the input string is valid.\n\nAn input string is valid if:\n- Open brackets are closed by the same type of brackets\n- Open brackets are closed in the correct order\n- Every close bracket has a corresponding open bracket of the same type",
+  "starterCode": "def is_valid(s):\n    # Your code here\n    pass",
+  "solutionCode": "def is_valid(s):\n    stack = []\n    pairs = {\")\": \"(\", \"]\": \"[\", \"}\": \"{\"}\n    for char in s:\n        if char in pairs.values():\n            stack.append(char)\n        elif char in pairs:\n            if not stack or stack.pop() != pairs[char]:\n                return False\n    return len(stack) == 0",
+  "hint": "Use a stack. Push opening brackets, pop and compare when you see a closing bracket.",
+  "outputExplanation": "For \"()[]{}\": push (, pop matches. push [, pop matches. push {, pop matches. Stack empty → True.",
+  "tests": [
+    {
+      "name": "Valid simple",
+      "input": "print(is_valid(\"()\"))",
+      "expectedOutput": "True"
+    },
+    {
+      "name": "Valid mixed",
+      "input": "print(is_valid(\"()[]{}\"))",
+      "expectedOutput": "True"
+    },
+    {
+      "name": "Invalid",
+      "input": "print(is_valid(\"(]\"))",
+      "expectedOutput": "False"
+    },
+    {
+      "name": "Nested valid",
+      "input": "print(is_valid(\"({[]})\"))",
+      "expectedOutput": "True"
+    },
+    {
+      "name": "Empty string",
+      "input": "print(is_valid(\"\"))",
+      "expectedOutput": "True"
+    }
+  ]
+}

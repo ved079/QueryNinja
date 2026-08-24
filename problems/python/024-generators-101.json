@@ -1,0 +1,34 @@
+{
+  "id": "generators-101",
+  "number": 24,
+  "title": "Prime Number Generator",
+  "difficulty": "Medium",
+  "category": "Generators",
+  "tags": [
+    "Generators",
+    "Algorithms"
+  ],
+  "type": "python",
+  "description": "Write a generator function `primes()` that yields prime numbers indefinitely, one at a time.\n\nAlso write a function `first_n_primes(n)` that uses the generator to return a list of the first `n` prime numbers.",
+  "starterCode": "def primes():\n    # Your code here - yield primes indefinitely\n    pass\n\ndef first_n_primes(n):\n    # Use the primes() generator\n    pass",
+  "solutionCode": "def primes():\n    yield 2\n    candidate = 3\n    while True:\n        is_prime = True\n        i = 3\n        while i * i <= candidate:\n            if candidate % i == 0:\n                is_prime = False\n                break\n            i += 2\n        if is_prime:\n            yield candidate\n        candidate += 2\n\ndef first_n_primes(n):\n    gen = primes()\n    return [next(gen) for _ in range(n)]",
+  "hint": "Use `yield` to create a generator. Start with 2, then check odd numbers for primality using trial division.",
+  "outputExplanation": "The generator yields 2, then checks each odd number for primality. first_n_primes(n) collects the first n values.",
+  "tests": [
+    {
+      "name": "First 5 primes",
+      "input": "print(first_n_primes(5))",
+      "expectedOutput": "[2, 3, 5, 7, 11]"
+    },
+    {
+      "name": "First 10 primes",
+      "input": "print(first_n_primes(10))",
+      "expectedOutput": "[2, 3, 5, 7, 11, 13, 17, 19, 23, 29]"
+    },
+    {
+      "name": "First prime only",
+      "input": "print(first_n_primes(1))",
+      "expectedOutput": "[2]"
+    }
+  ]
+}

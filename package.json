@@ -18,6 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@codemirror/lang-python": "^6.2.1",
     "@codemirror/lang-sql": "^6.10.0",
     "@codemirror/state": "^6.7.1",
     "@codemirror/theme-one-dark": "^6.1.3",

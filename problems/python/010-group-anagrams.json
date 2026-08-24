@@ -1,0 +1,35 @@
+{
+  "id": "group-anagrams",
+  "number": 10,
+  "title": "Group Anagrams",
+  "difficulty": "Medium",
+  "category": "Hash Map",
+  "tags": [
+    "Hash Map",
+    "Strings",
+    "Sorting"
+  ],
+  "type": "python",
+  "description": "Write a function `group_anagrams(words)` that takes a list of strings and groups anagrams together.\n\nReturn a list of lists where each inner list contains words that are anagrams of each other. The order of groups and words within groups does not matter — but the test expects sorted output for verification.",
+  "starterCode": "def group_anagrams(words):\n    # Your code here\n    pass",
+  "solutionCode": "def group_anagrams(words):\n    groups = {}\n    for word in words:\n        key = ''.join(sorted(word))\n        if key not in groups:\n            groups[key] = []\n        groups[key].append(word)\n    return sorted([sorted(g) for g in groups.values()])",
+  "hint": "Use a dictionary with the sorted string as key. All anagrams share the same sorted key.",
+  "outputExplanation": "group_anagrams([\"eat\", \"tea\", \"tan\", \"ate\", \"nat\", \"bat\"]) groups them by sorted characters: \"aet\"→[\"ate\",\"eat\",\"tea\"], \"ant\"→[\"nat\",\"tan\"], \"abt\"→[\"bat\"].",
+  "tests": [
+    {
+      "name": "Classic case",
+      "input": "print(group_anagrams([\"eat\", \"tea\", \"tan\", \"ate\", \"nat\", \"bat\"]))",
+      "expectedOutput": "[['bat'], ['nat', 'tan'], ['ate', 'eat', 'tea']]"
+    },
+    {
+      "name": "No anagrams",
+      "input": "print(group_anagrams([\"a\", \"b\", \"c\"]))",
+      "expectedOutput": "[['a'], ['b'], ['c']]"
+    },
+    {
+      "name": "Empty",
+      "input": "print(group_anagrams([]))",
+      "expectedOutput": "[]"
+    }
+  ]
+}

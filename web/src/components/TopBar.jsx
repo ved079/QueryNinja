@@ -7,12 +7,14 @@ const NAV_OPTIONS = [
   { label: 'Next in series', action: 'next' },
 ];
 
-// The three sections a user can browse. 'da' problems are the Data Analyst
-// (business-metric) set and are exclusive to that section.
+// The four sections a user can browse. 'da' problems are the Data Analyst
+// (business-metric) set and are exclusive to that section. 'python' is the
+// Python coding practice section.
 const SECTION_OPTIONS = [
   { value: 'normal', label: 'Normal Problems' },
   { value: 'complex', label: 'Complex Problems' },
   { value: 'da', label: 'Data Analyst' },
+  { value: 'python', label: 'Python' },
 ];
 
 /**

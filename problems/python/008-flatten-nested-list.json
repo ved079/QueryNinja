@@ -1,0 +1,39 @@
+{
+  "id": "flatten-nested-list",
+  "number": 8,
+  "title": "Flatten Nested List",
+  "difficulty": "Medium",
+  "category": "Recursion",
+  "tags": [
+    "Recursion",
+    "Lists"
+  ],
+  "type": "python",
+  "description": "Write a function `flatten(lst)` that takes a nested list (lists within lists) and returns a single flattened list with all elements in order.\n\nExample: `flatten([1, [2, [3, 4], 5], 6])` returns `[1, 2, 3, 4, 5, 6]`.",
+  "starterCode": "def flatten(lst):\n    # Your code here\n    pass",
+  "solutionCode": "def flatten(lst):\n    result = []\n    for item in lst:\n        if isinstance(item, list):\n            result.extend(flatten(item))\n        else:\n            result.append(item)\n    return result",
+  "hint": "Use recursion: if an element is a list, recursively flatten it; otherwise, add it to the result.",
+  "outputExplanation": "flatten([1, [2, [3, 4], 5], 6]) recursively processes each nested list, yielding [1, 2, 3, 4, 5, 6].",
+  "tests": [
+    {
+      "name": "Basic nesting",
+      "input": "print(flatten([1, [2, [3, 4], 5], 6]))",
+      "expectedOutput": "[1, 2, 3, 4, 5, 6]"
+    },
+    {
+      "name": "Already flat",
+      "input": "print(flatten([1, 2, 3]))",
+      "expectedOutput": "[1, 2, 3]"
+    },
+    {
+      "name": "Empty",
+      "input": "print(flatten([]))",
+      "expectedOutput": "[]"
+    },
+    {
+      "name": "Deep nesting",
+      "input": "print(flatten([[[[1]]]]))",
+      "expectedOutput": "[1]"
+    }
+  ]
+}

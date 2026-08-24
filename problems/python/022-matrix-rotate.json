@@ -1,0 +1,34 @@
+{
+  "id": "matrix-rotate",
+  "number": 22,
+  "title": "Rotate Matrix 90°",
+  "difficulty": "Hard",
+  "category": "Matrix",
+  "tags": [
+    "Matrix",
+    "In-Place"
+  ],
+  "type": "python",
+  "description": "Write a function `rotate_matrix(matrix)` that rotates an n×n matrix 90 degrees clockwise **in-place**.\n\nExample:\n```\n[[1, 2],    [[3, 1],\n [3, 4]] →   [4, 2]]\n```\n\nThe function should modify the matrix in place and also return it.",
+  "starterCode": "def rotate_matrix(matrix):\n    # Your code here - rotate in-place\n    pass",
+  "solutionCode": "def rotate_matrix(matrix):\n    n = len(matrix)\n    # Transpose\n    for i in range(n):\n        for j in range(i + 1, n):\n            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]\n    # Reverse each row\n    for row in matrix:\n        row.reverse()\n    return matrix",
+  "hint": "Two-step approach: first transpose (swap across diagonal), then reverse each row.",
+  "outputExplanation": "Transposing swaps rows and columns, then reversing each row completes the 90° clockwise rotation.",
+  "tests": [
+    {
+      "name": "2x2 matrix",
+      "input": "print(rotate_matrix([[1, 2], [3, 4]]))",
+      "expectedOutput": "[[3, 1], [4, 2]]"
+    },
+    {
+      "name": "3x3 matrix",
+      "input": "print(rotate_matrix([[1,2,3],[4,5,6],[7,8,9]]))",
+      "expectedOutput": "[[7, 4, 1], [8, 5, 2], [9, 6, 3]]"
+    },
+    {
+      "name": "1x1 matrix",
+      "input": "print(rotate_matrix([[5]]))",
+      "expectedOutput": "[[5]]"
+    }
+  ]
+}
