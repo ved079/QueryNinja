@@ -10,7 +10,7 @@ async function init() {
 }
 
 function buildRunner(code, functionName, tests) {
-  const testsJson = JSON.stringify(tests);
+  const testsJson = JSON.stringify(JSON.stringify(tests));
   return `
 import json as _json, sys as _sys
 _sys.setrecursionlimit(500)
@@ -18,7 +18,7 @@ _sys.setrecursionlimit(500)
 ${code}
 
 _results = []
-_tests = ${testsJson}
+_tests = _json.loads(${testsJson})
 for _test in _tests:
     try:
         _inp = _test['input']
