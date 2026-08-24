@@ -83,6 +83,7 @@ export default function App() {
   const [loadError, setLoadError] = useState(null);
   const [editorNonce, setEditorNonce] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pyListOpen, setPyListOpen] = useState(false);
   // 'normal' = the original numbering; 'complex' = technique-heavy additions;
   // 'da' = the Data Analyst (business-metric) set. Filtering is in inMode().
   const [problemMode, setProblemMode] = useState(() => parseRoute()?.mode ?? 'normal');
@@ -519,6 +520,7 @@ export default function App() {
     <div className="layout">
       <TopBar
         onShowSidebar={() => setSidebarOpen(true)}
+        onShowPythonList={() => setPyListOpen(true)}
         problemMode={problemMode}
         onChangeMode={setMode}
         onShowProgress={() => setProgressOpen(true)}
@@ -537,7 +539,7 @@ export default function App() {
       />
 
       {appMode === 'python' && (
-        <PythonApp userName={userName} initialId={parsePythonRoute()} />
+        <PythonApp userName={userName} initialId={parsePythonRoute()} listOpen={pyListOpen} onListClose={() => setPyListOpen(false)} />
       )}
 
       {appMode === 'sql' && <main className="workspace">

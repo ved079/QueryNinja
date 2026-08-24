@@ -8,7 +8,7 @@ import { runPython } from './lib/pyodide-runner.js';
 
 const PYTHON_STARTER = '# Write your solution here\n';
 
-export default function PythonApp({ userName, initialId }) {
+export default function PythonApp({ userName, initialId, listOpen, onListClose }) {
   const [problems, setProblems] = useState([]);
   const [progress, setProgress] = useState({});
   const [selectedId, setSelectedId] = useState(null);
@@ -17,7 +17,6 @@ export default function PythonApp({ userName, initialId }) {
   const [verdict, setVerdict] = useState(null);
   const [running, setRunning] = useState(false);
   const [topicComplete, setTopicComplete] = useState(null); // { topic, nextId }
-  const [listOpen, setListOpen] = useState(false);
   const [splitRatio, setSplitRatio] = useState(40);
   const [workspaceSplit, setWorkspaceSplit] = useState(42);
   const [editorNonce, setEditorNonce] = useState(0);
@@ -204,7 +203,7 @@ export default function PythonApp({ userName, initialId }) {
         {/* Right: editor + output */}
         <section className="editor-pane" style={{ flex: 100 - workspaceSplit }}>
           <div className="toolbar">
-            <button className="sidebar-show" onClick={() => setListOpen(true)}>Problem List</button>
+            <span className="muted">Python 3</span>
             <div className="actions">
               <button
                 onClick={() => {
@@ -322,7 +321,7 @@ export default function PythonApp({ userName, initialId }) {
           progress={progress}
           selectedId={selectedId}
           onSelect={handleSelect}
-          onHide={() => setListOpen(false)}
+          onHide={onListClose}
         />
       )}
 

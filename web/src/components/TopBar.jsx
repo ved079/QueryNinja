@@ -24,6 +24,7 @@ const SECTION_OPTIONS = [
  */
 export default function TopBar({
   onShowSidebar,
+  onShowPythonList,
   problemMode,
   onChangeMode,
   onShowProgress,
@@ -72,6 +73,11 @@ export default function TopBar({
             onClick={() => onChangeAppMode?.('python')}
           >Python</button>
         </div>
+        {appMode === 'python' && (
+          <button className="sidebar-show" onClick={onShowPythonList} title="Show problem list">
+            Problem List
+          </button>
+        )}
         {appMode !== 'python' && (
           <>
             <button className="sidebar-show" onClick={onShowSidebar} title="Show problem list">
