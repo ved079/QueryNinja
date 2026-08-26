@@ -667,7 +667,7 @@ app.get('/api/python/progress', async (req, res) => {
 });
 
 app.post('/api/python/progress', async (req, res) => {
-  const { user, id, code, status } = req.body ?? {};
+  const { user, id, code, status, starred } = req.body ?? {};
   if (!id) return res.status(400).json({ error: 'id is required' });
   if (!(await requireUser(req, res, user))) return;
 
@@ -678,6 +678,7 @@ app.post('/api/python/progress', async (req, res) => {
     ...prev,
     status: newStatus,
     code: code ?? prev.code,
+    starred: starred !== undefined ? starred : prev.starred,
     solvedAt: newStatus === 'solved' ? (prev.solvedAt ?? new Date().toISOString()) : prev.solvedAt,
     updatedAt: new Date().toISOString(),
   };

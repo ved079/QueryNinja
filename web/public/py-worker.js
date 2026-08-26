@@ -54,6 +54,23 @@ print(_json.dumps(_results))
 
 const normalize = (s) => (s || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
+// Strip internal Pyodide/lib frames, keep only the user-relevant lines.
+function cleanError(raw) {
+  const msg = raw?.message ?? String(raw ?? '');
+  const lines = msg.split('\n');
+  // Find lines that don't mention pyodide internals
+  const filtered = lines.filter((l) =>
+    !l.includes('/lib/python') &&
+    !l.includes('_pyodide') &&
+    !l.includes('pyodide.asm') &&
+    !l.includes('CodeRunner') &&
+    l.trim() !== ''
+  );
+  // Always keep the last line (the actual error message)
+  if (!filtered.length) return lines[lines.length - 1]?.trim() ?? msg;
+  return filtered.join('\n').trim();
+}
+
 self.onmessage = async (e) => {
   const { id, type, code, inputs, functionName, helperCode, tests } = e.data;
   const py = await init();
@@ -68,7 +85,7 @@ self.onmessage = async (e) => {
       await py.runPythonAsync(normalize(code));
       self.postMessage({ id, output: output.trimEnd() });
     } catch (err) {
-      self.postMessage({ id, output: output.trimEnd(), error: err.message ?? String(err) });
+      self.postMessage({ id, output: output.trimEnd(), error: cleanError(err) });
     }
     return;
   }
@@ -88,6 +105,6 @@ self.onmessage = async (e) => {
     const results = JSON.parse(output.trim());
     self.postMessage({ id, results });
   } catch (err) {
-    self.postMessage({ id, error: err.message ?? String(err) });
+    self.postMessage({ id, error: cleanError(err) });
   }
 };

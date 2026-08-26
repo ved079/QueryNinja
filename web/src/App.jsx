@@ -184,6 +184,7 @@ export default function App() {
   // half-resolved URL), then pushState if the path doesn't already match.
   // A bare "/" load is normalized in place so back doesn't land on an empty URL.
   useEffect(() => {
+    if (appMode === 'python') return;
     if (!visibleProblems.length || !selectedId) return;
     if (!visibleProblems.some((p) => p.id === selectedId)) return;
     const target = `/${problemMode}_problems/${encodeURIComponent(selectedId)}`;
@@ -193,7 +194,7 @@ export default function App() {
       window.history.pushState(null, '', target);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [problemMode, selectedId, visibleProblems]);
+  }, [appMode, problemMode, selectedId, visibleProblems]);
 
   // Browser back/forward: read the new URL and reapply it to app state.
   useEffect(() => {
