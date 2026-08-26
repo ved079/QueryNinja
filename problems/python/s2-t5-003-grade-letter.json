@@ -1,0 +1,26 @@
+{
+  "id": "py-s2-t5-003",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "If / Else",
+  "topicIndex": 5,
+  "problemIndex": 3,
+  "title": "Grade Letter",
+  "difficulty": "Easy",
+  "type": "function",
+  "lesson": null,
+  "description": "Given a numeric score (0–100), return the letter grade: `'A'` (90–100), `'B'` (80–89), `'C'` (70–79), `'D'` (60–69), `'F'` (below 60). Return `'Invalid'` if the score is outside 0–100.\n\n**Example:**\n```\ngrade_letter(95) → 'A'\ngrade_letter(72) → 'C'\ngrade_letter(-5) → 'Invalid'\n```",
+  "starterCode": "def grade_letter(score):\n    # your code here\n    pass\n",
+  "functionName": "grade_letter",
+  "tests": [
+    {"name": "A grade", "input": [95], "expectedOutput": "A"},
+    {"name": "B grade", "input": [85], "expectedOutput": "B"},
+    {"name": "C grade", "input": [72], "expectedOutput": "C"},
+    {"name": "D grade", "input": [65], "expectedOutput": "D"},
+    {"name": "F grade", "input": [45], "expectedOutput": "F"},
+    {"name": "Invalid negative", "input": [-5], "expectedOutput": "Invalid"},
+    {"name": "Invalid over 100", "input": [105], "expectedOutput": "Invalid"},
+    {"name": "Boundary 90", "input": [90], "expectedOutput": "A"}
+  ],
+  "hint": "Check for invalid range first, then use elif for each grade band starting from the highest."
+}

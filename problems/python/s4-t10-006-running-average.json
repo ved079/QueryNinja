@@ -1,0 +1,24 @@
+{
+  "id": "py-s4-t10-006",
+  "stage": 4,
+  "stageLabel": "Functions",
+  "topic": "Functions",
+  "topicIndex": 10,
+  "problemIndex": 6,
+  "title": "Running Average",
+  "difficulty": "Medium",
+  "type": "function",
+  "lesson": null,
+  "description": "Given a list of numbers, return a new list where each element is the average of all numbers up to and including that index, rounded to 2 decimal places.\n\n**Example:**\n```\nrunning_average([1, 2, 3, 4]) → [1.0, 1.5, 2.0, 2.5]\nrunning_average([10, 0, 10]) → [10.0, 5.0, 6.67]\nrunning_average([5]) → [5.0]\n```",
+  "starterCode": "def running_average(nums):\n    # your code here\n    pass\n",
+  "functionName": "running_average",
+  "tests": [
+    {"name": "1 to 4", "input": [[1, 2, 3, 4]], "expectedOutput": [1.0, 1.5, 2.0, 2.5]},
+    {"name": "With zero", "input": [[10, 0, 10]], "expectedOutput": [10.0, 5.0, 6.67]},
+    {"name": "Single", "input": [[5]], "expectedOutput": [5.0]},
+    {"name": "Negatives", "input": [[-2, 4, -1]], "expectedOutput": [-2.0, 1.0, 0.33]},
+    {"name": "All same", "input": [[3, 3, 3]], "expectedOutput": [3.0, 3.0, 3.0]},
+    {"name": "Empty", "input": [[]], "expectedOutput": []}
+  ],
+  "hint": "Track a running total. For each index i, average = total / (i + 1). Round to 2 decimal places."
+}

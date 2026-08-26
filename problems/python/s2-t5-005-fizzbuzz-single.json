@@ -1,0 +1,26 @@
+{
+  "id": "py-s2-t5-005",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "If / Else",
+  "topicIndex": 5,
+  "problemIndex": 5,
+  "title": "FizzBuzz Single",
+  "difficulty": "Medium",
+  "type": "function",
+  "lesson": null,
+  "description": "Given a single number `n`, return `'FizzBuzz'` if divisible by both 3 and 5, `'Fizz'` if divisible by 3, `'Buzz'` if divisible by 5, or the number as a string otherwise.\n\n**Example:**\n```\nfizzbuzz(15) → 'FizzBuzz'\nfizzbuzz(9) → 'Fizz'\nfizzbuzz(10) → 'Buzz'\nfizzbuzz(7) → '7'\n```",
+  "starterCode": "def fizzbuzz(n):\n    # your code here\n    pass\n",
+  "functionName": "fizzbuzz",
+  "tests": [
+    {"name": "FizzBuzz (15)", "input": [15], "expectedOutput": "FizzBuzz"},
+    {"name": "Fizz (9)", "input": [9], "expectedOutput": "Fizz"},
+    {"name": "Buzz (10)", "input": [10], "expectedOutput": "Buzz"},
+    {"name": "Number (7)", "input": [7], "expectedOutput": "7"},
+    {"name": "FizzBuzz (30)", "input": [30], "expectedOutput": "FizzBuzz"},
+    {"name": "Fizz (3)", "input": [3], "expectedOutput": "Fizz"},
+    {"name": "Buzz (5)", "input": [5], "expectedOutput": "Buzz"},
+    {"name": "Number (1)", "input": [1], "expectedOutput": "1"}
+  ],
+  "hint": "Check divisibility by both 3 and 5 FIRST, before checking each individually."
+}

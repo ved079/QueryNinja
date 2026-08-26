@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t2-008",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Variables & Math",
+  "topicIndex": 2,
+  "problemIndex": 8,
+  "title": "Distance, Speed, and Fuel",
+  "difficulty": "Hard",
+  "type": "freerun",
+  "lesson": null,
+  "description": "A car travels 450 km at an average speed of 90 km/h and gets 12 km per liter of fuel. Fuel costs $1.45 per liter. Calculate and print the travel time in hours and minutes, the fuel used, and the total fuel cost. Round fuel used and cost to 2 decimal places.\n\n**Expected output:**\n```\nDistance: 450 km\nSpeed: 90 km/h\nTravel time: 5 hours, 0 minutes\nFuel used: 37.5 liters\nFuel cost: $54.38\n```",
+  "starterCode": "# Write your code here\ndistance = 450\nspeed = 90\nkmpl = 12\nfuel_price = 1.45\n",
+  "expectedOutput": "Distance: 450 km\nSpeed: 90 km/h\nTravel time: 5 hours, 0 minutes\nFuel used: 37.5 liters\nFuel cost: $54.38",
+  "inputs": [],
+  "hint": "time_hours = distance / speed. fuel = distance / kmpl. cost = fuel * fuel_price."
+}

@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t3-002",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Strings",
+  "topicIndex": 3,
+  "problemIndex": 2,
+  "title": "Count Vowels and Consonants",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Given the sentence `\"The quick brown fox jumps over the lazy dog\"`, count and print the number of vowels (a, e, i, o, u — case-insensitive) and consonants (letters that are not vowels). Ignore spaces.\n\n**Expected output:**\n```\nVowels: 11\nConsonants: 24\n```",
+  "starterCode": "# Write your code here\nsentence = \"The quick brown fox jumps over the lazy dog\"\n",
+  "expectedOutput": "Vowels: 11\nConsonants: 24",
+  "inputs": [],
+  "hint": "Loop through each character. Check if it's a letter (isalpha()) then if it's in 'aeiou' (lowercase)."
+}

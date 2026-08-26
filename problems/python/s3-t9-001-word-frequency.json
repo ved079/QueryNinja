@@ -1,0 +1,23 @@
+{
+  "id": "py-s3-t9-001",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Dictionaries",
+  "topicIndex": 9,
+  "problemIndex": 1,
+  "title": "Word Frequency Counter",
+  "difficulty": "Easy",
+  "type": "function",
+  "lesson": "## Dictionaries\n\nDictionaries store key-value pairs. Keys must be unique and immutable; values can be anything.\n\n```python\nperson = {\"name\": \"Alice\", \"age\": 25, \"city\": \"NYC\"}\nprint(person[\"name\"])      # Alice\nperson[\"email\"] = \"a@b.c\"  # add new key\nperson[\"age\"] = 26          # update existing\n```\n\n### Useful methods\n```python\nd = {\"a\": 1, \"b\": 2, \"c\": 3}\nd.keys()           # dict_keys(['a', 'b', 'c'])\nd.values()         # dict_values([1, 2, 3])\nd.items()          # dict_items([('a', 1), ('b', 2), ('c', 3)])\nd.get(\"a\", 0)      # 1 (returns 0 if key missing)\nd.get(\"z\", 0)      # 0\n\"a\" in d           # True\nd.pop(\"b\")         # removes 'b' and returns its value\n```\n\n### Iterating\n```python\nfor key, value in d.items():\n    print(f\"{key}: {value}\")\n```\n\n### Common pattern: counting\n```python\ncounts = {}\nfor item in items:\n    counts[item] = counts.get(item, 0) + 1\n```\n\n### Dict comprehensions\n```python\nsquares = {x: x**2 for x in range(1, 6)}\n# {1: 1, 2: 4, 3: 9, 4: 16, 5: 25}\n```",
+  "description": "Given a string of space-separated words (all lowercase), return a dictionary mapping each word to the number of times it appears.\n\n**Example:**\n```\nword_frequency('the cat sat on the mat') → {'the': 2, 'cat': 1, 'sat': 1, 'on': 1, 'mat': 1}\nword_frequency('hello hello hello') → {'hello': 3}\n```",
+  "starterCode": "def word_frequency(text):\n    # your code here\n    pass\n",
+  "functionName": "word_frequency",
+  "tests": [
+    {"name": "Basic sentence", "input": ["the cat sat on the mat"], "expectedOutput": {"the": 2, "cat": 1, "sat": 1, "on": 1, "mat": 1}},
+    {"name": "All same word", "input": ["hello hello hello"], "expectedOutput": {"hello": 3}},
+    {"name": "Single word", "input": ["python"], "expectedOutput": {"python": 1}},
+    {"name": "Two different words", "input": ["foo bar"], "expectedOutput": {"foo": 1, "bar": 1}},
+    {"name": "Repeated pairs", "input": ["a b a b a"], "expectedOutput": {"a": 3, "b": 2}}
+  ],
+  "hint": "Split the text into words. For each word, use dict.get(word, 0) + 1 to increment the count."
+}

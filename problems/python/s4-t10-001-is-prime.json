@@ -1,0 +1,26 @@
+{
+  "id": "py-s4-t10-001",
+  "stage": 4,
+  "stageLabel": "Functions",
+  "topic": "Functions",
+  "topicIndex": 10,
+  "problemIndex": 1,
+  "title": "Is Prime",
+  "difficulty": "Easy",
+  "type": "function",
+  "lesson": "## Functions\n\nFunctions let you encapsulate reusable logic, making code modular and readable.\n\n```python\ndef greet(name, greeting=\"Hello\"):\n    return f\"{greeting}, {name}!\"\n\nprint(greet(\"Alice\"))           # Hello, Alice!\nprint(greet(\"Bob\", \"Hi\"))       # Hi, Bob!\n```\n\n### Return values\nA function can return any value, or nothing (returns `None`):\n\n```python\ndef add(a, b):\n    return a + b\n\nresult = add(3, 4)  # 7\n```\n\n### Multiple return values\n```python\ndef min_max(lst):\n    return min(lst), max(lst)\n\nlo, hi = min_max([3, 1, 4, 1, 5])\n```\n\n### Functions calling functions\n```python\ndef is_even(n):\n    return n % 2 == 0\n\ndef count_evens(lst):\n    return sum(1 for x in lst if is_even(x))\n```\n\n### Recursion\nA function that calls itself:\n\n```python\ndef factorial(n):\n    if n <= 1:\n        return 1\n    return n * factorial(n - 1)\n```\n\n### Default arguments and *args\n```python\ndef total(*numbers):\n    return sum(numbers)\n\ntotal(1, 2, 3, 4)  # 10\n```",
+  "description": "Return `True` if `n` is a prime number, `False` otherwise. A prime is greater than 1 and divisible only by 1 and itself. Your solution should be efficient — check divisors only up to √n.\n\n**Example:**\n```\nis_prime(7) → True\nis_prime(4) → False\nis_prime(1) → False\nis_prime(2) → True\n```",
+  "starterCode": "def is_prime(n):\n    # your code here\n    pass\n",
+  "functionName": "is_prime",
+  "tests": [
+    {"name": "Prime 7", "input": [7], "expectedOutput": true},
+    {"name": "Not prime 4", "input": [4], "expectedOutput": false},
+    {"name": "Edge case 1", "input": [1], "expectedOutput": false},
+    {"name": "Smallest prime 2", "input": [2], "expectedOutput": true},
+    {"name": "Prime 3", "input": [3], "expectedOutput": true},
+    {"name": "Large prime 97", "input": [97], "expectedOutput": true},
+    {"name": "Large composite 100", "input": [100], "expectedOutput": false},
+    {"name": "0 is not prime", "input": [0], "expectedOutput": false}
+  ],
+  "hint": "Return False for n < 2. Check divisibility from 2 to int(n**0.5)+1. If any divides n evenly, return False."
+}

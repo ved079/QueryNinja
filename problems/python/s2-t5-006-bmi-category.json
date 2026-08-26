@@ -1,0 +1,24 @@
+{
+  "id": "py-s2-t5-006",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "If / Else",
+  "topicIndex": 5,
+  "problemIndex": 6,
+  "title": "BMI Category",
+  "difficulty": "Medium",
+  "type": "function",
+  "lesson": null,
+  "description": "Given `weight` (kg) and `height` (m), calculate BMI and return the category string: `'Underweight'` (BMI < 18.5), `'Normal'` (18.5 ≤ BMI < 25), `'Overweight'` (25 ≤ BMI < 30), `'Obese'` (BMI ≥ 30).\n\n**Example:**\n```\nbmi_category(70, 1.75) → 'Normal'\nbmi_category(50, 1.75) → 'Underweight'\nbmi_category(90, 1.70) → 'Overweight'\n```",
+  "starterCode": "def bmi_category(weight, height):\n    # your code here\n    pass\n",
+  "functionName": "bmi_category",
+  "tests": [
+    {"name": "Normal", "input": [70, 1.75], "expectedOutput": "Normal"},
+    {"name": "Underweight", "input": [50, 1.75], "expectedOutput": "Underweight"},
+    {"name": "Overweight", "input": [90, 1.70], "expectedOutput": "Overweight"},
+    {"name": "Obese", "input": [120, 1.75], "expectedOutput": "Obese"},
+    {"name": "Borderline Normal", "input": [56.6, 1.75], "expectedOutput": "Normal"},
+    {"name": "Tall and heavy", "input": [100, 1.95], "expectedOutput": "Normal"}
+  ],
+  "hint": "Compute bmi = weight / height**2, then use if/elif to return the category string."
+}

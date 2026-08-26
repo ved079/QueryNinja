@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t2-004",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Variables & Math",
+  "topicIndex": 2,
+  "problemIndex": 4,
+  "title": "Time Converter",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Convert 9999 seconds into hours, minutes, and seconds. Print the result in the format `H hours, M minutes, S seconds`.\n\n**Expected output:**\n```\n2 hours, 46 minutes, 39 seconds\n```",
+  "starterCode": "# Write your code here\ntotal_seconds = 9999\n",
+  "expectedOutput": "2 hours, 46 minutes, 39 seconds",
+  "inputs": [],
+  "hint": "Use // and % to extract hours, minutes, and seconds. hours = total // 3600, remainder = total % 3600, minutes = remainder // 60, seconds = remainder % 60."
+}

@@ -1,0 +1,24 @@
+{
+  "id": "py-s2-t5-001",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "If / Else",
+  "topicIndex": 5,
+  "problemIndex": 1,
+  "title": "Absolute Value",
+  "difficulty": "Easy",
+  "type": "function",
+  "lesson": "## If / Else\n\nConditional statements let your program make decisions based on whether conditions are true or false.\n\n```python\nif condition:\n    # runs when condition is True\nelif other_condition:\n    # runs when other_condition is True\nelse:\n    # runs when none of the above are True\n```\n\n### Comparison operators\n| Operator | Meaning |\n|---|---|\n| `==` | Equal to |\n| `!=` | Not equal to |\n| `<` | Less than |\n| `>` | Greater than |\n| `<=` | Less than or equal to |\n| `>=` | Greater than or equal to |\n\n### Logical operators\n- `and` — both conditions must be true\n- `or` — at least one must be true\n- `not` — inverts the condition\n\n```python\nif x > 0 and x < 10:\n    print(\"x is between 1 and 9\")\n```\n\n### Ternary (inline if)\n```python\nresult = \"positive\" if x > 0 else \"non-positive\"\n```\n\n### Chaining comparisons\n```python\nif 0 <= score <= 100:  # same as score >= 0 and score <= 100\n    print(\"Valid score\")\n```",
+  "description": "Return the absolute value of `n` without using the built-in `abs()` function.\n\n**Example:**\n```\nabsolute_value(-5) → 5\nabsolute_value(3) → 3\nabsolute_value(0) → 0\n```",
+  "starterCode": "def absolute_value(n):\n    # your code here\n    pass\n",
+  "functionName": "absolute_value",
+  "tests": [
+    {"name": "Negative number", "input": [-5], "expectedOutput": 5},
+    {"name": "Positive number", "input": [3], "expectedOutput": 3},
+    {"name": "Zero", "input": [0], "expectedOutput": 0},
+    {"name": "Large negative", "input": [-100], "expectedOutput": 100},
+    {"name": "Large positive", "input": [999], "expectedOutput": 999},
+    {"name": "Minus one", "input": [-1], "expectedOutput": 1}
+  ],
+  "hint": "If n < 0, return -n. Otherwise return n."
+}

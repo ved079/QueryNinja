@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t1-007",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Print & Output",
+  "topicIndex": 1,
+  "problemIndex": 7,
+  "title": "ASCII Box",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Print an ASCII box that is 7 characters wide and 5 rows tall. The border uses `+` for corners, `-` for top/bottom edges, and `|` for side edges. The interior is filled with spaces.\n\n**Expected output:**\n```\n+-----+\n|     |\n|     |\n|     |\n+-----+\n```",
+  "starterCode": "# Write your code here\n",
+  "expectedOutput": "+-----+\n|     |\n|     |\n|     |\n+-----+",
+  "inputs": [],
+  "hint": "Build the top/bottom row as `'+' + '-'*5 + '+'` and the middle rows as `'|' + ' '*5 + '|'`."
+}

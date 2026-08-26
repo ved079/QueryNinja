@@ -1,0 +1,24 @@
+{
+  "id": "py-s3-t9-007",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Dictionaries",
+  "topicIndex": 9,
+  "problemIndex": 7,
+  "title": "Character Frequency Map",
+  "difficulty": "Hard",
+  "type": "function",
+  "lesson": null,
+  "description": "Given a string, return a dictionary mapping each unique character (case-sensitive) to the number of times it appears. Ignore spaces.\n\n**Example:**\n```\nchar_frequency('hello') → {'h': 1, 'e': 1, 'l': 2, 'o': 1}\nchar_frequency('aabbcc') → {'a': 2, 'b': 2, 'c': 2}\nchar_frequency('') → {}\n```",
+  "starterCode": "def char_frequency(s):\n    # your code here\n    pass\n",
+  "functionName": "char_frequency",
+  "tests": [
+    {"name": "hello", "input": ["hello"], "expectedOutput": {"h": 1, "e": 1, "l": 2, "o": 1}},
+    {"name": "aabbcc", "input": ["aabbcc"], "expectedOutput": {"a": 2, "b": 2, "c": 2}},
+    {"name": "Empty string", "input": [""], "expectedOutput": {}},
+    {"name": "Single char", "input": ["z"], "expectedOutput": {"z": 1}},
+    {"name": "With spaces (ignored)", "input": ["a b a"], "expectedOutput": {"a": 2, "b": 1}},
+    {"name": "Case sensitive", "input": ["AaBb"], "expectedOutput": {"A": 1, "a": 1, "B": 1, "b": 1}}
+  ],
+  "hint": "Loop over each character; skip spaces. Use dict.get(c, 0) + 1 to count."
+}

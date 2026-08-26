@@ -1,0 +1,23 @@
+{
+  "id": "py-s3-t9-006",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Dictionaries",
+  "topicIndex": 9,
+  "problemIndex": 6,
+  "title": "Dictionary Difference",
+  "difficulty": "Hard",
+  "type": "function",
+  "lesson": null,
+  "description": "Given two dictionaries `a` and `b`, return a dictionary describing the differences: keys only in `a` (with their value), keys only in `b` (with their value), and keys in both but with different values (with both old and new values).\n\nReturn format:\n```python\n{\n  'added': {key: value},    # in b but not a\n  'removed': {key: value},  # in a but not b\n  'changed': {key: (old, new)}  # in both but different value\n}\n```\n\n**Example:**\n```\ndict_diff({'a': 1, 'b': 2, 'c': 3}, {'b': 20, 'c': 3, 'd': 4})\n→ {'added': {'d': 4}, 'removed': {'a': 1}, 'changed': {'b': (2, 20)}}\n```",
+  "starterCode": "def dict_diff(a, b):\n    # your code here\n    pass\n",
+  "functionName": "dict_diff",
+  "tests": [
+    {"name": "Mixed changes", "input": [{"a": 1, "b": 2, "c": 3}, {"b": 20, "c": 3, "d": 4}], "expectedOutput": {"added": {"d": 4}, "removed": {"a": 1}, "changed": {"b": [2, 20]}}},
+    {"name": "No changes", "input": [{"a": 1}, {"a": 1}], "expectedOutput": {"added": {}, "removed": {}, "changed": {}}},
+    {"name": "All added", "input": [{}, {"x": 1}], "expectedOutput": {"added": {"x": 1}, "removed": {}, "changed": {}}},
+    {"name": "All removed", "input": [{"x": 1}, {}], "expectedOutput": {"added": {}, "removed": {"x": 1}, "changed": {}}},
+    {"name": "Only changed", "input": [{"a": 1, "b": 2}, {"a": 10, "b": 20}], "expectedOutput": {"added": {}, "removed": {}, "changed": {"a": [1, 10], "b": [2, 20]}}}
+  ],
+  "hint": "Use set operations on keys: only_a = a.keys() - b.keys(), only_b = b.keys() - a.keys(), both = a.keys() & b.keys()."
+}

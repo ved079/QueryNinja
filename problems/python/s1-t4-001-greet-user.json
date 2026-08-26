@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t4-001",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "User Input",
+  "topicIndex": 4,
+  "problemIndex": 1,
+  "title": "Personal Greeter",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "## User Input\n\nThe `input()` function lets your program read text from the user:\n\n```python\nname = input(\"Enter your name: \")\nprint(f\"Hello, {name}!\")\n```\n\n### Type conversion\n`input()` always returns a string. Convert with `int()` or `float()` for numbers:\n\n```python\nage = int(input(\"Enter your age: \"))\nyears_left = 100 - age\nprint(f\"You have {years_left} years until 100!\")\n```\n\n### Multiple inputs\nRead multiple values on separate lines:\n\n```python\nfirst = input()\nlast = input()\nprint(f\"Full name: {first} {last}\")\n```\n\n### In this editor\nInputs are pre-filled in the `inputs` list — each call to `input()` reads the next value automatically.\n\n```python\n# If inputs = [\"Alice\", \"25\"]\nname = input()  # reads \"Alice\"\nage = input()   # reads \"25\"\n```",
+  "description": "Read a person's name and age from input, then print a personalized greeting telling them how many years until they turn 100.\n\n**Example (inputs: `Alice`, `25`):**\n```\nHello, Alice! You are 25 years old.\nYou have 75 years until you turn 100.\n```",
+  "starterCode": "# Write your code here\nname = input()\nage = int(input())\n",
+  "expectedOutput": "Hello, Alice! You are 25 years old.\nYou have 75 years until you turn 100.",
+  "inputs": ["Alice", "25"],
+  "hint": "Read name as string, age as int. Subtract from 100 to get years remaining."
+}

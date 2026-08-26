@@ -1,0 +1,22 @@
+{
+  "id": "py-s3-t9-002",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Dictionaries",
+  "topicIndex": 9,
+  "problemIndex": 2,
+  "title": "Invert Dictionary",
+  "difficulty": "Easy",
+  "type": "function",
+  "lesson": null,
+  "description": "Given a dictionary, return a new dictionary with keys and values swapped. Assume all values are unique and hashable.\n\n**Example:**\n```\ninvert_dict({'a': 1, 'b': 2, 'c': 3}) → {1: 'a', 2: 'b', 3: 'c'}\ninvert_dict({}) → {}\n```",
+  "starterCode": "def invert_dict(d):\n    # your code here\n    pass\n",
+  "functionName": "invert_dict",
+  "tests": [
+    {"name": "Basic inversion", "input": [{"a": 1, "b": 2, "c": 3}], "expectedOutput": {"1": "a", "2": "b", "3": "c"}},
+    {"name": "Empty dict", "input": [{}], "expectedOutput": {}},
+    {"name": "Single pair", "input": [{"x": "y"}], "expectedOutput": {"y": "x"}},
+    {"name": "Mixed types", "input": [{"one": "1", "two": "2"}], "expectedOutput": {"1": "one", "2": "two"}}
+  ],
+  "hint": "Use a dict comprehension: {v: k for k, v in d.items()}"
+}

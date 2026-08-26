@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t4-008",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "User Input",
+  "topicIndex": 4,
+  "problemIndex": 8,
+  "title": "Life Stage Classifier",
+  "difficulty": "Hard",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Read a birth year and the current year from input. Calculate the person's age. Print their age and classify them into a life stage: `Child` (0–12), `Teenager` (13–17), `Young Adult` (18–35), `Middle-Aged` (36–60), `Senior` (61+). Also print how many years until they turn 65 (or `Already 65 or older` if applicable).\n\n**Example (inputs: `1990`, `2025`):**\n```\nAge: 35\nLife stage: Young Adult\nYears until 65: 30\n```",
+  "starterCode": "# Write your code here\nbirth_year = int(input())\ncurrent_year = int(input())\n",
+  "expectedOutput": "Age: 35\nLife stage: Young Adult\nYears until 65: 30",
+  "inputs": ["1990", "2025"],
+  "hint": "age = current_year - birth_year. Use if/elif for life stage. For years until 65, max(0, 65 - age)."
+}

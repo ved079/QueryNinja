@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t3-005",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Strings",
+  "topicIndex": 3,
+  "problemIndex": 5,
+  "title": "ROT13 Cipher",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Apply the ROT13 cipher to the string `\"Hello World\"`. ROT13 shifts each letter by 13 positions in the alphabet (wrapping around). Non-letter characters remain unchanged. Preserve case.\n\n**Expected output:**\n```\nUryyb Jbeyq\n```",
+  "starterCode": "# Write your code here\ntext = \"Hello World\"\n",
+  "expectedOutput": "Uryyb Jbeyq",
+  "inputs": [],
+  "hint": "For each letter, use ord() to get its ASCII value, shift by 13 within the alphabet, and use chr() to convert back. Handle uppercase and lowercase separately."
+}

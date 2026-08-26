@@ -1,0 +1,24 @@
+{
+  "id": "py-s3-t9-008",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Dictionaries",
+  "topicIndex": 9,
+  "problemIndex": 8,
+  "title": "Nested Dictionary Lookup",
+  "difficulty": "Hard",
+  "type": "function",
+  "lesson": null,
+  "description": "Given a nested dictionary `d` and a list of keys `keys`, return the value found by traversing the keys in order. If any key doesn't exist at any level, return `None`.\n\n**Example:**\n```\nd = {'a': {'b': {'c': 42}}}\nnested_get(d, ['a', 'b', 'c']) → 42\nnested_get(d, ['a', 'x']) → None\nnested_get(d, []) → d\n```",
+  "starterCode": "def nested_get(d, keys):\n    # your code here\n    pass\n",
+  "functionName": "nested_get",
+  "tests": [
+    {"name": "Three levels deep", "input": [{"a": {"b": {"c": 42}}}, ["a", "b", "c"]], "expectedOutput": 42},
+    {"name": "Missing key", "input": [{"a": {"b": 1}}, ["a", "x"]], "expectedOutput": null},
+    {"name": "Empty keys", "input": [{"a": 1}, []], "expectedOutput": {"a": 1}},
+    {"name": "One level", "input": [{"x": 99}, ["x"]], "expectedOutput": 99},
+    {"name": "Value is dict", "input": [{"a": {"b": 2}}, ["a"]], "expectedOutput": {"b": 2}},
+    {"name": "Empty dict", "input": [{}, ["a"]], "expectedOutput": null}
+  ],
+  "hint": "Loop over keys, updating current = current.get(key) at each step. Return None if current is not a dict."
+}

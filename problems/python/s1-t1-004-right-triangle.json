@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t1-004",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Print & Output",
+  "topicIndex": 1,
+  "problemIndex": 4,
+  "title": "Right Triangle of Stars",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Print a right-aligned triangle of stars with height 5. Each row should be right-aligned within a width of 5 characters.\n\n**Expected output:**\n```\n    *\n   **\n  ***\n ****\n*****\n```",
+  "starterCode": "# Write your code here\n",
+  "expectedOutput": "    *\n   **\n  ***\n ****\n*****",
+  "inputs": [],
+  "hint": "String multiplication: `'*' * i` gives i stars. Use `str.rjust(5)` or format with spaces."
+}

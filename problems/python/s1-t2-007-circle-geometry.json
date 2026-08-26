@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t2-007",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Variables & Math",
+  "topicIndex": 2,
+  "problemIndex": 7,
+  "title": "Circle Geometry",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Given a circle with radius 7, calculate and print its diameter, circumference, and area. Use `pi = 3.14159`. Round all results to 2 decimal places.\n\n**Expected output:**\n```\nRadius: 7\nDiameter: 14\nCircumference: 43.98\nArea: 153.94\n```",
+  "starterCode": "# Write your code here\nradius = 7\npi = 3.14159\n",
+  "expectedOutput": "Radius: 7\nDiameter: 14\nCircumference: 43.98\nArea: 153.94",
+  "inputs": [],
+  "hint": "diameter = 2*r, circumference = 2*pi*r, area = pi*r*r"
+}

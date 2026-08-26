@@ -1,0 +1,25 @@
+{
+  "id": "py-s2-t5-008",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "If / Else",
+  "topicIndex": 5,
+  "problemIndex": 8,
+  "title": "Rock Paper Scissors",
+  "difficulty": "Hard",
+  "type": "function",
+  "lesson": null,
+  "description": "Given two players' moves (`'rock'`, `'paper'`, or `'scissors'`), return `'Player 1'` if player 1 wins, `'Player 2'` if player 2 wins, or `'Tie'` if it's a draw. Return `'Invalid'` if either move is not one of the three valid options.\n\n**Rules:** Rock beats scissors, scissors beats paper, paper beats rock.\n\n**Example:**\n```\nrock_paper_scissors('rock', 'scissors') → 'Player 1'\nrock_paper_scissors('paper', 'paper') → 'Tie'\nrock_paper_scissors('scissors', 'rock') → 'Player 2'\n```",
+  "starterCode": "def rock_paper_scissors(p1, p2):\n    # your code here\n    pass\n",
+  "functionName": "rock_paper_scissors",
+  "tests": [
+    {"name": "P1 wins rock vs scissors", "input": ["rock", "scissors"], "expectedOutput": "Player 1"},
+    {"name": "P1 wins paper vs rock", "input": ["paper", "rock"], "expectedOutput": "Player 1"},
+    {"name": "P2 wins", "input": ["scissors", "rock"], "expectedOutput": "Player 2"},
+    {"name": "Tie", "input": ["paper", "paper"], "expectedOutput": "Tie"},
+    {"name": "Tie rock", "input": ["rock", "rock"], "expectedOutput": "Tie"},
+    {"name": "Invalid move", "input": ["gun", "rock"], "expectedOutput": "Invalid"},
+    {"name": "P2 paper beats rock", "input": ["rock", "paper"], "expectedOutput": "Player 2"}
+  ],
+  "hint": "Define a set of valid moves. Then check if p1 == p2 (tie), then use a dict or if/elif to determine winner."
+}

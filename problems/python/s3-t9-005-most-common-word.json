@@ -1,0 +1,23 @@
+{
+  "id": "py-s3-t9-005",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Dictionaries",
+  "topicIndex": 9,
+  "problemIndex": 5,
+  "title": "Most Common Word",
+  "difficulty": "Medium",
+  "type": "function",
+  "lesson": null,
+  "description": "Given a string of text (lowercase, space-separated words), return the word that appears most frequently. If there is a tie, return the word that comes first alphabetically.\n\n**Example:**\n```\nmost_common_word('the cat sat on the mat the') → 'the'\nmost_common_word('a b c a b') → 'a'\nmost_common_word('dog cat bird') → 'bird'\n```",
+  "starterCode": "def most_common_word(text):\n    # your code here\n    pass\n",
+  "functionName": "most_common_word",
+  "tests": [
+    {"name": "Clear winner", "input": ["the cat sat on the mat the"], "expectedOutput": "the"},
+    {"name": "Tie goes alphabetical", "input": ["a b c a b"], "expectedOutput": "a"},
+    {"name": "All different", "input": ["dog cat bird"], "expectedOutput": "bird"},
+    {"name": "Single word", "input": ["hello"], "expectedOutput": "hello"},
+    {"name": "Two word tie", "input": ["x y x y"], "expectedOutput": "x"}
+  ],
+  "hint": "Build a frequency dict. Find max frequency. Among all words with max frequency, return the alphabetically smallest."
+}

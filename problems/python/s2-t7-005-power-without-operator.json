@@ -1,0 +1,25 @@
+{
+  "id": "py-s2-t7-005",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "While Loops",
+  "topicIndex": 7,
+  "problemIndex": 5,
+  "title": "Power Without ** Operator",
+  "difficulty": "Medium",
+  "type": "function",
+  "lesson": null,
+  "description": "Return `base` raised to the power `exp` (non-negative integer) without using the `**` operator or `pow()`. Use repeated multiplication.\n\n**Example:**\n```\npower(2, 10) → 1024\npower(3, 0) → 1\npower(5, 3) → 125\n```",
+  "starterCode": "def power(base, exp):\n    # your code here (no ** or pow())\n    pass\n",
+  "functionName": "power",
+  "tests": [
+    {"name": "2^10", "input": [2, 10], "expectedOutput": 1024},
+    {"name": "3^0", "input": [3, 0], "expectedOutput": 1},
+    {"name": "5^3", "input": [5, 3], "expectedOutput": 125},
+    {"name": "1^100", "input": [1, 100], "expectedOutput": 1},
+    {"name": "0^5", "input": [0, 5], "expectedOutput": 0},
+    {"name": "7^2", "input": [7, 2], "expectedOutput": 49},
+    {"name": "10^4", "input": [10, 4], "expectedOutput": 10000}
+  ],
+  "hint": "Start with result = 1 and multiply by base exp times using a while loop."
+}

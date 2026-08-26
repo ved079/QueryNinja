@@ -193,6 +193,16 @@ export default function PythonApp({ userName, initialId, listOpen, onListClose }
     }
   }, [problem, running, isFreerun, saveProgress]);
 
+  const toggleStar = useCallback(async (id) => {
+    const cur = progress[id]?.starred ?? false;
+    setProgress((prev) => ({ ...prev, [id]: { ...prev[id], starred: !cur } }));
+    await apiFetch('/api/python/progress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: userName || 'anonymous', id, starred: !cur }),
+    }, userName);
+  }, [progress, userName]);
+
   const handleSelect = useCallback((id) => {
     setSelectedId(id);
     setEditorNonce((n) => n + 1);
@@ -208,7 +218,6 @@ export default function PythonApp({ userName, initialId, listOpen, onListClose }
         <PythonPane
           problem={problem}
           verdict={verdict}
-          defaultTab={problem?.lesson && !progress[problem?.id] ? 'lesson' : 'problem'}
           problems={problems}
           progress={progress}
           onSelect={handleSelect}
@@ -242,6 +251,15 @@ export default function PythonApp({ userName, initialId, listOpen, onListClose }
         <div className="toolbar">
           <span className="muted">Python 3</span>
           <div className="actions">
+            {(() => {
+              const idx = problems.findIndex((p) => p.id === selectedId);
+              return (
+                <>
+                  <button title="Previous problem" disabled={idx <= 0} onClick={() => idx > 0 && handleSelect(problems[idx - 1].id)}>‹</button>
+                  <button title="Next problem" disabled={idx >= problems.length - 1} onClick={() => idx < problems.length - 1 && handleSelect(problems[idx + 1].id)}>›</button>
+                </>
+              );
+            })()}
             <button onClick={() => { setCode(problem?.starterCode || PYTHON_STARTER); setEditorNonce((n) => n + 1); }}>
               Reset
             </button>
@@ -368,6 +386,7 @@ export default function PythonApp({ userName, initialId, listOpen, onListClose }
           selectedId={selectedId}
           onSelect={handleSelect}
           onHide={onListClose}
+          onToggleStar={toggleStar}
         />
       )}
 

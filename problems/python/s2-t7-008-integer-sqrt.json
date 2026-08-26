@@ -1,0 +1,25 @@
+{
+  "id": "py-s2-t7-008",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "While Loops",
+  "topicIndex": 7,
+  "problemIndex": 8,
+  "title": "Integer Square Root",
+  "difficulty": "Hard",
+  "type": "function",
+  "lesson": null,
+  "description": "Return the integer square root of `n` (the largest integer `k` such that `k² ≤ n`). Do not use `math.sqrt`, `**0.5`, or `math.isqrt`. Use a loop to find it.\n\n**Example:**\n```\ninteger_sqrt(9) → 3\ninteger_sqrt(10) → 3\ninteger_sqrt(16) → 4\ninteger_sqrt(0) → 0\n```",
+  "starterCode": "def integer_sqrt(n):\n    # your code here (no math.sqrt or **0.5)\n    pass\n",
+  "functionName": "integer_sqrt",
+  "tests": [
+    {"name": "Perfect square 9", "input": [9], "expectedOutput": 3},
+    {"name": "Non-perfect 10", "input": [10], "expectedOutput": 3},
+    {"name": "Perfect 16", "input": [16], "expectedOutput": 4},
+    {"name": "Zero", "input": [0], "expectedOutput": 0},
+    {"name": "One", "input": [1], "expectedOutput": 1},
+    {"name": "Large 144", "input": [144], "expectedOutput": 12},
+    {"name": "Non-perfect 2", "input": [2], "expectedOutput": 1}
+  ],
+  "hint": "Use binary search: low=0, high=n. While low <= high, check mid*mid <= n and (mid+1)*(mid+1) > n."
+}

@@ -1,0 +1,25 @@
+{
+  "id": "py-s2-t5-007",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "If / Else",
+  "topicIndex": 5,
+  "problemIndex": 7,
+  "title": "Triangle Type",
+  "difficulty": "Hard",
+  "type": "function",
+  "lesson": null,
+  "description": "Given the lengths of three sides of a triangle, return its type: `'Equilateral'` (all sides equal), `'Isosceles'` (exactly two sides equal), `'Scalene'` (all sides different). Return `'Invalid'` if the sides cannot form a valid triangle (the sum of any two sides must be greater than the third).\n\n**Example:**\n```\ntriangle_type(3, 3, 3) → 'Equilateral'\ntriangle_type(5, 5, 3) → 'Isosceles'\ntriangle_type(3, 4, 5) → 'Scalene'\ntriangle_type(1, 2, 10) → 'Invalid'\n```",
+  "starterCode": "def triangle_type(a, b, c):\n    # your code here\n    pass\n",
+  "functionName": "triangle_type",
+  "tests": [
+    {"name": "Equilateral", "input": [3, 3, 3], "expectedOutput": "Equilateral"},
+    {"name": "Isosceles (first two equal)", "input": [5, 5, 3], "expectedOutput": "Isosceles"},
+    {"name": "Isosceles (last two equal)", "input": [3, 5, 5], "expectedOutput": "Isosceles"},
+    {"name": "Scalene", "input": [3, 4, 5], "expectedOutput": "Scalene"},
+    {"name": "Invalid triangle", "input": [1, 2, 10], "expectedOutput": "Invalid"},
+    {"name": "Zero side", "input": [0, 3, 3], "expectedOutput": "Invalid"},
+    {"name": "Degenerate (sum exactly equal)", "input": [1, 2, 3], "expectedOutput": "Invalid"}
+  ],
+  "hint": "First check the triangle inequality: a+b>c, b+c>a, a+c>b (and all sides > 0). Then check how many sides are equal."
+}

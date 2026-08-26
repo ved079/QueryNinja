@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t3-001",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Strings",
+  "topicIndex": 3,
+  "problemIndex": 1,
+  "title": "Reverse Each Word",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "## Strings\n\nStrings are sequences of characters enclosed in quotes.\n\n```python\ngreeting = \"Hello, World!\"\nname = 'Alice'\n```\n\n### Common string methods\n| Method | Description | Example |\n|---|---|---|\n| `.upper()` | Uppercase | `\"hello\".upper()` → `\"HELLO\"` |\n| `.lower()` | Lowercase | `\"HELLO\".lower()` → `\"hello\"` |\n| `.strip()` | Remove whitespace | `\"  hi  \".strip()` → `\"hi\"` |\n| `.replace(a, b)` | Replace substring | `\"cat\".replace(\"c\",\"b\")` → `\"bat\"` |\n| `.split(sep)` | Split into list | `\"a,b\".split(\",\")` → `[\"a\",\"b\"]` |\n| `.join(lst)` | Join list | `\"-\".join([\"a\",\"b\"])` → `\"a-b\"` |\n| `.count(sub)` | Count occurrences | `\"abca\".count(\"a\")` → `2` |\n| `.find(sub)` | Find index | `\"hello\".find(\"l\")` → `2` |\n\n### Slicing\nAccess parts of a string with `[start:end:step]`:\n\n```python\ns = \"Python\"\nprint(s[0:3])   # Pyt\nprint(s[::-1])  # nohtyP  (reversed)\nprint(s[2:])    # thon\n```\n\n### f-strings\n```python\nname = \"World\"\nprint(f\"Hello, {name}!\")  # Hello, World!\n```\n\n### String multiplication\n```python\nprint(\"ha\" * 3)  # hahaha\n```",
+  "description": "Given the string `\"hello world python\"`, reverse each individual word (not the whole string) and print the result. The word order stays the same.\n\n**Expected output:**\n```\nolleh dlrow nohtyp\n```",
+  "starterCode": "# Write your code here\nsentence = \"hello world python\"\n",
+  "expectedOutput": "olleh dlrow nohtyp",
+  "inputs": [],
+  "hint": "Split the sentence into words, reverse each word using [::-1], then join back with spaces."
+}

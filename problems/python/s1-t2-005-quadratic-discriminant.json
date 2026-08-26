@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t2-005",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Variables & Math",
+  "topicIndex": 2,
+  "problemIndex": 5,
+  "title": "Quadratic Discriminant",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": null,
+  "description": "For the quadratic equation `2x² - 4x - 6 = 0` (a=2, b=-4, c=-6), calculate the discriminant `D = b² - 4ac` and then solve for both roots using the quadratic formula. Print the discriminant and both roots rounded to 2 decimal places.\n\n**Expected output:**\n```\nDiscriminant: 64\nRoot 1: 3.0\nRoot 2: -1.0\n```",
+  "starterCode": "# Write your code here\na = 2\nb = -4\nc = -6\n",
+  "expectedOutput": "Discriminant: 64\nRoot 1: 3.0\nRoot 2: -1.0",
+  "inputs": [],
+  "hint": "D = b**2 - 4*a*c. Root1 = (-b + D**0.5) / (2*a). Root2 = (-b - D**0.5) / (2*a)."
+}

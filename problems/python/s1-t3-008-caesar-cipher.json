@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t3-008",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Strings",
+  "topicIndex": 3,
+  "problemIndex": 8,
+  "title": "Caesar Cipher Encode & Decode",
+  "difficulty": "Hard",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Encode the string `\"Python is Fun\"` using a Caesar cipher with shift 3 (shift each letter forward by 3, wrapping z→a). Then decode it back. Print both results. Non-letter characters stay unchanged. Preserve case.\n\n**Expected output:**\n```\nEncoded: Sbwkrq lv Ixq\nDecoded: Python is Fun\n```",
+  "starterCode": "# Write your code here\ntext = \"Python is Fun\"\nshift = 3\n",
+  "expectedOutput": "Encoded: Sbwkrq lv Ixq\nDecoded: Python is Fun",
+  "inputs": [],
+  "hint": "For encoding: (ord(c) - ord('A') + shift) % 26 + ord('A') for uppercase. For decoding, use -shift."
+}

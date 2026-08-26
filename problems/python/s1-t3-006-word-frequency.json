@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t3-006",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Strings",
+  "topicIndex": 3,
+  "problemIndex": 6,
+  "title": "Word Frequency",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Count how many times each word appears in `\"to be or not to be that is the question to be\"`. Print each unique word and its count, sorted alphabetically.\n\n**Expected output:**\n```\nbe: 3\nis: 1\nnot: 1\nor: 1\nquestion: 1\nthat: 1\nthe: 1\nto: 3\n```",
+  "starterCode": "# Write your code here\ntext = \"to be or not to be that is the question to be\"\n",
+  "expectedOutput": "be: 3\nis: 1\nnot: 1\nor: 1\nquestion: 1\nthat: 1\nthe: 1\nto: 3",
+  "inputs": [],
+  "hint": "Split text into words, use a dict to count, then sort the dict keys before printing."
+}

@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t4-007",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "User Input",
+  "topicIndex": 4,
+  "problemIndex": 7,
+  "title": "Name Initials",
+  "difficulty": "Hard",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Read a full name from input (two or more words). Print the initials in uppercase followed by a period each, joined together. Then print the name in reverse order (last name first).\n\n**Example (input: `john michael doe`):**\n```\nInitials: J.M.D.\nReversed: doe michael john\n```",
+  "starterCode": "# Write your code here\nfull_name = input()\n",
+  "expectedOutput": "Initials: J.M.D.\nReversed: doe michael john",
+  "inputs": ["john michael doe"],
+  "hint": "Split the name into words. For initials, take the first letter of each word. For reversed, reverse the word list."
+}

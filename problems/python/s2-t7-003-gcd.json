@@ -1,0 +1,24 @@
+{
+  "id": "py-s2-t7-003",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "While Loops",
+  "topicIndex": 7,
+  "problemIndex": 3,
+  "title": "Greatest Common Divisor",
+  "difficulty": "Easy",
+  "type": "function",
+  "lesson": null,
+  "description": "Return the greatest common divisor (GCD) of two positive integers `a` and `b` using the Euclidean algorithm. Do not use `math.gcd`.\n\n**Example:**\n```\ngcd(48, 18) → 6\ngcd(100, 75) → 25\ngcd(7, 13) → 1\n```",
+  "starterCode": "def gcd(a, b):\n    # your code here\n    pass\n",
+  "functionName": "gcd",
+  "tests": [
+    {"name": "48 and 18", "input": [48, 18], "expectedOutput": 6},
+    {"name": "100 and 75", "input": [100, 75], "expectedOutput": 25},
+    {"name": "Coprime 7 and 13", "input": [7, 13], "expectedOutput": 1},
+    {"name": "Same numbers", "input": [12, 12], "expectedOutput": 12},
+    {"name": "One divides other", "input": [10, 5], "expectedOutput": 5},
+    {"name": "Large numbers", "input": [1071, 462], "expectedOutput": 21}
+  ],
+  "hint": "Euclidean algorithm: while b != 0, set a, b = b, a % b. Return a."
+}

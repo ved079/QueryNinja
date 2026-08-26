@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t1-005",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Print & Output",
+  "topicIndex": 1,
+  "problemIndex": 5,
+  "title": "Diamond Pattern",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Print a diamond pattern of stars with a maximum width of 5 (i.e., the widest row has 5 stars). The diamond is centered.\n\n**Expected output:**\n```\n  *\n ***\n*****\n ***\n  *\n```",
+  "starterCode": "# Write your code here\n",
+  "expectedOutput": "  *\n ***\n*****\n ***\n  *",
+  "inputs": [],
+  "hint": "Split into top half (including middle) and bottom half. For row i of the top (1-indexed), print (n-i) spaces then (2*i-1) stars."
+}

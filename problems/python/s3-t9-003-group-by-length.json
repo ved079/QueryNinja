@@ -1,0 +1,23 @@
+{
+  "id": "py-s3-t9-003",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Dictionaries",
+  "topicIndex": 9,
+  "problemIndex": 3,
+  "title": "Group Words by Length",
+  "difficulty": "Medium",
+  "type": "function",
+  "lesson": null,
+  "description": "Given a list of words, return a dictionary where keys are word lengths and values are lists of words with that length. Words within each group should maintain their original order.\n\n**Example:**\n```\ngroup_by_length(['go', 'do', 'cat', 'dog', 'fish']) → {'2': ['go', 'do'], '3': ['cat', 'dog'], '4': ['fish']}\ngroup_by_length([]) → {}\n```",
+  "starterCode": "def group_by_length(words):\n    # your code here\n    pass\n",
+  "functionName": "group_by_length",
+  "tests": [
+    {"name": "Mixed lengths", "input": [["go", "do", "cat", "dog", "fish"]], "expectedOutput": {"2": ["go", "do"], "3": ["cat", "dog"], "4": ["fish"]}},
+    {"name": "Empty list", "input": [[]], "expectedOutput": {}},
+    {"name": "All same length", "input": [["hi", "me", "go"]], "expectedOutput": {"2": ["hi", "me", "go"]}},
+    {"name": "Single word", "input": [["python"]], "expectedOutput": {"6": ["python"]}},
+    {"name": "Varied", "input": [["a", "bb", "ccc", "dd", "e"]], "expectedOutput": {"1": ["a", "e"], "2": ["bb", "dd"], "3": ["ccc"]}}
+  ],
+  "hint": "For each word, use len(word) as the key. If the key doesn't exist, initialize it with an empty list, then append."
+}

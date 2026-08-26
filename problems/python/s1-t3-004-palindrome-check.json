@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t3-004",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Strings",
+  "topicIndex": 3,
+  "problemIndex": 4,
+  "title": "Palindrome Checker",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Check if the phrase `\"A man a plan a canal Panama\"` is a palindrome. To check: remove all spaces and punctuation, convert to lowercase, then compare with its reverse. Print `Yes` if it is a palindrome, `No` otherwise.\n\n**Expected output:**\n```\nYes\n```",
+  "starterCode": "# Write your code here\nphrase = \"A man a plan a canal Panama\"\n",
+  "expectedOutput": "Yes",
+  "inputs": [],
+  "hint": "Use a loop or list comprehension to keep only alphanumeric chars. Then compare cleaned[::-1] == cleaned."
+}

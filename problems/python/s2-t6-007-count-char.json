@@ -1,0 +1,25 @@
+{
+  "id": "py-s2-t6-007",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "For Loops",
+  "topicIndex": 6,
+  "problemIndex": 7,
+  "title": "Count Character Occurrences",
+  "difficulty": "Hard",
+  "type": "function",
+  "lesson": null,
+  "description": "Given a string `s` and a character `c`, return the number of times `c` appears in `s` (case-insensitive). Do not use the built-in `.count()` method.\n\n**Example:**\n```\ncount_char('Hello World', 'l') → 3\ncount_char('Mississippi', 's') → 4\ncount_char('Hello', 'z') → 0\n```",
+  "starterCode": "def count_char(s, c):\n    # your code here (no .count())\n    pass\n",
+  "functionName": "count_char",
+  "tests": [
+    {"name": "Hello World l", "input": ["Hello World", "l"], "expectedOutput": 3},
+    {"name": "Mississippi s", "input": ["Mississippi", "s"], "expectedOutput": 4},
+    {"name": "Not found", "input": ["Hello", "z"], "expectedOutput": 0},
+    {"name": "Case insensitive", "input": ["Hello World", "o"], "expectedOutput": 2},
+    {"name": "Empty string", "input": ["", "a"], "expectedOutput": 0},
+    {"name": "All same char", "input": ["aaaa", "a"], "expectedOutput": 4},
+    {"name": "Uppercase char", "input": ["Hello World", "L"], "expectedOutput": 3}
+  ],
+  "hint": "Loop over each character in s, convert both to lowercase before comparing."
+}

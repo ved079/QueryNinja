@@ -1,0 +1,24 @@
+{
+  "id": "py-s3-t8-001",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Lists",
+  "topicIndex": 8,
+  "problemIndex": 1,
+  "title": "Second Largest",
+  "difficulty": "Easy",
+  "type": "function",
+  "lesson": "## Lists\n\nLists store ordered sequences of items and are one of Python's most powerful data structures.\n\n```python\nnumbers = [3, 1, 4, 1, 5, 9, 2, 6]\nfruits = [\"apple\", \"banana\", \"cherry\"]\nmixed = [1, \"two\", 3.0, True]\n```\n\n### Common operations\n```python\nlst = [10, 20, 30]\nlst.append(40)       # [10, 20, 30, 40]\nlst.insert(1, 15)    # [10, 15, 20, 30, 40]\nlst.remove(20)       # removes first occurrence of 20\npopped = lst.pop()   # removes and returns last item\npopped = lst.pop(0)  # removes and returns item at index 0\nlst.sort()           # sorts in place\nlst.reverse()        # reverses in place\n```\n\n### Slicing\n```python\nlst = [0, 1, 2, 3, 4, 5]\nlst[1:4]    # [1, 2, 3]\nlst[:3]     # [0, 1, 2]\nlst[::2]    # [0, 2, 4]  (every other)\nlst[::-1]   # [5, 4, 3, 2, 1, 0]  (reversed)\n```\n\n### List comprehensions\n```python\nsquares = [x**2 for x in range(1, 6)]  # [1, 4, 9, 16, 25]\nevens = [x for x in range(20) if x % 2 == 0]\n```\n\n### Useful built-ins\n```python\nlen([1, 2, 3])      # 3\nsum([1, 2, 3])      # 6\nmin([3, 1, 2])      # 1\nmax([3, 1, 2])      # 3\nsorted([3, 1, 2])   # [1, 2, 3]  (returns new list)\n```",
+  "description": "Return the second largest unique value in a list of integers. Assume the list has at least 2 distinct values.\n\n**Example:**\n```\nsecond_largest([3, 1, 4, 1, 5, 9, 2, 6]) → 6\nsecond_largest([10, 20]) → 10\nsecond_largest([5, 5, 5, 3]) → 3\n```",
+  "starterCode": "def second_largest(lst):\n    # your code here\n    pass\n",
+  "functionName": "second_largest",
+  "tests": [
+    {"name": "Mixed list", "input": [[3, 1, 4, 1, 5, 9, 2, 6]], "expectedOutput": 6},
+    {"name": "Two elements", "input": [[10, 20]], "expectedOutput": 10},
+    {"name": "Duplicates of max", "input": [[5, 5, 5, 3]], "expectedOutput": 3},
+    {"name": "Negatives", "input": [[-1, -5, -3]], "expectedOutput": -3},
+    {"name": "All same except one", "input": [[7, 7, 7, 2]], "expectedOutput": 2},
+    {"name": "Descending order", "input": [[10, 9, 8, 7]], "expectedOutput": 9}
+  ],
+  "hint": "Convert to a sorted set to get unique values, then take the second-to-last element."
+}

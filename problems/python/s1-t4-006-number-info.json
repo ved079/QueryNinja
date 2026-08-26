@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t4-006",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "User Input",
+  "topicIndex": 4,
+  "problemIndex": 6,
+  "title": "Number Info",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Read a positive integer from input. Print whether it is even or odd, whether it is divisible by 3, and its square and square root (rounded to 2 decimal places).\n\n**Example (input: `12`):**\n```\n12 is Even\n12 is divisible by 3\nSquare: 144\nSquare root: 3.46\n```",
+  "starterCode": "# Write your code here\nn = int(input())\n",
+  "expectedOutput": "12 is Even\n12 is divisible by 3\nSquare: 144\nSquare root: 3.46",
+  "inputs": ["12"],
+  "hint": "Use % 2 for even/odd, % 3 for divisibility. Square root: n ** 0.5"
+}

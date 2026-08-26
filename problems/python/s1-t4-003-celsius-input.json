@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t4-003",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "User Input",
+  "topicIndex": 4,
+  "problemIndex": 3,
+  "title": "Temperature Input Converter",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Read a temperature in Celsius from input. Print it converted to both Fahrenheit and Kelvin, rounded to 2 decimal places.\n\n**Example (input: `37`):**\n```\n37C = 98.6F\n37C = 310.15K\n```",
+  "starterCode": "# Write your code here\ncelsius = float(input())\n",
+  "expectedOutput": "37C = 98.6F\n37C = 310.15K",
+  "inputs": ["37"],
+  "hint": "F = C * 9/5 + 32, K = C + 273.15"
+}

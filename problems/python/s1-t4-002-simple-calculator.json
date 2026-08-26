@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t4-002",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "User Input",
+  "topicIndex": 4,
+  "problemIndex": 2,
+  "title": "Simple Calculator",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Read two numbers and an operator (`+`, `-`, `*`, `/`) from input. Perform the calculation and print the result rounded to 2 decimal places.\n\n**Example (inputs: `12`, `4`, `*`):**\n```\nResult: 48.0\n```",
+  "starterCode": "# Write your code here\na = float(input())\nb = float(input())\nop = input()\n",
+  "expectedOutput": "Result: 48.0",
+  "inputs": ["12", "4", "*"],
+  "hint": "Use if/elif to check which operator was entered and perform the right calculation."
+}

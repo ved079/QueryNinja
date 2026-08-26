@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t2-006",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Variables & Math",
+  "topicIndex": 2,
+  "problemIndex": 6,
+  "title": "Tip Calculator",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": null,
+  "description": "A bill of $85.50 is split between 3 people. Calculate an 18% tip on the total bill, then print the total with tip and each person's share. Round everything to 2 decimal places.\n\n**Expected output:**\n```\nBill: 85.5\nTip (18%): 15.39\nTotal with tip: 100.89\nEach person pays: 33.63\n```",
+  "starterCode": "# Write your code here\nbill = 85.50\ntip_rate = 0.18\npeople = 3\n",
+  "expectedOutput": "Bill: 85.5\nTip (18%): 15.39\nTotal with tip: 100.89\nEach person pays: 33.63",
+  "inputs": [],
+  "hint": "tip = bill * tip_rate, total = bill + tip, per_person = total / people. Use round() for each."
+}

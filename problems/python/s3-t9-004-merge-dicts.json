@@ -5,13 +5,20 @@
   "topic": "Dictionaries",
   "topicIndex": 9,
   "problemIndex": 4,
-  "title": "Merge Dictionaries",
+  "title": "Merge and Sum Dictionaries",
   "difficulty": "Medium",
-  "type": "freerun",
-  "lesson": "",
-  "description": "Given:\n```python\nd1 = {\"a\": 1, \"b\": 2, \"c\": 3}\nd2 = {\"b\": 20, \"c\": 30, \"d\": 40}\n```\nMerge them into one dictionary where `d2` values win on conflicts. Print the merged dictionary sorted by key, one entry per line in the format `key:value`.\n\n**Expected output:**\n```\na:1\nb:20\nc:30\nd:40\n```",
-  "starterCode": "d1 = {\"a\": 1, \"b\": 2, \"c\": 3}\nd2 = {\"b\": 20, \"c\": 30, \"d\": 40}\n# Merge d1 and d2 (d2 wins on conflict)\n# Print sorted by key\n",
-  "expectedOutput": "a:1\nb:20\nc:30\nd:40",
-  "inputs": [],
-  "hint": "Start with merged = {**d1, **d2} or merged = d1.copy(); merged.update(d2). Then loop over sorted(merged.keys())."
+  "type": "function",
+  "lesson": null,
+  "description": "Given two dictionaries where values are numbers, merge them. If a key exists in both, sum the values. Return a new dictionary.\n\n**Example:**\n```\nmerge_dicts({'a': 1, 'b': 2}, {'b': 3, 'c': 4}) → {'a': 1, 'b': 5, 'c': 4}\nmerge_dicts({}, {'x': 10}) → {'x': 10}\n```",
+  "starterCode": "def merge_dicts(a, b):\n    # your code here\n    pass\n",
+  "functionName": "merge_dicts",
+  "tests": [
+    {"name": "Overlapping keys", "input": [{"a": 1, "b": 2}, {"b": 3, "c": 4}], "expectedOutput": {"a": 1, "b": 5, "c": 4}},
+    {"name": "First empty", "input": [{}, {"x": 10}], "expectedOutput": {"x": 10}},
+    {"name": "Second empty", "input": [{"x": 10}, {}], "expectedOutput": {"x": 10}},
+    {"name": "No overlap", "input": [{"a": 1}, {"b": 2}], "expectedOutput": {"a": 1, "b": 2}},
+    {"name": "All keys overlap", "input": [{"a": 5, "b": 3}, {"a": 2, "b": 7}], "expectedOutput": {"a": 7, "b": 10}},
+    {"name": "Both empty", "input": [{}, {}], "expectedOutput": {}}
+  ],
+  "hint": "Start with a copy of dict `a`. For each key in `b`, add its value to result.get(key, 0)."
 }

@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t1-002",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Print & Output",
+  "topicIndex": 1,
+  "problemIndex": 2,
+  "title": "Multiplication Table",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Print the multiplication table for 7, from 7×1 to 7×10. Each line should be in the format `7 x N = result`.\n\n**Expected output (first 3 lines):**\n```\n7 x 1 = 7\n7 x 2 = 14\n7 x 3 = 21\n...\n```",
+  "starterCode": "# Write your code here\n",
+  "expectedOutput": "7 x 1 = 7\n7 x 2 = 14\n7 x 3 = 21\n7 x 4 = 28\n7 x 5 = 35\n7 x 6 = 42\n7 x 7 = 49\n7 x 8 = 56\n7 x 9 = 63\n7 x 10 = 70",
+  "inputs": [],
+  "hint": "Use a for loop from 1 to 10 and an f-string to format each line."
+}

@@ -1,0 +1,24 @@
+{
+  "id": "py-s2-t7-001",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "While Loops",
+  "topicIndex": 7,
+  "problemIndex": 1,
+  "title": "Collatz Steps",
+  "difficulty": "Easy",
+  "type": "function",
+  "lesson": "## While Loops\n\nWhile loops repeat as long as a condition is true. Use them when you don't know in advance how many iterations are needed.\n\n```python\nwhile condition:\n    # loop body\n    # MUST update condition eventually to avoid infinite loop!\n```\n\n### Example: countdown\n```python\nn = 5\nwhile n > 0:\n    print(n)\n    n -= 1  # crucial: modify the condition variable\n```\n\n### break and continue\n- `break` — exit the loop immediately\n- `continue` — skip the rest of this iteration, go to next check\n\n```python\nwhile True:  # infinite loop\n    n = int(input())\n    if n == 0:\n        break  # exit when user enters 0\n    print(f\"Got: {n}\")\n```\n\n### When to use while vs for\n- Use `for` when iterating over a sequence or a known range\n- Use `while` when repeating until a condition changes (e.g., converging to a value, reading until sentinel)\n\n### Common pattern: accumulate until condition\n```python\ntotal = 0\nn = 1\nwhile total < 100:\n    total += n\n    n += 1\n```",
+  "description": "The Collatz conjecture: starting from `n`, if it's even divide by 2, if odd multiply by 3 and add 1. Repeat until you reach 1. Return the number of steps taken to reach 1.\n\n**Example:**\n```\ncollatz_steps(6) → 8   # 6→3→10→5→16→8→4→2→1\ncollatz_steps(1) → 0\ncollatz_steps(27) → 111\n```",
+  "starterCode": "def collatz_steps(n):\n    # your code here\n    pass\n",
+  "functionName": "collatz_steps",
+  "tests": [
+    {"name": "n=6", "input": [6], "expectedOutput": 8},
+    {"name": "n=1 (already done)", "input": [1], "expectedOutput": 0},
+    {"name": "n=2", "input": [2], "expectedOutput": 1},
+    {"name": "n=27 (long chain)", "input": [27], "expectedOutput": 111},
+    {"name": "n=4", "input": [4], "expectedOutput": 2},
+    {"name": "n=16", "input": [16], "expectedOutput": 4}
+  ],
+  "hint": "Initialize steps = 0. While n != 1, apply the Collatz rule and increment steps."
+}

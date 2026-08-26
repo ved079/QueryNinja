@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t1-001",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Print & Output",
+  "topicIndex": 1,
+  "problemIndex": 1,
+  "title": "FizzBuzz",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "## Print & Output\n\nThe `print()` function is your primary way to display output in Python.\n\n```python\nprint(\"Hello, World!\")\nprint(42)\nprint(3.14)\n```\n\n### Printing multiple values\nYou can print multiple values separated by commas. By default they're joined with a space:\n\n```python\nprint(\"Name:\", \"Alice\")\n# Output: Name: Alice\n```\n\n### The `sep` and `end` parameters\n- `sep` controls what goes between values (default is a space)\n- `end` controls what comes after the last value (default is a newline `\\n`)\n\n```python\nprint(\"a\", \"b\", \"c\", sep=\"-\")   # a-b-c\nprint(\"hello\", end=\"!\")          # hello! (no newline)\n```\n\n### Loops with print\nCombine `for` loops with `print()` to produce repeated output:\n\n```python\nfor i in range(1, 6):\n    print(i)\n# Prints 1, 2, 3, 4, 5 on separate lines\n```\n\n### f-strings\nFormat strings with variables using f-strings:\n\n```python\nname = \"Alice\"\nage = 30\nprint(f\"{name} is {age} years old.\")\n```",
+  "description": "Print numbers 1 through 20. For multiples of 3 print `Fizz`, for multiples of 5 print `Buzz`, and for multiples of both print `FizzBuzz`. Each result on its own line.",
+  "starterCode": "# Write your code here\n",
+  "expectedOutput": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n16\n17\nFizz\n19\nBuzz",
+  "inputs": [],
+  "hint": "Use the % (modulo) operator to check divisibility. Check for both conditions first."
+}

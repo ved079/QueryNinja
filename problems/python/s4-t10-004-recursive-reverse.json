@@ -1,0 +1,24 @@
+{
+  "id": "py-s4-t10-004",
+  "stage": 4,
+  "stageLabel": "Functions",
+  "topic": "Functions",
+  "topicIndex": 10,
+  "problemIndex": 4,
+  "title": "Recursive Reverse",
+  "difficulty": "Medium",
+  "type": "function",
+  "lesson": null,
+  "description": "Write a **recursive** function that reverses a string. Do not use slicing (`[::-1]`), `reversed()`, or loops.\n\n**Example:**\n```\nrecursive_reverse('hello') → 'olleh'\nrecursive_reverse('') → ''\nrecursive_reverse('a') → 'a'\n```",
+  "starterCode": "def recursive_reverse(s):\n    # your code here (recursive, no slicing or loops)\n    pass\n",
+  "functionName": "recursive_reverse",
+  "tests": [
+    {"name": "hello", "input": ["hello"], "expectedOutput": "olleh"},
+    {"name": "Empty string", "input": [""], "expectedOutput": ""},
+    {"name": "Single char", "input": ["a"], "expectedOutput": "a"},
+    {"name": "Palindrome", "input": ["racecar"], "expectedOutput": "racecar"},
+    {"name": "Python", "input": ["Python"], "expectedOutput": "nohtyP"},
+    {"name": "With spaces", "input": ["hello world"], "expectedOutput": "dlrow olleh"}
+  ],
+  "hint": "Base case: empty string returns ''. Recursive case: recursive_reverse(s[1:]) + s[0]."
+}

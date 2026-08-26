@@ -1,0 +1,24 @@
+{
+  "id": "py-s2-t6-006",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "For Loops",
+  "topicIndex": 6,
+  "problemIndex": 6,
+  "title": "Digit Sum",
+  "difficulty": "Medium",
+  "type": "function",
+  "lesson": null,
+  "description": "Return the sum of all the digits of a non-negative integer `n`.\n\n**Example:**\n```\ndigit_sum(123) → 6\ndigit_sum(9999) → 36\ndigit_sum(0) → 0\n```",
+  "starterCode": "def digit_sum(n):\n    # your code here\n    pass\n",
+  "functionName": "digit_sum",
+  "tests": [
+    {"name": "123", "input": [123], "expectedOutput": 6},
+    {"name": "9999", "input": [9999], "expectedOutput": 36},
+    {"name": "0", "input": [0], "expectedOutput": 0},
+    {"name": "Single digit 7", "input": [7], "expectedOutput": 7},
+    {"name": "100", "input": [100], "expectedOutput": 1},
+    {"name": "999999", "input": [999999], "expectedOutput": 54}
+  ],
+  "hint": "Convert n to a string and loop over each character, converting back to int and summing."
+}

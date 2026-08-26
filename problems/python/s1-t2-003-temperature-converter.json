@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t2-003",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Variables & Math",
+  "topicIndex": 2,
+  "problemIndex": 3,
+  "title": "Temperature Converter",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Convert 100 degrees Celsius to both Fahrenheit and Kelvin. Use the formulas:\n- Fahrenheit = (Celsius × 9/5) + 32\n- Kelvin = Celsius + 273.15\n\nPrint each result rounded to 2 decimal places.\n\n**Expected output:**\n```\nCelsius: 100\nFahrenheit: 212.0\nKelvin: 373.15\n```",
+  "starterCode": "# Write your code here\ncelsius = 100\n",
+  "expectedOutput": "Celsius: 100\nFahrenheit: 212.0\nKelvin: 373.15",
+  "inputs": [],
+  "hint": "Use the formulas directly. 100 * 9/5 + 32 = 212.0"
+}

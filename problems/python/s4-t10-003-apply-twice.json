@@ -1,0 +1,23 @@
+{
+  "id": "py-s4-t10-003",
+  "stage": 4,
+  "stageLabel": "Functions",
+  "topic": "Functions",
+  "topicIndex": 10,
+  "problemIndex": 3,
+  "title": "Apply Twice",
+  "difficulty": "Easy",
+  "type": "function",
+  "lesson": null,
+  "description": "Write a function `apply_twice(f, x)` that applies function `f` to `x` twice (i.e., returns `f(f(x))`).\n\n**Example:**\n```\napply_twice(lambda x: x + 3, 7) → 13\napply_twice(lambda x: x * 2, 3) → 12\napply_twice(str.upper, 'hello') → 'HELLO'  # upper is idempotent\n```",
+  "starterCode": "def apply_twice(f, x):\n    # your code here\n    pass\n",
+  "functionName": "apply_twice",
+  "tests": [
+    {"name": "Add 3 twice", "input": ["lambda x: x + 3", 7], "expectedOutput": 13},
+    {"name": "Double twice", "input": ["lambda x: x * 2", 3], "expectedOutput": 12},
+    {"name": "Square twice", "input": ["lambda x: x ** 2", 2], "expectedOutput": 16},
+    {"name": "Subtract twice", "input": ["lambda x: x - 1", 10], "expectedOutput": 8},
+    {"name": "Negate twice", "input": ["lambda x: -x", 5], "expectedOutput": 5}
+  ],
+  "hint": "Simply return f(f(x)). The function reference is passed as an argument."
+}

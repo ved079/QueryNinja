@@ -1,0 +1,24 @@
+{
+  "id": "py-s2-t6-002",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "For Loops",
+  "topicIndex": 6,
+  "problemIndex": 2,
+  "title": "Count Evens in List",
+  "difficulty": "Easy",
+  "type": "function",
+  "lesson": null,
+  "description": "Given a list of integers, return the count of even numbers.\n\n**Example:**\n```\ncount_evens([1, 2, 3, 4, 5, 6]) → 3\ncount_evens([1, 3, 5]) → 0\ncount_evens([2, 4, 6, 8]) → 4\n```",
+  "starterCode": "def count_evens(lst):\n    # your code here\n    pass\n",
+  "functionName": "count_evens",
+  "tests": [
+    {"name": "Mixed", "input": [[1, 2, 3, 4, 5, 6]], "expectedOutput": 3},
+    {"name": "All odd", "input": [[1, 3, 5]], "expectedOutput": 0},
+    {"name": "All even", "input": [[2, 4, 6, 8]], "expectedOutput": 4},
+    {"name": "Empty list", "input": [[]], "expectedOutput": 0},
+    {"name": "Single even", "input": [[2]], "expectedOutput": 1},
+    {"name": "With zero", "input": [[0, 1, 2]], "expectedOutput": 2}
+  ],
+  "hint": "Loop through the list and count items where n % 2 == 0."
+}

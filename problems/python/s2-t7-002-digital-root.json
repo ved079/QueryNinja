@@ -1,0 +1,24 @@
+{
+  "id": "py-s2-t7-002",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "While Loops",
+  "topicIndex": 7,
+  "problemIndex": 2,
+  "title": "Digital Root",
+  "difficulty": "Easy",
+  "type": "function",
+  "lesson": null,
+  "description": "The digital root of a number is obtained by repeatedly summing its digits until you get a single digit. Return the digital root of `n`.\n\n**Example:**\n```\ndigital_root(493) → 7   # 4+9+3=16, 1+6=7\ndigital_root(942) → 6   # 9+4+2=15, 1+5=6\ndigital_root(5) → 5\n```",
+  "starterCode": "def digital_root(n):\n    # your code here\n    pass\n",
+  "functionName": "digital_root",
+  "tests": [
+    {"name": "493", "input": [493], "expectedOutput": 7},
+    {"name": "942", "input": [942], "expectedOutput": 6},
+    {"name": "Single digit 5", "input": [5], "expectedOutput": 5},
+    {"name": "999", "input": [999], "expectedOutput": 9},
+    {"name": "0", "input": [0], "expectedOutput": 0},
+    {"name": "Large number 9875", "input": [9875], "expectedOutput": 2}
+  ],
+  "hint": "While n >= 10, replace n with the sum of its digits. Return n when it's a single digit."
+}

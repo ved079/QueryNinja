@@ -1,0 +1,24 @@
+{
+  "id": "py-s4-t10-005",
+  "stage": 4,
+  "stageLabel": "Functions",
+  "topic": "Functions",
+  "topicIndex": 10,
+  "problemIndex": 5,
+  "title": "Memoized Fibonacci",
+  "difficulty": "Medium",
+  "type": "function",
+  "lesson": null,
+  "description": "Write a function that returns the nth Fibonacci number using memoization (a cache dict to avoid recomputing). F(0)=0, F(1)=1. The function must handle large values of n efficiently.\n\n**Example:**\n```\nfib(0) → 0\nfib(10) → 55\nfib(30) → 832040\n```",
+  "starterCode": "def fib(n, memo={}):\n    # your code here\n    pass\n",
+  "functionName": "fib",
+  "tests": [
+    {"name": "F(0)", "input": [0], "expectedOutput": 0},
+    {"name": "F(1)", "input": [1], "expectedOutput": 1},
+    {"name": "F(10)", "input": [10], "expectedOutput": 55},
+    {"name": "F(20)", "input": [20], "expectedOutput": 6765},
+    {"name": "F(30)", "input": [30], "expectedOutput": 832040},
+    {"name": "F(35)", "input": [35], "expectedOutput": 9227465}
+  ],
+  "hint": "Check if n is in memo first. Base cases: fib(0)=0, fib(1)=1. Otherwise store and return fib(n-1) + fib(n-2)."
+}

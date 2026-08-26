@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t1-003",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Print & Output",
+  "topicIndex": 1,
+  "problemIndex": 3,
+  "title": "Number Pyramid",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Print a number pyramid of height 5. Each row i (starting at 1) contains the numbers 1 through i separated by spaces.\n\n**Expected output:**\n```\n1\n1 2\n1 2 3\n1 2 3 4\n1 2 3 4 5\n```",
+  "starterCode": "# Write your code here\n",
+  "expectedOutput": "1\n1 2\n1 2 3\n1 2 3 4\n1 2 3 4 5",
+  "inputs": [],
+  "hint": "Use nested loops or join a range to a string with spaces."
+}

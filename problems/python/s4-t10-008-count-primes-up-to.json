@@ -1,0 +1,25 @@
+{
+  "id": "py-s4-t10-008",
+  "stage": 4,
+  "stageLabel": "Functions",
+  "topic": "Functions",
+  "topicIndex": 10,
+  "problemIndex": 8,
+  "title": "Count Primes (Sieve of Eratosthenes)",
+  "difficulty": "Hard",
+  "type": "function",
+  "lesson": null,
+  "description": "Return the count of prime numbers less than or equal to `n`. Use the Sieve of Eratosthenes algorithm for efficiency: create a boolean list, start from 2, mark all multiples of each prime as composite.\n\n**Example:**\n```\ncount_primes(10) → 4   # primes: 2, 3, 5, 7\ncount_primes(1) → 0\ncount_primes(2) → 1\ncount_primes(50) → 15\n```",
+  "starterCode": "def count_primes(n):\n    # your code here\n    pass\n",
+  "functionName": "count_primes",
+  "tests": [
+    {"name": "Up to 10", "input": [10], "expectedOutput": 4},
+    {"name": "Up to 1", "input": [1], "expectedOutput": 0},
+    {"name": "Up to 2", "input": [2], "expectedOutput": 1},
+    {"name": "Up to 50", "input": [50], "expectedOutput": 15},
+    {"name": "Up to 100", "input": [100], "expectedOutput": 25},
+    {"name": "Up to 0", "input": [0], "expectedOutput": 0},
+    {"name": "Up to 3", "input": [3], "expectedOutput": 2}
+  ],
+  "hint": "Create a list `is_prime` of True values size n+1. Set 0 and 1 to False. For i from 2 to sqrt(n), if is_prime[i], mark all multiples starting at i*i as False. Count the True values."
+}

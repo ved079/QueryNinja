@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t3-003",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Strings",
+  "topicIndex": 3,
+  "problemIndex": 3,
+  "title": "Smart Title Case",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Convert the string `\"the lord of the rings\"` to title case (capitalize the first letter of every word), but keep small words like `a`, `of`, `the`, `and`, `in`, `on` in lowercase UNLESS they are the first word. Print the result.\n\n**Expected output:**\n```\nThe Lord of the Rings\n```",
+  "starterCode": "# Write your code here\ntitle = \"the lord of the rings\"\n",
+  "expectedOutput": "The Lord of the Rings",
+  "inputs": [],
+  "hint": "Split the title, capitalize the first word always, then for the rest capitalize only if not in the small-words list."
+}

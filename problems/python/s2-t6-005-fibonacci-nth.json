@@ -1,0 +1,24 @@
+{
+  "id": "py-s2-t6-005",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "For Loops",
+  "topicIndex": 6,
+  "problemIndex": 5,
+  "title": "Nth Fibonacci Number",
+  "difficulty": "Medium",
+  "type": "function",
+  "lesson": null,
+  "description": "Return the nth Fibonacci number (0-indexed: F(0)=0, F(1)=1, F(2)=1, F(3)=2, ...).\n\n**Example:**\n```\nnth_fibonacci(0) → 0\nnth_fibonacci(1) → 1\nnth_fibonacci(6) → 8\nnth_fibonacci(10) → 55\n```",
+  "starterCode": "def nth_fibonacci(n):\n    # your code here\n    pass\n",
+  "functionName": "nth_fibonacci",
+  "tests": [
+    {"name": "F(0)=0", "input": [0], "expectedOutput": 0},
+    {"name": "F(1)=1", "input": [1], "expectedOutput": 1},
+    {"name": "F(2)=1", "input": [2], "expectedOutput": 1},
+    {"name": "F(6)=8", "input": [6], "expectedOutput": 8},
+    {"name": "F(10)=55", "input": [10], "expectedOutput": 55},
+    {"name": "F(15)=610", "input": [15], "expectedOutput": 610}
+  ],
+  "hint": "Use two variables a, b = 0, 1. Loop n times, updating a, b = b, a+b. Return a."
+}

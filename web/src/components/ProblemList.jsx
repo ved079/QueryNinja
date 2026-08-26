@@ -127,7 +127,7 @@ export default function ProblemList({ problems, progress, selectedId, onSelect, 
                   <span className={`status ${itemStatus ?? 'none'}`}
                     title={itemStatus ?? 'not started'} />
                   <span className="problem-title">{p.number}. {p.title}</span>
-                  <span className={`difficulty ${p.difficulty.toLowerCase()}`}>{p.difficulty[0]}</span>
+                  <span className={`difficulty ${p.difficulty.toLowerCase()}`}>{p.difficulty}</span>
                 </button>
                 <button
                   className={`star-btn ${progress[p.id]?.starred ? 'starred' : ''}`}

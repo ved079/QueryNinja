@@ -1,0 +1,24 @@
+{
+  "id": "py-s2-t6-004",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "For Loops",
+  "topicIndex": 6,
+  "problemIndex": 4,
+  "title": "Reverse String Without Slicing",
+  "difficulty": "Medium",
+  "type": "function",
+  "lesson": null,
+  "description": "Return the reverse of the string `s` using a loop (not slicing `[::-1]` or `reversed()`).\n\n**Example:**\n```\nreverse_string('hello') → 'olleh'\nreverse_string('Python') → 'nohtyP'\nreverse_string('') → ''\n```",
+  "starterCode": "def reverse_string(s):\n    # your code here (no slicing or reversed())\n    pass\n",
+  "functionName": "reverse_string",
+  "tests": [
+    {"name": "hello", "input": ["hello"], "expectedOutput": "olleh"},
+    {"name": "Python", "input": ["Python"], "expectedOutput": "nohtyP"},
+    {"name": "Empty string", "input": [""], "expectedOutput": ""},
+    {"name": "Single char", "input": ["a"], "expectedOutput": "a"},
+    {"name": "Palindrome", "input": ["racecar"], "expectedOutput": "racecar"},
+    {"name": "Spaces and mixed case", "input": ["Hello World"], "expectedOutput": "dlroW olleH"}
+  ],
+  "hint": "Start with result = '', loop over each character in s, and prepend it: result = char + result."
+}

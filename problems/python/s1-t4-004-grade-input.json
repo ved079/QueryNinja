@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t4-004",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "User Input",
+  "topicIndex": 4,
+  "problemIndex": 4,
+  "title": "Grade Report",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Read a student's name and three test scores from input. Calculate and print the average score (rounded to 1 decimal place) and the letter grade: A (90+), B (80+), C (70+), D (60+), F (below 60).\n\n**Example (inputs: `Bob`, `85`, `92`, `78`):**\n```\nStudent: Bob\nAverage: 85.0\nGrade: B\n```",
+  "starterCode": "# Write your code here\nname = input()\nscore1 = float(input())\nscore2 = float(input())\nscore3 = float(input())\n",
+  "expectedOutput": "Student: Bob\nAverage: 85.0\nGrade: B",
+  "inputs": ["Bob", "85", "92", "78"],
+  "hint": "Average = (s1 + s2 + s3) / 3. Use if/elif for the letter grade."
+}

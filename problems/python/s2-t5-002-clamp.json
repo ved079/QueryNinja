@@ -1,0 +1,25 @@
+{
+  "id": "py-s2-t5-002",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "If / Else",
+  "topicIndex": 5,
+  "problemIndex": 2,
+  "title": "Clamp",
+  "difficulty": "Easy",
+  "type": "function",
+  "lesson": null,
+  "description": "Return `n` clamped to the range `[lo, hi]`. If `n < lo`, return `lo`. If `n > hi`, return `hi`. Otherwise return `n`.\n\n**Example:**\n```\nclamp(5, 1, 10) → 5\nclamp(-3, 0, 100) → 0\nclamp(150, 0, 100) → 100\n```",
+  "starterCode": "def clamp(n, lo, hi):\n    # your code here\n    pass\n",
+  "functionName": "clamp",
+  "tests": [
+    {"name": "Within range", "input": [5, 1, 10], "expectedOutput": 5},
+    {"name": "Below lo", "input": [-3, 0, 100], "expectedOutput": 0},
+    {"name": "Above hi", "input": [150, 0, 100], "expectedOutput": 100},
+    {"name": "Equal to lo", "input": [0, 0, 10], "expectedOutput": 0},
+    {"name": "Equal to hi", "input": [10, 0, 10], "expectedOutput": 10},
+    {"name": "Large negative", "input": [-999, -10, 10], "expectedOutput": -10},
+    {"name": "Already clamped", "input": [7, 5, 15], "expectedOutput": 7}
+  ],
+  "hint": "Use two if statements: one to clamp below lo, one to clamp above hi."
+}

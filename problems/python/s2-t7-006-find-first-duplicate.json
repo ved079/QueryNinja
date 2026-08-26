@@ -1,0 +1,25 @@
+{
+  "id": "py-s2-t7-006",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "While Loops",
+  "topicIndex": 7,
+  "problemIndex": 6,
+  "title": "Find First Duplicate",
+  "difficulty": "Medium",
+  "type": "function",
+  "lesson": null,
+  "description": "Given a list of integers, return the first element that appears more than once (the first duplicate encountered from left to right). Return `-1` if no duplicates exist.\n\n**Example:**\n```\nfind_first_duplicate([2, 1, 3, 5, 3, 2]) → 3\nfind_first_duplicate([1, 2, 3]) → -1\nfind_first_duplicate([1, 1]) → 1\n```",
+  "starterCode": "def find_first_duplicate(lst):\n    # your code here\n    pass\n",
+  "functionName": "find_first_duplicate",
+  "tests": [
+    {"name": "Duplicate at index 4", "input": [[2, 1, 3, 5, 3, 2]], "expectedOutput": 3},
+    {"name": "No duplicates", "input": [[1, 2, 3]], "expectedOutput": -1},
+    {"name": "Duplicate at start", "input": [[1, 1]], "expectedOutput": 1},
+    {"name": "Empty list", "input": [[]], "expectedOutput": -1},
+    {"name": "Single element", "input": [[5]], "expectedOutput": -1},
+    {"name": "Multiple duplicates", "input": [[3, 1, 2, 1, 3]], "expectedOutput": 1},
+    {"name": "All same", "input": [[7, 7, 7]], "expectedOutput": 7}
+  ],
+  "hint": "Use a set to track seen numbers. Iterate with a while loop; the first number already in seen is your answer."
+}

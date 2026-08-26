@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t2-002",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Variables & Math",
+  "topicIndex": 2,
+  "problemIndex": 2,
+  "title": "Compound Interest",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Calculate the compound interest for a principal of $1000, an annual interest rate of 5%, compounded annually for 10 years. Formula: `A = P * (1 + r)^t`. Print the final amount and the interest earned, both rounded to 2 decimal places.\n\n**Expected output:**\n```\nFinal amount: 1628.89\nInterest earned: 628.89\n```",
+  "starterCode": "# Write your code here\nprincipal = 1000\nrate = 0.05\ntime = 10\n",
+  "expectedOutput": "Final amount: 1628.89\nInterest earned: 628.89",
+  "inputs": [],
+  "hint": "Use ** for exponentiation. A = principal * (1 + rate) ** time"
+}

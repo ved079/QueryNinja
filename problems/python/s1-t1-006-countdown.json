@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t1-006",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Print & Output",
+  "topicIndex": 1,
+  "problemIndex": 6,
+  "title": "Rocket Countdown",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Print a rocket countdown from 10 down to 1, then print `Liftoff!`. Each number should be on its own line.\n\n**Expected output:**\n```\n10\n9\n8\n...\n1\nLiftoff!\n```",
+  "starterCode": "# Write your code here\n",
+  "expectedOutput": "10\n9\n8\n7\n6\n5\n4\n3\n2\n1\nLiftoff!",
+  "inputs": [],
+  "hint": "Use range() with a step of -1, or use range(10, 0, -1)."
+}

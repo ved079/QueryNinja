@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t3-007",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Strings",
+  "topicIndex": 3,
+  "problemIndex": 7,
+  "title": "Remove Punctuation",
+  "difficulty": "Hard",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Given the string `\"Hello, World! It's a great day... isn't it?\"`, remove all punctuation characters (`.,!?'`) and print the cleaned string. Then print the word count of the cleaned string.\n\n**Expected output:**\n```\nHello World Its a great day isnt it\nWord count: 8\n```",
+  "starterCode": "# Write your code here\ntext = \"Hello, World! It's a great day... isn't it?\"\n",
+  "expectedOutput": "Hello World Its a great day isnt it\nWord count: 8",
+  "inputs": [],
+  "hint": "Loop through chars and keep only those not in the punctuation set. Then split and count the words."
+}

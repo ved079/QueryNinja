@@ -1,0 +1,24 @@
+{
+  "id": "py-s2-t6-008",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "For Loops",
+  "topicIndex": 6,
+  "problemIndex": 8,
+  "title": "List All Primes Up To N",
+  "difficulty": "Hard",
+  "type": "function",
+  "lesson": null,
+  "description": "Return a list of all prime numbers up to and including `n`. A prime is a number greater than 1 divisible only by 1 and itself.\n\n**Example:**\n```\nprimes_up_to(10) → [2, 3, 5, 7]\nprimes_up_to(2) → [2]\nprimes_up_to(1) → []\n```",
+  "starterCode": "def primes_up_to(n):\n    # your code here\n    pass\n",
+  "functionName": "primes_up_to",
+  "tests": [
+    {"name": "Up to 10", "input": [10], "expectedOutput": [2, 3, 5, 7]},
+    {"name": "Up to 2", "input": [2], "expectedOutput": [2]},
+    {"name": "Up to 1", "input": [1], "expectedOutput": []},
+    {"name": "Up to 20", "input": [20], "expectedOutput": [2, 3, 5, 7, 11, 13, 17, 19]},
+    {"name": "Up to 0", "input": [0], "expectedOutput": []},
+    {"name": "Up to 30", "input": [30], "expectedOutput": [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]}
+  ],
+  "hint": "For each number from 2 to n, check if any number from 2 to sqrt(i) divides it. If none do, it's prime."
+}

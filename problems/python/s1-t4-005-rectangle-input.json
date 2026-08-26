@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t4-005",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "User Input",
+  "topicIndex": 4,
+  "problemIndex": 5,
+  "title": "Rectangle Properties",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": null,
+  "description": "Read the length and width of a rectangle from input. Print its area, perimeter, and diagonal (rounded to 2 decimal places). The diagonal of a rectangle is `sqrt(length² + width²)`.\n\n**Example (inputs: `6`, `8`):**\n```\nArea: 48\nPerimeter: 28\nDiagonal: 10.0\n```",
+  "starterCode": "# Write your code here\nlength = float(input())\nwidth = float(input())\n",
+  "expectedOutput": "Area: 48.0\nPerimeter: 28.0\nDiagonal: 10.0",
+  "inputs": ["6", "8"],
+  "hint": "area = l*w, perimeter = 2*(l+w), diagonal = (l**2 + w**2) ** 0.5"
+}
