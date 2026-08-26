@@ -1,0 +1,17 @@
+{
+  "id": "py-s3-t8-006",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Lists",
+  "topicIndex": 8,
+  "problemIndex": 6,
+  "title": "Print Even Numbers",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Given `nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]`, print all even numbers from the list, each on its own line.\n\n**Expected output:**\n```\n2\n4\n6\n8\n10\n```",
+  "starterCode": "nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\n# Print all even numbers\n",
+  "expectedOutput": "2\n4\n6\n8\n10",
+  "inputs": [],
+  "hint": "Loop through nums and print only those where num % 2 == 0."
+}

@@ -1,0 +1,17 @@
+{
+  "id": "py-s4-t10-007",
+  "stage": 4,
+  "stageLabel": "Functions",
+  "topic": "Functions",
+  "topicIndex": 10,
+  "problemIndex": 7,
+  "title": "Is Prime Function",
+  "difficulty": "Hard",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Define a function `is_prime(n)` that returns `True` if n is prime, `False` otherwise. Use it to print all prime numbers from 2 to 20, space-separated on one line.\n\n**Expected output:**\n```\n2 3 5 7 11 13 17 19\n```",
+  "starterCode": "def is_prime(n):\n    # Return True if n is prime, False otherwise\n    pass\n\nprimes = []\nfor i in range(2, 21):\n    if is_prime(i):\n        primes.append(i)\nprint(*primes)\n",
+  "expectedOutput": "2 3 5 7 11 13 17 19",
+  "inputs": [],
+  "hint": "For n < 2, return False. Loop from 2 to int(n**0.5)+1 and check if any number divides n evenly — if so return False. Otherwise return True."
+}

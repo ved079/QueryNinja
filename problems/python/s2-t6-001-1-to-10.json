@@ -1,0 +1,17 @@
+{
+  "id": "py-s2-t6-001",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "For Loops",
+  "topicIndex": 6,
+  "problemIndex": 1,
+  "title": "Print 1 to 10",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "## For Loops\n\nFor loops repeat a block of code for each item in a sequence.\n\n### Looping with range()\n```python\n# range(stop): 0 to stop-1\nfor i in range(5):\n    print(i)   # prints 0, 1, 2, 3, 4\n\n# range(start, stop): start to stop-1\nfor i in range(1, 6):\n    print(i)   # prints 1, 2, 3, 4, 5\n\n# range(start, stop, step)\nfor i in range(0, 10, 2):\n    print(i)   # prints 0, 2, 4, 6, 8\n```\n\n### Looping Over a List\n```python\nfruits = [\"apple\", \"banana\", \"cherry\"]\nfor fruit in fruits:\n    print(fruit)\n```\n\n### break and continue\n```python\nfor i in range(10):\n    if i == 5:\n        break      # exits the loop entirely\n    print(i)       # prints 0, 1, 2, 3, 4\n\nfor i in range(10):\n    if i % 2 == 0:\n        continue   # skips to next iteration\n    print(i)       # prints only odd numbers\n```\n\n### Nested Loops\n```python\nfor i in range(1, 4):\n    for j in range(1, 4):\n        print(i * j, end=\" \")\n    print()  # newline after each row\n```",
+  "description": "Print numbers 1 through 10, each on its own line.\n\n**Expected output:**\n```\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n```",
+  "starterCode": "# Use a for loop to print 1 through 10\n",
+  "expectedOutput": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10",
+  "inputs": [],
+  "hint": "Use range(1, 11) to generate numbers from 1 to 10 inclusive."
+}

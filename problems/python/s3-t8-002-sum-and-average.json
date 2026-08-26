@@ -1,0 +1,17 @@
+{
+  "id": "py-s3-t8-002",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Lists",
+  "topicIndex": 8,
+  "problemIndex": 2,
+  "title": "Sum and Average",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Given `nums = [10, 20, 30, 40, 50]`, print the sum on the first line and the average on the second line.\n\n**Expected output:**\n```\n150\n30.0\n```",
+  "starterCode": "nums = [10, 20, 30, 40, 50]\n# Print sum\n# Print average\n",
+  "expectedOutput": "150\n30.0",
+  "inputs": [],
+  "hint": "Use sum(nums) for the total and sum(nums) / len(nums) for the average."
+}

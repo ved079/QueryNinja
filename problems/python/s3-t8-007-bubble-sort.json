@@ -1,0 +1,17 @@
+{
+  "id": "py-s3-t8-007",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Lists",
+  "topicIndex": 8,
+  "problemIndex": 7,
+  "title": "Sort Without Built-ins",
+  "difficulty": "Hard",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Given `nums = [5, 3, 8, 1, 9, 2, 7, 4, 6]`, sort the list in ascending order **without** using `.sort()` or `sorted()`. Implement bubble sort or selection sort. Print the sorted list.\n\n**Expected output:**\n```\n[1, 2, 3, 4, 5, 6, 7, 8, 9]\n```",
+  "starterCode": "nums = [5, 3, 8, 1, 9, 2, 7, 4, 6]\n# Sort using bubble sort or selection sort (no .sort() or sorted())\n# Print the sorted list\n",
+  "expectedOutput": "[1, 2, 3, 4, 5, 6, 7, 8, 9]",
+  "inputs": [],
+  "hint": "Bubble sort: repeatedly loop through the list, swapping adjacent elements if they're in the wrong order, until no swaps occur."
+}

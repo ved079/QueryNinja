@@ -1,0 +1,17 @@
+{
+  "id": "py-s3-t9-002",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Dictionaries",
+  "topicIndex": 9,
+  "problemIndex": 2,
+  "title": "Average Score",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Given `scores = {\"math\": 90, \"english\": 85, \"science\": 92}`, print the average score.\n\n**Expected output:**\n```\n89.0\n```",
+  "starterCode": "scores = {\"math\": 90, \"english\": 85, \"science\": 92}\n# Calculate and print average score\n",
+  "expectedOutput": "89.0",
+  "inputs": [],
+  "hint": "Use sum(scores.values()) / len(scores) to compute the average."
+}

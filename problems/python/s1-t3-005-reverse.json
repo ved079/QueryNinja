@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t3-005",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Strings",
+  "topicIndex": 3,
+  "problemIndex": 5,
+  "title": "Reverse a String",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Store `s = \"banana\"`. Print it reversed using slicing.\n\n**Expected output:**\n```\nananab\n```",
+  "starterCode": "s = \"banana\"\n# Print s reversed using slicing\n",
+  "expectedOutput": "ananab",
+  "inputs": [],
+  "hint": "Use the slice s[::-1] — the step of -1 traverses the string backwards."
+}

@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t2-005",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Variables & Math",
+  "topicIndex": 2,
+  "problemIndex": 5,
+  "title": "Swap Without Temp",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Store `a = 5` and `b = 3`. Swap their values **without** using a temporary variable (use Python's tuple unpacking). Then print `a` and `b` on separate lines.\n\n**Expected output:**\n```\n3\n5\n```",
+  "starterCode": "a = 5\nb = 3\n# Swap a and b without a temp variable\n# Then print a, then b\n",
+  "expectedOutput": "3\n5",
+  "inputs": [],
+  "hint": "Python supports tuple unpacking: a, b = b, a — this swaps the values in one line."
+}

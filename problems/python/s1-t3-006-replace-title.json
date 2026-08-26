@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t3-006",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Strings",
+  "topicIndex": 3,
+  "problemIndex": 6,
+  "title": "Replace and Title Case",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Store `sentence = \"the quick brown fox\"`. Replace `\"fox\"` with `\"dog\"`, then print the result in title case.\n\n**Expected output:**\n```\nThe Quick Brown Dog\n```",
+  "starterCode": "sentence = \"the quick brown fox\"\n# Replace fox with dog, then print in title case\n",
+  "expectedOutput": "The Quick Brown Dog",
+  "inputs": [],
+  "hint": "Chain the methods: sentence.replace(\"fox\", \"dog\").title()"
+}

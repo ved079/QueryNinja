@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t4-006",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "User Input",
+  "topicIndex": 4,
+  "problemIndex": 6,
+  "title": "Total Pay",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Ask for hours worked and the hourly rate. Print the total pay.\n\n**Inputs:** `8`, then `15`\n\n**Expected output:**\n```\n120\n```",
+  "starterCode": "hours = int(input())\nrate = int(input())\n# Calculate and print total pay\n",
+  "expectedOutput": "120",
+  "inputs": ["8", "15"],
+  "hint": "total = hours * rate. Since both are integers, the result will be an integer."
+}

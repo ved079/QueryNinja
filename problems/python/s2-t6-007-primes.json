@@ -1,0 +1,17 @@
+{
+  "id": "py-s2-t6-007",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "For Loops",
+  "topicIndex": 6,
+  "problemIndex": 7,
+  "title": "Primes from 2 to 30",
+  "difficulty": "Hard",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Print all prime numbers from 2 to 30, each on its own line. A prime number is only divisible by 1 and itself.\n\n**Expected output:**\n```\n2\n3\n5\n7\n11\n13\n17\n19\n23\n29\n```",
+  "starterCode": "# Print all prime numbers from 2 to 30\n",
+  "expectedOutput": "2\n3\n5\n7\n11\n13\n17\n19\n23\n29",
+  "inputs": [],
+  "hint": "For each number n from 2 to 30, check if any number from 2 to n-1 divides it evenly. If none do, it's prime."
+}

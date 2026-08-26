@@ -1,0 +1,17 @@
+{
+  "id": "py-s2-t7-001",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "While Loops",
+  "topicIndex": 7,
+  "problemIndex": 1,
+  "title": "Countdown",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "## While Loops\n\nA while loop repeats as long as its condition is True.\n\n### Basic Syntax\n```python\nwhile condition:\n    # body executes while condition is True\n    # ALWAYS update something so the loop eventually ends!\n```\n\n### Countdown Example\n```python\nn = 5\nwhile n > 0:\n    print(n)\n    n -= 1   # same as n = n - 1\nprint(\"Done!\")\n# Output: 5, 4, 3, 2, 1, Done!\n```\n\n### break and continue\n```python\nn = 0\nwhile True:  # infinite loop\n    n += 1\n    if n == 3:\n        continue  # skip rest of loop body\n    if n == 5:\n        break     # exit the loop\n    print(n)\n# Output: 1, 2, 4\n```\n\n### Infinite Loop Prevention\nAlways make sure something changes each iteration to eventually make the condition False, or use `break` to exit.",
+  "description": "Count down from 5 to 1 using a while loop, printing each number, then print `Blast off!`.\n\n**Expected output:**\n```\n5\n4\n3\n2\n1\nBlast off!\n```",
+  "starterCode": "n = 5\n# Count down from 5 to 1, then print Blast off!\n",
+  "expectedOutput": "5\n4\n3\n2\n1\nBlast off!",
+  "inputs": [],
+  "hint": "Use while n > 0: print(n), then n -= 1. After the loop, print 'Blast off!'"
+}

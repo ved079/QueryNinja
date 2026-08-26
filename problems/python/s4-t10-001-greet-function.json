@@ -1,0 +1,17 @@
+{
+  "id": "py-s4-t10-001",
+  "stage": 4,
+  "stageLabel": "Functions",
+  "topic": "Functions",
+  "topicIndex": 10,
+  "problemIndex": 1,
+  "title": "Greet Function",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "## Functions\n\nFunctions let you group reusable code under a name.\n\n### Defining and Calling Functions\n```python\ndef greet(name):\n    print(f\"Hello, {name}!\")\n\ngreet(\"Alice\")   # Hello, Alice!\ngreet(\"Bob\")     # Hello, Bob!\n```\n\n### Parameters and Return Values\n```python\ndef add(a, b):\n    return a + b\n\nresult = add(3, 5)\nprint(result)   # 8\n```\n\n### Default Parameters\n```python\ndef greet(name, greeting=\"Hello\"):\n    print(f\"{greeting}, {name}!\")\n\ngreet(\"Alice\")            # Hello, Alice!\ngreet(\"Bob\", \"Hi\")        # Hi, Bob!\n```\n\n### Scope\n```python\nx = 10  # global variable\n\ndef my_func():\n    y = 20  # local variable — only exists inside the function\n    print(x)  # can read global\n    print(y)  # can read local\n\nmy_func()\n# print(y)  # Error! y doesn't exist here\n```\n\n### Why Use Functions?\n- Avoid repeating code (DRY principle)\n- Make code easier to test and maintain\n- Break complex problems into smaller pieces",
+  "description": "Define a function `greet(name)` that prints `Hello, {name}!`. Call it with `\"World\"`.\n\n**Expected output:**\n```\nHello, World!\n```",
+  "starterCode": "def greet(name):\n    # Print the greeting\n    pass\n\ngreet(\"World\")\n",
+  "expectedOutput": "Hello, World!",
+  "inputs": [],
+  "hint": "Inside the function, use print(f\"Hello, {name}!\")"
+}

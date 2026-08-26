@@ -1,0 +1,17 @@
+{
+  "id": "py-s2-t6-006",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "For Loops",
+  "topicIndex": 6,
+  "problemIndex": 6,
+  "title": "Right Triangle of Stars",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Print a right triangle of stars with 5 rows. Row 1 has 1 star, row 5 has 5 stars.\n\n**Expected output:**\n```\n*\n**\n***\n****\n*****\n```",
+  "starterCode": "# Print a right triangle of stars with 5 rows\n",
+  "expectedOutput": "*\n**\n***\n****\n*****",
+  "inputs": [],
+  "hint": "Loop from 1 to 5 (inclusive) and print \"*\" * i each iteration."
+}

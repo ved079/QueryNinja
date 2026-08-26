@@ -1,0 +1,17 @@
+{
+  "id": "py-s4-t10-008",
+  "stage": 4,
+  "stageLabel": "Functions",
+  "topic": "Functions",
+  "topicIndex": 10,
+  "problemIndex": 8,
+  "title": "Flatten One Level",
+  "difficulty": "Hard",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Define a function `flatten(lst)` that flattens **one level** of nesting. Items that are lists get their elements added directly; items that are not lists stay as-is. Print the result of `flatten([[1, 2], [3, [4, 5]], [6]])`.\n\n**Expected output:**\n```\n[1, 2, 3, [4, 5], 6]\n```",
+  "starterCode": "def flatten(lst):\n    result = []\n    # Flatten one level of nesting\n    return result\n\nprint(flatten([[1, 2], [3, [4, 5]], [6]]))\n",
+  "expectedOutput": "[1, 2, 3, [4, 5], 6]",
+  "inputs": [],
+  "hint": "Loop through lst. If an item is a list, extend result with it (result.extend(item)); otherwise append it (result.append(item))."
+}

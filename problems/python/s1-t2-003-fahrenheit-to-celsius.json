@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t2-003",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Variables & Math",
+  "topicIndex": 2,
+  "problemIndex": 3,
+  "title": "Fahrenheit to Celsius",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Convert 100 degrees Fahrenheit to Celsius. The formula is:\n\n```\nC = (F - 32) * 5 / 9\n```\n\nPrint the result rounded to 2 decimal places.\n\n**Expected output:**\n```\n37.78\n```",
+  "starterCode": "f = 100\n# Convert to Celsius and print with 2 decimal places\n",
+  "expectedOutput": "37.78",
+  "inputs": [],
+  "hint": "Use round(value, 2) or an f-string with :.2f to format to 2 decimal places."
+}

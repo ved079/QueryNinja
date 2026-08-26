@@ -1,0 +1,17 @@
+{
+  "id": "py-s4-t10-002",
+  "stage": 4,
+  "stageLabel": "Functions",
+  "topic": "Functions",
+  "topicIndex": 10,
+  "problemIndex": 2,
+  "title": "Square Function",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Define a function `square(n)` that returns `n` squared. Print the result of calling `square(9)`.\n\n**Expected output:**\n```\n81\n```",
+  "starterCode": "def square(n):\n    # Return n squared\n    pass\n\nprint(square(9))\n",
+  "expectedOutput": "81",
+  "inputs": [],
+  "hint": "Use return n * n or return n ** 2 inside the function."
+}

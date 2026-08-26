@@ -1,0 +1,17 @@
+{
+  "id": "py-s3-t8-001",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Lists",
+  "topicIndex": 8,
+  "problemIndex": 1,
+  "title": "List Basics",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "## Lists\n\nLists are ordered, mutable collections that can hold any type of data.\n\n### Creating Lists\n```python\nnums = [1, 2, 3, 4, 5]\nfruits = [\"apple\", \"banana\", \"cherry\"]\nmixed = [1, \"hello\", 3.14, True]\nempty = []\n```\n\n### Indexing and Slicing\n```python\nnums = [10, 20, 30, 40, 50]\nprint(nums[0])    # 10 — first element\nprint(nums[-1])   # 50 — last element\nprint(nums[1:3])  # [20, 30] — slice\nprint(nums[::-1]) # [50, 40, 30, 20, 10] — reversed\n```\n\n### Common Methods\n```python\nnums = [3, 1, 4, 1, 5]\nnums.append(9)      # add to end: [3,1,4,1,5,9]\nnums.insert(0, 7)   # insert at index 0\nnums.remove(1)      # remove first occurrence of 1\npopped = nums.pop() # remove and return last element\nnums.sort()         # sort in place\nprint(len(nums))    # length\nprint(sum(nums))    # sum of all elements\nprint(3 in nums)    # True if 3 is in list\n```\n\n### Looping Over a List\n```python\nfor item in nums:\n    print(item)\n\nfor i, item in enumerate(nums):\n    print(i, item)  # index and value\n```",
+  "description": "Given `nums = [3, 1, 4, 1, 5, 9, 2, 6]`, print the first element, then the last element, then the length — each on its own line.\n\n**Expected output:**\n```\n3\n6\n8\n```",
+  "starterCode": "nums = [3, 1, 4, 1, 5, 9, 2, 6]\n# Print first element\n# Print last element\n# Print length\n",
+  "expectedOutput": "3\n6\n8",
+  "inputs": [],
+  "hint": "Use nums[0] for first, nums[-1] for last, and len(nums) for length."
+}

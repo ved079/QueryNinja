@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t2-001",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Variables & Math",
+  "topicIndex": 2,
+  "problemIndex": 1,
+  "title": "Sum of Two Numbers",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "## Variables & Math\n\nVariables store data that you can use and change throughout your program.\n\n### Creating Variables\n```python\nname = \"Alice\"      # string\nage = 25            # integer\nheight = 5.7        # float\nis_student = True   # boolean\n```\n\n### Arithmetic Operators\n| Operator | Name | Example | Result |\n|----------|------|---------|--------|\n| `+` | Addition | `5 + 3` | `8` |\n| `-` | Subtraction | `5 - 3` | `2` |\n| `*` | Multiplication | `5 * 3` | `15` |\n| `/` | Division | `7 / 2` | `3.5` |\n| `//` | Floor Division | `7 // 2` | `3` |\n| `%` | Modulo | `7 % 2` | `1` |\n| `**` | Exponent | `2 ** 3` | `8` |\n\n### Examples\n```python\na = 15\nb = 7\nprint(a + b)   # 22\nprint(a - b)   # 8\nprint(a * b)   # 105\nprint(a / b)   # 2.142857...\nprint(a // b)  # 2  (floor division)\nprint(a % b)   # 1  (remainder)\nprint(a ** 2)  # 225\n```\n\n### Formatted Output\n```python\npi = 3.14159\nprint(f\"{pi:.2f}\")  # 3.14 (2 decimal places)\nprint(round(pi, 2)) # 3.14\n```",
+  "description": "Store the values `15` and `7` in two variables, then print their sum.\n\n**Expected output:**\n```\n22\n```",
+  "starterCode": "a = 15\nb = 7\n# Print the sum of a and b\n",
+  "expectedOutput": "22",
+  "inputs": [],
+  "hint": "Use the + operator: print(a + b)"
+}

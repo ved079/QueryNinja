@@ -1,0 +1,17 @@
+{
+  "id": "py-s3-t9-006",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Dictionaries",
+  "topicIndex": 9,
+  "problemIndex": 6,
+  "title": "Invert a Dictionary",
+  "difficulty": "Hard",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Given `d = {\"a\": 1, \"b\": 2, \"c\": 3, \"d\": 4}`, invert it so that values become keys and keys become values. Print the inverted dictionary sorted by the new key, one entry per line in the format `key:value`.\n\n**Expected output:**\n```\n1:a\n2:b\n3:c\n4:d\n```",
+  "starterCode": "d = {\"a\": 1, \"b\": 2, \"c\": 3, \"d\": 4}\n# Invert the dictionary\n# Print sorted by new key\n",
+  "expectedOutput": "1:a\n2:b\n3:c\n4:d",
+  "inputs": [],
+  "hint": "inverted = {v: k for k, v in d.items()} creates the inverted dictionary. Then loop over sorted(inverted.keys())."
+}

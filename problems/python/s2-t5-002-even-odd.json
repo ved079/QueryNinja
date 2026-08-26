@@ -1,0 +1,17 @@
+{
+  "id": "py-s2-t5-002",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "If / Else",
+  "topicIndex": 5,
+  "problemIndex": 2,
+  "title": "Even or Odd Check",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Given `n = 42`, print `even` if divisible by 2, else print `odd`.\n\n**Expected output:**\n```\neven\n```",
+  "starterCode": "n = 42\n# Print even or odd\n",
+  "expectedOutput": "even",
+  "inputs": [],
+  "hint": "Check if n % 2 == 0. If true, it's even; otherwise it's odd."
+}

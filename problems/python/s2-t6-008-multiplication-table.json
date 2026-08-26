@@ -1,0 +1,17 @@
+{
+  "id": "py-s2-t6-008",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "For Loops",
+  "topicIndex": 6,
+  "problemIndex": 8,
+  "title": "Multiplication Table 1-5",
+  "difficulty": "Hard",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Print a multiplication table for numbers 1 through 5. Each row should show the products of that row's number multiplied by 1 through 5, separated by spaces.\n\n**Expected output:**\n```\n1 2 3 4 5\n2 4 6 8 10\n3 6 9 12 15\n4 8 12 16 20\n5 10 15 20 25\n```",
+  "starterCode": "# Print a 5x5 multiplication table\n",
+  "expectedOutput": "1 2 3 4 5\n2 4 6 8 10\n3 6 9 12 15\n4 8 12 16 20\n5 10 15 20 25",
+  "inputs": [],
+  "hint": "Use nested loops. For each row i (1-5), build a list of products [i*1, i*2, i*3, i*4, i*5], then print joined by spaces."
+}

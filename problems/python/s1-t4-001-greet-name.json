@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t4-001",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "User Input",
+  "topicIndex": 4,
+  "problemIndex": 1,
+  "title": "Greet by Name",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "## User Input\n\nThe `input()` function pauses the program and waits for the user to type something.\n\n### Basic Usage\n```python\nname = input(\"Enter your name: \")\nprint(\"Hello,\", name)\n```\n\n### Important: input() Always Returns a String\nEven if the user types a number, it comes in as text:\n```python\nage = input(\"Enter your age: \")  # returns \"25\" not 25\nage_int = int(age)               # convert to integer\n```\n\n### Type Conversion\n```python\nx = int(input(\"Enter a number: \"))    # to integer\ny = float(input(\"Enter a decimal: \")) # to float\ns = str(42)                           # number to string\n```\n\n### Why Types Matter\n```python\na = input()   # user types 5\nb = input()   # user types 3\nprint(a + b)  # prints 53 (string concatenation!)\nprint(int(a) + int(b))  # prints 8 (addition)\n```\n\n### In This App\nThe `inputs` array in each problem simulates what the user would type. Each item feeds one `input()` call in order.",
+  "description": "Ask for a name using `input(\"Enter your name: \")`, then print `Hello, {name}!`.\n\n**Input:** `Alice`\n\n**Expected output:**\n```\nHello, Alice!\n```",
+  "starterCode": "name = input(\"Enter your name: \")\n# Print the greeting\n",
+  "expectedOutput": "Hello, Alice!",
+  "inputs": ["Alice"],
+  "hint": "Use an f-string or concatenation: print(f\"Hello, {name}!\")"
+}

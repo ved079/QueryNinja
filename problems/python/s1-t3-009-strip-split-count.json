@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t3-009",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Strings",
+  "topicIndex": 3,
+  "problemIndex": 9,
+  "title": "Word Count",
+  "difficulty": "Hard",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Store `s = \"  hello world  \"`. Strip the whitespace from both ends, split it into words, and print the number of words.\n\n**Expected output:**\n```\n2\n```",
+  "starterCode": "s = \"  hello world  \"\n# Strip whitespace, split into words, print word count\n",
+  "expectedOutput": "2",
+  "inputs": [],
+  "hint": "Chain the operations: s.strip() removes whitespace, then .split() splits into a list. Use len() on the result."
+}

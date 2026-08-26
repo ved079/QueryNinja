@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t4-008",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "User Input",
+  "topicIndex": 4,
+  "problemIndex": 8,
+  "title": "Average Test Scores",
+  "difficulty": "Hard",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Ask for 3 test scores. Print their average rounded to 1 decimal place.\n\n**Inputs:** `85`, `92`, `78`\n\n**Expected output:**\n```\n85.0\n```",
+  "starterCode": "s1 = int(input())\ns2 = int(input())\ns3 = int(input())\n# Calculate and print the average\n",
+  "expectedOutput": "85.0",
+  "inputs": ["85", "92", "78"],
+  "hint": "average = (s1 + s2 + s3) / 3. Use round(average, 1) or f\"{average:.1f}\" to format."
+}

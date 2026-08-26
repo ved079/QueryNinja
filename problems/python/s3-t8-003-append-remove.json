@@ -1,0 +1,17 @@
+{
+  "id": "py-s3-t8-003",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Lists",
+  "topicIndex": 8,
+  "problemIndex": 3,
+  "title": "Append and Remove",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Start with `fruits = [\"apple\", \"banana\", \"cherry\"]`. Append `\"date\"` to the list, then remove `\"banana\"`. Print the resulting list.\n\n**Expected output:**\n```\n['apple', 'cherry', 'date']\n```",
+  "starterCode": "fruits = [\"apple\", \"banana\", \"cherry\"]\n# Append date\n# Remove banana\n# Print the list\n",
+  "expectedOutput": "['apple', 'cherry', 'date']",
+  "inputs": [],
+  "hint": "Use fruits.append(\"date\") and fruits.remove(\"banana\"), then print(fruits)."
+}

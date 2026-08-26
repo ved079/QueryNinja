@@ -1,0 +1,17 @@
+{
+  "id": "py-s3-t9-004",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Dictionaries",
+  "topicIndex": 9,
+  "problemIndex": 4,
+  "title": "Merge Dictionaries",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Given:\n```python\nd1 = {\"a\": 1, \"b\": 2, \"c\": 3}\nd2 = {\"b\": 20, \"c\": 30, \"d\": 40}\n```\nMerge them into one dictionary where `d2` values win on conflicts. Print the merged dictionary sorted by key, one entry per line in the format `key:value`.\n\n**Expected output:**\n```\na:1\nb:20\nc:30\nd:40\n```",
+  "starterCode": "d1 = {\"a\": 1, \"b\": 2, \"c\": 3}\nd2 = {\"b\": 20, \"c\": 30, \"d\": 40}\n# Merge d1 and d2 (d2 wins on conflict)\n# Print sorted by key\n",
+  "expectedOutput": "a:1\nb:20\nc:30\nd:40",
+  "inputs": [],
+  "hint": "Start with merged = {**d1, **d2} or merged = d1.copy(); merged.update(d2). Then loop over sorted(merged.keys())."
+}

@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t4-003",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "User Input",
+  "topicIndex": 4,
+  "problemIndex": 3,
+  "title": "Full Name",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Ask for a first name, then a last name. Print the full name separated by a space.\n\n**Inputs:** `John`, then `Doe`\n\n**Expected output:**\n```\nJohn Doe\n```",
+  "starterCode": "first = input()\nlast = input()\n# Print the full name\n",
+  "expectedOutput": "John Doe",
+  "inputs": ["John", "Doe"],
+  "hint": "Combine first and last with a space: print(first + \" \" + last) or print(f\"{first} {last}\")"
+}

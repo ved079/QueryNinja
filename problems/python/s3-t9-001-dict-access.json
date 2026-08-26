@@ -1,0 +1,17 @@
+{
+  "id": "py-s3-t9-001",
+  "stage": 3,
+  "stageLabel": "Data Structures",
+  "topic": "Dictionaries",
+  "topicIndex": 9,
+  "problemIndex": 1,
+  "title": "Dictionary Access",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "## Dictionaries\n\nDictionaries store key-value pairs. Keys must be unique and immutable.\n\n### Creating Dictionaries\n```python\nperson = {\"name\": \"Alice\", \"age\": 25, \"city\": \"NYC\"}\nempty = {}\n```\n\n### Accessing Values\n```python\nprint(person[\"name\"])      # Alice\nprint(person.get(\"age\"))   # 25\nprint(person.get(\"job\", \"unknown\"))  # unknown (default)\n```\n\n### Modifying Dictionaries\n```python\nperson[\"age\"] = 26         # update existing\nperson[\"email\"] = \"a@b.c\" # add new key\ndel person[\"city\"]         # delete a key\n```\n\n### Looping Over a Dictionary\n```python\nfor key in person:\n    print(key, person[key])\n\nfor key, value in person.items():\n    print(f\"{key}: {value}\")\n\nprint(list(person.keys()))   # ['name', 'age', ...]\nprint(list(person.values())) # ['Alice', 25, ...]\n```",
+  "description": "Given:\n```python\nperson = {\"name\": \"Alice\", \"age\": 25, \"city\": \"NYC\"}\n```\nPrint the name on the first line and the age on the second line.\n\n**Expected output:**\n```\nAlice\n25\n```",
+  "starterCode": "person = {\"name\": \"Alice\", \"age\": 25, \"city\": \"NYC\"}\n# Print name\n# Print age\n",
+  "expectedOutput": "Alice\n25",
+  "inputs": [],
+  "hint": "Access values using person[\"name\"] and person[\"age\"]."
+}

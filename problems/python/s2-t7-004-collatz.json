@@ -1,0 +1,17 @@
+{
+  "id": "py-s2-t7-004",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "While Loops",
+  "topicIndex": 7,
+  "problemIndex": 4,
+  "title": "Collatz Sequence",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Given `n = 6`, print the Collatz sequence starting from n until it reaches 1.\n\nThe rules:\n- If n is even: divide by 2\n- If n is odd: multiply by 3 and add 1\n- Print each number including 1\n\n**Expected output:**\n```\n6\n3\n10\n5\n16\n8\n4\n2\n1\n```",
+  "starterCode": "n = 6\n# Print the Collatz sequence\n",
+  "expectedOutput": "6\n3\n10\n5\n16\n8\n4\n2\n1",
+  "inputs": [],
+  "hint": "Print n each iteration. If n is even: n = n // 2, else n = 3 * n + 1. Stop when n == 1 (but print 1 first)."
+}

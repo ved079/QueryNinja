@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t1-002",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "Print & Output",
+  "topicIndex": 1,
+  "problemIndex": 2,
+  "title": "Name and Age",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Print the name `Alex` on the first line and the age `20` on the second line.\n\n**Expected output:**\n```\nAlex\n20\n```",
+  "starterCode": "# Print name on one line, age on the next\n",
+  "expectedOutput": "Alex\n20",
+  "inputs": [],
+  "hint": "Use two separate print() calls — each one automatically adds a newline at the end."
+}

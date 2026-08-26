@@ -1,0 +1,17 @@
+{
+  "id": "py-s2-t6-003",
+  "stage": 2,
+  "stageLabel": "Control Flow",
+  "topic": "For Loops",
+  "topicIndex": 6,
+  "problemIndex": 3,
+  "title": "5 Times Table",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Print the 5 times table from 5×1 to 5×10. Print just the result of each multiplication, each on its own line.\n\n**Expected output:**\n```\n5\n10\n15\n20\n25\n30\n35\n40\n45\n50\n```",
+  "starterCode": "# Print the 5 times table\n",
+  "expectedOutput": "5\n10\n15\n20\n25\n30\n35\n40\n45\n50",
+  "inputs": [],
+  "hint": "Loop from 1 to 10 and print 5 * i each time."
+}

@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t4-002",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "User Input",
+  "topicIndex": 4,
+  "problemIndex": 2,
+  "title": "Square of Input",
+  "difficulty": "Easy",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Ask the user for a number, then print its square.\n\n**Input:** `7`\n\n**Expected output:**\n```\n49\n```",
+  "starterCode": "n = int(input())\n# Print the square of n\n",
+  "expectedOutput": "49",
+  "inputs": ["7"],
+  "hint": "Convert the input to an integer first, then print n * n or n ** 2."
+}

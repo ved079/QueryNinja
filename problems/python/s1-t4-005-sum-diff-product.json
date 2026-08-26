@@ -1,0 +1,17 @@
+{
+  "id": "py-s1-t4-005",
+  "stage": 1,
+  "stageLabel": "Python Basics",
+  "topic": "User Input",
+  "topicIndex": 4,
+  "problemIndex": 5,
+  "title": "Sum, Difference, Product",
+  "difficulty": "Medium",
+  "type": "freerun",
+  "lesson": "",
+  "description": "Ask for two numbers. Print their sum, then their difference, then their product — each on a separate line.\n\n**Inputs:** `12`, then `4`\n\n**Expected output:**\n```\n16\n8\n48\n```",
+  "starterCode": "a = int(input())\nb = int(input())\n# Print sum, difference, product\n",
+  "expectedOutput": "16\n8\n48",
+  "inputs": ["12", "4"],
+  "hint": "Three print statements: print(a + b), print(a - b), print(a * b)"
+}
