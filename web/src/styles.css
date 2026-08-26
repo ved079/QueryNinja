@@ -2478,6 +2478,16 @@ tbody tr:last-child td {
 .py-result-row.fail { border-color: rgba(240,85,63,0.3); }
 .py-result-name { font-size: 13px; font-weight: 500; }
 .py-result-detail { margin-top: 8px; font-size: 12px; }
+.py-stdout {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+  padding: 0;
+  color: var(--fg);
+}
 .py-fail-detail {
   margin-top: 8px;
   padding: 10px 12px;

@@ -9,6 +9,16 @@ async function init() {
   return pyodide;
 }
 
+const FREERUN_SETUP = `
+import builtins as _builtins
+import sys as _sys
+_sys.setrecursionlimit(500)
+_input_iter = iter(_mock_inputs)
+def _mock_input(prompt=""):
+    return next(_input_iter, "")
+_builtins.input = _mock_input
+`;
+
 const HARNESS = `
 import json as _json, sys as _sys, traceback as _tb
 _sys.setrecursionlimit(500)
@@ -42,20 +52,34 @@ if not _done:
 print(_json.dumps(_results))
 `;
 
+const normalize = (s) => (s || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
 self.onmessage = async (e) => {
-  const { id, code, functionName, helperCode, tests } = e.data;
+  const { id, type, code, inputs, functionName, helperCode, tests } = e.data;
+  const py = await init();
+
+  // ── FREERUN MODE: just execute code, capture stdout ──
+  if (type === 'freerun') {
+    py.globals.set('_mock_inputs', py.toPy(inputs ?? []));
+    let output = '';
+    py.setStdout({ batched: (s) => { output += s + '\n'; } });
+    try {
+      await py.runPythonAsync(FREERUN_SETUP);
+      await py.runPythonAsync(normalize(code));
+      self.postMessage({ id, output: output.trimEnd() });
+    } catch (err) {
+      self.postMessage({ id, output: output.trimEnd(), error: err.message ?? String(err) });
+    }
+    return;
+  }
+
+  // ── FUNCTION MODE: test harness ──
   try {
-    const py = await init();
-
-    const normalize = (s) => (s || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     const fullCode = helperCode ? `${normalize(helperCode)}\n${normalize(code)}` : normalize(code);
-
-    // Pass data through Pyodide globals — no string interpolation of Python code
     py.globals.set('_user_code', fullCode);
     py.globals.set('_fn_name', functionName);
     py.globals.set('_test_cases', py.toPy(tests));
 
-    // Capture stdout (print calls)
     let output = '';
     py.setStdout({ batched: (s) => { output += s + '\n'; } });
 

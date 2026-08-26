@@ -6,16 +6,15 @@ function getWorker() {
   if (!worker) {
     worker = new Worker('/py-worker.js');
     worker.onmessage = (e) => {
-      const { id, results, error } = e.data;
+      const { id, results, output, error } = e.data;
       const resolve = pending.get(id);
       if (resolve) {
         pending.delete(id);
-        resolve({ results, error });
+        resolve({ results, output, error });
       }
     };
     worker.onerror = (e) => {
-      // Reject all pending on unrecoverable worker crash
-      for (const [id, resolve] of pending) {
+      for (const [, resolve] of pending) {
         resolve({ error: e.message ?? 'Worker crashed' });
       }
       pending.clear();
@@ -25,10 +24,10 @@ function getWorker() {
   return worker;
 }
 
-export function runPython({ code, functionName, helperCode = '', tests }) {
+export function runPython({ type = 'function', code, inputs = [], functionName, helperCode = '', tests }) {
   return new Promise((resolve) => {
     const id = nextId++;
     pending.set(id, resolve);
-    getWorker().postMessage({ id, code, functionName, helperCode, tests });
+    getWorker().postMessage({ id, type, code, inputs, functionName, helperCode, tests });
   });
 }

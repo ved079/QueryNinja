@@ -91,32 +91,43 @@ export default function PythonApp({ userName, initialId, listOpen, onListClose }
     }
   }, [userName]);
 
+  const isFreerun = problem?.type === 'freerun';
+
   const run = useCallback(async () => {
     if (!problem || running) return;
     setRunning(true);
     setOutput(null);
     setVerdict(null);
     try {
-      const data = await runPython({
-        code: codeRef.current,
-        functionName: problem.functionName,
-        helperCode: problem._helperCode ?? '',
-        tests: problem.tests,
-      });
-      if (data.error && !data.results?.length) {
-        setOutput({ error: data.error });
+      if (isFreerun) {
+        const data = await runPython({
+          type: 'freerun',
+          code: codeRef.current,
+          inputs: problem.inputs ?? [],
+        });
+        setOutput({ text: data.output ?? '', error: data.error });
       } else {
-        const results = data.results ?? [];
-        const passed = results.length > 0 && results.every((r) => r.passed);
-        const passedCount = results.filter((r) => r.passed).length;
-        setVerdict({ results, passed, passedCount, total: results.length, error: data.error, isRun: true });
+        const data = await runPython({
+          code: codeRef.current,
+          functionName: problem.functionName,
+          helperCode: problem._helperCode ?? '',
+          tests: problem.tests,
+        });
+        if (data.error && !data.results?.length) {
+          setOutput({ error: data.error });
+        } else {
+          const results = data.results ?? [];
+          const passed = results.length > 0 && results.every((r) => r.passed);
+          const passedCount = results.filter((r) => r.passed).length;
+          setVerdict({ results, passed, passedCount, total: results.length, error: data.error, isRun: true });
+        }
       }
     } catch (err) {
       setOutput({ error: err.message });
     } finally {
       setRunning(false);
     }
-  }, [problem, running]);
+  }, [problem, running, isFreerun]);
 
   const submit = useCallback(async () => {
     if (!problem || running) return;
@@ -124,39 +135,63 @@ export default function PythonApp({ userName, initialId, listOpen, onListClose }
     setOutput(null);
     setVerdict(null);
     try {
-      const data = await runPython({
-        code: codeRef.current,
-        functionName: problem.functionName,
-        helperCode: problem._helperCode ?? '',
-        tests: problem.tests,
-      });
-      const results = data.results ?? [];
-      const passed = results.length > 0 && results.every((r) => r.passed);
-      const passedCount = results.filter((r) => r.passed).length;
-      const v = { results, passed, passedCount, total: results.length, error: data.error };
-      setVerdict(v);
+      if (isFreerun) {
+        const data = await runPython({
+          type: 'freerun',
+          code: codeRef.current,
+          inputs: problem.inputs ?? [],
+        });
+        const got = (data.output ?? '').trim();
+        const expected = (problem.expectedOutput ?? '').trim();
+        const passed = !data.error && got === expected;
+        const v = { freerun: true, passed, got, expected, error: data.error };
+        setVerdict(v);
+        await saveProgress(problem.id, codeRef.current, passed ? 'solved' : 'attempted');
 
-      const status = passed ? 'solved' : 'attempted';
-      await saveProgress(problem.id, codeRef.current, status);
+        if (passed) {
+          const topicProblems = problems.filter((p) => p.topic === problem.topic && p.stage === problem.stage);
+          const newProgress = { ...progress, [problem.id]: { status: 'solved', code: codeRef.current } };
+          const allSolved = topicProblems.every((p) => newProgress[p.id]?.status === 'solved');
+          const wasSolved = topicProblems.every((p) => progress[p.id]?.status === 'solved');
+          if (allSolved && !wasSolved) {
+            const curIdx = problems.findIndex((p) => p.id === problem.id);
+            const nextId = problems[curIdx + 1]?.id ?? null;
+            setTopicComplete({ topic: problem.topic, nextId });
+          }
+        }
+      } else {
+        const data = await runPython({
+          code: codeRef.current,
+          functionName: problem.functionName,
+          helperCode: problem._helperCode ?? '',
+          tests: problem.tests,
+        });
+        const results = data.results ?? [];
+        const passed = results.length > 0 && results.every((r) => r.passed);
+        const passedCount = results.filter((r) => r.passed).length;
+        const v = { results, passed, passedCount, total: results.length, error: data.error };
+        setVerdict(v);
 
-      if (passed) {
-        // Check if this solved the last problem in its topic
-        const topicProblems = problems.filter((p) => p.topic === problem.topic && p.stage === problem.stage);
-        const newProgress = { ...progress, [problem.id]: { status: 'solved', code: codeRef.current } };
-        const allSolved = topicProblems.every((p) => newProgress[p.id]?.status === 'solved');
-        const wasSolved = topicProblems.every((p) => progress[p.id]?.status === 'solved');
-        if (allSolved && !wasSolved) {
-          const curIdx = problems.findIndex((p) => p.id === problem.id);
-          const nextId = problems[curIdx + 1]?.id ?? null;
-          setTopicComplete({ topic: problem.topic, nextId });
+        await saveProgress(problem.id, codeRef.current, passed ? 'solved' : 'attempted');
+
+        if (passed) {
+          const topicProblems = problems.filter((p) => p.topic === problem.topic && p.stage === problem.stage);
+          const newProgress = { ...progress, [problem.id]: { status: 'solved', code: codeRef.current } };
+          const allSolved = topicProblems.every((p) => newProgress[p.id]?.status === 'solved');
+          const wasSolved = topicProblems.every((p) => progress[p.id]?.status === 'solved');
+          if (allSolved && !wasSolved) {
+            const curIdx = problems.findIndex((p) => p.id === problem.id);
+            const nextId = problems[curIdx + 1]?.id ?? null;
+            setTopicComplete({ topic: problem.topic, nextId });
+          }
         }
       }
     } catch (err) {
-      setVerdict({ results: [], passed: false, error: err.message });
+      setVerdict({ passed: false, error: err.message });
     } finally {
       setRunning(false);
     }
-  }, [problem, running, saveProgress]);
+  }, [problem, running, isFreerun, saveProgress]);
 
   const handleSelect = useCallback((id) => {
     setSelectedId(id);
@@ -254,7 +289,34 @@ export default function PythonApp({ userName, initialId, listOpen, onListClose }
         <div className="output" style={{ flex: 100 - splitRatio }}>
           {running && <p className="muted">Running…</p>}
 
-          {!running && verdict && (
+          {/* ── FREERUN: raw stdout output ── */}
+          {!running && isFreerun && output && (
+            <>
+              {output.error && <pre className="error">{output.error}</pre>}
+              {output.text != null && (
+                <pre className="py-stdout">{output.text || <span className="muted">(no output)</span>}</pre>
+              )}
+            </>
+          )}
+
+          {/* ── FREERUN: submit verdict ── */}
+          {!running && isFreerun && verdict && (
+            <>
+              <div className={`verdict ${verdict.passed ? 'pass' : 'fail'}`}>
+                <strong>{verdict.passed ? 'Correct ✓' : 'Not quite'}</strong>
+                <span>{verdict.error || (verdict.passed ? 'Output matches.' : 'Output does not match expected.')}</span>
+              </div>
+              {!verdict.passed && !verdict.error && (
+                <div className="diff">
+                  <div><h4>Expected</h4><pre className="py-val">{verdict.expected}</pre></div>
+                  <div><h4>Got</h4><pre className="py-val">{verdict.got || '(no output)'}</pre></div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ── FUNCTION MODE: test results ── */}
+          {!running && !isFreerun && verdict && (
             <>
               <div className={`verdict ${verdict.passed ? 'pass' : 'fail'}`}>
                 <strong>
@@ -266,9 +328,7 @@ export default function PythonApp({ userName, initialId, listOpen, onListClose }
                 <span>
                   {verdict.passed
                     ? `All ${verdict.total} test cases passed.`
-                    : verdict.error
-                      ? verdict.error
-                      : `${verdict.total - verdict.passedCount} test case(s) failed.`}
+                    : verdict.error ?? `${verdict.total - verdict.passedCount} test case(s) failed.`}
                 </span>
               </div>
               {verdict.results?.map((r, i) => (
@@ -289,13 +349,13 @@ export default function PythonApp({ userName, initialId, listOpen, onListClose }
             </>
           )}
 
-          {!running && !verdict && output?.error && (
+          {!running && !isFreerun && !verdict && output?.error && (
             <pre className="error">{output.error}</pre>
           )}
 
-          {!running && !verdict && !output && (
+          {!running && !output && !verdict && (
             <p className="muted">
-              Press <kbd>Ctrl+Enter</kbd> to run · <kbd>Submit</kbd> to grade all tests
+              Press <kbd>Ctrl+Enter</kbd> to run{isFreerun ? '' : ' · Submit to grade all tests'}
             </p>
           )}
         </div>

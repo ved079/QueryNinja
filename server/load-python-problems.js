@@ -19,6 +19,8 @@ export async function loadPythonProblems() {
       return JSON.parse(raw);
     })
   );
-  // Only return new-format problems (have functionName + array inputs)
-  return problems.filter((p) => p.functionName && Array.isArray(p.tests?.[0]?.input));
+  // Accept freerun problems (type=freerun) OR function problems (functionName + array inputs)
+  return problems.filter((p) =>
+    p.type === 'freerun' || (p.functionName && Array.isArray(p.tests?.[0]?.input))
+  );
 }
