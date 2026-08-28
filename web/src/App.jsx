@@ -296,8 +296,13 @@ export default function App() {
             refDb.close();
           }
         } else {
-          // Use the pre-computed expectedOutput from the first test case.
-          setExpected(expectedOutputToResult(testsOf(problem)[0]?.expectedOutput) ?? null);
+          // /api/problems strips expectedOutput from each test for bandwidth;
+          // the detail endpoint (/api/problem/:id) includes it. Prefer the
+          // cached detail response, fall back to the problems-list entry.
+          const cachedTests = solutionsCache.current[problem.id]?.tests;
+          const expectedOutput =
+            cachedTests?.[0]?.expectedOutput ?? testsOf(problem)[0]?.expectedOutput;
+          setExpected(expectedOutputToResult(expectedOutput) ?? null);
         }
       } catch (err) {
         setLoadError(`Failed to set up "${problem.title}": ${err.message}`);
