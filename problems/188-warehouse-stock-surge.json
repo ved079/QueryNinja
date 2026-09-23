@@ -1,0 +1,214 @@
+{
+  "id": "warehouse-stock-surge",
+  "number": 188,
+  "title": "Warehouse Stock Surge",
+  "difficulty": "Medium",
+  "tags": [
+    "Window Function",
+    "Consecutive ids",
+    "Inventory"
+  ],
+  "description": "Table `warehouse_deliveries`:\n\n| Column Name | Type    |\n| ----------- | ------- |\n| id          | int     |\n| delivery_date | date  |\n| stock_in    | int     |\n\ndelivery_date is unique for this table. As the id increases, the delivery_date increases as well. Each row records how many units arrived at a warehouse on that date.\n\nA \"big restock\" is a delivery where `stock_in >= 5000`.\n\nWrite a solution to display the records with **three or more rows with consecutive id's** where every row in the run is a big restock.\n\nReturn the result table ordered by `delivery_date` in ascending order.\n\nExample:\n\n```\nInput:\nwarehouse_deliveries:\n+----+--------------+----------+\n| id | delivery_date | stock_in |\n+----+--------------+----------+\n| 1  | 2023-08-01   | 7000     |\n| 2  | 2023-08-02   | 6000     |\n| 3  | 2023-08-03   | 8000     |\n| 4  | 2023-08-04   | 2000     |\n| 5  | 2023-08-05   | 9000     |\n| 6  | 2023-08-06   | 9500     |\n+----+--------------+----------+\n\nOutput:\n+----+--------------+----------+\n| id | delivery_date | stock_in |\n+----+--------------+----------+\n| 1  | 2023-08-01   | 7000     |\n| 2  | 2023-08-02   | 6000     |\n| 3  | 2023-08-03   | 8000     |\n+----+--------------+----------+\n```\n\nIds 1, 2, 3 are three consecutive big restocks, so all three are returned. The run of ids 5-6 is only a pair — not enough to qualify.",
+  "schemaSql": "CREATE TABLE warehouse_deliveries (\n  id INTEGER PRIMARY KEY,\n  delivery_date TEXT,\n  stock_in INTEGER\n);",
+  "solutionSql": "WITH restocks AS (\n  SELECT id, delivery_date, stock_in,\n         id - ROW_NUMBER() OVER (ORDER BY id) AS grp\n  FROM warehouse_deliveries\n  WHERE stock_in >= 5000\n)\nSELECT id, delivery_date, stock_in\nFROM restocks\nWHERE grp IN (\n  SELECT grp FROM restocks GROUP BY grp HAVING COUNT(*) >= 3\n)\nORDER BY delivery_date;",
+  "hint": "Filter to big restocks (stock_in >= 5000), find islands via id - ROW_NUMBER() OVER (ORDER BY id), and keep every row from islands of size 3+. Pairs never qualify.",
+  "outputExplanation": "In the example, ids 1-3 form a run of three consecutive big restocks so all three are returned; ids 5-6 are only a pair, so they are excluded.",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO warehouse_deliveries VALUES (1,'2023-08-01',7000),(2,'2023-08-02',6000),(3,'2023-08-03',8000),(4,'2023-08-04',2000),(5,'2023-08-05',9000),(6,'2023-08-06',9500);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "delivery_date": "2023-08-01",
+          "stock_in": 7000
+        },
+        {
+          "id": 2,
+          "delivery_date": "2023-08-02",
+          "stock_in": 6000
+        },
+        {
+          "id": 3,
+          "delivery_date": "2023-08-03",
+          "stock_in": 8000
+        }
+      ],
+      "expectedHash": "eb1e8f14215a239394ef02dd7cc55975a241873a3d41dc382d13d0302290da42"
+    },
+    {
+      "name": "Three consecutive big restocks",
+      "seedSql": "INSERT INTO warehouse_deliveries VALUES (1,'2022-03-10',5100),(2,'2022-03-11',5200),(3,'2022-03-12',5300),(4,'2022-03-13',400);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "delivery_date": "2022-03-10",
+          "stock_in": 5100
+        },
+        {
+          "id": 2,
+          "delivery_date": "2022-03-11",
+          "stock_in": 5200
+        },
+        {
+          "id": 3,
+          "delivery_date": "2022-03-12",
+          "stock_in": 5300
+        }
+      ],
+      "expectedHash": "be954b8d6668ba8a835eea9d02bd8d9c17af37f9081aaae7c065eaa15e89dc9a"
+    },
+    {
+      "name": "A big run of five plus a small dip",
+      "seedSql": "INSERT INTO warehouse_deliveries VALUES (1,'2019-07-01',6000),(2,'2019-07-02',7000),(3,'2019-07-03',8000),(4,'2019-07-04',9000),(5,'2019-07-05',10000),(6,'2019-07-06',100);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "delivery_date": "2019-07-01",
+          "stock_in": 6000
+        },
+        {
+          "id": 2,
+          "delivery_date": "2019-07-02",
+          "stock_in": 7000
+        },
+        {
+          "id": 3,
+          "delivery_date": "2019-07-03",
+          "stock_in": 8000
+        },
+        {
+          "id": 4,
+          "delivery_date": "2019-07-04",
+          "stock_in": 9000
+        },
+        {
+          "id": 5,
+          "delivery_date": "2019-07-05",
+          "stock_in": 10000
+        }
+      ],
+      "expectedHash": "c612c8762ef90eb45b3bf4cfde7b2215a8dbb852926e5f04a32c2de04950af64"
+    },
+    {
+      "name": "Exact threshold 5000 counts as big",
+      "seedSql": "INSERT INTO warehouse_deliveries VALUES (1,'2020-10-01',5000),(2,'2020-10-02',5000),(3,'2020-10-03',5000),(4,'2020-10-04',4999);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "delivery_date": "2020-10-01",
+          "stock_in": 5000
+        },
+        {
+          "id": 2,
+          "delivery_date": "2020-10-02",
+          "stock_in": 5000
+        },
+        {
+          "id": 3,
+          "delivery_date": "2020-10-03",
+          "stock_in": 5000
+        }
+      ],
+      "expectedHash": "0fa4433934772f288d4e23bc576e6eb160ca80d9ca8348473faa4b8daa5b3c8c"
+    },
+    {
+      "name": "Two runs each of three, separated by a poor day",
+      "seedSql": "INSERT INTO warehouse_deliveries VALUES (1,'2018-01-01',8000),(2,'2018-01-02',8000),(3,'2018-01-03',8000),(4,'2018-01-04',45),(5,'2018-01-05',9000),(6,'2018-01-06',9000),(7,'2018-01-07',9000);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "delivery_date": "2018-01-01",
+          "stock_in": 8000
+        },
+        {
+          "id": 2,
+          "delivery_date": "2018-01-02",
+          "stock_in": 8000
+        },
+        {
+          "id": 3,
+          "delivery_date": "2018-01-03",
+          "stock_in": 8000
+        },
+        {
+          "id": 5,
+          "delivery_date": "2018-01-05",
+          "stock_in": 9000
+        },
+        {
+          "id": 6,
+          "delivery_date": "2018-01-06",
+          "stock_in": 9000
+        },
+        {
+          "id": 7,
+          "delivery_date": "2018-01-07",
+          "stock_in": 9000
+        }
+      ],
+      "expectedHash": "1a920f49609888206d9d8bcdae159ed7af07a6c7b3b202f6c342161263ba2574"
+    },
+    {
+      "name": "One giant delivery cannot form a run alone",
+      "seedSql": "INSERT INTO warehouse_deliveries VALUES (1,'2017-04-01',99999),(2,'2017-04-02',50),(3,'2017-04-03',99999);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Non-monotonic delivery quantities across a run of three",
+      "seedSql": "INSERT INTO warehouse_deliveries VALUES (1,'2024-05-01',5500),(2,'2024-05-02',5100),(3,'2024-05-03',5900),(4,'2024-05-04',5500);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "delivery_date": "2024-05-01",
+          "stock_in": 5500
+        },
+        {
+          "id": 2,
+          "delivery_date": "2024-05-02",
+          "stock_in": 5100
+        },
+        {
+          "id": 3,
+          "delivery_date": "2024-05-03",
+          "stock_in": 5900
+        },
+        {
+          "id": 4,
+          "delivery_date": "2024-05-04",
+          "stock_in": 5500
+        }
+      ],
+      "expectedHash": "d0efe00981e2092694cfdd102f7c633cdfc9b81895abea314a59ed4c19cbdc53"
+    },
+    {
+      "name": "Id gaps reset a run even if stock_in stays high",
+      "seedSql": "INSERT INTO warehouse_deliveries VALUES (1,'2016-09-01',7000),(2,'2016-09-02',7000),(4,'2016-09-04',7000),(5,'2016-09-05',7000),(6,'2016-09-06',7000);",
+      "expectedOutput": [
+        {
+          "id": 4,
+          "delivery_date": "2016-09-04",
+          "stock_in": 7000
+        },
+        {
+          "id": 5,
+          "delivery_date": "2016-09-05",
+          "stock_in": 7000
+        },
+        {
+          "id": 6,
+          "delivery_date": "2016-09-06",
+          "stock_in": 7000
+        }
+      ],
+      "expectedHash": "5972e8eaa535fa05dc15f961379dcbcaa2d0043f31a966b716ab5aaaedb914ef"
+    }
+  ]
+}

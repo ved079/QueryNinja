@@ -1,0 +1,230 @@
+{
+  "id": "solar-surge-streak",
+  "number": 187,
+  "title": "Solar Surge Streak",
+  "difficulty": "Hard",
+  "tags": [
+    "Window Function",
+    "Consecutive ids",
+    "Temporal Sequences"
+  ],
+  "description": "Table `solar_output`:\n\n| Column Name | Type    |\n| ----------- | ------- |\n| id          | int     |\n| report_date | date    |\n| output_kwh  | int     |\n\nreport_date is unique for this table. As the id increases, the report_date increases as well.\n\nEngineers define a \"surge day\" as a day where `output_kwh >= 3000`.\n\nWrite a solution to display the records where the day is part of a stretch of **three or more consecutive id's**, and every day in that stretch is a surge day.\n\nReturn the result table ordered by `report_date` in ascending order.\n\nExample:\n\n```\nInput:\nsolar_output:\n+----+-------------+------------+\n| id | report_date | output_kwh |\n+----+-------------+------------+\n| 1  | 2019-04-01  | 4100       |\n| 2  | 2019-04-02  | 4200       |\n| 3  | 2019-04-03  | 4300       |\n| 4  | 2019-04-04  | 2500       |\n| 5  | 2019-04-05  | 5000       |\n| 6  | 2019-04-06  | 5100       |\n| 7  | 2019-04-07  | 5200       |\n+----+-------------+------------+\n\nOutput:\n+----+-------------+------------+\n| id | report_date | output_kwh |\n+----+-------------+------------+\n| 1  | 2019-04-01  | 4100       |\n| 2  | 2019-04-02  | 4200       |\n| 3  | 2019-04-03  | 4300       |\n| 5  | 2019-04-05  | 5000       |\n| 6  | 2019-04-06  | 5100       |\n| 7  | 2019-04-07  | 5200       |\n+----+-------------+------------+\n```\n\nBoth runs (1-3 and 5-7) have at least three consecutive surge days, so every row in each run is returned.",
+  "schemaSql": "CREATE TABLE solar_output (\n  id INTEGER PRIMARY KEY,\n  report_date TEXT,\n  output_kwh INTEGER\n);",
+  "solutionSql": "WITH surges AS (\n  SELECT id, report_date, output_kwh,\n         id - ROW_NUMBER() OVER (ORDER BY id) AS grp\n  FROM solar_output\n  WHERE output_kwh >= 3000\n)\nSELECT id, report_date, output_kwh\nFROM surges\nWHERE grp IN (\n  SELECT grp FROM surges GROUP BY grp HAVING COUNT(*) >= 3\n)\nORDER BY report_date;",
+  "hint": "Filter to surge days first (output_kwh >= 3000), then group by the island id id - ROW_NUMBER() OVER (ORDER BY id). Rows in islands of size 3+ all qualify.",
+  "outputExplanation": "Rows 1-3 form one surge-day run and rows 5-7 form another; both runs are of length 3, so every row in both runs is selected. Row 4 is not a surge day and is never a candidate.",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO solar_output VALUES (1,'2019-04-01',4100),(2,'2019-04-02',4200),(3,'2019-04-03',4300),(4,'2019-04-04',2500),(5,'2019-04-05',5000),(6,'2019-04-06',5100),(7,'2019-04-07',5200);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "report_date": "2019-04-01",
+          "output_kwh": 4100
+        },
+        {
+          "id": 2,
+          "report_date": "2019-04-02",
+          "output_kwh": 4200
+        },
+        {
+          "id": 3,
+          "report_date": "2019-04-03",
+          "output_kwh": 4300
+        },
+        {
+          "id": 5,
+          "report_date": "2019-04-05",
+          "output_kwh": 5000
+        },
+        {
+          "id": 6,
+          "report_date": "2019-04-06",
+          "output_kwh": 5100
+        },
+        {
+          "id": 7,
+          "report_date": "2019-04-07",
+          "output_kwh": 5200
+        }
+      ],
+      "expectedHash": "dac936297704318f88d45d1b180a08ff00a61fc22157bfb394bd3e93d698813d"
+    },
+    {
+      "name": "Run of three where the middle date is far later",
+      "seedSql": "INSERT INTO solar_output VALUES (1,'2018-04-01',3100),(2,'2018-04-01',3200),(3,'2018-04-02',3300),(9,'2018-04-09',900);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "report_date": "2018-04-01",
+          "output_kwh": 3100
+        },
+        {
+          "id": 2,
+          "report_date": "2018-04-01",
+          "output_kwh": 3200
+        },
+        {
+          "id": 3,
+          "report_date": "2018-04-02",
+          "output_kwh": 3300
+        }
+      ],
+      "expectedHash": "5643411d61bf1de0ea0c11a66aca7c62f2589049969ce67a207bb427f5be1cb2"
+    },
+    {
+      "name": "Exactly three splashy days",
+      "seedSql": "INSERT INTO solar_output VALUES (1,'2021-07-20',3000),(2,'2021-07-21',3000),(3,'2021-07-22',3000),(4,'2021-07-23',100);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "report_date": "2021-07-20",
+          "output_kwh": 3000
+        },
+        {
+          "id": 2,
+          "report_date": "2021-07-21",
+          "output_kwh": 3000
+        },
+        {
+          "id": 3,
+          "report_date": "2021-07-22",
+          "output_kwh": 3000
+        }
+      ],
+      "expectedHash": "15cedb5e5cfdc8b04983c2d444c28f885bb6b0abd28766fb8c42ba27d816b7e4"
+    },
+    {
+      "name": "A lone surge and a pair - nothing qualifies",
+      "seedSql": "INSERT INTO solar_output VALUES (1,'2017-02-01',3500),(2,'2017-02-02',600),(3,'2017-02-03',700),(4,'2017-02-04',3600),(5,'2017-02-05',3700);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "All days surge - single run spanning the table",
+      "seedSql": "INSERT INTO solar_output VALUES (1,'2022-09-01',5000),(2,'2022-09-02',4900),(3,'2022-09-03',4800),(4,'2022-09-04',4700),(5,'2022-09-05',4600);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "report_date": "2022-09-01",
+          "output_kwh": 5000
+        },
+        {
+          "id": 2,
+          "report_date": "2022-09-02",
+          "output_kwh": 4900
+        },
+        {
+          "id": 3,
+          "report_date": "2022-09-03",
+          "output_kwh": 4800
+        },
+        {
+          "id": 4,
+          "report_date": "2022-09-04",
+          "output_kwh": 4700
+        },
+        {
+          "id": 5,
+          "report_date": "2022-09-05",
+          "output_kwh": 4600
+        }
+      ],
+      "expectedHash": "e030dfc4504e7ca692a4694f7afc4bdb61ddaaeff83f49b47f2b1ee9ee747545"
+    },
+    {
+      "name": "Longest run in the middle of the data",
+      "seedSql": "INSERT INTO solar_output VALUES (1,'2020-01-01',50),(2,'2020-01-02',60),(3,'2020-01-03',4000),(4,'2020-01-04',4100),(5,'2020-01-05',4200),(6,'2020-01-06',90),(7,'2020-01-07',100);",
+      "expectedOutput": [
+        {
+          "id": 3,
+          "report_date": "2020-01-03",
+          "output_kwh": 4000
+        },
+        {
+          "id": 4,
+          "report_date": "2020-01-04",
+          "output_kwh": 4100
+        },
+        {
+          "id": 5,
+          "report_date": "2020-01-05",
+          "output_kwh": 4200
+        }
+      ],
+      "expectedHash": "f346a0ce3aec6fa3accbcb0ef84e5b3c3cc7a4dd6baf1b03b3417ea81f81ebec"
+    },
+    {
+      "name": "Run wrapped by sub-threshold days on both sides",
+      "seedSql": "INSERT INTO solar_output VALUES (1,'2016-05-01',100),(2,'2016-05-02',3100),(3,'2016-05-03',3200),(4,'2016-05-04',3300),(5,'2016-05-05',100);",
+      "expectedOutput": [
+        {
+          "id": 2,
+          "report_date": "2016-05-02",
+          "output_kwh": 3100
+        },
+        {
+          "id": 3,
+          "report_date": "2016-05-03",
+          "output_kwh": 3200
+        },
+        {
+          "id": 4,
+          "report_date": "2016-05-04",
+          "output_kwh": 3300
+        }
+      ],
+      "expectedHash": "bdf17c66c92e8ceb3d6bf2edfb3eec688cda057678fa0ee5c3c76285e031a75a"
+    },
+    {
+      "name": "Gap in ids splits what would otherwise be one run by date",
+      "seedSql": "INSERT INTO solar_output VALUES (1,'2015-06-01',5000),(2,'2015-06-02',5000),(4,'2015-06-04',5000),(5,'2015-06-05',5000);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Long run of 6 with alternating values still >= 3000",
+      "seedSql": "INSERT INTO solar_output VALUES (1,'2023-12-01',3000),(2,'2023-12-02',9000),(3,'2023-12-03',3000),(4,'2023-12-04',9000),(5,'2023-12-05',3000),(6,'2023-12-06',9000);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "report_date": "2023-12-01",
+          "output_kwh": 3000
+        },
+        {
+          "id": 2,
+          "report_date": "2023-12-02",
+          "output_kwh": 9000
+        },
+        {
+          "id": 3,
+          "report_date": "2023-12-03",
+          "output_kwh": 3000
+        },
+        {
+          "id": 4,
+          "report_date": "2023-12-04",
+          "output_kwh": 9000
+        },
+        {
+          "id": 5,
+          "report_date": "2023-12-05",
+          "output_kwh": 3000
+        },
+        {
+          "id": 6,
+          "report_date": "2023-12-06",
+          "output_kwh": 9000
+        }
+      ],
+      "expectedHash": "5b99d10470f98cdc463db58f1ec137a7b38a17f6511c52f5835eb7286d0ca4d4"
+    }
+  ]
+}

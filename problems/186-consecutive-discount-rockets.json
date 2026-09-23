@@ -1,0 +1,326 @@
+{
+  "id": "consecutive-discount-rockets",
+  "number": 186,
+  "title": "Consecutive Discount Rockets",
+  "difficulty": "Hard",
+  "tags": [
+    "Window Function",
+    "Consecutive ids",
+    "Filtering"
+  ],
+  "description": "Table `discount_campaigns`:\n\n| Column Name    | Type    |\n| -------------- | ------- |\n| id             | int     |\n| campaign_date  | date    |\n| discount_pct   | int     |\n| revenue        | int     |\n\ncampaign_date is unique for this table. As the id increases, the campaign_date increases as well.\n\nA \"discount rocket\" is a day where `discount_pct >= 20` AND `revenue >= 5000`. Marketing wants to study stretches where at least **four consecutive days** (consecutive id's) were all discount rockets.\n\nWrite a solution to display the records with **four or more rows with consecutive id's** where **every** row in the stretch qualifies as a discount rocket.\n\nReturn the result table ordered by `campaign_date` in ascending order.\n\nExample:\n\n```\nInput:\ndiscount_campaigns:\n+----+---------------+--------------+---------+\n| id | campaign_date | discount_pct | revenue |\n+----+---------------+--------------+---------+\n| 1  | 2023-03-01    | 30           | 12000   |\n| 2  | 2023-03-02    | 25           | 9000    |\n| 3  | 2023-03-03    | 40           | 15000   |\n| 4  | 2023-03-04    | 10           | 20000   |\n| 5  | 2023-03-05    | 22           | 6000    |\n| 6  | 2023-03-06    | 21           | 5800    |\n| 7  | 2023-03-07    | 35           | 7000    |\n| 8  | 2023-03-08    | 30           | 6500    |\n+----+---------------+--------------+---------+\n\nOutput:\n+----+---------------+--------------+---------+\n| id | campaign_date | discount_pct | revenue |\n+----+---------------+--------------+---------+\n| 5  | 2023-03-05    | 22           | 6000    |\n| 6  | 2023-03-06    | 21           | 5800    |\n| 7  | 2023-03-07    | 35           | 7000    |\n| 8  | 2023-03-08    | 30           | 6500    |\n+----+---------------+--------------+---------+\n```\n\nRows 1-3 are a run of three discount rockets, but four are required. Rows 5-8 are four consecutive discount rockets, so all four are returned.",
+  "schemaSql": "CREATE TABLE discount_campaigns (\n  id INTEGER PRIMARY KEY,\n  campaign_date TEXT,\n  discount_pct INTEGER,\n  revenue INTEGER\n);",
+  "solutionSql": "WITH rockets AS (\n  SELECT id, campaign_date, discount_pct, revenue,\n         id - ROW_NUMBER() OVER (ORDER BY id) AS grp\n  FROM discount_campaigns\n  WHERE discount_pct >= 20 AND revenue >= 5000\n)\nSELECT id, campaign_date, discount_pct, revenue\nFROM rockets\nWHERE grp IN (\n  SELECT grp FROM rockets GROUP BY grp HAVING COUNT(*) >= 4\n)\nORDER BY campaign_date;",
+  "hint": "A discount rocket satisfies discount_pct >= 20 AND revenue >= 5000. Filter first, then use id - ROW_NUMBER() to find islands of consecutive ids. The run length must be four or more.",
+  "outputExplanation": "The query returns only ids that are part of a consecutive-id run of length 4+ where every row is a discount rocket. Row 4 breaks the first candidate run (discount_pct 10), so rows 1-3 are excluded.",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO discount_campaigns VALUES (1,'2023-03-01',30,12000),(2,'2023-03-02',25,9000),(3,'2023-03-03',40,15000),(4,'2023-03-04',10,20000),(5,'2023-03-05',22,6000),(6,'2023-03-06',21,5800),(7,'2023-03-07',35,7000),(8,'2023-03-08',30,6500);",
+      "expectedOutput": [
+        {
+          "id": 5,
+          "campaign_date": "2023-03-05",
+          "discount_pct": 22,
+          "revenue": 6000
+        },
+        {
+          "id": 6,
+          "campaign_date": "2023-03-06",
+          "discount_pct": 21,
+          "revenue": 5800
+        },
+        {
+          "id": 7,
+          "campaign_date": "2023-03-07",
+          "discount_pct": 35,
+          "revenue": 7000
+        },
+        {
+          "id": 8,
+          "campaign_date": "2023-03-08",
+          "discount_pct": 30,
+          "revenue": 6500
+        }
+      ],
+      "expectedHash": "59ef9ae2c38bfe6c342ab3bdb72b9ec57747ce437ab6e9f60f77fee5fc94b82c"
+    },
+    {
+      "name": "Exactly four consecutive rockets",
+      "seedSql": "INSERT INTO discount_campaigns VALUES (1,'2022-01-10',25,6000),(2,'2022-01-11',26,6100),(3,'2022-01-12',27,6200),(4,'2022-01-13',28,6300),(5,'2022-01-14',5,100000);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "campaign_date": "2022-01-10",
+          "discount_pct": 25,
+          "revenue": 6000
+        },
+        {
+          "id": 2,
+          "campaign_date": "2022-01-11",
+          "discount_pct": 26,
+          "revenue": 6100
+        },
+        {
+          "id": 3,
+          "campaign_date": "2022-01-12",
+          "discount_pct": 27,
+          "revenue": 6200
+        },
+        {
+          "id": 4,
+          "campaign_date": "2022-01-13",
+          "discount_pct": 28,
+          "revenue": 6300
+        }
+      ],
+      "expectedHash": "01dfb90f67ff92404ab7ef80362fb367a1dd895099dc5e8cc8474d669bc95940"
+    },
+    {
+      "name": "Three rockets then a gap then one - fails 4-run",
+      "seedSql": "INSERT INTO discount_campaigns VALUES (1,'2020-05-01',20,5000),(2,'2020-05-02',21,5100),(3,'2020-05-03',22,5200),(5,'2020-05-05',23,5300);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Two rocket runs of four separated by a bad day",
+      "seedSql": "INSERT INTO discount_campaigns VALUES (1,'2019-06-01',30,8000),(2,'2019-06-02',31,8100),(3,'2019-06-03',32,8200),(4,'2019-06-04',33,8300),(5,'2019-06-05',10,9000),(6,'2019-06-06',24,5400),(7,'2019-06-07',25,5500),(8,'2019-06-08',26,5600),(9,'2019-06-09',27,5700);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "campaign_date": "2019-06-01",
+          "discount_pct": 30,
+          "revenue": 8000
+        },
+        {
+          "id": 2,
+          "campaign_date": "2019-06-02",
+          "discount_pct": 31,
+          "revenue": 8100
+        },
+        {
+          "id": 3,
+          "campaign_date": "2019-06-03",
+          "discount_pct": 32,
+          "revenue": 8200
+        },
+        {
+          "id": 4,
+          "campaign_date": "2019-06-04",
+          "discount_pct": 33,
+          "revenue": 8300
+        },
+        {
+          "id": 6,
+          "campaign_date": "2019-06-06",
+          "discount_pct": 24,
+          "revenue": 5400
+        },
+        {
+          "id": 7,
+          "campaign_date": "2019-06-07",
+          "discount_pct": 25,
+          "revenue": 5500
+        },
+        {
+          "id": 8,
+          "campaign_date": "2019-06-08",
+          "discount_pct": 26,
+          "revenue": 5600
+        },
+        {
+          "id": 9,
+          "campaign_date": "2019-06-09",
+          "discount_pct": 27,
+          "revenue": 5700
+        }
+      ],
+      "expectedHash": "71d14079f34650c725d9d67c2c3c0a4707946632731b6b06f2e885562dd226c0"
+    },
+    {
+      "name": "Big revenue but no discount - does not qualify",
+      "seedSql": "INSERT INTO discount_campaigns VALUES (1,'2021-07-01',5,999999),(2,'2021-07-02',6,888888),(3,'2021-07-03',7,777777),(4,'2021-07-04',22,9000),(5,'2021-07-05',23,9100),(6,'2021-07-06',24,9200),(7,'2021-07-07',25,9300);",
+      "expectedOutput": [
+        {
+          "id": 4,
+          "campaign_date": "2021-07-04",
+          "discount_pct": 22,
+          "revenue": 9000
+        },
+        {
+          "id": 5,
+          "campaign_date": "2021-07-05",
+          "discount_pct": 23,
+          "revenue": 9100
+        },
+        {
+          "id": 6,
+          "campaign_date": "2021-07-06",
+          "discount_pct": 24,
+          "revenue": 9200
+        },
+        {
+          "id": 7,
+          "campaign_date": "2021-07-07",
+          "discount_pct": 25,
+          "revenue": 9300
+        }
+      ],
+      "expectedHash": "2048d73915422cafad7439db5c8a5055c49778472654951ac1190809bf8c6c54"
+    },
+    {
+      "name": "Big discount but tiny revenue - does not qualify",
+      "seedSql": "INSERT INTO discount_campaigns VALUES (1,'2018-03-01',90,10),(2,'2018-03-02',85,10),(3,'2018-03-03',80,10),(4,'2018-03-04',70,10),(5,'2018-03-05',60,10),(6,'2018-03-06',21,7000),(7,'2018-03-07',22,7100),(8,'2018-03-08',23,7200),(9,'2018-03-09',24,7300);",
+      "expectedOutput": [
+        {
+          "id": 6,
+          "campaign_date": "2018-03-06",
+          "discount_pct": 21,
+          "revenue": 7000
+        },
+        {
+          "id": 7,
+          "campaign_date": "2018-03-07",
+          "discount_pct": 22,
+          "revenue": 7100
+        },
+        {
+          "id": 8,
+          "campaign_date": "2018-03-08",
+          "discount_pct": 23,
+          "revenue": 7200
+        },
+        {
+          "id": 9,
+          "campaign_date": "2018-03-09",
+          "discount_pct": 24,
+          "revenue": 7300
+        }
+      ],
+      "expectedHash": "bb91aa2d09179b3fdfead7f704e9bd48ba0e0136cb4c712d2cd32b9ca655c34f"
+    },
+    {
+      "name": "Boundary: discount exactly 20 and revenue exactly 5000 both count",
+      "seedSql": "INSERT INTO discount_campaigns VALUES (1,'2024-02-01',20,5000),(2,'2024-02-02',20,5000),(3,'2024-02-03',20,5000),(4,'2024-02-04',20,5000);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "campaign_date": "2024-02-01",
+          "discount_pct": 20,
+          "revenue": 5000
+        },
+        {
+          "id": 2,
+          "campaign_date": "2024-02-02",
+          "discount_pct": 20,
+          "revenue": 5000
+        },
+        {
+          "id": 3,
+          "campaign_date": "2024-02-03",
+          "discount_pct": 20,
+          "revenue": 5000
+        },
+        {
+          "id": 4,
+          "campaign_date": "2024-02-04",
+          "discount_pct": 20,
+          "revenue": 5000
+        }
+      ],
+      "expectedHash": "d913bd908db3e9d221fcb64af4921de8d2b545cd1bcc282b6b8a45cec1ee52d0"
+    },
+    {
+      "name": "Long running streak of six rockets",
+      "seedSql": "INSERT INTO discount_campaigns VALUES (1,'2023-11-01',21,6000),(2,'2023-11-02',22,6000),(3,'2023-11-03',23,6000),(4,'2023-11-04',24,6000),(5,'2023-11-05',25,6000),(6,'2023-11-06',26,6000);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "campaign_date": "2023-11-01",
+          "discount_pct": 21,
+          "revenue": 6000
+        },
+        {
+          "id": 2,
+          "campaign_date": "2023-11-02",
+          "discount_pct": 22,
+          "revenue": 6000
+        },
+        {
+          "id": 3,
+          "campaign_date": "2023-11-03",
+          "discount_pct": 23,
+          "revenue": 6000
+        },
+        {
+          "id": 4,
+          "campaign_date": "2023-11-04",
+          "discount_pct": 24,
+          "revenue": 6000
+        },
+        {
+          "id": 5,
+          "campaign_date": "2023-11-05",
+          "discount_pct": 25,
+          "revenue": 6000
+        },
+        {
+          "id": 6,
+          "campaign_date": "2023-11-06",
+          "discount_pct": 26,
+          "revenue": 6000
+        }
+      ],
+      "expectedHash": "c91a32a271c75e3b4b298297d250807acda907016e15ff6f879985670e1a6e58"
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Non-contiguous ids not treated as consecutive",
+      "seedSql": "INSERT INTO discount_campaigns VALUES (1,'2020-08-01',25,7000),(2,'2020-08-02',25,7000),(4,'2020-08-04',25,7000),(5,'2020-08-05',25,7000);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Insert order scrambled - must order by id",
+      "seedSql": "INSERT INTO discount_campaigns VALUES (4,'2023-01-04',20,7000),(5,'2023-01-05',20,7000),(1,'2023-01-01',20,7000),(2,'2023-01-02',20,7000),(3,'2023-01-03',20,7000);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "campaign_date": "2023-01-01",
+          "discount_pct": 20,
+          "revenue": 7000
+        },
+        {
+          "id": 2,
+          "campaign_date": "2023-01-02",
+          "discount_pct": 20,
+          "revenue": 7000
+        },
+        {
+          "id": 3,
+          "campaign_date": "2023-01-03",
+          "discount_pct": 20,
+          "revenue": 7000
+        },
+        {
+          "id": 4,
+          "campaign_date": "2023-01-04",
+          "discount_pct": 20,
+          "revenue": 7000
+        },
+        {
+          "id": 5,
+          "campaign_date": "2023-01-05",
+          "discount_pct": 20,
+          "revenue": 7000
+        }
+      ],
+      "expectedHash": "9e1d2c668fcc84be40832b697ef84bc4f7e8ebe8c78c145b0556b6bbbe72b35f"
+    }
+  ]
+}

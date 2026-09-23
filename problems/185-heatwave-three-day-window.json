@@ -1,0 +1,279 @@
+{
+  "id": "heatwave-three-day-window",
+  "number": 185,
+  "title": "Heatwave Three-Day Window",
+  "difficulty": "Hard",
+  "tags": [
+    "Window Function",
+    "Consecutive ids",
+    "Gaps & Islands"
+  ],
+  "description": "Table `temperature_readings`:\n\n| Column Name  | Type    |\n| ------------ | ------- |\n| id           | int     |\n| reading_date | date    |\n| temperature  | int     |\n\nreading_date is a column with unique values for this table. Each row contains the date and the temperature (in Fahrenheit) recorded at a weather station. As the id increases, the reading_date increases as well.\n\nWrite a solution to display the records with **three or more rows with consecutive id's**, and the temperature is **greater than or equal to 100** for each of those rows.\n\nReturn the result table ordered by `reading_date` in ascending order.\n\nExample:\n\n```\nInput:\ntemperature_readings:\n+----+------------+-------------+\n| id | reading_date | temperature |\n+----+------------+-------------+\n| 1  | 2017-01-01 | 10          |\n| 2  | 2017-01-02 | 109         |\n| 3  | 2017-01-03 | 150         |\n| 4  | 2017-01-04 | 99          |\n| 5  | 2017-01-05 | 145         |\n| 6  | 2017-01-06 | 1455        |\n| 7  | 2017-01-07 | 199         |\n| 8  | 2017-01-09 | 188         |\n+----+------------+-------------+\n\nOutput:\n+----+------------+-------------+\n| id | reading_date | temperature |\n+----+------------+-------------+\n| 5  | 2017-01-05 | 145         |\n| 6  | 2017-01-06 | 1455        |\n| 7  | 2017-01-07 | 199         |\n| 8  | 2017-01-09 | 188         |\n+----+------------+-------------+\n```\n\nThe four rows with ids 5, 6, 7 and 8 have consecutive ids and each has temperature >= 100. Row 8 is included even though its reading_date is not the day after row 7. Rows 2 and 3 are excluded because we need at least three consecutive ids, and 4 breaks the chain.",
+  "schemaSql": "CREATE TABLE temperature_readings (\n  id INTEGER PRIMARY KEY,\n  reading_date TEXT,\n  temperature INTEGER\n);",
+  "solutionSql": "WITH qualifying AS (\n  SELECT id, reading_date, temperature,\n         id - ROW_NUMBER() OVER (ORDER BY id) AS grp\n  FROM temperature_readings\n  WHERE temperature >= 100\n)\nSELECT id, reading_date, temperature\nFROM qualifying\nWHERE grp IN (\n  SELECT grp FROM qualifying GROUP BY grp HAVING COUNT(*) >= 3\n)\nORDER BY reading_date;",
+  "hint": "Keep only rows where temperature >= 100, then group consecutive id's into islands with id - ROW_NUMBER() OVER (ORDER BY id). Every row in an island of size 3+ qualifies.",
+  "outputExplanation": "Only rows whose id belongs to a run of at least three consecutive qualifying readings are returned. Date gaps do not break a run — only gaps in id do.",
+  "tests": [
+    {
+      "name": "Example",
+      "seedSql": "INSERT INTO temperature_readings VALUES (1,'2017-01-01',10),(2,'2017-01-02',109),(3,'2017-01-03',150),(4,'2017-01-04',99),(5,'2017-01-05',145),(6,'2017-01-06',1455),(7,'2017-01-07',199),(8,'2017-01-09',188);",
+      "expectedOutput": [
+        {
+          "id": 5,
+          "reading_date": "2017-01-05",
+          "temperature": 145
+        },
+        {
+          "id": 6,
+          "reading_date": "2017-01-06",
+          "temperature": 1455
+        },
+        {
+          "id": 7,
+          "reading_date": "2017-01-07",
+          "temperature": 199
+        },
+        {
+          "id": 8,
+          "reading_date": "2017-01-09",
+          "temperature": 188
+        }
+      ],
+      "expectedHash": "fbcaef2a371501d94f5c10ab070a2cb1d5960eea4bf9c149aea1915814a9353d"
+    },
+    {
+      "name": "Exactly three consecutive",
+      "seedSql": "INSERT INTO temperature_readings VALUES (1,'2020-06-01',120),(2,'2020-06-02',130),(3,'2020-06-03',140),(4,'2020-06-04',50);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "reading_date": "2020-06-01",
+          "temperature": 120
+        },
+        {
+          "id": 2,
+          "reading_date": "2020-06-02",
+          "temperature": 130
+        },
+        {
+          "id": 3,
+          "reading_date": "2020-06-03",
+          "temperature": 140
+        }
+      ],
+      "expectedHash": "7e76487a336440cb039dab43f6cab79d459bcfaf3a570fe8535ff38be9dd770f"
+    },
+    {
+      "name": "Four consecutive - two in row 2-3 do not cut it",
+      "seedSql": "INSERT INTO temperature_readings VALUES (1,'2021-09-01',220),(2,'2021-09-02',97),(3,'2021-09-03',80),(4,'2021-09-04',250),(5,'2021-09-05',260),(6,'2021-09-06',270);",
+      "expectedOutput": [
+        {
+          "id": 4,
+          "reading_date": "2021-09-04",
+          "temperature": 250
+        },
+        {
+          "id": 5,
+          "reading_date": "2021-09-05",
+          "temperature": 260
+        },
+        {
+          "id": 6,
+          "reading_date": "2021-09-06",
+          "temperature": 270
+        }
+      ],
+      "expectedHash": "274568ca161e05833da8ce649a8a7d5474d4481e2dae9670038dd983cef518bc"
+    },
+    {
+      "name": "Non-contiguous ids must not count as a run",
+      "seedSql": "INSERT INTO temperature_readings VALUES (1,'2022-02-01',150),(3,'2022-02-03',160),(5,'2022-02-05',170),(7,'2022-02-07',180);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Exactly at threshold (100) counts",
+      "seedSql": "INSERT INTO temperature_readings VALUES (1,'2023-05-01',100),(2,'2023-05-02',100),(3,'2023-05-03',100),(4,'2023-05-04',90);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "reading_date": "2023-05-01",
+          "temperature": 100
+        },
+        {
+          "id": 2,
+          "reading_date": "2023-05-02",
+          "temperature": 100
+        },
+        {
+          "id": 3,
+          "reading_date": "2023-05-03",
+          "temperature": 100
+        }
+      ],
+      "expectedHash": "4a8f7b217c099fb83a165f7c92613f48927934c14201114d4511c7bcd928bb4d"
+    },
+    {
+      "name": "Two disjoint runs",
+      "seedSql": "INSERT INTO temperature_readings VALUES (1,'2024-07-01',111),(2,'2024-07-02',112),(3,'2024-07-03',113),(4,'2024-07-04',40),(5,'2024-07-05',160),(6,'2024-07-06',161),(7,'2024-07-07',162);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "reading_date": "2024-07-01",
+          "temperature": 111
+        },
+        {
+          "id": 2,
+          "reading_date": "2024-07-02",
+          "temperature": 112
+        },
+        {
+          "id": 3,
+          "reading_date": "2024-07-03",
+          "temperature": 113
+        },
+        {
+          "id": 5,
+          "reading_date": "2024-07-05",
+          "temperature": 160
+        },
+        {
+          "id": 6,
+          "reading_date": "2024-07-06",
+          "temperature": 161
+        },
+        {
+          "id": 7,
+          "reading_date": "2024-07-07",
+          "temperature": 162
+        }
+      ],
+      "expectedHash": "811a60d91dff7b70e24a54e7bcaee762852644ca4f4a094b8e20b2a46c156abe"
+    },
+    {
+      "name": "Long run of exactly three at the very end",
+      "seedSql": "INSERT INTO temperature_readings VALUES (1,'2020-01-01',30),(2,'2020-01-02',40),(3,'2020-01-03',101),(4,'2020-01-04',102),(5,'2020-01-05',103);",
+      "expectedOutput": [
+        {
+          "id": 3,
+          "reading_date": "2020-01-03",
+          "temperature": 101
+        },
+        {
+          "id": 4,
+          "reading_date": "2020-01-04",
+          "temperature": 102
+        },
+        {
+          "id": 5,
+          "reading_date": "2020-01-05",
+          "temperature": 103
+        }
+      ],
+      "expectedHash": "4eb4988fb1dacbc66e6cb1e8ec87fb77d24f52f93d8ba6dfdf0a4fd409e4400c"
+    },
+    {
+      "name": "Empty table",
+      "seedSql": "",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "All rows qualify - single big run",
+      "seedSql": "INSERT INTO temperature_readings VALUES (1,'2019-08-10',200),(2,'2019-08-11',201),(3,'2019-08-12',202),(4,'2019-08-13',203),(5,'2019-08-14',204);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "reading_date": "2019-08-10",
+          "temperature": 200
+        },
+        {
+          "id": 2,
+          "reading_date": "2019-08-11",
+          "temperature": 201
+        },
+        {
+          "id": 3,
+          "reading_date": "2019-08-12",
+          "temperature": 202
+        },
+        {
+          "id": 4,
+          "reading_date": "2019-08-13",
+          "temperature": 203
+        },
+        {
+          "id": 5,
+          "reading_date": "2019-08-14",
+          "temperature": 204
+        }
+      ],
+      "expectedHash": "e00be8eadadd69ee96f680e30c1ba851a2f6981a4a0f9e701eb1f722bc3aebb6"
+    },
+    {
+      "name": "Only a pair and singles - nothing qualifies",
+      "seedSql": "INSERT INTO temperature_readings VALUES (1,'2020-03-01',150),(2,'2020-03-02',160),(3,'2020-03-03',10),(4,'2020-03-04',170);",
+      "expectedOutput": [],
+      "expectedHash": "ed1652f78cc4b15ad65fbd0712cf5c4f63a46706aae94b6e55ed1b13440fd075"
+    },
+    {
+      "name": "Run of three where a date is duplicated elsewhere (unique dates still hold)",
+      "seedSql": "INSERT INTO temperature_readings VALUES (1,'2018-01-01',110),(2,'2018-01-03',115),(3,'2018-01-05',120),(4,'2018-01-06',10),(5,'2018-01-07',111),(6,'2018-01-09',112),(7,'2018-01-10',113);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "reading_date": "2018-01-01",
+          "temperature": 110
+        },
+        {
+          "id": 2,
+          "reading_date": "2018-01-03",
+          "temperature": 115
+        },
+        {
+          "id": 3,
+          "reading_date": "2018-01-05",
+          "temperature": 120
+        },
+        {
+          "id": 5,
+          "reading_date": "2018-01-07",
+          "temperature": 111
+        },
+        {
+          "id": 6,
+          "reading_date": "2018-01-09",
+          "temperature": 112
+        },
+        {
+          "id": 7,
+          "reading_date": "2018-01-10",
+          "temperature": 113
+        }
+      ],
+      "expectedHash": "1fe53c17b257842d002855920ed6be8d97ada021b0852ec29f3b7f1356116a5b"
+    },
+    {
+      "name": "Windowing over ORDER BY id not insertion order",
+      "seedSql": "INSERT INTO temperature_readings VALUES (5,'2017-09-05',101),(6,'2017-09-06',102),(7,'2017-09-07',103),(1,'2017-09-01',9),(2,'2017-09-02',8),(3,'2017-09-03',7);",
+      "expectedOutput": [
+        {
+          "id": 5,
+          "reading_date": "2017-09-05",
+          "temperature": 101
+        },
+        {
+          "id": 6,
+          "reading_date": "2017-09-06",
+          "temperature": 102
+        },
+        {
+          "id": 7,
+          "reading_date": "2017-09-07",
+          "temperature": 103
+        }
+      ],
+      "expectedHash": "0174dcba10842b6ee07f7903237c513cc24ef401081520afaf1ac607ca1ca7a9"
+    }
+  ]
+}
