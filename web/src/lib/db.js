@@ -294,6 +294,9 @@ export function compare(actual, expected, orderMatters) {
   if (!actual) {
     return { pass: false, reason: 'Your query returned no result set. Did you forget a SELECT?' };
   }
+  if (!expected) {
+    return { pass: false, reason: 'Expected output not available yet — try again in a moment.' };
+  }
 
   const a = actual.columns.map((c) => c.toLowerCase());
   const e = expected.columns.map((c) => c.toLowerCase());
