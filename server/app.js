@@ -218,6 +218,15 @@ app.post('/api/auth/token', async (req, res) => {
   const existing = await store.getUserToken(name);
   if (existing) {
     if (getHeaderToken(req) === existing) return res.json({ ok: true, token: existing });
+    // Local dev (file store, no Redis): if no email is linked, the token has no
+    // security value — re-mint so a dev whose localStorage was cleared isn't stuck.
+    if (!hasRedisEnv()) {
+      const linkedEmail = await store.getEmailForUsername(name);
+      if (!linkedEmail) {
+        const token = await issueToken(name);
+        return res.json({ ok: true, token });
+      }
+    }
     return res.status(403).json({ error: 'This name already has an active session. Log in with its linked email to take it over.' });
   }
 
@@ -232,6 +241,13 @@ app.post('/api/auth/token', async (req, res) => {
     const raceCheck = await store.getUserToken(name);
     if (raceCheck) {
       if (getHeaderToken(req) === raceCheck) return res.json({ ok: true, token: raceCheck });
+      if (!hasRedisEnv()) {
+        const linkedEmail = await store.getEmailForUsername(name);
+        if (!linkedEmail) {
+          const token = await issueToken(name);
+          return res.json({ ok: true, token });
+        }
+      }
       return res.status(403).json({ error: 'This name already has an active session. Log in with its linked email to take it over.' });
     }
     const token = await issueToken(name);
