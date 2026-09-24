@@ -230,7 +230,7 @@ export default function App() {
   useEffect(() => {
     (async () => {
       try {
-        if (userName) await ensureSession(userName);
+        if (userName) await ensureSession(userName).catch(() => {});
         const q = `?user=${encodeURIComponent(userName)}`;
         const [prRes, subRes] = await Promise.all([
           apiFetch(`/api/progress${q}`, {}, userName),
