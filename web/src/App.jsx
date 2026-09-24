@@ -230,13 +230,14 @@ export default function App() {
   useEffect(() => {
     (async () => {
       try {
+        if (userName) await ensureSession(userName);
         const q = `?user=${encodeURIComponent(userName)}`;
-        const [pr, subs] = await Promise.all([
-          apiFetch(`/api/progress${q}`, {}, userName).then((r) => r.ok ? r.json() : {}),
-          apiFetch(`/api/submissions${q}`, {}, userName).then((r) => r.ok ? r.json() : []),
+        const [prRes, subRes] = await Promise.all([
+          apiFetch(`/api/progress${q}`, {}, userName),
+          apiFetch(`/api/submissions${q}`, {}, userName),
         ]);
-        setProgress(pr);
-        setSubmissions(subs);
+        if (prRes.ok) setProgress(await prRes.json());
+        if (subRes.ok) setSubmissions(await subRes.json());
       } catch (err) {
         setLoadError(`Could not reach the API server. Is it running? (${err.message})`);
       }
@@ -322,6 +323,7 @@ export default function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user: userName, id, code: sqlText, caseResults }),
     }, userName);
+    if (!res.ok) return null;
     const saved = await res.json();
     setProgress((prev) => ({ ...prev, [id]: saved }));
     return saved;
