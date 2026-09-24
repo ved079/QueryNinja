@@ -210,25 +210,29 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    (async () => {
+    let cancelled = false;
+    const attempt = async (delay = 0) => {
+      if (delay) await new Promise((r) => setTimeout(r, delay));
+      if (cancelled) return;
       try {
         const r = await apiFetch('/api/problems');
-        if (!r.ok) throw new Error(`Server returned ${r.status}`);
+        if (!r.ok) { attempt(2000); return; }
         const p = await r.json();
+        if (cancelled) return;
         setProblems(p);
         setSelectedId((cur) => {
           if (cur && p.some((prob) => prob.id === cur)) return cur;
           return p[0]?.id ?? null;
         });
-      } catch (err) {
-        setLoadError(`Could not reach the API server. Is it running? (${err.message})`);
+      } catch {
+        attempt(2000);
       }
-    })();
+    };
+    attempt();
+    return () => { cancelled = true; };
   }, []);
 
-  // Progress/submissions are per-name (no real login — just whatever name
-  // is set via the name button). Re-fetch whenever that name changes so
-  // switching names swaps in that person's own data.
+  // Progress/submissions are per-name. Re-fetch whenever the name changes.
   useEffect(() => {
     (async () => {
       try {
@@ -240,9 +244,7 @@ export default function App() {
         ]);
         if (prRes.ok) setProgress(await prRes.json());
         if (subRes.ok) setSubmissions(await subRes.json());
-      } catch (err) {
-        setLoadError(`Could not reach the API server. Is it running? (${err.message})`);
-      }
+      } catch { /* progress/submissions unavailable — app still works */ }
     })();
   }, [userName]);
 
@@ -524,7 +526,7 @@ export default function App() {
   }, [userName]);
 
   if (loadError && appMode === 'sql') return <div className="fatal">{loadError}</div>;
-  if (!problems.length && appMode === 'sql') return <div className="fatal muted">Loading problems…</div>;
+  if (!problems.length && appMode === 'sql') return <div className="fatal muted">Connecting to server…</div>;
 
   return (
     <div className="layout">
