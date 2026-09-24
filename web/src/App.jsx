@@ -212,7 +212,9 @@ export default function App() {
   useEffect(() => {
     (async () => {
       try {
-        const p = await apiFetch('/api/problems').then((r) => r.json());
+        const r = await apiFetch('/api/problems');
+        if (!r.ok) throw new Error(`Server returned ${r.status}`);
+        const p = await r.json();
         setProblems(p);
         setSelectedId((cur) => {
           if (cur && p.some((prob) => prob.id === cur)) return cur;
