@@ -297,6 +297,12 @@ export function compare(actual, expected, orderMatters) {
   if (!expected) {
     return { pass: false, reason: 'Expected output not available yet — try again in a moment.' };
   }
+  // Empty expected = "query must return no rows"; column names are irrelevant.
+  if (expected.columns.length === 0) {
+    return actual.rows.length === 0
+      ? { pass: true, reason: '' }
+      : { pass: false, reason: `Expected no rows but got ${actual.rows.length}.` };
+  }
 
   const a = actual.columns.map((c) => c.toLowerCase());
   const e = expected.columns.map((c) => c.toLowerCase());
@@ -356,7 +362,9 @@ export function compare(actual, expected, orderMatters) {
  * yet, so the server withholds it).
  */
 export function expectedOutputToResult(expectedOutput) {
-  if (!expectedOutput?.length) return null;
+  if (expectedOutput == null) return null;
+  // Empty array = expect no rows (column names unknown — compare by row count only).
+  if (expectedOutput.length === 0) return { columns: [], rows: [] };
   const columns = Object.keys(expectedOutput[0]);
   const rows = expectedOutput.map((obj) => columns.map((c) => obj[c] ?? null));
   return { columns, rows };
