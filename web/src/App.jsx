@@ -126,7 +126,15 @@ export default function App() {
     apiFetch(`/api/problem/${encodeURIComponent(selectedId)}?user=${u}`, {}, userName)
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
-        if (data) solutionsCache.current[data.id] = data;
+        if (!data) return;
+        solutionsCache.current[data.id] = data;
+        // If the setup effect already ran but the cache was empty at that
+        // point, expected is still null — fill it now from the detail data.
+        setExpected((prev) => {
+          if (prev !== null) return prev;
+          const expectedOutput = data.tests?.[0]?.expectedOutput;
+          return expectedOutputToResult(expectedOutput) ?? null;
+        });
       })
       .catch(() => {});
   }, [selectedId, userName]);
