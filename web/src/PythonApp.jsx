@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import PythonPane from './components/python/PythonPane.jsx';
+import PythonSidebar from './components/python/PythonSidebar.jsx';
 import PythonProblemList from './components/python/PythonProblemList.jsx';
 import PythonEditor from './components/python/PythonEditor.jsx';
 import TopicComplete from './components/python/TopicComplete.jsx';
@@ -213,6 +214,8 @@ export default function PythonApp({ userName, initialId, listOpen, onListClose }
 
   return (
     <main className="workspace">
+      {/* Persistent curriculum nav (stage-locked) */}
+      <PythonSidebar problems={problems} progress={progress} selectedId={selectedId} onSelect={handleSelect} />
       {/* Left: lesson + problem pane */}
       <div style={{ flex: workspaceSplit, minWidth: 0 }}>
         <PythonPane

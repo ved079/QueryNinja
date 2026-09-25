@@ -2973,3 +2973,190 @@ tbody tr:last-child td {
 /* misc */
 .muted { color: var(--muted); }
 .note { font-size: 12px; color: var(--muted); }
+
+/* ============================================================
+   QueryNinja · Tier 1 restyle (Refined Dark)
+   Extends the professional pass to: Problem List + Progress
+   (incl. color-grid heatmap replacing the fire emoji) + the
+   newly-wired Python Sidebar + lesson font + shared modal
+   chrome. Additive overrides; no logic changes.
+   ============================================================ */
+
+/* ---- shared modal chrome ---- */
+.modal-overlay { background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
+.modal-body {
+  background: var(--panel);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  border-radius: 12px;
+}
+
+/* ---- Problem List modal ---- */
+.fs-list {
+  background: var(--panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.fs-list-head { border-bottom: 1px solid var(--border-subtle); padding: 18px 20px 14px; }
+.fs-list-head-top h1 { font-size: 18px; font-weight: 600; color: var(--text); margin: 0; }
+.hide-btn { background: transparent; border: 1px solid var(--border-subtle); color: var(--muted); width: 26px; height: 26px; border-radius: 6px; font-size: 16px; line-height: 1; }
+.hide-btn:hover { background: var(--panel-2); color: var(--text); }
+.fs-list-head-stats { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.fs-list-head-stats .big { font-size: 22px; font-weight: 600; color: var(--text); }
+.fs-list-head-stats .bar { flex: 1 1 120px; height: 6px; min-width: 120px; background: var(--panel-2); }
+.stat-row { display: flex; gap: 14px; margin-top: 8px; flex-wrap: wrap; }
+.stat { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; }
+.stat .muted { color: var(--text-tertiary); }
+.fs-list-filters { display: flex; align-items: center; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.chips { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--border-subtle); background: var(--bg); border-radius: 6px; }
+.chip { background: transparent; border: none; color: var(--muted); padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+.chip:hover { color: var(--text); }
+.chip.active { background: var(--panel-2); color: var(--text); }
+/* search input (newly wired — the query state previously had no UI) */
+.search-wrap { position: relative; margin-left: auto; }
+.search-wrap > svg { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--text-tertiary); pointer-events: none; }
+.search-input {
+  height: 28px; width: 200px; padding: 0 10px 0 28px;
+  background: var(--bg); border: 1px solid var(--border-subtle);
+  border-radius: 6px; color: var(--text); font-size: 12.5px;
+}
+.search-input::placeholder { color: var(--text-tertiary); }
+.search-input:focus { outline: none; border-color: var(--accent); }
+/* Dropdown component */
+.dropdown { position: relative; }
+.dropdown-trigger { background: transparent; border: 1px solid var(--border-subtle); color: var(--muted); height: 28px; padding: 0 10px; border-radius: 6px; font-size: 12px; font-weight: 500; }
+.dropdown-trigger:hover { background: var(--panel-2); color: var(--text); }
+.dropdown-menu { background: var(--panel); border: 1px solid var(--border-subtle); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.45); padding: 4px; }
+.dropdown-menu button { display: block; width: 100%; text-align: left; background: transparent; border: none; color: var(--muted); padding: 6px 10px; border-radius: 4px; font-size: 12.5px; }
+.dropdown-menu button:hover { background: var(--panel-2); color: var(--text); }
+.dropdown-label { font-size: 11px; color: var(--text-tertiary); margin-right: 4px; }
+.fs-list-body { overflow-y: auto; }
+.fs-list-items { list-style: none; margin: 0; padding: 6px; }
+.problem-item {
+  flex: 1; display: flex; align-items: center; gap: 10px;
+  background: transparent; border: none; padding: 8px 10px; border-radius: 6px;
+  text-align: left; color: var(--text); font-size: 13.5px;
+}
+.problem-item:hover { background: var(--panel-2); }
+.problem-item.selected { background: var(--accent-muted); }
+.problem-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.status { width: 8px; height: 8px; border-radius: 50%; background: var(--border-strong); flex: none; }
+.status.solved { background: var(--easy); }
+.status.attempted { background: var(--medium); }
+.status.none { background: var(--border-strong); }
+.fs-list-foot { border-top: 1px solid var(--border-subtle); padding: 10px 20px; font-size: 12px; color: var(--text-tertiary); }
+
+/* ---- Progress panel ---- */
+.progress-panel { background: var(--panel); }
+.progress-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding: 16px 20px; }
+.progress-title { font-size: 18px; font-weight: 600; color: var(--text); margin: 0; }
+.progress-close { background: transparent; border: 1px solid var(--border-subtle); color: var(--muted); border-radius: 6px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; }
+.progress-close:hover { background: var(--panel-2); color: var(--text); }
+.progress-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+.progress-card { background: var(--panel); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 16px; }
+.progress-card-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+.solved-container { display: flex; align-items: center; gap: 20px; }
+.ring-wrapper { position: relative; width: 100px; height: 100px; flex: none; }
+.ring-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ring-pct { font-size: 24px; font-weight: 600; color: var(--text); }
+.ring-total { font-size: 11px; color: var(--text-tertiary); }
+.diff-list { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.diff-row { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; }
+.diff-name { display: inline-flex; align-items: center; gap: 6px; }
+.diff-dot { width: 8px; height: 8px; border-radius: 50%; }
+.diff-count { color: var(--muted); }
+.diff-count strong { color: var(--text); font-weight: 600; }
+.attempting-row { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-subtle); padding-top: 8px; font-size: 12.5px; color: var(--text-tertiary); }
+.badges-container { display: flex; flex-direction: column; gap: 10px; }
+.badges-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.badge-row { display: flex; align-items: center; gap: 12px; background: var(--panel-2); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px; }
+.badge-highlight { grid-column: 1 / -1; background: var(--accent-muted); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 12px; }
+.badge-icon { width: 36px; height: 36px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; background: var(--bg); color: var(--badge-color, var(--accent)); flex: none; }
+.badge-info h4 { margin: 0; font-size: 13px; font-weight: 600; color: var(--text); }
+.badge-info span { font-size: 11.5px; color: var(--text-tertiary); }
+.badges-count { font-size: 11px; color: var(--text-tertiary); font-weight: 500; text-transform: none; letter-spacing: 0; }
+.badges-pager { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 4px; }
+.badges-pager button { background: transparent; border: 1px solid var(--border-subtle); color: var(--muted); width: 26px; height: 26px; border-radius: 6px; font-size: 14px; }
+.badges-pager button:hover:not(:disabled) { background: var(--panel-2); color: var(--text); }
+.badges-pager button:disabled { opacity: 0.4; }
+.badges-pager-count { font-size: 11px; color: var(--text-tertiary); }
+.heatmap-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.heatmap-summary { font-size: 12.5px; color: var(--muted); }
+.heatmap-stats { display: flex; gap: 16px; font-size: 11.5px; color: var(--text-tertiary); }
+.heatmap-stats strong { color: var(--text); }
+.heatmap-body { overflow-x: auto; }
+.heatmap-months-row { display: flex; gap: 4px; }
+.heatmap-month { display: flex; flex-direction: column; gap: 4px; }
+.heatmap-month-current { /* subtle */ }
+.heatmap-month-label { font-size: 10px; color: var(--text-tertiary); margin-bottom: 2px; }
+.heatmap-month-grid { display: grid; gap: 2px; }
+/* COLOR-GRID heatmap — replaces the fire-emoji cells */
+.heatmap-cell {
+  width: 11px; height: 11px; border-radius: 2px;
+  background: var(--panel-2);
+  font-size: 0; line-height: 0;        /* kill the old emoji sizing */
+  text-shadow: none; filter: none;    /* kill the old grayscale/glow */
+}
+.heatmap-cell.lvl-1 { background: rgba(53,196,107,0.30); }
+.heatmap-cell.lvl-2 { background: rgba(53,196,107,0.50); }
+.heatmap-cell.lvl-3 { background: rgba(53,196,107,0.75); }
+.heatmap-cell.lvl-4 { background: var(--easy); }
+.recovery-email-card { /* uses .progress-card base */ }
+.recovery-email-row { display: flex; gap: 8px; align-items: center; }
+.name-input {
+  flex: 1; height: 32px; padding: 0 10px;
+  background: var(--bg); border: 1px solid var(--border-subtle);
+  border-radius: 6px; color: var(--text); font-size: 13px;
+}
+.name-input:focus { outline: none; border-color: var(--accent); }
+.name-availability { font-size: 11.5px; }
+.name-availability.available { color: var(--easy); }
+.name-availability.taken, .name-availability.invalid { color: var(--hard); }
+.progress-delete-section { margin-top: 4px; }
+.delete-confirm { background: var(--panel-2); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px; }
+.delete-confirm-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
+.delete-btn { background: transparent; border: 1px solid var(--border-subtle); color: var(--muted); border-radius: 6px; height: 30px; padding: 0 14px; font-size: 12.5px; }
+.delete-btn:hover { background: var(--panel-2); color: var(--text); }
+.danger { background: var(--red-muted); border: 1px solid var(--red-border); color: var(--hard); }
+.danger:hover { filter: brightness(1.1); }
+
+/* ---- Python Sidebar (newly wired) ---- */
+.py-sidebar {
+  width: 256px; min-width: 256px; flex: none;
+  background: var(--panel); border-right: 1px solid var(--border-subtle);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.py-sidebar-header { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 16px; border-bottom: 1px solid var(--border-subtle); flex: none; }
+.py-sidebar-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.py-sidebar-body { flex: 1; overflow-y: auto; }
+.py-sidebar-inner { padding: 8px; }
+.py-stage { margin-bottom: 6px; }
+.py-stage.locked { opacity: 0.5; }
+.py-stage-header { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 6px; }
+.py-stage-left { display: flex; flex-direction: column; gap: 1px; }
+.py-stage-num { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+.py-stage-label { font-size: 12.5px; font-weight: 600; color: var(--text); }
+.py-stage-count { font-size: 11px; color: var(--text-tertiary); font-weight: 500; }
+.py-locked-badge { font-size: 11px; }
+.py-stage-rule { height: 1px; background: var(--border-subtle); margin: 2px 8px; }
+.py-topic { padding-left: 4px; border-left: 1px solid var(--border-subtle); margin-left: 8px; }
+.py-topic-header { display: flex; align-items: center; justify-content: space-between; padding: 5px 8px; border-radius: 5px; }
+.py-topic-name { font-size: 12.5px; color: var(--text-secondary); }
+.py-topic-name.done { color: var(--easy); }
+.py-topic-count { font-size: 10.5px; color: var(--text-tertiary); }
+.py-problem-item { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; background: transparent; border: none; padding: 4px 8px; border-radius: 5px; font-size: 12px; color: var(--text-secondary); }
+.py-problem-item:hover { background: var(--panel-2); color: var(--text); }
+.py-problem-item.selected { background: var(--accent-muted); color: var(--text); }
+.py-status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border-strong); flex: none; }
+.py-status-dot.solved { background: var(--easy); }
+.py-status-dot.attempted { background: var(--medium); }
+.py-problem-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.py-diff-dot { width: 5px; height: 5px; border-radius: 50%; flex: none; }
+.py-diff-dot.easy { background: var(--easy); }
+.py-diff-dot.medium { background: var(--medium); }
+.py-diff-dot.hard { background: var(--hard); }
+
+/* ---- Lesson renderer: unify font with the rest of the app ---- */
+.lesson-renderer { font-family: 'Google Sans Flex', 'Segoe UI', system-ui, sans-serif; color: var(--text-secondary); }
+.lesson-renderer code, .lesson-renderer pre { font-family: var(--font-mono); }

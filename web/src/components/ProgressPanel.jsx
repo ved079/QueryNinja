@@ -403,7 +403,6 @@ export default function ProgressPanel({ problems, progress, submissions, userNam
                       {m.cells.map((c, i) => (
                         <div key={i} className={`heatmap-cell${c.level ? ` lvl-${c.level}` : ''}`}
                           title={`${c.count} submission${c.count === 1 ? '' : 's'} on ${MONTHS[c.date.getMonth()]} ${c.date.getDate()}, ${c.date.getFullYear()}`}>
-                          🔥
                         </div>
                       ))}
                     </div>
