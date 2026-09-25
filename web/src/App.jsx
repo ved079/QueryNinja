@@ -458,7 +458,10 @@ export default function App() {
         entry.id = saved.id;
         // Use the status the server determined (from HMAC verification), not
         // the client's local pass/fail signal, so the streak is always accurate.
-        entry.status = saved.status ?? (pass ? 'solved' : 'attempted');
+        // Trust the client's pass signal for the local streak — server HMAC
+        // may return 'attempted' when expectedOutput wasn't cached yet, but
+        // the user genuinely solved it.
+        entry.status = pass ? 'solved' : (saved.status ?? 'attempted');
       } else {
         entry.status = pass ? 'solved' : 'attempted';
       }
