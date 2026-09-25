@@ -62,7 +62,7 @@ export default function TopBar({
   return (
     <header className="top-bar">
       <div className="top-bar-left">
-        <img src="/logo.png" alt="QueryNinja" className="top-logo" />
+        <img src="/logo-text.png" alt="QueryNinja" className="top-logo" />
         <div className="app-mode-toggle">
           <button
             className={appMode !== 'python' ? 'mode-active' : ''}
@@ -125,7 +125,7 @@ export default function TopBar({
 
       {appMode !== 'python' && (
         <div className="top-bar-center">
-          <button onClick={onRun}>Run</button>
+          <button className="run-btn" onClick={onRun}>Run</button>
           <SubmitButton onClick={onSubmit} />
         </div>
       )}

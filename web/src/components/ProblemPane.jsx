@@ -26,7 +26,7 @@ export default function ProblemPane({
   onToggleStar,
 }) {
   const [tab, setTab] = useState('Description');
-  const [bodySplit, setBodySplit] = useState(40);
+  const [bodySplit] = useState(40);
 
   // Only failing cases are worth looking at once you've passed the rest —
   // a re-run via "Run again" can flip a case's pass state without a fresh
@@ -49,7 +49,7 @@ export default function ProblemPane({
 
   const tabs = failingCases.length ? ['Description', 'Test Cases', 'Past Submissions', 'Hint', 'Solution'] : TABS;
 
-  const hasBottom = tab === 'Description' || tab === 'Test Cases' || tab === 'Past Submissions';
+  const hasBottom = tab === 'Test Cases' || tab === 'Past Submissions';
 
   const pastSubs = (submissions ?? [])
     .filter((s) => s.problemId === problem.id)
@@ -133,6 +133,41 @@ export default function ProblemPane({
                 <div className="prose">
                   <Markdownish text={problem.description} />
                 </div>
+
+                <h3>Example input</h3>
+                {tables.map((t) => (
+                  <div key={t.name} className="table-block">
+                    <h4>{t.name}</h4>
+                    <ResultsTable result={t} empty="(empty table)" />
+                  </div>
+                ))}
+
+                <h3>Expected output</h3>
+                {expected ? (
+                  <>
+                    <ResultsTable result={expected} empty="(no rows)" />
+                    <p className="muted note">
+                      {expected.rows.length} row{expected.rows.length === 1 ? '' : 's'}
+                      {problem.orderMatters ? ' — order matters' : ' — any row order accepted'}
+                    </p>
+                  </>
+                ) : (
+                  <p className="muted">Computing…</p>
+                )}
+
+                {outputExplanation ? (
+                  <>
+                    <h3>Why the output looks like this</h3>
+                    <div className="prose">
+                      <Markdownish text={outputExplanation} />
+                    </div>
+                  </>
+                ) : (
+                  <p className="muted note">
+                    Submit runs your query against <strong>{tests.length} test cases</strong> — this
+                    example plus hidden ones covering empty tables, ties, duplicates and NULLs.
+                  </p>
+                )}
               </>
             )}
 
@@ -204,71 +239,8 @@ export default function ProblemPane({
             )}
           </div>
 
-        {(tab === 'Description') && (
-        <div
-          className="splitter"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            const pane = e.currentTarget.parentElement;
-            const totalH = pane.offsetHeight - pane.querySelector('.splitter').offsetHeight;
-            const startY = e.clientY;
-            const startPct = bodySplit;
-            const onMove = (me) => {
-              const dy = me.clientY - startY;
-              const pct = startPct + (dy / totalH) * 100;
-              setBodySplit(Math.min(90, Math.max(10, pct)));
-            };
-            const onUp = () => {
-              document.removeEventListener('mousemove', onMove);
-              document.removeEventListener('mouseup', onUp);
-            };
-            document.addEventListener('mousemove', onMove);
-            document.addEventListener('mouseup', onUp);
-          }}
-        />
-        )}
-
         {hasBottom && (
         <div className="pane-body-bottom" style={{ flex: tab === 'Test Cases' ? 1 : 100 - bodySplit }}>
-          {tab === 'Description' && (
-            <div className="pane-body-scroll">
-              <h3>Example input</h3>
-              {tables.map((t) => (
-                <div key={t.name} className="table-block">
-                  <h4>{t.name}</h4>
-                  <ResultsTable result={t} empty="(empty table)" />
-                </div>
-              ))}
-
-              <h3>Expected output</h3>
-              {expected ? (
-                <>
-                  <ResultsTable result={expected} empty="(no rows)" />
-                  <p className="muted note">
-                    {expected.rows.length} row{expected.rows.length === 1 ? '' : 's'}
-                    {problem.orderMatters ? ' — order matters' : ' — any row order accepted'}
-                  </p>
-                </>
-              ) : (
-                <p className="muted">Computing…</p>
-              )}
-
-              {outputExplanation ? (
-                <>
-                  <h3>Why the output looks like this</h3>
-                  <div className="prose">
-                    <Markdownish text={outputExplanation} />
-                  </div>
-                </>
-              ) : (
-                <p className="muted note">
-                  Submit runs your query against <strong>{tests.length} test cases</strong> — this
-                  example plus hidden ones covering empty tables, ties, duplicates and NULLs.
-                </p>
-              )}
-            </div>
-          )}
-
           {tab === 'Past Submissions' && (
             <div className="pane-body-scroll past-sub-pane">
               {pastSubs.length === 0 ? (
