@@ -1,0 +1,91 @@
+{
+  "id": "salesperson-no-red",
+  "number": 193,
+  "title": "Sales Person — No RED Order",
+  "difficulty": "Medium",
+  "tags": [
+    "Anti-Join",
+    "Subquery"
+  ],
+  "top50": true,
+  "description": "Tables `salesperson`, `company`, `orders`. Return the `name` of every salesperson who has **zero** orders tied to a company named `'RED'`. A salesperson with some non-RED orders AND a RED order is excluded; one with no orders at all is included.",
+  "schemaSql": "CREATE TABLE salesperson (sales_id INTEGER, name TEXT);\nCREATE TABLE company (com_id INTEGER, name TEXT);\nCREATE TABLE orders (order_id INTEGER, com_id INTEGER, sales_id INTEGER);",
+  "solutionSql": "SELECT name FROM salesperson WHERE sales_id NOT IN (SELECT o.sales_id FROM orders o JOIN company c ON o.com_id = c.com_id WHERE c.name = 'RED');",
+  "orderMatters": false,
+  "hint": "NOT IN against the set of sales_ids that have any RED order. NULL safety: sales_ids are not null here, so NOT IN is fine.",
+  "tests": [
+    {
+      "name": "basic — only BLUE salesperson passes",
+      "seedSql": "INSERT INTO salesperson VALUES (1,'Ava'),(2,'Bob'),(3,'Cy');\nINSERT INTO company VALUES (1,'RED'),(2,'BLUE');\nINSERT INTO orders VALUES (1,1,1),(2,2,2),(3,1,3);",
+      "expectedOutput": [
+        {
+          "name": "Bob"
+        }
+      ]
+    },
+    {
+      "name": "no orders at all → all included",
+      "seedSql": "INSERT INTO salesperson VALUES (1,'Ava'),(2,'Bob');\nINSERT INTO company VALUES (1,'RED');",
+      "expectedOutput": [
+        {
+          "name": "Ava"
+        },
+        {
+          "name": "Bob"
+        }
+      ]
+    },
+    {
+      "name": "mixed red and non-red → excluded",
+      "seedSql": "INSERT INTO salesperson VALUES (1,'Ava'),(2,'Bob'),(3,'Cy');\nINSERT INTO company VALUES (1,'RED'),(2,'BLUE');\nINSERT INTO orders VALUES (1,2,1),(2,1,1),(3,2,2);",
+      "expectedOutput": [
+        {
+          "name": "Bob"
+        },
+        {
+          "name": "Cy"
+        }
+      ]
+    },
+    {
+      "name": "only red company → empty",
+      "seedSql": "INSERT INTO salesperson VALUES (1,'Ava');\nINSERT INTO company VALUES (1,'RED');\nINSERT INTO orders VALUES (1,1,1);",
+      "expectedOutput": []
+    },
+    {
+      "name": "multiple non-red companies → all pass",
+      "seedSql": "INSERT INTO salesperson VALUES (1,'Ava'),(2,'Bob');\nINSERT INTO company VALUES (1,'BLUE'),(2,'GREEN');\nINSERT INTO orders VALUES (1,1,1),(2,2,2);",
+      "expectedOutput": [
+        {
+          "name": "Ava"
+        },
+        {
+          "name": "Bob"
+        }
+      ]
+    },
+    {
+      "name": "empty salesperson → empty",
+      "seedSql": "INSERT INTO company VALUES (1,'RED');",
+      "expectedOutput": []
+    },
+    {
+      "name": "red order by another → only the clean one",
+      "seedSql": "INSERT INTO salesperson VALUES (1,'Ava'),(2,'Bob');\nINSERT INTO company VALUES (1,'RED');\nINSERT INTO orders VALUES (1,1,2);",
+      "expectedOutput": [
+        {
+          "name": "Ava"
+        }
+      ]
+    },
+    {
+      "name": "same salesperson multiple red orders",
+      "seedSql": "INSERT INTO salesperson VALUES (1,'Ava'),(2,'Bob');\nINSERT INTO company VALUES (1,'RED');\nINSERT INTO orders VALUES (1,1,1),(2,1,1);",
+      "expectedOutput": [
+        {
+          "name": "Bob"
+        }
+      ]
+    }
+  ]
+}

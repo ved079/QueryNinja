@@ -1,0 +1,200 @@
+{
+  "id": "year-month-revenue-matrix",
+  "number": 201,
+  "title": "Year × Month Revenue Matrix",
+  "difficulty": "Medium",
+  "tags": [
+    "Pivot",
+    "Conditional Aggregation",
+    "Date"
+  ],
+  "top50": true,
+  "description": "Table `orders` (order_date, revenue). Pivot monthly revenue into one row per year with twelve columns `Jan` .. `Dec`. A month with no orders shows `0` (not NULL). NULL revenues are treated as 0.",
+  "schemaSql": "CREATE TABLE orders (order_date TEXT, revenue REAL);",
+  "solutionSql": "SELECT strftime('%Y', order_date) AS year, COALESCE(SUM(CASE WHEN strftime('%m', order_date)='01' THEN revenue END),0) AS Jan, COALESCE(SUM(CASE WHEN strftime('%m', order_date)='02' THEN revenue END),0) AS Feb, COALESCE(SUM(CASE WHEN strftime('%m', order_date)='03' THEN revenue END),0) AS Mar, COALESCE(SUM(CASE WHEN strftime('%m', order_date)='04' THEN revenue END),0) AS Apr, COALESCE(SUM(CASE WHEN strftime('%m', order_date)='05' THEN revenue END),0) AS May, COALESCE(SUM(CASE WHEN strftime('%m', order_date)='06' THEN revenue END),0) AS Jun, COALESCE(SUM(CASE WHEN strftime('%m', order_date)='07' THEN revenue END),0) AS Jul, COALESCE(SUM(CASE WHEN strftime('%m', order_date)='08' THEN revenue END),0) AS Aug, COALESCE(SUM(CASE WHEN strftime('%m', order_date)='09' THEN revenue END),0) AS Sep, COALESCE(SUM(CASE WHEN strftime('%m', order_date)='10' THEN revenue END),0) AS Oct, COALESCE(SUM(CASE WHEN strftime('%m', order_date)='11' THEN revenue END),0) AS Nov, COALESCE(SUM(CASE WHEN strftime('%m', order_date)='12' THEN revenue END),0) AS Dec FROM orders GROUP BY strftime('%Y', order_date);",
+  "orderMatters": false,
+  "hint": "strftime('%m', date) extracts the month as 01..12. SUM(CASE WHEN month=... THEN revenue END) per column; COALESCE(...,0) turns a month with no rows (or all-NULL revenue) into 0.",
+  "tests": [
+    {
+      "name": "single year single month",
+      "seedSql": "INSERT INTO orders VALUES ('2023-01-15',100);",
+      "expectedOutput": [
+        {
+          "year": "2023",
+          "Jan": 100,
+          "Feb": 0,
+          "Mar": 0,
+          "Apr": 0,
+          "May": 0,
+          "Jun": 0,
+          "Jul": 0,
+          "Aug": 0,
+          "Sep": 0,
+          "Oct": 0,
+          "Nov": 0,
+          "Dec": 0
+        }
+      ]
+    },
+    {
+      "name": "two years",
+      "seedSql": "INSERT INTO orders VALUES ('2023-01-15',100),('2024-02-15',200);",
+      "expectedOutput": [
+        {
+          "year": "2023",
+          "Jan": 100,
+          "Feb": 0,
+          "Mar": 0,
+          "Apr": 0,
+          "May": 0,
+          "Jun": 0,
+          "Jul": 0,
+          "Aug": 0,
+          "Sep": 0,
+          "Oct": 0,
+          "Nov": 0,
+          "Dec": 0
+        },
+        {
+          "year": "2024",
+          "Jan": 0,
+          "Feb": 200,
+          "Mar": 0,
+          "Apr": 0,
+          "May": 0,
+          "Jun": 0,
+          "Jul": 0,
+          "Aug": 0,
+          "Sep": 0,
+          "Oct": 0,
+          "Nov": 0,
+          "Dec": 0
+        }
+      ]
+    },
+    {
+      "name": "months with no data → 0",
+      "seedSql": "INSERT INTO orders VALUES ('2023-01-15',100),('2023-03-15',300),('2023-12-15',1200);",
+      "expectedOutput": [
+        {
+          "year": "2023",
+          "Jan": 100,
+          "Feb": 0,
+          "Mar": 300,
+          "Apr": 0,
+          "May": 0,
+          "Jun": 0,
+          "Jul": 0,
+          "Aug": 0,
+          "Sep": 0,
+          "Oct": 0,
+          "Nov": 0,
+          "Dec": 1200
+        }
+      ]
+    },
+    {
+      "name": "multiple months same year",
+      "seedSql": "INSERT INTO orders VALUES ('2023-01-15',100),('2023-03-15',300),('2023-12-15',1200);",
+      "expectedOutput": [
+        {
+          "year": "2023",
+          "Jan": 100,
+          "Feb": 0,
+          "Mar": 300,
+          "Apr": 0,
+          "May": 0,
+          "Jun": 0,
+          "Jul": 0,
+          "Aug": 0,
+          "Sep": 0,
+          "Oct": 0,
+          "Nov": 0,
+          "Dec": 1200
+        }
+      ]
+    },
+    {
+      "name": "empty → empty",
+      "expectedOutput": []
+    },
+    {
+      "name": "NULL revenue → 0",
+      "seedSql": "INSERT INTO orders VALUES ('2023-01-15',NULL);",
+      "expectedOutput": [
+        {
+          "year": "2023",
+          "Jan": 0,
+          "Feb": 0,
+          "Mar": 0,
+          "Apr": 0,
+          "May": 0,
+          "Jun": 0,
+          "Jul": 0,
+          "Aug": 0,
+          "Sep": 0,
+          "Oct": 0,
+          "Nov": 0,
+          "Dec": 0
+        }
+      ]
+    },
+    {
+      "name": "multiple orders same month sum",
+      "seedSql": "INSERT INTO orders VALUES ('2023-01-01',100),('2023-01-31',50);",
+      "expectedOutput": [
+        {
+          "year": "2023",
+          "Jan": 150,
+          "Feb": 0,
+          "Mar": 0,
+          "Apr": 0,
+          "May": 0,
+          "Jun": 0,
+          "Jul": 0,
+          "Aug": 0,
+          "Sep": 0,
+          "Oct": 0,
+          "Nov": 0,
+          "Dec": 0
+        }
+      ]
+    },
+    {
+      "name": "december boundary across years",
+      "seedSql": "INSERT INTO orders VALUES ('2023-12-31',100),('2024-01-01',200);",
+      "expectedOutput": [
+        {
+          "year": "2023",
+          "Jan": 0,
+          "Feb": 0,
+          "Mar": 0,
+          "Apr": 0,
+          "May": 0,
+          "Jun": 0,
+          "Jul": 0,
+          "Aug": 0,
+          "Sep": 0,
+          "Oct": 0,
+          "Nov": 0,
+          "Dec": 100
+        },
+        {
+          "year": "2024",
+          "Jan": 200,
+          "Feb": 0,
+          "Mar": 0,
+          "Apr": 0,
+          "May": 0,
+          "Jun": 0,
+          "Jul": 0,
+          "Aug": 0,
+          "Sep": 0,
+          "Oct": 0,
+          "Nov": 0,
+          "Dec": 0
+        }
+      ]
+    }
+  ]
+}

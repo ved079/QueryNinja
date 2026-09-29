@@ -1,0 +1,81 @@
+{
+  "id": "classes-five-students",
+  "number": 195,
+  "title": "Classes More Than 5 Students",
+  "difficulty": "Easy",
+  "tags": [
+    "Group By",
+    "Having",
+    "Distinct"
+  ],
+  "top50": true,
+  "description": "Table `courses` pairs a `student` with a `class`. A student may appear in the same class more than once (duplicate enrolment rows). List every `class` that has **at least 5 distinct** students.",
+  "schemaSql": "CREATE TABLE courses (student TEXT, class TEXT);",
+  "solutionSql": "SELECT class FROM courses GROUP BY class HAVING COUNT(DISTINCT student) >= 5;",
+  "orderMatters": false,
+  "hint": "COUNT(*) would be fooled by duplicate enrolment rows. Use COUNT(DISTINCT student).",
+  "tests": [
+    {
+      "name": "exactly 5 distinct",
+      "seedSql": "INSERT INTO courses VALUES ('a','Math'),('b','Math'),('c','Math'),('d','Math'),('e','Math');",
+      "expectedOutput": [
+        {
+          "class": "Math"
+        }
+      ]
+    },
+    {
+      "name": "4 distinct + 1 duplicate → excluded",
+      "seedSql": "INSERT INTO courses VALUES ('a','Math'),('a','Math'),('b','Math'),('c','Math'),('d','Math');",
+      "expectedOutput": []
+    },
+    {
+      "name": "5 distinct + duplicates → included",
+      "seedSql": "INSERT INTO courses VALUES ('a','Math'),('a','Math'),('b','Math'),('b','Math'),('c','Math'),('d','Math'),('e','Math');",
+      "expectedOutput": [
+        {
+          "class": "Math"
+        }
+      ]
+    },
+    {
+      "name": "two classes, one qualifies",
+      "seedSql": "INSERT INTO courses VALUES ('a','Math'),('b','Math'),('c','Math'),('d','Math'),('e','Math'),('a','Sci'),('b','Sci'),('c','Sci'),('d','Sci');",
+      "expectedOutput": [
+        {
+          "class": "Math"
+        }
+      ]
+    },
+    {
+      "name": "tie — both qualify",
+      "seedSql": "INSERT INTO courses VALUES ('a','Math'),('b','Math'),('c','Math'),('d','Math'),('e','Math'),('f','Math'),('a','Sci'),('b','Sci'),('c','Sci'),('d','Sci'),('e','Sci'),('f','Sci'),('g','Sci');",
+      "expectedOutput": [
+        {
+          "class": "Math"
+        },
+        {
+          "class": "Sci"
+        }
+      ]
+    },
+    {
+      "name": "empty table → empty",
+      "expectedOutput": []
+    },
+    {
+      "name": "5 rows all same student → excluded",
+      "seedSql": "INSERT INTO courses VALUES ('a','Math'),('a','Math'),('a','Math'),('a','Math'),('a','Math');",
+      "expectedOutput": []
+    },
+    {
+      "name": "boundary — 5 vs 4 distinct",
+      "seedSql": "INSERT INTO courses VALUES ('a','Math'),('b','Math'),('c','Math'),('d','Math'),('e','Math'),('a','Sci'),('b','Sci'),('c','Sci'),('d','Sci');",
+      "expectedOutput": [
+        {
+          "class": "Math"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "id": "students-geography",
+  "number": 200,
+  "title": "Students Report by Geography",
+  "difficulty": "Hard",
+  "tags": [
+    "Pivot",
+    "Window Function",
+    "Case"
+  ],
+  "top50": true,
+  "description": "Table `student` (student_id, name, continent). Pivot students so each row holds one student per continent — columns `America`, `Asia`, `Europe` — in `student_id` order within each continent. Where a continent has fewer students than the current row, the cell is `NULL`.",
+  "schemaSql": "CREATE TABLE student (student_id INTEGER, name TEXT, continent TEXT);",
+  "solutionSql": "SELECT MAX(CASE WHEN continent = 'America' THEN name END) AS America, MAX(CASE WHEN continent = 'Asia' THEN name END) AS Asia, MAX(CASE WHEN continent = 'Europe' THEN name END) AS Europe FROM (SELECT name, continent, ROW_NUMBER() OVER (PARTITION BY continent ORDER BY student_id) AS rn FROM student) t GROUP BY rn;",
+  "orderMatters": false,
+  "hint": "ROW_NUMBER partitioned by continent gives each student a per-continent row index. Then MAX(CASE ...) pivots: each group (rn) collapses one student per continent.",
+  "tests": [
+    {
+      "name": "basic balanced",
+      "seedSql": "INSERT INTO student VALUES (1,'Ava','America'),(2,'Bo','Asia'),(3,'Cy','Europe'),(4,'Dee','America'),(5,'Eli','Asia'),(6,'Fox','Europe');",
+      "expectedOutput": [
+        {
+          "America": "Ava",
+          "Asia": "Bo",
+          "Europe": "Cy"
+        },
+        {
+          "America": "Dee",
+          "Asia": "Eli",
+          "Europe": "Fox"
+        }
+      ]
+    },
+    {
+      "name": "uneven — america has more",
+      "seedSql": "INSERT INTO student VALUES (1,'Ava','America'),(2,'Bo','America'),(3,'Cy','Asia'),(4,'Dee','Europe');",
+      "expectedOutput": [
+        {
+          "America": "Ava",
+          "Asia": "Cy",
+          "Europe": "Dee"
+        },
+        {
+          "America": "Bo",
+          "Asia": null,
+          "Europe": null
+        }
+      ]
+    },
+    {
+      "name": "missing continent — no Asia",
+      "seedSql": "INSERT INTO student VALUES (1,'Ava','America'),(2,'Bo','Europe');",
+      "expectedOutput": [
+        {
+          "America": "Ava",
+          "Asia": null,
+          "Europe": "Bo"
+        }
+      ]
+    },
+    {
+      "name": "single continent",
+      "seedSql": "INSERT INTO student VALUES (1,'Ava','America'),(2,'Bo','America');",
+      "expectedOutput": [
+        {
+          "America": "Ava",
+          "Asia": null,
+          "Europe": null
+        },
+        {
+          "America": "Bo",
+          "Asia": null,
+          "Europe": null
+        }
+      ]
+    },
+    {
+      "name": "empty → empty",
+      "expectedOutput": []
+    },
+    {
+      "name": "one student each",
+      "seedSql": "INSERT INTO student VALUES (1,'Ava','America'),(2,'Bo','Asia'),(3,'Cy','Europe');",
+      "expectedOutput": [
+        {
+          "America": "Ava",
+          "Asia": "Bo",
+          "Europe": "Cy"
+        }
+      ]
+    },
+    {
+      "name": "order by student_id within continent",
+      "seedSql": "INSERT INTO student VALUES (1,'Zed','America'),(2,'Amy','America');",
+      "expectedOutput": [
+        {
+          "America": "Zed",
+          "Asia": null,
+          "Europe": null
+        },
+        {
+          "America": "Amy",
+          "Asia": null,
+          "Europe": null
+        }
+      ]
+    },
+    {
+      "name": "all same continent",
+      "seedSql": "INSERT INTO student VALUES (1,'A','Asia'),(2,'B','Asia'),(3,'C','Asia');",
+      "expectedOutput": [
+        {
+          "America": null,
+          "Asia": "A",
+          "Europe": null
+        },
+        {
+          "America": null,
+          "Asia": "B",
+          "Europe": null
+        },
+        {
+          "America": null,
+          "Asia": "C",
+          "Europe": null
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "id": "island-ranges",
+  "number": 203,
+  "title": "Group Consecutive Rows into Islands",
+  "difficulty": "Hard",
+  "tags": [
+    "Gaps and Islands",
+    "Window Function"
+  ],
+  "top50": true,
+  "description": "Table `events` (id, status) where id values are consecutive integers and status is 'active' or 'inactive'. For every maximal run of consecutive `active` rows, output `start_id` and `end_id`, ordered by start_id.\n\nBoundary cases: a single active row is an island of size one (start = end); a one-row gap splits two islands.",
+  "schemaSql": "CREATE TABLE events (id INTEGER, status TEXT);",
+  "solutionSql": "WITH g AS (SELECT id, id - ROW_NUMBER() OVER (ORDER BY id) AS grp FROM events WHERE status = 'active') SELECT MIN(id) AS start_id, MAX(id) AS end_id FROM g GROUP BY grp ORDER BY start_id;",
+  "orderMatters": true,
+  "hint": "For active rows, id - ROW_NUMBER() is constant within a consecutive run. Group by it, take MIN/MAX(id).",
+  "tests": [
+    {
+      "name": "one island",
+      "seedSql": "INSERT INTO events VALUES (1,'active'),(2,'active'),(3,'active'),(4,'active'),(5,'active');",
+      "expectedOutput": [
+        {
+          "start_id": 1,
+          "end_id": 5
+        }
+      ]
+    },
+    {
+      "name": "two islands",
+      "seedSql": "INSERT INTO events VALUES (1,'active'),(2,'active'),(3,'inactive'),(4,'active'),(5,'active');",
+      "expectedOutput": [
+        {
+          "start_id": 1,
+          "end_id": 2
+        },
+        {
+          "start_id": 4,
+          "end_id": 5
+        }
+      ]
+    },
+    {
+      "name": "single-element island",
+      "seedSql": "INSERT INTO events VALUES (1,'inactive'),(2,'active'),(3,'inactive');",
+      "expectedOutput": [
+        {
+          "start_id": 2,
+          "end_id": 2
+        }
+      ]
+    },
+    {
+      "name": "gap of exactly 1",
+      "seedSql": "INSERT INTO events VALUES (1,'active'),(2,'active'),(3,'inactive'),(4,'active'),(5,'active');",
+      "expectedOutput": [
+        {
+          "start_id": 1,
+          "end_id": 2
+        },
+        {
+          "start_id": 4,
+          "end_id": 5
+        }
+      ]
+    },
+    {
+      "name": "all inactive → empty",
+      "seedSql": "INSERT INTO events VALUES (1,'inactive'),(2,'inactive');",
+      "expectedOutput": []
+    },
+    {
+      "name": "all active",
+      "seedSql": "INSERT INTO events VALUES (1,'active'),(2,'active'),(3,'active'),(4,'active');",
+      "expectedOutput": [
+        {
+          "start_id": 1,
+          "end_id": 4
+        }
+      ]
+    },
+    {
+      "name": "alternating — size-1 islands",
+      "seedSql": "INSERT INTO events VALUES (1,'active'),(2,'inactive'),(3,'active'),(4,'inactive'),(5,'active');",
+      "expectedOutput": [
+        {
+          "start_id": 1,
+          "end_id": 1
+        },
+        {
+          "start_id": 3,
+          "end_id": 3
+        },
+        {
+          "start_id": 5,
+          "end_id": 5
+        }
+      ]
+    },
+    {
+      "name": "single active at start",
+      "seedSql": "INSERT INTO events VALUES (1,'active'),(2,'inactive'),(3,'inactive');",
+      "expectedOutput": [
+        {
+          "start_id": 1,
+          "end_id": 1
+        }
+      ]
+    }
+  ]
+}

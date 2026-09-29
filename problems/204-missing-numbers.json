@@ -1,0 +1,99 @@
+{
+  "id": "missing-numbers",
+  "number": 204,
+  "title": "Find Missing Numbers in a Sequence",
+  "difficulty": "Medium",
+  "tags": [
+    "Sequence",
+    "Anti-Join",
+    "Gaps and Islands"
+  ],
+  "top50": true,
+  "description": "Table `seq` holds a subset of the integers 1..max(id). Return every integer in 1..max(id) that does **not** appear as an id, ordered ascending.\n\nNo `GENERATE_SERIES` and no `WITH RECURSIVE` — generate the candidate numbers with a non-recursive cross-join CTE over the digits 0..9.",
+  "schemaSql": "CREATE TABLE seq (id INTEGER);",
+  "solutionSql": "WITH digits AS (SELECT 0 AS v UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9), nums AS (SELECT a.v + b.v*10 + c.v*100 + 1 AS n FROM digits a, digits b, digits c) SELECT n AS missing_number FROM nums WHERE n <= (SELECT MAX(id) FROM seq) AND n NOT IN (SELECT id FROM seq) ORDER BY n;",
+  "orderMatters": true,
+  "hint": "Build a numbers CTE by cross-joining the digits 0..9 three times (covers 1..1000). Then anti-join: keep n not in seq, up to MAX(id).",
+  "tests": [
+    {
+      "name": "missing middle",
+      "seedSql": "INSERT INTO seq VALUES (1),(2),(4),(5);",
+      "expectedOutput": [
+        {
+          "missing_number": 3
+        }
+      ]
+    },
+    {
+      "name": "no missing",
+      "seedSql": "INSERT INTO seq VALUES (1),(2),(3),(4),(5);",
+      "expectedOutput": []
+    },
+    {
+      "name": "missing multiple",
+      "seedSql": "INSERT INTO seq VALUES (1),(3),(5),(7);",
+      "expectedOutput": [
+        {
+          "missing_number": 2
+        },
+        {
+          "missing_number": 4
+        },
+        {
+          "missing_number": 6
+        }
+      ]
+    },
+    {
+      "name": "missing first",
+      "seedSql": "INSERT INTO seq VALUES (2),(3),(4);",
+      "expectedOutput": [
+        {
+          "missing_number": 1
+        }
+      ]
+    },
+    {
+      "name": "missing last — none (max=3)",
+      "seedSql": "INSERT INTO seq VALUES (1),(2),(3);",
+      "expectedOutput": []
+    },
+    {
+      "name": "single id → 1..4 missing",
+      "seedSql": "INSERT INTO seq VALUES (5);",
+      "expectedOutput": [
+        {
+          "missing_number": 1
+        },
+        {
+          "missing_number": 2
+        },
+        {
+          "missing_number": 3
+        },
+        {
+          "missing_number": 4
+        }
+      ]
+    },
+    {
+      "name": "empty table → empty",
+      "expectedOutput": []
+    },
+    {
+      "name": "consecutive gap then present",
+      "seedSql": "INSERT INTO seq VALUES (1),(2),(3),(7),(8);",
+      "expectedOutput": [
+        {
+          "missing_number": 4
+        },
+        {
+          "missing_number": 5
+        },
+        {
+          "missing_number": 6
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "id": "consecutive-seats",
+  "number": 202,
+  "title": "Consecutive Available Seats",
+  "difficulty": "Medium",
+  "tags": [
+    "Gaps and Islands",
+    "Window Function"
+  ],
+  "top50": true,
+  "description": "Table `cinema` (seat_id, free) where `free = 1` means available and seat_id values are consecutive integers. Return every available seat that is part of a run of **two or more** adjacent available seats, ordered by seat_id.\n\nIsland boundary cases: a lone available seat (no available neighbour) is excluded; a single-row gap between two runs keeps them as two islands.",
+  "schemaSql": "CREATE TABLE cinema (seat_id INTEGER, free INTEGER);",
+  "solutionSql": "WITH g AS (SELECT seat_id, seat_id - ROW_NUMBER() OVER (ORDER BY seat_id) AS grp FROM cinema WHERE free = 1) SELECT seat_id FROM g WHERE grp IN (SELECT grp FROM g GROUP BY grp HAVING COUNT(*) > 1) ORDER BY seat_id;",
+  "orderMatters": true,
+  "hint": "For available seats, seat_id - ROW_NUMBER() is constant within a consecutive run (an island). Keep only seats whose island has more than one member.",
+  "tests": [
+    {
+      "name": "two consecutive free",
+      "seedSql": "INSERT INTO cinema VALUES (1,0),(2,1),(3,1),(4,0);",
+      "expectedOutput": [
+        {
+          "seat_id": 2
+        },
+        {
+          "seat_id": 3
+        }
+      ]
+    },
+    {
+      "name": "single free alone → excluded",
+      "seedSql": "INSERT INTO cinema VALUES (1,1),(2,0),(3,1);",
+      "expectedOutput": []
+    },
+    {
+      "name": "three in a row",
+      "seedSql": "INSERT INTO cinema VALUES (1,1),(2,1),(3,1),(4,0);",
+      "expectedOutput": [
+        {
+          "seat_id": 1
+        },
+        {
+          "seat_id": 2
+        },
+        {
+          "seat_id": 3
+        }
+      ]
+    },
+    {
+      "name": "gap of 1 between two islands",
+      "seedSql": "INSERT INTO cinema VALUES (1,1),(2,1),(3,0),(4,1),(5,1);",
+      "expectedOutput": [
+        {
+          "seat_id": 1
+        },
+        {
+          "seat_id": 2
+        },
+        {
+          "seat_id": 4
+        },
+        {
+          "seat_id": 5
+        }
+      ]
+    },
+    {
+      "name": "all free",
+      "seedSql": "INSERT INTO cinema VALUES (1,1),(2,1),(3,1);",
+      "expectedOutput": [
+        {
+          "seat_id": 1
+        },
+        {
+          "seat_id": 2
+        },
+        {
+          "seat_id": 3
+        }
+      ]
+    },
+    {
+      "name": "none free → empty",
+      "seedSql": "INSERT INTO cinema VALUES (1,0),(2,0);",
+      "expectedOutput": []
+    },
+    {
+      "name": "two separate pairs",
+      "seedSql": "INSERT INTO cinema VALUES (1,1),(2,1),(3,0),(4,1),(5,1),(6,0),(7,1),(8,1);",
+      "expectedOutput": [
+        {
+          "seat_id": 1
+        },
+        {
+          "seat_id": 2
+        },
+        {
+          "seat_id": 4
+        },
+        {
+          "seat_id": 5
+        },
+        {
+          "seat_id": 7
+        },
+        {
+          "seat_id": 8
+        }
+      ]
+    },
+    {
+      "name": "single free at end → excluded",
+      "seedSql": "INSERT INTO cinema VALUES (1,0),(2,0),(3,1);",
+      "expectedOutput": []
+    }
+  ]
+}

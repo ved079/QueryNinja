@@ -14,6 +14,7 @@ const SECTION_OPTIONS = [
   { value: 'normal', label: 'Normal Problems' },
   { value: 'complex', label: 'Complex Problems' },
   { value: 'da', label: 'Data Analyst' },
+  { value: 'top50', label: 'Top 50 SQL' },
   { value: 'python', label: 'Python' },
 ];
 

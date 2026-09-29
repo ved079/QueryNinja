@@ -1,0 +1,157 @@
+{
+  "id": "tree-node",
+  "number": 206,
+  "title": "Tree Node Classification",
+  "difficulty": "Medium",
+  "tags": [
+    "Hierarchy",
+    "Exists",
+    "Case"
+  ],
+  "top50": true,
+  "description": "Table `tree` (id, p_id) describes a tree: `p_id` is the parent id (NULL for a root). Classify each node:\n- **Root** — p_id is NULL\n- **Inner** — has a parent AND has at least one child\n- **Leaf** — has a parent but no children\n\nReturn `id` and `type`. An inner node is simultaneously someone's child and someone's parent — it must be 'Inner', never 'Root' or 'Leaf'.",
+  "schemaSql": "CREATE TABLE tree (id INTEGER, p_id INTEGER);",
+  "solutionSql": "SELECT id, CASE WHEN p_id IS NULL THEN 'Root' WHEN id IN (SELECT p_id FROM tree WHERE p_id IS NOT NULL) THEN 'Inner' ELSE 'Leaf' END AS type FROM tree;",
+  "orderMatters": false,
+  "hint": "Root: p_id IS NULL. Inner: p_id not null AND this id appears as someone's p_id. Leaf: otherwise.",
+  "tests": [
+    {
+      "name": "basic",
+      "seedSql": "INSERT INTO tree VALUES (1,NULL),(2,1),(3,1),(4,2);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "type": "Root"
+        },
+        {
+          "id": 2,
+          "type": "Inner"
+        },
+        {
+          "id": 3,
+          "type": "Leaf"
+        },
+        {
+          "id": 4,
+          "type": "Leaf"
+        }
+      ]
+    },
+    {
+      "name": "inner is both child and parent",
+      "seedSql": "INSERT INTO tree VALUES (1,NULL),(2,1),(3,2);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "type": "Root"
+        },
+        {
+          "id": 2,
+          "type": "Inner"
+        },
+        {
+          "id": 3,
+          "type": "Leaf"
+        }
+      ]
+    },
+    {
+      "name": "single root only",
+      "seedSql": "INSERT INTO tree VALUES (1,NULL);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "type": "Root"
+        }
+      ]
+    },
+    {
+      "name": "root with one leaf",
+      "seedSql": "INSERT INTO tree VALUES (1,NULL),(2,1);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "type": "Root"
+        },
+        {
+          "id": 2,
+          "type": "Leaf"
+        }
+      ]
+    },
+    {
+      "name": "deep chain",
+      "seedSql": "INSERT INTO tree VALUES (1,NULL),(2,1),(3,2),(4,3);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "type": "Root"
+        },
+        {
+          "id": 2,
+          "type": "Inner"
+        },
+        {
+          "id": 3,
+          "type": "Inner"
+        },
+        {
+          "id": 4,
+          "type": "Leaf"
+        }
+      ]
+    },
+    {
+      "name": "two roots",
+      "seedSql": "INSERT INTO tree VALUES (1,NULL),(2,NULL),(3,1),(4,2);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "type": "Root"
+        },
+        {
+          "id": 2,
+          "type": "Root"
+        },
+        {
+          "id": 3,
+          "type": "Leaf"
+        },
+        {
+          "id": 4,
+          "type": "Leaf"
+        }
+      ]
+    },
+    {
+      "name": "empty → empty",
+      "expectedOutput": []
+    },
+    {
+      "name": "all leaves under one root",
+      "seedSql": "INSERT INTO tree VALUES (1,NULL),(2,1),(3,1),(4,1),(5,1);",
+      "expectedOutput": [
+        {
+          "id": 1,
+          "type": "Root"
+        },
+        {
+          "id": 2,
+          "type": "Leaf"
+        },
+        {
+          "id": 3,
+          "type": "Leaf"
+        },
+        {
+          "id": 4,
+          "type": "Leaf"
+        },
+        {
+          "id": 5,
+          "type": "Leaf"
+        }
+      ]
+    }
+  ]
+}

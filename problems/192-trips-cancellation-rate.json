@@ -1,0 +1,96 @@
+{
+  "id": "trips-cancellation-rate",
+  "number": 192,
+  "title": "Trips and Users — Cancellation Rate",
+  "difficulty": "Hard",
+  "tags": [
+    "Join",
+    "Date",
+    "Conditional Aggregation"
+  ],
+  "top50": true,
+  "description": "Tables `trips` and `users`. The cancellation rate of unbanned-client trips on a given day is `cancelled / total` (cancelled = status starts with 'cancelled').\n\nFor each day in **2013-10-01 .. 2013-10-03** that has at least one qualifying trip (both the client and the driver are **not banned**), report `day` and `cancellation_rate` rounded to 2 decimals. Days with only banned participants are absent from the result.",
+  "schemaSql": "CREATE TABLE trips (id INTEGER, client_id INTEGER, driver_id INTEGER, status TEXT, request_at TEXT);\nCREATE TABLE users (users_id INTEGER, banned TEXT, role TEXT);",
+  "solutionSql": "SELECT request_at AS day, ROUND(SUM(CASE WHEN status LIKE 'cancelled%' THEN 1 ELSE 0 END) * 1.0 / COUNT(*), 2) AS cancellation_rate FROM trips WHERE request_at BETWEEN '2013-10-01' AND '2013-10-03' AND client_id IN (SELECT users_id FROM users WHERE banned = 'No' AND role = 'client') AND driver_id IN (SELECT users_id FROM users WHERE banned = 'No' AND role = 'driver') GROUP BY request_at;",
+  "orderMatters": false,
+  "hint": "Filter the date range AND the banned status of BOTH the client and the driver before grouping. Use LIKE 'cancelled%' to catch both cancellation causes.",
+  "tests": [
+    {
+      "name": "basic mix oct1-3",
+      "seedSql": "INSERT INTO users VALUES (1,'No','client'),(2,'No','client'),(3,'Yes','client'),(4,'No','driver'),(5,'No','driver'),(6,'Yes','driver');\nINSERT INTO trips VALUES (1,1,4,'completed','2013-10-01'),(2,1,4,'cancelled_by_client','2013-10-01'),(3,2,5,'completed','2013-10-02'),(4,1,4,'cancelled_by_driver','2013-10-03');",
+      "expectedOutput": [
+        {
+          "day": "2013-10-01",
+          "cancellation_rate": 0.5
+        },
+        {
+          "day": "2013-10-02",
+          "cancellation_rate": 0
+        },
+        {
+          "day": "2013-10-03",
+          "cancellation_rate": 1
+        }
+      ]
+    },
+    {
+      "name": "banned client excluded",
+      "seedSql": "INSERT INTO users VALUES (1,'No','client'),(3,'Yes','client'),(4,'No','driver');\nINSERT INTO trips VALUES (1,3,4,'cancelled_by_client','2013-10-01'),(2,1,4,'completed','2013-10-01');",
+      "expectedOutput": [
+        {
+          "day": "2013-10-01",
+          "cancellation_rate": 0
+        }
+      ]
+    },
+    {
+      "name": "banned driver excluded",
+      "seedSql": "INSERT INTO users VALUES (1,'No','client'),(6,'Yes','driver'),(4,'No','driver');\nINSERT INTO trips VALUES (1,1,6,'cancelled_by_client','2013-10-01'),(2,1,4,'completed','2013-10-01');",
+      "expectedOutput": [
+        {
+          "day": "2013-10-01",
+          "cancellation_rate": 0
+        }
+      ]
+    },
+    {
+      "name": "days out of range excluded",
+      "seedSql": "INSERT INTO users VALUES (1,'No','client'),(4,'No','driver');\nINSERT INTO trips VALUES (1,1,4,'completed','2013-09-30'),(2,1,4,'cancelled_by_client','2013-10-04');",
+      "expectedOutput": []
+    },
+    {
+      "name": "boundary days included",
+      "seedSql": "INSERT INTO users VALUES (1,'No','client'),(4,'No','driver');\nINSERT INTO trips VALUES (1,1,4,'completed','2013-10-01'),(2,1,4,'cancelled_by_client','2013-10-03');",
+      "expectedOutput": [
+        {
+          "day": "2013-10-01",
+          "cancellation_rate": 0
+        },
+        {
+          "day": "2013-10-03",
+          "cancellation_rate": 1
+        }
+      ]
+    },
+    {
+      "name": "all cancelled one day",
+      "seedSql": "INSERT INTO users VALUES (1,'No','client'),(2,'No','client'),(4,'No','driver'),(5,'No','driver');\nINSERT INTO trips VALUES (1,1,4,'cancelled_by_client','2013-10-01'),(2,2,5,'cancelled_by_driver','2013-10-01');",
+      "expectedOutput": [
+        {
+          "day": "2013-10-01",
+          "cancellation_rate": 1
+        }
+      ]
+    },
+    {
+      "name": "all banned → day absent",
+      "seedSql": "INSERT INTO users VALUES (3,'Yes','client'),(6,'Yes','driver');\nINSERT INTO trips VALUES (1,3,6,'cancelled_by_client','2013-10-01');",
+      "expectedOutput": []
+    },
+    {
+      "name": "empty trips → empty",
+      "seedSql": "INSERT INTO users VALUES (1,'No','client'),(4,'No','driver');",
+      "expectedOutput": []
+    }
+  ]
+}

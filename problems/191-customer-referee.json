@@ -1,0 +1,108 @@
+{
+  "id": "customer-referee",
+  "number": 191,
+  "title": "Find Customer Referee",
+  "difficulty": "Easy",
+  "tags": [
+    "Filtering",
+    "NULL Handling"
+  ],
+  "top50": true,
+  "description": "Table `customer` lists people and the `referee_id` of whoever referred them.\n\nReturn the `name` of every customer who was **not** referred by the customer with `id = 2`. Customers with no referee (`referee_id IS NULL`) count as \"not referred by 2\" — include them.\n\nOrder does not matter.",
+  "schemaSql": "CREATE TABLE customer (id INTEGER PRIMARY KEY, name TEXT, referee_id INTEGER);",
+  "solutionSql": "SELECT name FROM customer WHERE referee_id IS NULL OR referee_id <> 2;",
+  "orderMatters": false,
+  "hint": "In SQL, `referee_id <> 2` is UNKNOWN (treated as false) when referee_id is NULL. You must handle NULL explicitly.",
+  "tests": [
+    {
+      "name": "mixed — null, 2, 0, others",
+      "seedSql": "INSERT INTO customer VALUES (1,'Ava',NULL),(2,'Bob',2),(3,'Cy',3),(4,'Dee',0);",
+      "expectedOutput": [
+        {
+          "name": "Ava"
+        },
+        {
+          "name": "Cy"
+        },
+        {
+          "name": "Dee"
+        }
+      ]
+    },
+    {
+      "name": "all referred by 2 → empty",
+      "seedSql": "INSERT INTO customer VALUES (1,'A',2),(2,'B',2);",
+      "expectedOutput": []
+    },
+    {
+      "name": "all null → all returned",
+      "seedSql": "INSERT INTO customer VALUES (1,'A',NULL),(2,'B',NULL);",
+      "expectedOutput": [
+        {
+          "name": "A"
+        },
+        {
+          "name": "B"
+        }
+      ]
+    },
+    {
+      "name": "referee 0 distinct from null",
+      "seedSql": "INSERT INTO customer VALUES (1,'A',0),(2,'B',NULL),(3,'C',2);",
+      "expectedOutput": [
+        {
+          "name": "A"
+        },
+        {
+          "name": "B"
+        }
+      ]
+    },
+    {
+      "name": "multiple nulls and multiple 2s",
+      "seedSql": "INSERT INTO customer VALUES (1,'A',NULL),(2,'B',2),(3,'C',NULL),(4,'D',2),(5,'E',5);",
+      "expectedOutput": [
+        {
+          "name": "A"
+        },
+        {
+          "name": "C"
+        },
+        {
+          "name": "E"
+        }
+      ]
+    },
+    {
+      "name": "empty table → empty result",
+      "expectedOutput": []
+    },
+    {
+      "name": "single null customer",
+      "seedSql": "INSERT INTO customer VALUES (7,'Solo',NULL);",
+      "expectedOutput": [
+        {
+          "name": "Solo"
+        }
+      ]
+    },
+    {
+      "name": "various referees",
+      "seedSql": "INSERT INTO customer VALUES (1,'A',1),(2,'B',2),(3,'C',3),(4,'D',NULL),(5,'E',2),(6,'F',7);",
+      "expectedOutput": [
+        {
+          "name": "A"
+        },
+        {
+          "name": "C"
+        },
+        {
+          "name": "D"
+        },
+        {
+          "name": "F"
+        }
+      ]
+    }
+  ]
+}

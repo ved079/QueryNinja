@@ -1,0 +1,93 @@
+{
+  "id": "average-selling-price",
+  "number": 197,
+  "title": "Average Selling Price",
+  "difficulty": "Easy",
+  "tags": [
+    "Join",
+    "Weighted Average",
+    "Date"
+  ],
+  "top50": true,
+  "description": "Tables `prices` (product_id, start_date, end_date, price) and `unitssold` (product_id, purchase_date, units). The average selling price of a product is `SUM(price * units) / SUM(units)` across all sales whose purchase_date falls inside a price window.\n\nReturn `product_id` and `average_price` rounded to 2 decimals. Products with no sales are excluded.",
+  "schemaSql": "CREATE TABLE prices (product_id INTEGER, start_date TEXT, end_date TEXT, price REAL);\nCREATE TABLE unitssold (product_id INTEGER, purchase_date TEXT, units INTEGER);",
+  "solutionSql": "SELECT p.product_id AS product_id, ROUND(SUM(p.price * u.units) * 1.0 / SUM(u.units), 2) AS average_price FROM prices p JOIN unitssold u ON u.product_id = p.product_id AND u.purchase_date BETWEEN p.start_date AND p.end_date GROUP BY p.product_id;",
+  "orderMatters": false,
+  "hint": "Join on product AND the sale date within the price window. SUM(price*units)/SUM(units) is a weighted average — different from AVG(price).",
+  "tests": [
+    {
+      "name": "weighted ≠ simple avg",
+      "seedSql": "INSERT INTO prices VALUES (1,'2019-01-01','2019-06-30',10),(1,'2019-07-01','2019-12-31',20);\nINSERT INTO unitssold VALUES (1,'2019-02-01',100),(1,'2019-08-01',50);",
+      "expectedOutput": [
+        {
+          "product_id": 1,
+          "average_price": 13.33
+        }
+      ]
+    },
+    {
+      "name": "no sales → excluded",
+      "seedSql": "INSERT INTO prices VALUES (1,'2019-01-01','2019-12-31',5);",
+      "expectedOutput": []
+    },
+    {
+      "name": "single sale",
+      "seedSql": "INSERT INTO prices VALUES (1,'2019-01-01','2019-12-31',10);\nINSERT INTO unitssold VALUES (1,'2019-06-01',5);",
+      "expectedOutput": [
+        {
+          "product_id": 1,
+          "average_price": 10
+        }
+      ]
+    },
+    {
+      "name": "date window boundaries",
+      "seedSql": "INSERT INTO prices VALUES (1,'2019-01-01','2019-01-31',10);\nINSERT INTO unitssold VALUES (1,'2019-01-01',5),(1,'2019-01-31',5);",
+      "expectedOutput": [
+        {
+          "product_id": 1,
+          "average_price": 10
+        }
+      ]
+    },
+    {
+      "name": "sale outside any window → excluded",
+      "seedSql": "INSERT INTO prices VALUES (1,'2019-01-01','2019-01-31',10),(1,'2019-03-01','2019-03-31',20);\nINSERT INTO unitssold VALUES (1,'2019-02-15',5);",
+      "expectedOutput": []
+    },
+    {
+      "name": "two products",
+      "seedSql": "INSERT INTO prices VALUES (1,'2019-01-01','2019-12-31',10),(2,'2019-01-01','2019-12-31',5);\nINSERT INTO unitssold VALUES (1,'2019-06-01',10),(2,'2019-06-01',20);",
+      "expectedOutput": [
+        {
+          "product_id": 1,
+          "average_price": 10
+        },
+        {
+          "product_id": 2,
+          "average_price": 5
+        }
+      ]
+    },
+    {
+      "name": "two windows same product",
+      "seedSql": "INSERT INTO prices VALUES (1,'2019-01-01','2019-06-30',10),(1,'2019-07-01','2019-12-31',20);\nINSERT INTO unitssold VALUES (1,'2019-03-01',5),(1,'2019-09-01',5);",
+      "expectedOutput": [
+        {
+          "product_id": 1,
+          "average_price": 15
+        }
+      ]
+    },
+    {
+      "name": "all same price",
+      "seedSql": "INSERT INTO prices VALUES (1,'2019-01-01','2019-12-31',5);\nINSERT INTO unitssold VALUES (1,'2019-02-01',10),(1,'2019-05-01',20);",
+      "expectedOutput": [
+        {
+          "product_id": 1,
+          "average_price": 5
+        }
+      ]
+    }
+  ]
+}

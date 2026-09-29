@@ -46,7 +46,7 @@ const ensureSession = async (name) => {
 // Analyst (KPI/business-metric) set. Each lives in its own URL namespace.
 // Route format: /<mode>_problems/<id>
 const parseRoute = () => {
-  const m = window.location.pathname.match(/^\/(normal|complex|da)_problems\/([^/]+)/);
+  const m = window.location.pathname.match(/^\/(normal|complex|da|top50)_problems\/([^/]+)/);
   return m ? { mode: m[1], id: decodeURIComponent(m[2]) } : null;
 };
 
@@ -58,10 +58,40 @@ const parsePythonRoute = () => {
 // Exclusive membership: normal = numbers 1-90, complex = numbers >90 that are
 // not Data Analyst problems, da = anything tagged "Data Analyst".
 const isDataAnalyst = (p) => (p.tags ?? []).includes('Data Analyst');
-const MODES = ['normal', 'complex', 'da'];
+const MODES = ['normal', 'complex', 'da', 'top50'];
+
+// Curated "Top 50 SQL" track — 16 new problems carry top50: true on their
+// spec; the rest are existing problems promoted into the section via this
+// hardcoded id set (no re-authoring). A problem may belong to its original
+// section AND to Top 50 (Top 50 is a curated overlay, not exclusive).
+// Note: the spec's `rank-scores` ≡ `rank-within-dept` (both map to
+// emp-rank-within-department), so the user's 28 collapse to 27 unique; 7 more
+// canonical existing problems were added to reach exactly 50.
+const TOP50_IDS = new Set([
+  // — from the spec's existing list (27 unique after the rank-scores collapse) —
+  'combine-two-tables', 'duplicate-emails', 'customers-who-never-order',
+  'second-highest-salary', 'rising-temperature', 'consecutive-numbers',
+  'department-top-three-salaries', 'emp-earn-more-than-manager',
+  'emp-top-earner-per-department', 'emp-rank-within-department',
+  'emp-managers-of-big-teams', 'emp-salary-gap-to-next',
+  'emp-second-highest-per-department', 'sales-products-above-category-average',
+  'recon-missing-from-warehouse', 'recon-in-both-systems',
+  'recon-symmetric-diff-with-duplicate-noise', 'recon-out-of-sync-either-way',
+  'act-event-type-pivot', 'emp-share-of-department-payroll',
+  'sales-running-revenue', 'act-rolling-seven-day', 'emp-salary-percentile',
+  'act-three-day-streak', 'act-first-last-event', 'sales-month-over-month',
+  'act-next-day-return',
+  // — 7 more canonical existing problems to round out exactly 50 —
+  'emp-median-salary', 'emp-running-headcount', 'sales-top-product-by-revenue',
+  'corr-bought-every-product-in-category', 'act-longest-login-streak',
+  'emp-total-team-size', 'corr-second-highest-no-window',
+]);
 const inMode = (mode) => (p) => {
   if (mode === 'da') return isDataAnalyst(p);
-  return mode === 'complex' ? p.number > 90 && !isDataAnalyst(p) : p.number <= 90;
+  if (mode === 'top50') return p.top50 === true || TOP50_IDS.has(p.id);
+  // The 16 new Top-50 problems (top50: true) live ONLY in Top 50 — keep them
+  // out of Complex so an Easy Top-50 entry doesn't surface under Complex.
+  return mode === 'complex' ? p.number > 90 && !isDataAnalyst(p) && !p.top50 : p.number <= 90;
 };
 
 export default function App() {

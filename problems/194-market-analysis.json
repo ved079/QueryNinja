@@ -1,0 +1,114 @@
+{
+  "id": "market-analysis",
+  "number": 194,
+  "title": "Market Analysis I",
+  "difficulty": "Medium",
+  "tags": [
+    "Left Join",
+    "Aggregation"
+  ],
+  "top50": true,
+  "description": "Tables `users`, `orders`, `items`. For **every** user, report `user_id`, `join_date`, and the count of orders they placed in **2019** (`orders_in_2019`). Users with no 2019 orders still appear with a count of 0.",
+  "schemaSql": "CREATE TABLE users (user_id INTEGER, join_date TEXT, favorite_brand TEXT);\nCREATE TABLE orders (order_id INTEGER, order_date TEXT, item_id INTEGER, buyer_id INTEGER);\nCREATE TABLE items (item_id INTEGER, item_brand TEXT);",
+  "solutionSql": "SELECT u.user_id AS user_id, u.join_date AS join_date, COUNT(o.order_id) AS orders_in_2019 FROM users u LEFT JOIN orders o ON o.buyer_id = u.user_id AND o.order_date LIKE '2019%' GROUP BY u.user_id, u.join_date;",
+  "orderMatters": false,
+  "hint": "Put the 2019 filter in the JOIN ON clause, not WHERE — otherwise LEFT JOIN drops users with no 2019 orders.",
+  "tests": [
+    {
+      "name": "basic 2019 vs 2020",
+      "seedSql": "INSERT INTO users VALUES (1,'2019-01-01','A'),(2,'2018-01-01','B');\nINSERT INTO orders VALUES (1,'2019-05-05',10,1),(2,'2020-01-01',10,2);",
+      "expectedOutput": [
+        {
+          "user_id": 1,
+          "join_date": "2019-01-01",
+          "orders_in_2019": 1
+        },
+        {
+          "user_id": 2,
+          "join_date": "2018-01-01",
+          "orders_in_2019": 0
+        }
+      ]
+    },
+    {
+      "name": "no orders → count 0",
+      "seedSql": "INSERT INTO users VALUES (1,'2019-01-01','A');",
+      "expectedOutput": [
+        {
+          "user_id": 1,
+          "join_date": "2019-01-01",
+          "orders_in_2019": 0
+        }
+      ]
+    },
+    {
+      "name": "order in 2018 not 2019",
+      "seedSql": "INSERT INTO users VALUES (1,'2019-01-01','A');\nINSERT INTO orders VALUES (1,'2018-12-31',10,1);",
+      "expectedOutput": [
+        {
+          "user_id": 1,
+          "join_date": "2019-01-01",
+          "orders_in_2019": 0
+        }
+      ]
+    },
+    {
+      "name": "multiple 2019 orders",
+      "seedSql": "INSERT INTO users VALUES (1,'2019-01-01','A');\nINSERT INTO orders VALUES (1,'2019-01-01',10,1),(2,'2019-12-31',10,1),(3,'2020-01-01',10,1);",
+      "expectedOutput": [
+        {
+          "user_id": 1,
+          "join_date": "2019-01-01",
+          "orders_in_2019": 2
+        }
+      ]
+    },
+    {
+      "name": "2019 boundary days",
+      "seedSql": "INSERT INTO users VALUES (1,'2019-01-01','A');\nINSERT INTO orders VALUES (1,'2019-01-01',10,1),(2,'2019-12-31',10,1),(3,'2018-12-31',10,1),(4,'2020-01-01',10,1);",
+      "expectedOutput": [
+        {
+          "user_id": 1,
+          "join_date": "2019-01-01",
+          "orders_in_2019": 2
+        }
+      ]
+    },
+    {
+      "name": "multiple users mixed",
+      "seedSql": "INSERT INTO users VALUES (1,'2019-01-01','A'),(2,'2019-01-01','B'),(3,'2019-01-01','C');\nINSERT INTO orders VALUES (1,'2019-01-01',10,1),(2,'2019-01-01',10,2),(3,'2018-01-01',10,3);",
+      "expectedOutput": [
+        {
+          "user_id": 1,
+          "join_date": "2019-01-01",
+          "orders_in_2019": 1
+        },
+        {
+          "user_id": 2,
+          "join_date": "2019-01-01",
+          "orders_in_2019": 1
+        },
+        {
+          "user_id": 3,
+          "join_date": "2019-01-01",
+          "orders_in_2019": 0
+        }
+      ]
+    },
+    {
+      "name": "empty users → empty",
+      "expectedOutput": []
+    },
+    {
+      "name": "order with null date",
+      "seedSql": "INSERT INTO users VALUES (1,'2019-01-01','A');\nINSERT INTO orders VALUES (1,NULL,10,1);",
+      "expectedOutput": [
+        {
+          "user_id": 1,
+          "join_date": "2019-01-01",
+          "orders_in_2019": 0
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "id": "nth-highest-salary",
+  "number": 199,
+  "title": "Nth Highest Salary",
+  "difficulty": "Medium",
+  "tags": [
+    "Window Function",
+    "Dense Rank",
+    "NULL Handling"
+  ],
+  "top50": true,
+  "description": "Table `employee` (id, salary). Return a single row with the **3rd-highest distinct salary** (`nth_highest_salary`). If there are fewer than 3 distinct salaries, return `NULL`.\n\nThe same DENSE_RANK pattern works for any N — just change the rank filter.",
+  "schemaSql": "CREATE TABLE employee (id INTEGER PRIMARY KEY, salary INTEGER);",
+  "solutionSql": "SELECT (SELECT salary FROM (SELECT DISTINCT salary, DENSE_RANK() OVER (ORDER BY salary DESC) AS rnk FROM employee) WHERE rnk = 3) AS nth_highest_salary;",
+  "orderMatters": false,
+  "hint": "DENSE_RANK over DISTINCT salaries ranks each distinct value 1, 2, 3, .... Filter rnk = 3. A scalar subquery returns NULL when no row matches.",
+  "tests": [
+    {
+      "name": "basic 3rd",
+      "seedSql": "INSERT INTO employee VALUES (1,100),(2,200),(3,300),(4,400);",
+      "expectedOutput": [
+        {
+          "nth_highest_salary": 200
+        }
+      ]
+    },
+    {
+      "name": "ties at top",
+      "seedSql": "INSERT INTO employee VALUES (1,300),(2,300),(3,200),(4,100);",
+      "expectedOutput": [
+        {
+          "nth_highest_salary": 100
+        }
+      ]
+    },
+    {
+      "name": "fewer than 3 distinct → null",
+      "seedSql": "INSERT INTO employee VALUES (1,100),(2,100),(3,100);",
+      "expectedOutput": [
+        {
+          "nth_highest_salary": null
+        }
+      ]
+    },
+    {
+      "name": "exactly 3 distinct",
+      "seedSql": "INSERT INTO employee VALUES (1,300),(2,200),(3,100);",
+      "expectedOutput": [
+        {
+          "nth_highest_salary": 100
+        }
+      ]
+    },
+    {
+      "name": "empty table → null",
+      "expectedOutput": [
+        {
+          "nth_highest_salary": null
+        }
+      ]
+    },
+    {
+      "name": "5 distinct",
+      "seedSql": "INSERT INTO employee VALUES (1,500),(2,400),(3,300),(4,200),(5,100);",
+      "expectedOutput": [
+        {
+          "nth_highest_salary": 300
+        }
+      ]
+    },
+    {
+      "name": "ties at 3rd",
+      "seedSql": "INSERT INTO employee VALUES (1,400),(2,300),(3,300),(4,200),(5,100);",
+      "expectedOutput": [
+        {
+          "nth_highest_salary": 200
+        }
+      ]
+    },
+    {
+      "name": "single salary → null",
+      "seedSql": "INSERT INTO employee VALUES (1,100);",
+      "expectedOutput": [
+        {
+          "nth_highest_salary": null
+        }
+      ]
+    }
+  ]
+}

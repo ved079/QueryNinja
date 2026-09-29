@@ -1,0 +1,82 @@
+{
+  "id": "second-degree-follower",
+  "number": 205,
+  "title": "Second Degree Follower",
+  "difficulty": "Medium",
+  "tags": [
+    "Self-Join",
+    "Anti-Join",
+    "Distinct"
+  ],
+  "top50": true,
+  "description": "Table `follow` (follower, followee) means `follower` follows `followee`. A **second-degree followee** of user X is a user Z reachable in two hops (X → Y → Z) who is NOT X themself and NOT already directly followed by X.\n\nReturn each `(follower, second_degree)` pair, deduplicated, ordered by follower then second_degree.",
+  "schemaSql": "CREATE TABLE follow (follower INTEGER, followee INTEGER);",
+  "solutionSql": "SELECT DISTINCT f1.follower AS follower, f2.followee AS second_degree FROM follow f1 JOIN follow f2 ON f1.followee = f2.follower WHERE f2.followee <> f1.follower AND f2.followee NOT IN (SELECT followee FROM follow WHERE follower = f1.follower) ORDER BY f1.follower, f2.followee;",
+  "orderMatters": true,
+  "hint": "Two-hop reachability: f1 (X→Y) JOIN f2 (Y→Z). Exclude Z=X and Z already directly followed by X (anti-join). DISTINCT collapses Z reachable via multiple Y.",
+  "tests": [
+    {
+      "name": "basic 2-hop",
+      "seedSql": "INSERT INTO follow VALUES (1,2),(2,3);",
+      "expectedOutput": [
+        {
+          "follower": 1,
+          "second_degree": 3
+        }
+      ]
+    },
+    {
+      "name": "exclude self",
+      "seedSql": "INSERT INTO follow VALUES (1,2),(2,1);",
+      "expectedOutput": []
+    },
+    {
+      "name": "exclude direct followee (anti-join)",
+      "seedSql": "INSERT INTO follow VALUES (1,2),(2,3),(1,3);",
+      "expectedOutput": []
+    },
+    {
+      "name": "multiple paths → dedup",
+      "seedSql": "INSERT INTO follow VALUES (1,2),(2,3),(1,4),(4,3);",
+      "expectedOutput": [
+        {
+          "follower": 1,
+          "second_degree": 3
+        }
+      ]
+    },
+    {
+      "name": "no 2-hop",
+      "seedSql": "INSERT INTO follow VALUES (1,2),(3,4);",
+      "expectedOutput": []
+    },
+    {
+      "name": "empty → empty",
+      "expectedOutput": []
+    },
+    {
+      "name": "chain of 3",
+      "seedSql": "INSERT INTO follow VALUES (1,2),(2,3),(3,4);",
+      "expectedOutput": [
+        {
+          "follower": 1,
+          "second_degree": 3
+        },
+        {
+          "follower": 2,
+          "second_degree": 4
+        }
+      ]
+    },
+    {
+      "name": "one excluded, one kept",
+      "seedSql": "INSERT INTO follow VALUES (1,2),(2,3),(2,4),(1,4);",
+      "expectedOutput": [
+        {
+          "follower": 1,
+          "second_degree": 3
+        }
+      ]
+    }
+  ]
+}
